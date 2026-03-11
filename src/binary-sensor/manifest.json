@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-binary-sensor",
+  "name": "Binary Sensor",
+  "description": "Motion, door, occupancy sensors",
+  "icon": "mdi:checkbox-marked-circle",
+  "type": "status",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

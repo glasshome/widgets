@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-media-player",
+  "name": "Media Player",
+  "description": "Media playback controls with album art and progress tracking",
+  "icon": "mdi:music",
+  "type": "control",
+  "size": "medium",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

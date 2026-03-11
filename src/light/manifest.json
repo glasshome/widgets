@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-light",
+  "name": "Light",
+  "description": "Light control with brightness, color, and temperature",
+  "icon": "mdi:lightbulb",
+  "type": "control",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

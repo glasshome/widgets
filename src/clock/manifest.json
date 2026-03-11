@@ -1,0 +1,10 @@
+{
+  "tag": "sample-clock-widget",
+  "name": "Clock",
+  "description": "Display current time",
+  "icon": "mdi:clock-outline",
+  "type": "status",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

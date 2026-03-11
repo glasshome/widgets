@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-climate",
+  "name": "Climate",
+  "description": "Climate control with temperature, HVAC modes, and fan control",
+  "icon": "mdi:thermostat",
+  "type": "control",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-cover",
+  "name": "Cover",
+  "description": "Control covers, blinds, and shutters",
+  "icon": "mdi:window-shutter",
+  "type": "control",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-camera",
+  "name": "Camera",
+  "description": "Live camera stream with multi-protocol support",
+  "icon": "mdi:cctv",
+  "type": "status",
+  "size": "large",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

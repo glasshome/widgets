@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-batteries",
+  "name": "Batteries",
+  "description": "Auto-discover and monitor battery levels across all devices",
+  "icon": "mdi:battery",
+  "type": "status",
+  "size": "medium",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

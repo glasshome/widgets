@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-button",
+  "name": "Button",
+  "description": "Press a button entity",
+  "icon": "mdi:gesture-tap-button",
+  "type": "control",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

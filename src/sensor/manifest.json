@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-sensor",
+  "name": "Sensor",
+  "description": "Display sensor values with aggregation",
+  "icon": "mdi:eye",
+  "type": "status",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}

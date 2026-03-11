@@ -1,0 +1,253 @@
+import { useEntities, useService, useToggle } from "@glasshome/sync-layer/solid";
+import { Icon } from "@iconify-icon/solid";
+import {
+  defineWidget,
+  isEntityActive,
+  stateColors,
+  useWidgetContext,
+  useWidgetDialog,
+  useWidgetEntityGroup,
+  useWidgetGestures,
+  Widget,
+  WidgetDialog,
+  WidgetSliderFill,
+} from "@glasshome/widget-sdk";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import type { WidgetDebugData } from "../common";
+import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { LightControls } from "./controls";
+import { brightnessToPercent, formatBrightness, hsToCSS } from "./utils";
+
+interface LightConfig {
+  title?: string;
+  entityIds: string[];
+}
+
+function LightWidget(props: { config: LightConfig }) {
+  const ctx = useWidgetContext();
+  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
+  const hasChanges = () =>
+    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
+
+  const entities = useEntities(() => props.config.entityIds);
+  const toggle = useToggle();
+  const { callService } = useService();
+
+  const { emptyState, hasEntities, count, aggregatedData } = useWidgetEntityGroup({
+    entities,
+    aggregationMode: () => "light",
+    emptyStateConfig: {
+      icon: <Icon icon="mdi:lightbulb" width={32} />,
+      title: "No light entity",
+      message: "Hold to configure",
+    },
+  });
+
+  const isOn = createMemo(() => {
+    const ents = entities();
+    return ents.length > 0 && ents.some((e) => isEntityActive(e));
+  });
+
+  const lightData = createMemo(() => aggregatedData() as any);
+
+  const serverBrightness = createMemo(() => {
+    const data = lightData();
+    if (data?.brightnessPercent != null) return data.brightnessPercent as number;
+    const first = entities()[0];
+    if (!first || first.state !== "on") return 0;
+    const bri = first.attributes?.brightness as number | undefined;
+    return bri ? brightnessToPercent(bri) : 100;
+  });
+
+  const [uiBrightness, setUiBrightness] = createSignal(serverBrightness());
+  const [isDragging, setIsDragging] = createSignal(false);
+
+  // Sync server brightness to UI when not dragging
+  let lastServerBrightness = serverBrightness();
+  const syncBrightness = () => {
+    const sb = serverBrightness();
+    if (!isDragging() && sb !== lastServerBrightness) {
+      setUiBrightness(sb);
+      lastServerBrightness = sb;
+    }
+  };
+  // Use a memo to track changes reactively
+  createMemo(() => {
+    syncBrightness();
+  });
+
+  let slideDebounce: ReturnType<typeof setTimeout> | undefined;
+
+  const handleBrightnessSlide = (value: number) => {
+    setIsDragging(true);
+    setUiBrightness(value);
+    if (slideDebounce) clearTimeout(slideDebounce);
+    slideDebounce = setTimeout(() => {
+      setIsDragging(false);
+      const ids = entities().map((e) => e.id);
+      for (const id of ids) {
+        callService(
+          "light" as any,
+          "turn_on" as any,
+          { brightness_pct: value },
+          { entity_id: id },
+        );
+      }
+    }, 300);
+  };
+
+  const handleTap = async () => {
+    const ids = entities().map((e) => e.id);
+    if (ids.length === 0) return;
+    await toggle(ids);
+  };
+
+  const gestures = useWidgetGestures(
+    () => ({
+      tap: handleTap,
+      slide: {
+        value: uiBrightness(),
+        onChange: handleBrightnessSlide,
+        min: 0,
+        max: 100,
+        orientation: "auto" as const,
+        activationDelay: 0,
+      },
+      hold: { action: openDialog, delay: 300 },
+    }),
+    () => ctx.orientation(),
+  );
+  onCleanup(gestures.dispose);
+
+  // Display color derived from current HS or color temp
+  const displayColor = createMemo(() => {
+    if (!isOn()) return "rgb(100, 100, 100)";
+    const data = lightData();
+    if (data?.color) return data.color as string;
+    const first = entities()[0];
+    if (!first) return "rgb(255, 200, 100)";
+    const hs = first.attributes?.hs_color as [number, number] | undefined;
+    if (hs) return hsToCSS(hs);
+    return "rgb(255, 200, 100)";
+  });
+
+  const activeCount = createMemo(() => entities().filter((e) => isEntityActive(e)).length);
+
+  const statusText = createMemo(() => {
+    const total = count();
+    if (total === 0) return "Off";
+    if (!isOn()) return "Off";
+    const bri = formatBrightness(uiBrightness());
+    if (total === 1) return bri;
+    const active = activeCount();
+    return `${active}/${total} on - ${bri}`;
+  });
+
+  const colors = createMemo(() => (isOn() ? stateColors.active : stateColors.inactive));
+
+  const debugData = createMemo<WidgetDebugData | undefined>(() => {
+    const ents = entities();
+    if (ents.length === 0) return undefined;
+    return buildDebugData(props.config as unknown as Record<string, unknown>, ents, {
+      lightGroup: lightData(),
+      uiBrightness: uiBrightness(),
+    });
+  });
+
+  return (
+    <>
+      <div
+        class="h-full w-full"
+        on:pointerdown={gestures.onPointerDown}
+        on:pointermove={gestures.onPointerMove}
+        on:pointerup={gestures.onPointerUp}
+        on:pointercancel={gestures.onPointerCancel}
+      >
+        <Widget
+          variant="classic-glass"
+          gradient={isOn() ? undefined : colors().gradient}
+          emptyState={emptyState()}
+          class={isDragging() ? "duration-0" : undefined}
+        >
+          <Show when={hasEntities()}>
+            <WidgetSliderFill
+              value={uiBrightness()}
+              color={displayColor()}
+              glow={isOn()}
+              opacity={0.3}
+              isDragging={isDragging()}
+            />
+            <Widget.Content>
+              <Widget.Icon
+                icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
+                color={isOn() ? displayColor() : colors().icon}
+                glow={isOn() ? colors().glow : undefined}
+                entityCount={entities().length}
+              />
+              <div class="flex flex-col gap-1 overflow-hidden">
+                <Widget.Title>
+                  {props.config.title || entities()[0]?.friendlyName || "Light"}
+                </Widget.Title>
+                <Widget.Status>{statusText()}</Widget.Status>
+              </div>
+            </Widget.Content>
+          </Show>
+        </Widget>
+      </div>
+      <WidgetDialog
+        {...widgetDialogProps}
+        open={showDialog()}
+        onOpenChange={(open) => {
+          if (!open) setDraftEntityIds(props.config.entityIds);
+          setShowDialog(open);
+        }}
+        title="Light"
+        maxWidth="lg"
+        hasUnsavedChanges={hasChanges()}
+        onSave={() => {
+          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+          setShowDialog(false);
+        }}
+        editContent={
+          <EntitySelector
+            entityIds={draftEntityIds()}
+            onEntityIdsChange={setDraftEntityIds}
+            domain="light"
+          />
+        }
+        controlsContent={
+          <LightControls entities={entities} brightness={() => uiBrightness()} />
+        }
+        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugData={debugData()}
+      />
+    </>
+  );
+}
+
+export default defineWidget<"control", LightConfig>({
+  manifest: {
+    tag: "glasshome-light",
+    type: "control",
+    name: "Light",
+    description: "Light control with brightness, color, and temperature",
+    icon: "mdi:lightbulb",
+    size: "small",
+    sdkVersion: "^0.2.0",
+    schema: {
+      type: "object",
+      properties: {
+        title: { type: "string", title: "Title" },
+        entityIds: {
+          type: "array",
+          title: "Entities",
+          items: { type: "string" },
+          default: [],
+        },
+      },
+    },
+    defaultConfig: { entityIds: [] },
+  },
+  component: LightWidget,
+});

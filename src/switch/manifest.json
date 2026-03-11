@@ -1,0 +1,10 @@
+{
+  "tag": "glasshome-switch",
+  "name": "Switch",
+  "description": "Toggle switch entities",
+  "icon": "mdi:power-plug",
+  "type": "control",
+  "size": "small",
+  "sdkVersion": "^0.2.0",
+  "version": "0.1.0"
+}
