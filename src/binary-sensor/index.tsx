@@ -1,5 +1,4 @@
 import { useEntities } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   countActiveEntities,
   defineWidget,
@@ -13,9 +12,16 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, getBinarySensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import {
+  buildDebugData,
+  EntitySelector,
+  getBinarySensorIcon,
+  WidgetDebugView,
+  widgetDialogProps,
+} from "../common";
 import { getBinarySensorStateText } from "./utils";
 
 interface BinarySensorConfig {
@@ -88,6 +94,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -140,14 +147,14 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   );
 }
 
-export default defineWidget<"status", BinarySensorConfig>({
+export default defineWidget<BinarySensorConfig>({
   manifest: {
     tag: "glasshome-binary-sensor",
-    type: "status",
     name: "Binary Sensor",
     description: "Motion, door, occupancy sensors",
     icon: "mdi:checkbox-marked-circle",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

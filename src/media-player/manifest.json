@@ -3,8 +3,8 @@
   "name": "Media Player",
   "description": "Media playback controls with album art and progress tracking",
   "icon": "mdi:music",
-  "type": "control",
-  "size": "medium",
+  "minSize": { "w": 2, "h": 1 },
+  "maxSize": { "w": 4, "h": 4 },
   "sdkVersion": "^0.2.0",
-  "version": "0.1.0"
+  "version": "0.1.2"
 }

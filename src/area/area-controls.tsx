@@ -22,7 +22,11 @@ function EntityToggleRow(props: {
       class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted"
       onClick={props.onToggle}
     >
-      <Icon icon={props.icon} width={18} class={isOn() ? "text-primary" : "text-muted-foreground"} />
+      <Icon
+        icon={props.icon}
+        width={18}
+        class={isOn() ? "text-primary" : "text-muted-foreground"}
+      />
       <span class="flex-1 truncate text-sm">{props.name}</span>
       <span class={`text-xs ${isOn() ? "text-primary" : "text-muted-foreground"}`}>
         {props.state}
@@ -31,10 +35,7 @@ function EntityToggleRow(props: {
   );
 }
 
-function BatchToggleButton(props: {
-  label: string;
-  onAction: () => void;
-}) {
+function BatchToggleButton(props: { label: string; onAction: () => void }) {
   return (
     <button
       type="button"
@@ -67,7 +68,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Lights */}
       <Show when={props.groups.lights.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-muted-foreground uppercase">Lights</h3>
+          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Lights</h3>
           <BatchToggleButton
             label="Toggle all lights"
             onAction={() => batchToggle(props.groups.lights, "light")}
@@ -91,7 +92,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Switches */}
       <Show when={props.groups.switches.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-muted-foreground uppercase">Switches</h3>
+          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Switches</h3>
           <BatchToggleButton
             label="Toggle all switches"
             onAction={() => batchToggle(props.groups.switches, "switch")}
@@ -115,7 +116,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Covers */}
       <Show when={props.groups.covers.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-muted-foreground uppercase">Covers</h3>
+          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Covers</h3>
           <div class="flex gap-2">
             <button
               type="button"
@@ -148,7 +149,7 @@ export function AreaControls(props: AreaControlsProps) {
                 <div class="flex items-center gap-3 rounded-lg px-3 py-2">
                   <Icon icon="mdi:blinds" width={18} class="text-muted-foreground" />
                   <span class="flex-1 truncate text-sm">{entity.friendlyName}</span>
-                  <span class="text-xs text-muted-foreground">{entity.state}</span>
+                  <span class="text-muted-foreground text-xs">{entity.state}</span>
                 </div>
               )}
             </For>
@@ -159,14 +160,14 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Climate */}
       <Show when={props.groups.climate.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-muted-foreground uppercase">Climate</h3>
+          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Climate</h3>
           <div class="flex flex-col gap-0.5">
             <For each={props.groups.climate}>
               {(entity) => (
                 <div class="flex items-center gap-3 rounded-lg px-3 py-2">
                   <Icon icon="mdi:thermostat" width={18} class="text-muted-foreground" />
                   <span class="flex-1 truncate text-sm">{entity.friendlyName}</span>
-                  <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div class="flex items-center gap-2 text-muted-foreground text-xs">
                     <Show when={entity.attributes?.current_temperature != null}>
                       <span>{entity.attributes.current_temperature}°</span>
                     </Show>

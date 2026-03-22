@@ -1,5 +1,4 @@
 import { useEntities, useToggle } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   countActiveEntities,
   defineWidget,
@@ -12,6 +11,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
@@ -95,6 +95,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -152,14 +153,14 @@ function SwitchWidget(props: { config: SwitchConfig }) {
   );
 }
 
-export default defineWidget<"control", SwitchConfig>({
+export default defineWidget<SwitchConfig>({
   manifest: {
     tag: "glasshome-switch",
-    type: "control",
     name: "Switch",
     description: "Toggle switch entities",
     icon: "mdi:power-plug",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

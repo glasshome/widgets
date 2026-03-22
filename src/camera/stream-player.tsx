@@ -22,11 +22,7 @@ interface StreamPlayerProps {
 const PLAYER_CLASS = "h-full w-full rounded-[inherit] object-cover";
 const MAX_NETWORK_RETRIES = 2;
 
-function WebRtcMode(props: {
-  entityId: string;
-  poster?: string;
-  onError?: () => void;
-}) {
+function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => void }) {
   let videoRef!: HTMLVideoElement;
   let pc: RTCPeerConnection | null = null;
   let sessionUnsubscribe: (() => Promise<void>) | null = null;
@@ -139,22 +135,11 @@ function WebRtcMode(props: {
   onCleanup(cleanup);
 
   return (
-    <video
-      ref={videoRef}
-      autoplay
-      muted
-      playsinline
-      class={PLAYER_CLASS}
-      poster={props.poster}
-    />
+    <video ref={videoRef} autoplay muted playsinline class={PLAYER_CLASS} poster={props.poster} />
   );
 }
 
-function HlsMode(props: {
-  url: string;
-  poster?: string;
-  onError?: () => void;
-}) {
+function HlsMode(props: { url: string; poster?: string; onError?: () => void }) {
   let videoRef!: HTMLVideoElement;
   let hls: Hls | null = null;
 
@@ -213,22 +198,11 @@ function HlsMode(props: {
   onCleanup(destroyHls);
 
   return (
-    <video
-      ref={videoRef}
-      autoplay
-      muted
-      playsinline
-      class={PLAYER_CLASS}
-      poster={props.poster}
-    />
+    <video ref={videoRef} autoplay muted playsinline class={PLAYER_CLASS} poster={props.poster} />
   );
 }
 
-function MjpegMode(props: {
-  url: string;
-  poster?: string;
-  onError?: () => void;
-}) {
+function MjpegMode(props: { url: string; poster?: string; onError?: () => void }) {
   return (
     <img
       src={props.url}
@@ -239,11 +213,7 @@ function MjpegMode(props: {
   );
 }
 
-function SnapshotMode(props: {
-  url: string;
-  refreshInterval: number;
-  poster?: string;
-}) {
+function SnapshotMode(props: { url: string; refreshInterval: number; poster?: string }) {
   const [src, setSrc] = createSignal(props.url);
 
   createEffect(() => {
@@ -278,25 +248,13 @@ export function StreamPlayer(props: StreamPlayerProps) {
   return (
     <Switch>
       <Match when={props.mode === "webrtc" && props.entityId}>
-        <WebRtcMode
-          entityId={props.entityId!}
-          poster={props.poster}
-          onError={props.onError}
-        />
+        <WebRtcMode entityId={props.entityId!} poster={props.poster} onError={props.onError} />
       </Match>
       <Match when={props.mode === "hls" && props.hlsUrl}>
-        <HlsMode
-          url={props.hlsUrl!}
-          poster={props.poster}
-          onError={props.onError}
-        />
+        <HlsMode url={props.hlsUrl!} poster={props.poster} onError={props.onError} />
       </Match>
       <Match when={props.mode === "mjpeg" && props.mjpegUrl}>
-        <MjpegMode
-          url={props.mjpegUrl!}
-          poster={props.poster}
-          onError={props.onError}
-        />
+        <MjpegMode url={props.mjpegUrl!} poster={props.poster} onError={props.onError} />
       </Match>
       <Match when={props.mode === "snapshot" && props.snapshotUrl}>
         <SnapshotMode

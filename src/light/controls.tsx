@@ -1,7 +1,7 @@
 import { useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
-import type { EntityView } from "@glasshome/widget-sdk";
 import { Slider } from "@glasshome/ui/solid";
+import type { EntityView } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
 import { COLOR_PRESETS, formatBrightness, getTempPresets, hsToCSS } from "./utils";
 
@@ -99,12 +99,7 @@ export function LightControls(props: LightControlsProps) {
     brightnessDebounce = setTimeout(() => {
       const ids = props.entities().map((e) => e.id);
       for (const id of ids) {
-        callService(
-          "light" as any,
-          "turn_on" as any,
-          { brightness_pct: value },
-          { entity_id: id },
-        );
+        callService("light" as any, "turn_on" as any, { brightness_pct: value }, { entity_id: id });
       }
     }, 300);
   };
@@ -114,8 +109,8 @@ export function LightControls(props: LightControlsProps) {
       {/* Brightness slider */}
       <div class="space-y-2">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-medium">Brightness</span>
-          <span class="text-sm text-muted-foreground">{formatBrightness(localBrightness())}</span>
+          <span class="font-medium text-sm">Brightness</span>
+          <span class="text-muted-foreground text-sm">{formatBrightness(localBrightness())}</span>
         </div>
         <Slider
           value={[localBrightness()]}
@@ -129,7 +124,7 @@ export function LightControls(props: LightControlsProps) {
       {/* Color presets */}
       <Show when={supportsColor()}>
         <div class="space-y-2">
-          <span class="text-sm font-medium">Color</span>
+          <span class="font-medium text-sm">Color</span>
           <div class="grid grid-cols-7 gap-2">
             {/* White preset */}
             <button
@@ -157,10 +152,7 @@ export function LightControls(props: LightControlsProps) {
                   onClick={() => setColor([...preset.hs])}
                   class="relative h-8 w-8 rounded-full border-2 transition-transform hover:scale-110"
                   classList={{
-                    "border-white ring-2 ring-primary": isHsMatch(
-                      [...preset.hs],
-                      currentHs(),
-                    ),
+                    "border-white ring-2 ring-primary": isHsMatch([...preset.hs], currentHs()),
                     "border-transparent": !isHsMatch([...preset.hs], currentHs()),
                   }}
                   style={{ "background-color": hsToCSS([...preset.hs]) }}
@@ -176,8 +168,8 @@ export function LightControls(props: LightControlsProps) {
       <Show when={supportsTemp()}>
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium">Temperature</span>
-            <span class="text-sm text-muted-foreground">{localTemp()}K</span>
+            <span class="font-medium text-sm">Temperature</span>
+            <span class="text-muted-foreground text-sm">{localTemp()}K</span>
           </div>
           <Slider
             value={[localTemp()]}
@@ -193,7 +185,7 @@ export function LightControls(props: LightControlsProps) {
       {/* Temperature presets */}
       <Show when={supportsTemp()}>
         <div class="space-y-2">
-          <span class="text-sm font-medium">Presets</span>
+          <span class="font-medium text-sm">Presets</span>
           <div class="flex gap-2">
             <For each={getTempPresets(minKelvin(), maxKelvin())}>
               {(preset) => {
@@ -207,7 +199,7 @@ export function LightControls(props: LightControlsProps) {
                   <button
                     type="button"
                     onClick={() => setTemp(preset.kelvin)}
-                    class="flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors"
+                    class="flex-1 rounded-lg px-2 py-1.5 font-medium text-xs transition-colors"
                     classList={{
                       "bg-primary text-primary-foreground": isActive(),
                       "bg-muted hover:bg-muted/80": !isActive(),

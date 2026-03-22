@@ -1,5 +1,4 @@
 import { useEntity, useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   getEntityAttribute,
@@ -9,6 +8,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
@@ -36,12 +36,8 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const size = () => ctx.size();
   const isSmall = () => size() === "xs" || size() === "sm";
 
-  const mediaTitle = createMemo(
-    () => getEntityAttribute<string>(entity()!, "media_title") ?? "",
-  );
-  const mediaArtist = createMemo(
-    () => getEntityAttribute<string>(entity()!, "media_artist") ?? "",
-  );
+  const mediaTitle = createMemo(() => getEntityAttribute<string>(entity()!, "media_title") ?? "");
+  const mediaArtist = createMemo(() => getEntityAttribute<string>(entity()!, "media_artist") ?? "");
   const albumArt = createMemo(
     () => getEntityAttribute<string>(entity()!, "entity_picture") ?? undefined,
   );
@@ -72,6 +68,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -105,22 +102,16 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                           </div>
                         }
                       >
-                        <img
-                          src={albumArt()}
-                          alt=""
-                          class="h-full w-full object-cover"
-                        />
+                        <img src={albumArt()} alt="" class="h-full w-full object-cover" />
                       </Show>
                       <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <Icon
-                          icon={getMediaIcon(entity()!.state)}
-                          width={16}
-                          class="text-white"
-                        />
+                        <Icon icon={getMediaIcon(entity()!.state)} width={16} class="text-white" />
                       </div>
                     </div>
                     <div class="flex flex-col overflow-hidden">
-                      <Widget.Title>{mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}</Widget.Title>
+                      <Widget.Title>
+                        {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
+                      </Widget.Title>
                       <Show when={mediaArtist()}>
                         <Widget.Status>{mediaArtist()}</Widget.Status>
                       </Show>
@@ -134,7 +125,9 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                     <VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />
                   </div>
                   <div class="flex flex-col gap-1 overflow-hidden">
-                    <Widget.Title>{mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}</Widget.Title>
+                    <Widget.Title>
+                      {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
+                    </Widget.Title>
                     <Show when={mediaArtist()}>
                       <Widget.Status>{mediaArtist()}</Widget.Status>
                     </Show>
@@ -178,14 +171,14 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   );
 }
 
-export default defineWidget<"control", MediaPlayerConfig>({
+export default defineWidget<MediaPlayerConfig>({
   manifest: {
     tag: "glasshome-media-player",
-    type: "control",
     name: "Media Player",
     description: "Media playback controls with album art and progress tracking",
     icon: "mdi:music",
-    size: "medium",
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

@@ -1,6 +1,5 @@
-import { useCamera, useEntity } from "@glasshome/sync-layer/solid";
 import { getStream, state } from "@glasshome/sync-layer";
-import { Icon } from "@iconify-icon/solid";
+import { useCamera, useEntity } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
@@ -10,10 +9,11 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
-import { StreamPlayer, type StreamMode } from "./stream-player";
+import { type StreamMode, StreamPlayer } from "./stream-player";
 
 interface CameraConfig {
   title?: string;
@@ -88,9 +88,7 @@ function CameraWidget(props: { config: CameraConfig }) {
     }
   };
 
-  const cameraName = createMemo(
-    () => props.config.title || entity()?.friendlyName || "Camera",
-  );
+  const cameraName = createMemo(() => props.config.title || entity()?.friendlyName || "Camera");
 
   const gestures = useWidgetGestures(
     () => ({
@@ -113,6 +111,7 @@ function CameraWidget(props: { config: CameraConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -159,18 +158,18 @@ function CameraWidget(props: { config: CameraConfig }) {
                 />
               </Show>
 
-              <div class="absolute left-0 top-0 rounded-br-lg bg-black/40 px-2 py-1">
-                <span class="text-xs font-medium text-white">{cameraName()}</span>
+              <div class="absolute top-0 left-0 rounded-br-lg bg-black/40 px-2 py-1">
+                <span class="font-medium text-white text-xs">{cameraName()}</span>
               </div>
 
-              <div class="absolute right-0 top-0 px-2 py-1">
+              <div class="absolute top-0 right-0 px-2 py-1">
                 <div class="flex items-center gap-1 rounded-bl-lg bg-black/40 px-2 py-0.5">
                   <div
                     class={`h-1.5 w-1.5 rounded-full ${
                       entity()?.state === "idle" || !entity() ? "bg-red-400" : "bg-green-400"
                     }`}
                   />
-                  <span class="text-[10px] font-medium uppercase text-white/80">
+                  <span class="font-medium text-[10px] text-white/80 uppercase">
                     {entity()?.state === "idle" || !entity() ? "Offline" : "Live"}
                   </span>
                 </div>
@@ -214,7 +213,7 @@ function CameraWidget(props: { config: CameraConfig }) {
                 onError={handleStreamError}
               />
             </div>
-            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+            <div class="flex items-center gap-2 text-muted-foreground text-sm">
               <Icon icon="mdi:cctv" width={16} />
               <span>{cameraName()}</span>
               <span class="capitalize opacity-60">{entity()?.state ?? "unknown"}</span>
@@ -228,14 +227,14 @@ function CameraWidget(props: { config: CameraConfig }) {
   );
 }
 
-export default defineWidget<"status", CameraConfig>({
+export default defineWidget<CameraConfig>({
   manifest: {
     tag: "glasshome-camera",
-    type: "status",
     name: "Camera",
     description: "Live camera stream with multi-protocol support",
     icon: "mdi:cctv",
-    size: "large",
+    minSize: { w: 2, h: 2 },
+    maxSize: { w: 4, h: 6 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

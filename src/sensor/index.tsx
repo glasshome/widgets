@@ -1,9 +1,10 @@
 import { trackEntityHistory, untrackEntityHistory } from "@glasshome/sync-layer";
 import { useEntities, useEntityHistory } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   getEntityAttribute,
+  type SensorGroupResult,
+  type SensorGroupType,
   stateColors,
   useWidgetContext,
   useWidgetDialog,
@@ -11,12 +12,17 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  type SensorGroupResult,
-  type SensorGroupType,
 } from "@glasshome/widget-sdk";
-import { createMemo, onCleanup, onMount, createSignal, Show } from "solid-js";
+import { Icon } from "@iconify-icon/solid";
+import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, getSensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import {
+  buildDebugData,
+  EntitySelector,
+  getSensorIcon,
+  WidgetDebugView,
+  widgetDialogProps,
+} from "../common";
 import { Sparkline } from "./sparkline";
 import { formatSensorValue } from "./utils";
 
@@ -57,9 +63,7 @@ function SensorWidget(props: { config: SensorConfig }) {
   const dataPoints = createMemo(() => {
     const history = historyData();
     if (!history?.timeline) return [];
-    return history.timeline
-      .map((entry) => Number(entry.state))
-      .filter((v) => !Number.isNaN(v));
+    return history.timeline.map((entry) => Number(entry.state)).filter((v) => !Number.isNaN(v));
   });
 
   const { emptyState, hasEntities, count, aggregatedData } = useWidgetEntityGroup({
@@ -121,6 +125,7 @@ function SensorWidget(props: { config: SensorConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -149,7 +154,7 @@ function SensorWidget(props: { config: SensorConfig }) {
               </div>
             </Widget.Content>
             <Show when={dataPoints().length >= 2}>
-              <div class="absolute bottom-0 left-0 right-0 h-8 opacity-40">
+              <div class="absolute right-0 bottom-0 left-0 h-8 opacity-40">
                 <Sparkline data={dataPoints()} />
               </div>
             </Show>
@@ -185,7 +190,7 @@ function SensorWidget(props: { config: SensorConfig }) {
               domain="sensor"
             />
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Aggregation Type</label>
+              <label class="font-medium text-sm">Aggregation Type</label>
               <select
                 value={draftAggType()}
                 onChange={(e) => setDraftAggType(e.currentTarget.value as SensorGroupType)}
@@ -207,14 +212,14 @@ function SensorWidget(props: { config: SensorConfig }) {
   );
 }
 
-export default defineWidget<"status", SensorConfig>({
+export default defineWidget<SensorConfig>({
   manifest: {
     tag: "glasshome-sensor",
-    type: "status",
     name: "Sensor",
     description: "Display sensor values with aggregation",
     icon: "mdi:eye",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

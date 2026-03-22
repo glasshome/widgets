@@ -12,7 +12,7 @@ interface AreaContentProps {
 
 function DomainChip(props: { label: string; count: number }) {
   return (
-    <span class="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 text-xs text-muted-foreground">
+    <span class="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 text-muted-foreground text-xs">
       {props.count} {props.label}
     </span>
   );
@@ -24,18 +24,16 @@ export function AreaContent(props: AreaContentProps) {
   const isLarge = () => props.size === "lg" || props.size === "xl";
 
   const activeAlertNames = () =>
-    props.groups.binarySensors
-      .filter((e) => e.state === "on")
-      .map((e) => e.friendlyName);
+    props.groups.binarySensors.filter((e) => e.state === "on").map((e) => e.friendlyName);
 
   return (
     <div class="flex flex-col gap-1.5 overflow-hidden">
       {/* Compact: icon + name + lights badge */}
       <div class="flex items-center gap-2">
         <Icon icon={getAreaIcon(props.metrics)} width={18} class="shrink-0 text-muted-foreground" />
-        <span class="truncate text-sm font-medium">{props.areaName}</span>
+        <span class="truncate font-medium text-sm">{props.areaName}</span>
         <Show when={props.metrics.lightsTotal > 0}>
-          <span class="ml-auto shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+          <span class="ml-auto shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-primary text-xs">
             {props.metrics.lightsOn}/{props.metrics.lightsTotal}
           </span>
         </Show>
@@ -43,7 +41,7 @@ export function AreaContent(props: AreaContentProps) {
 
       {/* Medium: metrics row */}
       <Show when={!isCompact()}>
-        <div class="flex items-center gap-3 text-xs text-muted-foreground">
+        <div class="flex items-center gap-3 text-muted-foreground text-xs">
           <Show when={props.metrics.temperature !== null}>
             <span class="flex items-center gap-1">
               <Icon icon="mdi:thermometer" width={14} />
@@ -88,7 +86,7 @@ export function AreaContent(props: AreaContentProps) {
           </Show>
         </div>
         <Show when={activeAlertNames().length > 0}>
-          <div class="text-xs text-destructive">
+          <div class="text-destructive text-xs">
             <For each={activeAlertNames()}>
               {(name, i) => (
                 <span>

@@ -1,5 +1,4 @@
 import { useArea, useAreas, useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   stateColors,
@@ -9,6 +8,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
@@ -21,10 +21,7 @@ interface AreaConfig {
   areaId: string;
 }
 
-function AreaSelector(props: {
-  selectedAreaId: string;
-  onSelect: (areaId: string) => void;
-}) {
+function AreaSelector(props: { selectedAreaId: string; onSelect: (areaId: string) => void }) {
   const areas = useAreas();
   const [search, setSearch] = createSignal("");
 
@@ -43,7 +40,7 @@ function AreaSelector(props: {
         onInput={(e) => setSearch(e.currentTarget.value)}
         class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
       />
-      <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+      <div class="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
         <For each={filtered()}>
           {(area) => (
             <button
@@ -56,8 +53,8 @@ function AreaSelector(props: {
               onClick={() => props.onSelect(area.id)}
             >
               <Icon icon={area.icon || "mdi:home-floor-1"} width={24} />
-              <span class="truncate text-sm font-medium w-full">{area.name}</span>
-              <span class="text-xs text-muted-foreground">{area.entities.length} entities</span>
+              <span class="w-full truncate font-medium text-sm">{area.name}</span>
+              <span class="text-muted-foreground text-xs">{area.entities.length} entities</span>
             </button>
           )}
         </For>
@@ -75,14 +72,14 @@ function AreaWidget(props: { config: AreaConfig }) {
   const [draftAreaId, setDraftAreaId] = createSignal(props.config.areaId);
   const [draftTitle, setDraftTitle] = createSignal(props.config.title ?? "");
   const hasChanges = () =>
-    draftAreaId() !== props.config.areaId ||
-    draftTitle() !== (props.config.title ?? "");
+    draftAreaId() !== props.config.areaId || draftTitle() !== (props.config.title ?? "");
 
   const area = useArea(() => props.config.areaId);
 
   const groups = createMemo(() => {
     const a = area();
-    if (!a) return { lights: [], switches: [], covers: [], climate: [], sensors: [], binarySensors: [] };
+    if (!a)
+      return { lights: [], switches: [], covers: [], climate: [], sensors: [], binarySensors: [] };
     return groupEntitiesByDomain(a.entities);
   });
 
@@ -129,6 +126,7 @@ function AreaWidget(props: { config: AreaConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -155,10 +153,8 @@ function AreaWidget(props: { config: AreaConfig }) {
         >
           <Show when={area()}>
             <Widget.Content>
-              <div class="flex flex-col gap-1 overflow-hidden w-full">
-                <Widget.Title>
-                  {props.config.title || area()!.name}
-                </Widget.Title>
+              <div class="flex w-full flex-col gap-1 overflow-hidden">
+                <Widget.Title>{props.config.title || area()!.name}</Widget.Title>
                 <AreaContent
                   metrics={metrics()}
                   groups={groups()}
@@ -194,7 +190,7 @@ function AreaWidget(props: { config: AreaConfig }) {
         editContent={
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Title override</label>
+              <label class="font-medium text-sm">Title override</label>
               <input
                 type="text"
                 placeholder="Use area name"
@@ -204,7 +200,7 @@ function AreaWidget(props: { config: AreaConfig }) {
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Area</label>
+              <label class="font-medium text-sm">Area</label>
               <AreaSelector selectedAreaId={draftAreaId()} onSelect={setDraftAreaId} />
             </div>
           </div>
@@ -217,14 +213,14 @@ function AreaWidget(props: { config: AreaConfig }) {
   );
 }
 
-export default defineWidget<"control", AreaConfig>({
+export default defineWidget<AreaConfig>({
   manifest: {
     tag: "glasshome-area",
-    type: "control",
     name: "Area",
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",
-    size: "large",
+    minSize: { w: 2, h: 2 },
+    maxSize: { w: 4, h: 6 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

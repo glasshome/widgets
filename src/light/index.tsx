@@ -1,5 +1,4 @@
 import { useEntities, useService, useToggle } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   isEntityActive,
@@ -12,6 +11,7 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
@@ -87,12 +87,7 @@ function LightWidget(props: { config: LightConfig }) {
       setIsDragging(false);
       const ids = entities().map((e) => e.id);
       for (const id of ids) {
-        callService(
-          "light" as any,
-          "turn_on" as any,
-          { brightness_pct: value },
-          { entity_id: id },
-        );
+        callService("light" as any, "turn_on" as any, { brightness_pct: value }, { entity_id: id });
       }
     }, 300);
   };
@@ -159,6 +154,7 @@ function LightWidget(props: { config: LightConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -181,8 +177,9 @@ function LightWidget(props: { config: LightConfig }) {
             <Widget.Content>
               <Widget.Icon
                 icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
-                color={isOn() ? displayColor() : colors().icon}
-                glow={isOn() ? colors().glow : undefined}
+                color={isOn() ? undefined : colors().icon}
+                glow={isOn() ? undefined : undefined}
+                dynamicColor={isOn() ? displayColor() : undefined}
                 entityCount={entities().length}
               />
               <div class="flex flex-col gap-1 overflow-hidden">
@@ -216,9 +213,7 @@ function LightWidget(props: { config: LightConfig }) {
             domain="light"
           />
         }
-        controlsContent={
-          <LightControls entities={entities} brightness={() => uiBrightness()} />
-        }
+        controlsContent={<LightControls entities={entities} brightness={() => uiBrightness()} />}
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
       />
@@ -226,14 +221,14 @@ function LightWidget(props: { config: LightConfig }) {
   );
 }
 
-export default defineWidget<"control", LightConfig>({
+export default defineWidget<LightConfig>({
   manifest: {
     tag: "glasshome-light",
-    type: "control",
     name: "Light",
     description: "Light control with brightness, color, and temperature",
     icon: "mdi:lightbulb",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

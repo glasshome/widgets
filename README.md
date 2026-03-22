@@ -22,7 +22,7 @@ widgets/
 
 ## Building widgets
 
-Use the [@glasshome/widget-sdk](https://github.com/glasshome-labs/widget-sdk) to create your own widgets:
+Use the [@glasshome/widget-sdk](https://github.com/glasshome/widget-sdk) to create your own widgets:
 
 ```bash
 bunx @glasshome/widget-cli create my-widget

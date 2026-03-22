@@ -1,6 +1,5 @@
-import { useEntity, useForecast } from "@glasshome/sync-layer/solid";
 import { getForecasts } from "@glasshome/sync-layer";
-import { Icon } from "@iconify-icon/solid";
+import { useEntity, useForecast } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
@@ -10,6 +9,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
@@ -116,6 +116,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -144,7 +145,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
                 <div class="flex items-center gap-3">
                   <Icon icon={getWeatherIcon(condition())} width={isSmall() ? 28 : 36} />
                   <div class="flex flex-col overflow-hidden">
-                    <span class="text-2xl font-bold leading-tight">{temperature()}</span>
+                    <span class="font-bold text-2xl leading-tight">{temperature()}</span>
                     <Show when={!isSmall()}>
                       <span class="truncate text-sm capitalize opacity-90">
                         {condition().replace(/-/g, " ")}
@@ -223,7 +224,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
         }
         controlsContent={
           <div class="flex flex-col gap-2">
-            <h3 class="text-sm font-medium">7-Day Forecast</h3>
+            <h3 class="font-medium text-sm">7-Day Forecast</h3>
             <div class="flex flex-col gap-1">
               <For each={dailyForecast()}>
                 {(day) => (
@@ -231,7 +232,9 @@ function WeatherWidget(props: { config: WeatherConfig }) {
                     <span class="w-12 font-medium">{formatDayName(day.datetime)}</span>
                     <Icon icon={getWeatherIcon(day.condition ?? "cloudy")} width={20} />
                     <span class="w-20 text-right tabular-nums">
-                      {day.temp_high != null ? formatTemp(day.temp_high) : formatTemp(day.temperature ?? 0)}
+                      {day.temp_high != null
+                        ? formatTemp(day.temp_high)
+                        : formatTemp(day.temperature ?? 0)}
                       {day.temp_low != null && (
                         <span class="ml-1 opacity-60">{formatTemp(day.temp_low)}</span>
                       )}
@@ -249,14 +252,14 @@ function WeatherWidget(props: { config: WeatherConfig }) {
   );
 }
 
-export default defineWidget<"status", WeatherConfig>({
+export default defineWidget<WeatherConfig>({
   manifest: {
     tag: "glasshome-weather",
-    type: "status",
     name: "Weather",
     description: "Weather conditions with animated backgrounds and forecast chart",
     icon: "mdi:weather-partly-cloudy",
-    size: "medium",
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

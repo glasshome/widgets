@@ -1,5 +1,4 @@
 import { byDomain, useEntities } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   stateColors,
@@ -9,6 +8,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
@@ -70,6 +70,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -84,9 +85,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
-              <Widget.Value
-                value={hasLow() ? `${lowCount()} low` : "All good"}
-              />
+              <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />
               <Widget.Status>{totalCount()} batteries</Widget.Status>
             </div>
           </Widget.Content>
@@ -118,7 +117,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
         editContent={
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Low Battery Threshold (%)</label>
+              <label class="font-medium text-sm">Low Battery Threshold (%)</label>
               <input
                 type="number"
                 min={1}
@@ -129,7 +128,9 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Whitelist (comma-separated entity fragments)</label>
+              <label class="font-medium text-sm">
+                Whitelist (comma-separated entity fragments)
+              </label>
               <input
                 type="text"
                 value={draftWhitelist()}
@@ -139,7 +140,9 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium">Blacklist (comma-separated entity fragments)</label>
+              <label class="font-medium text-sm">
+                Blacklist (comma-separated entity fragments)
+              </label>
               <input
                 type="text"
                 value={draftBlacklist()}
@@ -155,7 +158,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             <Show
               when={batteries().length > 0}
               fallback={
-                <div class="py-8 text-center text-sm text-muted-foreground">
+                <div class="py-8 text-center text-muted-foreground text-sm">
                   No battery sensors found
                 </div>
               }
@@ -170,7 +173,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
                         style={{ color: getBatteryColor(battery.level) }}
                       />
                       <div class="min-w-0 flex-1">
-                        <div class="truncate text-sm font-medium">
+                        <div class="truncate font-medium text-sm">
                           {battery.entity.friendlyName || battery.entity.id}
                         </div>
                         <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -184,7 +187,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
                         </div>
                       </div>
                       <span
-                        class="text-sm font-medium tabular-nums"
+                        class="font-medium text-sm tabular-nums"
                         style={{ color: getBatteryColor(battery.level) }}
                       >
                         {battery.level}%
@@ -203,14 +206,14 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   );
 }
 
-export default defineWidget<"status", BatteriesConfig>({
+export default defineWidget<BatteriesConfig>({
   manifest: {
     tag: "glasshome-batteries",
-    type: "status",
     name: "Batteries",
     description: "Auto-discover and monitor battery levels across all devices",
     icon: "mdi:battery",
-    size: "medium",
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

@@ -33,7 +33,14 @@ export function WeatherBackground(props: WeatherBackgroundProps) {
       style={{ background: getWeatherGradient(props.condition) }}
     >
       <Switch>
-        <Match when={props.condition === "rainy" || props.condition === "pouring" || props.condition === "lightning-rainy" || props.condition === "snowy-rainy"}>
+        <Match
+          when={
+            props.condition === "rainy" ||
+            props.condition === "pouring" ||
+            props.condition === "lightning-rainy" ||
+            props.condition === "snowy-rainy"
+          }
+        >
           <For each={RAIN_DROPS}>
             {(drop) => (
               <div
@@ -54,7 +61,7 @@ export function WeatherBackground(props: WeatherBackgroundProps) {
           <For each={SNOW_FLAKES}>
             {(flake) => (
               <div
-                class="absolute top-0 rounded-full bg-white animate-[snow-fall_3s_linear_infinite]"
+                class="absolute top-0 animate-[snow-fall_3s_linear_infinite] rounded-full bg-white"
                 style={{
                   left: flake.left,
                   "animation-delay": flake.delay,
@@ -67,11 +74,17 @@ export function WeatherBackground(props: WeatherBackgroundProps) {
             )}
           </For>
         </Match>
-        <Match when={props.condition === "cloudy" || props.condition === "partlycloudy" || props.condition === "fog"}>
+        <Match
+          when={
+            props.condition === "cloudy" ||
+            props.condition === "partlycloudy" ||
+            props.condition === "fog"
+          }
+        >
           <For each={CLOUD_SHAPES}>
             {(cloud) => (
               <div
-                class="absolute rounded-full bg-white animate-[cloud-drift_linear_infinite]"
+                class="absolute animate-[cloud-drift_linear_infinite] rounded-full bg-white"
                 style={{
                   width: cloud.width,
                   height: "30%",

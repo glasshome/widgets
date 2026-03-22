@@ -1,9 +1,6 @@
 import { useEntities, useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
-  getEntityAttribute,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -11,6 +8,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
@@ -106,6 +104,7 @@ function LockWidget(props: { config: LockConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -163,14 +162,14 @@ function LockWidget(props: { config: LockConfig }) {
   );
 }
 
-export default defineWidget<"control", LockConfig>({
+export default defineWidget<LockConfig>({
   manifest: {
     tag: "glasshome-lock",
-    type: "control",
     name: "Lock",
     description: "Lock and unlock entities with security indicator",
     icon: "mdi:lock",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

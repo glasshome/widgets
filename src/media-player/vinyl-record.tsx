@@ -29,9 +29,7 @@ export function VinylRecord(props: VinylRecordProps) {
       >
         <Show
           when={props.imageUrl}
-          fallback={
-            <div class="h-full w-full rounded-full bg-neutral-700" />
-          }
+          fallback={<div class="h-full w-full rounded-full bg-neutral-700" />}
         >
           <div
             class="h-full w-full rounded-full"

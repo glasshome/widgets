@@ -1,5 +1,4 @@
 import { useEntities } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   stateColors,
@@ -10,7 +9,8 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, onCleanup, createSignal, Show } from "solid-js";
+import { Icon } from "@iconify-icon/solid";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
 import { ClimateControls } from "./controls";
@@ -97,6 +97,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
@@ -150,14 +151,14 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   );
 }
 
-export default defineWidget<"control", ClimateConfig>({
+export default defineWidget<ClimateConfig>({
   manifest: {
     tag: "glasshome-climate",
-    type: "control",
     name: "Climate",
     description: "Climate control with temperature, HVAC modes, and fan control",
     icon: "mdi:thermostat",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

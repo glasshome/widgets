@@ -1,5 +1,4 @@
 import { useEntities, useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import {
   defineWidget,
   getEntityAttribute,
@@ -11,9 +10,16 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, getCoverIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import {
+  buildDebugData,
+  EntitySelector,
+  getCoverIcon,
+  WidgetDebugView,
+  widgetDialogProps,
+} from "../common";
 import { CoverControls } from "./controls";
 
 interface CoverConfig {
@@ -133,16 +139,13 @@ function CoverWidget(props: { config: CoverConfig }) {
     <>
       <div
         class="h-full w-full"
+        on:pointerenter={gestures.onPointerEnter}
         on:pointerdown={gestures.onPointerDown}
         on:pointermove={gestures.onPointerMove}
         on:pointerup={gestures.onPointerUp}
         on:pointercancel={gestures.onPointerCancel}
       >
-        <Widget
-          variant="classic-glass"
-          gradient={colors().gradient}
-          emptyState={emptyState()}
-        >
+        <Widget variant="classic-glass" gradient={colors().gradient} emptyState={emptyState()}>
           <Show when={hasEntities()}>
             <Widget.SliderFill
               value={displayPosition()}
@@ -188,9 +191,7 @@ function CoverWidget(props: { config: CoverConfig }) {
           />
         }
         controlsContent={
-          <Show when={entities()[0]}>
-            {(entity) => <CoverControls entity={entity()} />}
-          </Show>
+          <Show when={entities()[0]}>{(entity) => <CoverControls entity={entity()} />}</Show>
         }
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
@@ -199,14 +200,14 @@ function CoverWidget(props: { config: CoverConfig }) {
   );
 }
 
-export default defineWidget<"control", CoverConfig>({
+export default defineWidget<CoverConfig>({
   manifest: {
     tag: "glasshome-cover",
-    type: "control",
     name: "Cover",
     description: "Control covers, blinds, and shutters",
     icon: "mdi:window-shutter",
-    size: "small",
+    minSize: { w: 1, h: 1 },
+    maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
     schema: {
       type: "object",

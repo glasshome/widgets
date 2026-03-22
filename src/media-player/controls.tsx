@@ -1,9 +1,9 @@
+import type { EntityView } from "@glasshome/sync-layer";
 import { useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import { getEntityAttribute } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import type { Accessor } from "solid-js";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
-import type { EntityView } from "@glasshome/sync-layer";
 import { calculateFeatures, calculateProgress, formatDuration } from "./utils";
 
 interface MediaPlayerControlsProps {
@@ -30,7 +30,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
   onCleanup(() => clearInterval(progressInterval));
 
   const duration = createMemo(
-    () => (getEntityAttribute<number>(props.entity()!, "media_duration") ?? 0),
+    () => getEntityAttribute<number>(props.entity()!, "media_duration") ?? 0,
   );
   const currentPosition = createMemo(() => progress() * duration());
 
@@ -45,7 +45,12 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
   };
 
   const handlePrevious = () => {
-    callService("media_player" as any, "media_previous_track" as any, {}, { entity_id: entityId() });
+    callService(
+      "media_player" as any,
+      "media_previous_track" as any,
+      {},
+      { entity_id: entityId() },
+    );
   };
 
   const handleVolumeChange = (value: number) => {
@@ -63,7 +68,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
   });
 
   const sourceList = createMemo(
-    () => (getEntityAttribute<string[]>(props.entity()!, "source_list") ?? []),
+    () => getEntityAttribute<string[]>(props.entity()!, "source_list") ?? [],
   );
   const currentSource = createMemo(
     () => getEntityAttribute<string>(props.entity()!, "source") ?? "",
@@ -84,10 +89,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
       <Show when={features()?.supportsPlayPause}>
         <div class="flex items-center justify-center gap-4">
           <Show when={features()?.supportsPrevious}>
-            <button
-              onClick={handlePrevious}
-              class="rounded-full p-2 hover:bg-accent"
-            >
+            <button onClick={handlePrevious} class="rounded-full p-2 hover:bg-accent">
               <Icon icon="mdi:skip-previous" width={24} />
             </button>
           </Show>
@@ -98,10 +100,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
             <Icon icon={isPlaying() ? "mdi:pause" : "mdi:play"} width={28} />
           </button>
           <Show when={features()?.supportsNext}>
-            <button
-              onClick={handleNext}
-              class="rounded-full p-2 hover:bg-accent"
-            >
+            <button onClick={handleNext} class="rounded-full p-2 hover:bg-accent">
               <Icon icon="mdi:skip-next" width={24} />
             </button>
           </Show>
@@ -117,7 +116,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
               style={{ width: `${progress() * 100}%` }}
             />
           </div>
-          <div class="flex justify-between text-xs text-muted-foreground tabular-nums">
+          <div class="flex justify-between text-muted-foreground text-xs tabular-nums">
             <span>{formatDuration(currentPosition())}</span>
             <span>{formatDuration(duration())}</span>
           </div>
@@ -133,10 +132,10 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
             min="0"
             max="100"
             value={volumeLevel()}
-            onInput={(e) => handleVolumeChange(parseInt(e.currentTarget.value))}
+            onInput={(e) => handleVolumeChange(Number.parseInt(e.currentTarget.value))}
             class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
           />
-          <span class="w-8 text-right text-xs tabular-nums text-muted-foreground">
+          <span class="w-8 text-right text-muted-foreground text-xs tabular-nums">
             {volumeLevel()}
           </span>
         </div>
@@ -145,7 +144,7 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
       {/* Source selector */}
       <Show when={features()?.supportsSource && sourceList().length > 0}>
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium">Source</label>
+          <label class="font-medium text-sm">Source</label>
           <select
             value={currentSource()}
             onChange={(e) => handleSourceChange(e.currentTarget.value)}

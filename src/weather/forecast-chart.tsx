@@ -56,11 +56,7 @@ export function ForecastChart(props: ForecastChartProps) {
     >
       {pathData() && (
         <>
-          <path
-            d={pathData()!.areaPath}
-            fill="currentColor"
-            opacity="0.15"
-          />
+          <path d={pathData()!.areaPath} fill="currentColor" opacity="0.15" />
           <path
             d={pathData()!.linePath}
             fill="none"

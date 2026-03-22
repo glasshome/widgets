@@ -1,114 +1,166 @@
-import { createEffect, onMount } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
+import type { AnalogOptions, AnalogPresetTheme, ClockSize } from "./types";
 
-interface AnalogClockFaceProps {
-  time: Date;
-  showSeconds?: boolean;
+interface AnalogClockProps {
+  date: Date;
+  timeZone?: string;
+  size: ClockSize;
+  showSeconds: boolean;
+  analogOptions?: AnalogOptions;
+  presetTheme?: AnalogPresetTheme;
 }
 
-export function AnalogClockFace(props: AnalogClockFaceProps) {
-  let canvas!: HTMLCanvasElement;
-  const SIZE = 200;
-  const CENTER = SIZE / 2;
-  const RADIUS = SIZE / 2 - 10;
+const defaultTheme: AnalogPresetTheme = {
+  faceColor: "rgba(255, 255, 255, 0.05)",
+  handColor: "rgb(59, 130, 246)",
+  accentColor: "rgb(147, 51, 234)",
+  tickColor: "rgba(255, 255, 255, 0.6)",
+};
 
-  function getColor(varName: string, fallback: string): string {
-    if (!canvas) return fallback;
-    const value = getComputedStyle(canvas).getPropertyValue(varName).trim();
-    return value || fallback;
-  }
+const SIZE_MAP: Record<ClockSize, number> = {
+  small: 120,
+  medium: 160,
+  large: 200,
+};
 
-  function draw() {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+export function AnalogClock(props: AnalogClockProps) {
+  const theme = () => props.presetTheme ?? defaultTheme;
+  const options = () => props.analogOptions ?? {};
+  const border = () => options().border ?? false;
+  const ticks = () => options().ticks ?? "hour";
 
-    const fg = getColor("--foreground", "#e4e4e7");
-    const muted = getColor("--muted-foreground", "#a1a1aa");
-    const destructive = getColor("--destructive", "#ef4444");
+  const clockSize = () => SIZE_MAP[props.size] ?? 120;
+  const center = () => clockSize() / 2;
+  const radius = () => clockSize() / 2 - 10;
 
-    ctx.clearRect(0, 0, SIZE, SIZE);
-
-    // Clock face circle
-    ctx.beginPath();
-    ctx.arc(CENTER, CENTER, RADIUS, 0, Math.PI * 2);
-    ctx.strokeStyle = muted;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Hour marks
-    for (let i = 0; i < 12; i++) {
-      const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
-      const isCardinal = i % 3 === 0;
-      const innerR = RADIUS - (isCardinal ? 15 : 8);
-      const outerR = RADIUS - 3;
-
-      ctx.beginPath();
-      ctx.moveTo(CENTER + Math.cos(angle) * innerR, CENTER + Math.sin(angle) * innerR);
-      ctx.lineTo(CENTER + Math.cos(angle) * outerR, CENTER + Math.sin(angle) * outerR);
-      ctx.strokeStyle = isCardinal ? fg : muted;
-      ctx.lineWidth = isCardinal ? 2.5 : 1.5;
-      ctx.stroke();
+  const timeComponents = createMemo(() => {
+    const date = props.date;
+    if (!props.timeZone) {
+      return {
+        hours: date.getHours() % 12,
+        minutes: date.getMinutes(),
+        seconds: date.getSeconds(),
+      };
     }
 
-    const hours = props.time.getHours();
-    const minutes = props.time.getMinutes();
-    const seconds = props.time.getSeconds();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: props.timeZone,
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(date);
+    const hour = Number.parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10);
+    const minute = Number.parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
+    const second = Number.parseInt(parts.find((p) => p.type === "second")?.value || "0", 10);
 
-    // Hour hand
-    const hourAngle = ((hours % 12) / 12 + minutes / 720) * Math.PI * 2 - Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(CENTER, CENTER);
-    ctx.lineTo(CENTER + Math.cos(hourAngle) * RADIUS * 0.5, CENTER + Math.sin(hourAngle) * RADIUS * 0.5);
-    ctx.strokeStyle = fg;
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.stroke();
-
-    // Minute hand
-    const minuteAngle = (minutes / 60 + seconds / 3600) * Math.PI * 2 - Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(CENTER, CENTER);
-    ctx.lineTo(CENTER + Math.cos(minuteAngle) * RADIUS * 0.7, CENTER + Math.sin(minuteAngle) * RADIUS * 0.7);
-    ctx.strokeStyle = fg;
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.stroke();
-
-    // Second hand
-    if (props.showSeconds) {
-      const secondAngle = (seconds / 60) * Math.PI * 2 - Math.PI / 2;
-      ctx.beginPath();
-      ctx.moveTo(CENTER, CENTER);
-      ctx.lineTo(CENTER + Math.cos(secondAngle) * RADIUS * 0.8, CENTER + Math.sin(secondAngle) * RADIUS * 0.8);
-      ctx.strokeStyle = destructive;
-      ctx.lineWidth = 1;
-      ctx.lineCap = "round";
-      ctx.stroke();
-    }
-
-    // Center dot
-    ctx.beginPath();
-    ctx.arc(CENTER, CENTER, 4, 0, Math.PI * 2);
-    ctx.fillStyle = fg;
-    ctx.fill();
-  }
-
-  onMount(() => {
-    canvas.width = SIZE;
-    canvas.height = SIZE;
-    draw();
+    return { hours: hour % 12, minutes: minute, seconds: second };
   });
 
-  createEffect(() => {
-    // Track time reactively
-    void props.time;
-    draw();
+  const hourAngle = () => {
+    const { hours, minutes } = timeComponents();
+    return (hours * 30 + minutes * 0.5) % 360;
+  };
+  const minuteAngle = () => timeComponents().minutes * 6;
+  const secondAngle = () => timeComponents().seconds * 6;
+
+  const tickElements = createMemo(() => {
+    const t = ticks();
+    if (t === "none") return [];
+
+    const tickCount = t === "minute" ? 60 : t === "quarter" ? 4 : 12;
+    const tickLength = t === "minute" ? 2 : t === "quarter" ? 8 : 6;
+    const tickWidth = t === "minute" ? 1 : 2;
+    const r = radius();
+    const c = center();
+
+    return Array.from({ length: tickCount }, (_, i) => {
+      const angle = ((i * 360) / tickCount - 90) * (Math.PI / 180);
+      return {
+        x1: c + (r - tickLength) * Math.cos(angle),
+        y1: c + (r - tickLength) * Math.sin(angle),
+        x2: c + r * Math.cos(angle),
+        y2: c + r * Math.sin(angle),
+        width: tickWidth,
+      };
+    });
   });
+
+  const handEnd = (angle: number, length: number) => {
+    const rad = (angle - 90) * (Math.PI / 180);
+    const r = radius();
+    return { x: r * length * Math.cos(rad), y: r * length * Math.sin(rad) };
+  };
 
   return (
-    <canvas
-      ref={canvas!}
-      class="w-full h-full"
-      style={{ "aspect-ratio": "1", "max-width": "100%", "max-height": "100%" }}
-    />
+    <svg
+      width={clockSize()}
+      height={clockSize()}
+      viewBox={`0 0 ${clockSize()} ${clockSize()}`}
+      class="drop-shadow-lg"
+    >
+      <circle
+        cx={center()}
+        cy={center()}
+        r={radius()}
+        fill={theme().faceColor}
+        stroke={border() ? theme().tickColor : "none"}
+        stroke-width={border() ? 2 : 0}
+      />
+
+      <For each={tickElements()}>
+        {(tick) => (
+          <line
+            x1={tick.x1}
+            y1={tick.y1}
+            x2={tick.x2}
+            y2={tick.y2}
+            stroke={theme().tickColor}
+            stroke-width={tick.width}
+          />
+        )}
+      </For>
+
+      <g transform={`translate(${center()}, ${center()})`}>
+        {/* Hour hand */}
+        <line
+          x1="0"
+          y1="0"
+          x2={handEnd(hourAngle(), 0.5).x}
+          y2={handEnd(hourAngle(), 0.5).y}
+          stroke={theme().handColor}
+          stroke-width="4"
+          stroke-linecap="round"
+        />
+
+        {/* Minute hand */}
+        <line
+          x1="0"
+          y1="0"
+          x2={handEnd(minuteAngle(), 0.7).x}
+          y2={handEnd(minuteAngle(), 0.7).y}
+          stroke={theme().handColor}
+          stroke-width="3"
+          stroke-linecap="round"
+        />
+
+        {/* Second hand */}
+        <Show when={props.showSeconds}>
+          <line
+            x1="0"
+            y1="0"
+            x2={handEnd(secondAngle(), 0.85).x}
+            y2={handEnd(secondAngle(), 0.85).y}
+            stroke={theme().accentColor}
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </Show>
+
+        {/* Center dot */}
+        <circle cx="0" cy="0" r="4" fill={theme().handColor} />
+      </g>
+    </svg>
   );
 }

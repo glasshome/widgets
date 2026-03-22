@@ -60,7 +60,7 @@ export function calculateMetrics(groups: EntityGroups): AreaMetrics {
   let temperature: number | null = null;
   for (const sensor of groups.sensors) {
     if (sensor.deviceClass === "temperature") {
-      const val = parseFloat(sensor.state);
+      const val = Number.parseFloat(sensor.state);
       if (Number.isFinite(val)) {
         temperature = val;
         break;
@@ -71,7 +71,7 @@ export function calculateMetrics(groups: EntityGroups): AreaMetrics {
   let humidity: number | null = null;
   for (const sensor of groups.sensors) {
     if (sensor.deviceClass === "humidity") {
-      const val = parseFloat(sensor.state);
+      const val = Number.parseFloat(sensor.state);
       if (Number.isFinite(val)) {
         humidity = val;
         break;

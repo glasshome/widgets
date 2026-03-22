@@ -3,8 +3,8 @@
   "name": "Camera",
   "description": "Live camera stream with multi-protocol support",
   "icon": "mdi:cctv",
-  "type": "status",
-  "size": "large",
+  "minSize": { "w": 2, "h": 2 },
+  "maxSize": { "w": 4, "h": 6 },
   "sdkVersion": "^0.2.0",
-  "version": "0.1.0"
+  "version": "0.1.2"
 }

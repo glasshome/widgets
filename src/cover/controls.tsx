@@ -1,8 +1,8 @@
-import { Icon } from "@iconify-icon/solid";
-import { useService } from "@glasshome/sync-layer/solid";
-import { createSignal, Show } from "solid-js";
-import { getEntityAttribute } from "@glasshome/widget-sdk";
 import type { EntityView } from "@glasshome/sync-layer";
+import { useService } from "@glasshome/sync-layer/solid";
+import { getEntityAttribute } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
+import { createSignal, Show } from "solid-js";
 
 interface CoverControlsProps {
   entity: EntityView;
@@ -87,8 +87,8 @@ export function CoverControls(props: CoverControlsProps) {
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <label class="text-sm font-medium">Position</label>
-          <span class="text-sm text-muted-foreground">{positionValue()}%</span>
+          <label class="font-medium text-sm">Position</label>
+          <span class="text-muted-foreground text-sm">{positionValue()}%</span>
         </div>
         <input
           type="range"
@@ -103,8 +103,8 @@ export function CoverControls(props: CoverControlsProps) {
       <Show when={hasTilt()}>
         <div class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <label class="text-sm font-medium">Tilt</label>
-            <span class="text-sm text-muted-foreground">{tiltValue()}%</span>
+            <label class="font-medium text-sm">Tilt</label>
+            <span class="text-muted-foreground text-sm">{tiltValue()}%</span>
           </div>
           <input
             type="range"

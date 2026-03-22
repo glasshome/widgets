@@ -1,6 +1,6 @@
 import { useService } from "@glasshome/sync-layer/solid";
-import { Icon } from "@iconify-icon/solid";
 import type { EntityView } from "@glasshome/widget-sdk";
+import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
 import { FAN_MODES, formatTemperature, HVAC_MODES } from "./utils";
 
@@ -81,7 +81,7 @@ export function ClimateControls(props: ClimateControlsProps) {
     <div class="flex flex-col gap-4">
       {/* Temperature control */}
       <div class="space-y-2">
-        <span class="text-sm font-medium">Temperature</span>
+        <span class="font-medium text-sm">Temperature</span>
         <div class="flex items-center justify-center gap-4">
           <button
             type="button"
@@ -91,9 +91,9 @@ export function ClimateControls(props: ClimateControlsProps) {
             <Icon icon="mdi:chevron-down" width={24} />
           </button>
           <div class="text-center">
-            <div class="text-3xl font-bold">{formatTemperature(targetTemp(), tempUnit())}</div>
+            <div class="font-bold text-3xl">{formatTemperature(targetTemp(), tempUnit())}</div>
             <Show when={currentTemp() !== undefined}>
-              <div class="text-sm text-muted-foreground">
+              <div class="text-muted-foreground text-sm">
                 Current: {formatTemperature(currentTemp(), tempUnit())}
               </div>
             </Show>
@@ -112,7 +112,7 @@ export function ClimateControls(props: ClimateControlsProps) {
 
       {/* HVAC mode selector */}
       <div class="space-y-2">
-        <span class="text-sm font-medium">Mode</span>
+        <span class="font-medium text-sm">Mode</span>
         <div class="flex flex-wrap gap-2">
           <For each={hvacModes()}>
             {(mode) => {
@@ -121,7 +121,7 @@ export function ClimateControls(props: ClimateControlsProps) {
                 <button
                   type="button"
                   onClick={() => setHvacMode(mode)}
-                  class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                  class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-xs transition-colors"
                   classList={{
                     "bg-primary text-primary-foreground": hvacMode() === mode,
                     "bg-muted hover:bg-muted/80": hvacMode() !== mode,
@@ -140,7 +140,7 @@ export function ClimateControls(props: ClimateControlsProps) {
       <Show when={fanModes()}>
         <div class="h-px bg-border" />
         <div class="space-y-2">
-          <span class="text-sm font-medium">Fan</span>
+          <span class="font-medium text-sm">Fan</span>
           <div class="flex flex-wrap gap-2">
             <For each={fanModes()!}>
               {(mode) => {
@@ -149,7 +149,7 @@ export function ClimateControls(props: ClimateControlsProps) {
                   <button
                     type="button"
                     onClick={() => setFanMode(mode)}
-                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-xs transition-colors"
                     classList={{
                       "bg-primary text-primary-foreground": fanMode() === mode,
                       "bg-muted hover:bg-muted/80": fanMode() !== mode,
@@ -169,14 +169,14 @@ export function ClimateControls(props: ClimateControlsProps) {
       <Show when={presetModes()}>
         <div class="h-px bg-border" />
         <div class="space-y-2">
-          <span class="text-sm font-medium">Preset</span>
+          <span class="font-medium text-sm">Preset</span>
           <div class="flex flex-wrap gap-2">
             <For each={presetModes()!}>
               {(mode) => (
                 <button
                   type="button"
                   onClick={() => setPresetMode(mode)}
-                  class="rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors"
+                  class="rounded-lg px-3 py-1.5 font-medium text-xs capitalize transition-colors"
                   classList={{
                     "bg-primary text-primary-foreground": presetMode() === mode,
                     "bg-muted hover:bg-muted/80": presetMode() !== mode,

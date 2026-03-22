@@ -60,13 +60,13 @@ export function getWeatherGradient(condition: string): string {
 }
 
 export function formatTemp(value: number | string, unit = "\u00B0"): string {
-  const num = typeof value === "string" ? parseFloat(value) : value;
+  const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (isNaN(num)) return "--";
   return `${Math.round(num)}${unit}`;
 }
 
 export function formatWindSpeed(value: number | string, unit = "km/h"): string {
-  const num = typeof value === "string" ? parseFloat(value) : value;
+  const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (isNaN(num)) return "--";
   return `${Math.round(num)} ${unit}`;
 }

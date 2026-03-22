@@ -3,8 +3,8 @@
   "name": "Scene",
   "description": "Activate a scene",
   "icon": "mdi:palette",
-  "type": "control",
-  "size": "small",
+  "minSize": { "w": 1, "h": 1 },
+  "maxSize": { "w": 4, "h": 4 },
   "sdkVersion": "^0.2.0",
-  "version": "0.1.0"
+  "version": "0.1.2"
 }
