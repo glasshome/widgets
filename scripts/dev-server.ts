@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 
 const distDir = resolve(import.meta.dir, "../dist");
 const PORT = 5174;
-const API_URL = process.env.API_URL ?? "http://localhost:3333";
+const API_URL = process.env.API_URL ?? "http://localhost:3123";
 
 const server = Bun.serve({
   port: PORT,
