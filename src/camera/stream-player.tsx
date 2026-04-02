@@ -91,7 +91,7 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
           if (!event.candidate) return;
           const candidateInit = event.candidate.toJSON();
           if (sessionId) {
-            sendWebRtcCandidate(id, sessionId, candidateInit).catch(() => {});
+            sendWebRtcCandidate(id, sessionId, candidateInit as Record<string, unknown>).catch(() => {});
           } else {
             pendingCandidates.push(candidateInit);
           }
@@ -116,7 +116,7 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
         // Flush queued local candidates
         for (const c of pendingCandidates) {
           if (sessionId) {
-            sendWebRtcCandidate(id, sessionId, c).catch(() => {});
+            sendWebRtcCandidate(id, sessionId, c as Record<string, unknown>).catch(() => {});
           }
         }
         pendingCandidates.length = 0;

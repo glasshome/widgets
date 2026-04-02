@@ -3,15 +3,14 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "customConditions": ["@glasshome/source"],
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "strict": true,
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "declarationDir": "dist",
-    "declaration": true
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

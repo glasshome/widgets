@@ -114,7 +114,7 @@ function AreaWidget(props: { config: AreaConfig }) {
   });
 
   const widgetSize = createMemo(() => {
-    const w = ctx.width();
+    const w = ctx.dimensions().width;
     if (w < 150) return "xs";
     if (w < 250) return "sm";
     if (w < 350) return "md";
@@ -215,7 +215,6 @@ function AreaWidget(props: { config: AreaConfig }) {
 
 export default defineWidget<AreaConfig>({
   manifest: {
-    tag: "glasshome-area",
     name: "Area",
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",

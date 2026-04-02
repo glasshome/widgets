@@ -47,41 +47,31 @@ export function LightControls(props: LightControlsProps) {
     return Math.abs(preset[0] - current[0]) < 10 && Math.abs(preset[1] - current[1]) < 15;
   };
 
+  // ha-types generated LightTurnOnFields is incomplete (missing hs_color, wrong color_temp_kelvin type)
+  const lightTurnOn = (data: Record<string, unknown>, entityId: string) =>
+    callService("light" as any, "turn_on" as any, data as any, { entity_id: entityId });
+
   const setColor = (hs: [number, number]) => {
-    const ids = props.entities().map((e) => e.id);
-    for (const id of ids) {
-      callService("light" as any, "turn_on" as any, { hs_color: hs }, { entity_id: id });
+    for (const id of props.entities().map((e) => e.id)) {
+      lightTurnOn({ hs_color: hs }, id);
     }
   };
 
   const setTemp = (kelvin: number) => {
-    const ids = props.entities().map((e) => e.id);
-    for (const id of ids) {
-      callService(
-        "light" as any,
-        "turn_on" as any,
-        { color_temp_kelvin: kelvin },
-        { entity_id: id },
-      );
+    for (const id of props.entities().map((e) => e.id)) {
+      lightTurnOn({ color_temp_kelvin: kelvin }, id);
     }
   };
 
   const setWhite = () => {
-    const ids = props.entities().map((e) => e.id);
-    for (const id of ids) {
-      callService("light" as any, "turn_on" as any, {}, { entity_id: id });
+    for (const id of props.entities().map((e) => e.id)) {
+      lightTurnOn({}, id);
     }
   };
 
   const setWarmWhite = () => {
-    const ids = props.entities().map((e) => e.id);
-    for (const id of ids) {
-      callService(
-        "light" as any,
-        "turn_on" as any,
-        { color_temp_kelvin: minKelvin() },
-        { entity_id: id },
-      );
+    for (const id of props.entities().map((e) => e.id)) {
+      lightTurnOn({ color_temp_kelvin: minKelvin() }, id);
     }
   };
 

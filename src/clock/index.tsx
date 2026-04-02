@@ -293,7 +293,7 @@ function ClockWidget(props: { config: ClockConfig }) {
         maxWidth="md"
         hasUnsavedChanges={hasChanges()}
         onSave={() => {
-          ctx.updateConfig(draftConfig());
+          ctx.updateConfig(draftConfig() as unknown as Record<string, unknown>);
           setShowDialog(false);
         }}
         editContent={
@@ -605,7 +605,6 @@ function ClockWidget(props: { config: ClockConfig }) {
 
 export default defineWidget<ClockConfig>({
   manifest: {
-    tag: "glasshome-clock",
     name: "Clock",
     description: "Display current time with digital or analog styles, presets, and date",
     icon: "mdi:clock-outline",
