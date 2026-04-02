@@ -214,7 +214,6 @@ function SensorWidget(props: { config: SensorConfig }) {
 
 export default defineWidget<SensorConfig>({
   manifest: {
-    tag: "glasshome-sensor",
     name: "Sensor",
     description: "Display sensor values with aggregation",
     icon: "mdi:eye",

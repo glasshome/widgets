@@ -229,7 +229,6 @@ function CameraWidget(props: { config: CameraConfig }) {
 
 export default defineWidget<CameraConfig>({
   manifest: {
-    tag: "glasshome-camera",
     name: "Camera",
     description: "Live camera stream with multi-protocol support",
     icon: "mdi:cctv",

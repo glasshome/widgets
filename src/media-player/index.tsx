@@ -173,7 +173,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 
 export default defineWidget<MediaPlayerConfig>({
   manifest: {
-    tag: "glasshome-media-player",
     name: "Media Player",
     description: "Media playback controls with album art and progress tracking",
     icon: "mdi:music",

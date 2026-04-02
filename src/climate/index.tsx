@@ -153,7 +153,6 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 
 export default defineWidget<ClimateConfig>({
   manifest: {
-    tag: "glasshome-climate",
     name: "Climate",
     description: "Climate control with temperature, HVAC modes, and fan control",
     icon: "mdi:thermostat",

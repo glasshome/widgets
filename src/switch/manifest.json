@@ -1,5 +1,4 @@
 {
-  "tag": "glasshome-switch",
   "name": "Switch",
   "description": "Toggle switch entities",
   "icon": "mdi:power-plug",

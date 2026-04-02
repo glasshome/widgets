@@ -1,5 +1,4 @@
 {
-  "tag": "glasshome-camera",
   "name": "Camera",
   "description": "Live camera stream with multi-protocol support",
   "icon": "mdi:cctv",

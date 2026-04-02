@@ -208,7 +208,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 
 export default defineWidget<BatteriesConfig>({
   manifest: {
-    tag: "glasshome-batteries",
     name: "Batteries",
     description: "Auto-discover and monitor battery levels across all devices",
     icon: "mdi:battery",

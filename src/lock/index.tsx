@@ -164,7 +164,6 @@ function LockWidget(props: { config: LockConfig }) {
 
 export default defineWidget<LockConfig>({
   manifest: {
-    tag: "glasshome-lock",
     name: "Lock",
     description: "Lock and unlock entities with security indicator",
     icon: "mdi:lock",

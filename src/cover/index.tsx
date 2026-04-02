@@ -202,7 +202,6 @@ function CoverWidget(props: { config: CoverConfig }) {
 
 export default defineWidget<CoverConfig>({
   manifest: {
-    tag: "glasshome-cover",
     name: "Cover",
     description: "Control covers, blinds, and shutters",
     icon: "mdi:window-shutter",

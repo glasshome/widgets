@@ -149,7 +149,6 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
 
 export default defineWidget<BinarySensorConfig>({
   manifest: {
-    tag: "glasshome-binary-sensor",
     name: "Binary Sensor",
     description: "Motion, door, occupancy sensors",
     icon: "mdi:checkbox-marked-circle",

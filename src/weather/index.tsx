@@ -254,7 +254,6 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 
 export default defineWidget<WeatherConfig>({
   manifest: {
-    tag: "glasshome-weather",
     name: "Weather",
     description: "Weather conditions with animated backgrounds and forecast chart",
     icon: "mdi:weather-partly-cloudy",

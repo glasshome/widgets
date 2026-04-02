@@ -69,6 +69,7 @@ function AreaSelector(props: { selectedAreaId: string; onSelect: (areaId: string
 function AreaWidget(props: { config: AreaConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { turnOn, turnOff } = useService();
   const [draftAreaId, setDraftAreaId] = createSignal(props.config.areaId);
   const [draftTitle, setDraftTitle] = createSignal(props.config.title ?? "");
   const hasChanges = () =>
@@ -83,19 +84,28 @@ function AreaWidget(props: { config: AreaConfig }) {
     return groupEntitiesByDomain(a.entities);
   });
 
-  const metrics = createMemo(() => calculateMetrics(groups()));
+  const metrics = createMemo(() => calculateMetrics(groups(), area()));
 
+  const areaIcon = createMemo(() => area()?.icon || "mdi:home-floor-1");
+  const areaName = createMemo(() => props.config.title || area()?.name || "Area");
   const isActive = createMemo(() => metrics().lightsOn > 0);
+  const colors = createMemo(() => (isActive() ? stateColors.active : stateColors.inactive));
+
+  // Light toggle handler — lifted here so useService() is called once
+  const toggleLights = () => {
+    const lights = groups().lights.filter(
+      (l) => l.state !== "unavailable" && l.state !== "unknown",
+    );
+    if (lights.length === 0) return;
+    const action = isActive() ? turnOff : turnOn;
+    Promise.allSettled(lights.map((l) => action(l.id)));
+  };
 
   const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog, delay: 300 },
-    }),
+    () => ({ hold: { action: openDialog, delay: 300 } }),
     () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
-
-  const colors = createMemo(() => (isActive() ? stateColors.active : stateColors.inactive));
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const a = area();
@@ -111,15 +121,6 @@ function AreaWidget(props: { config: AreaConfig }) {
         binarySensors: groups().binarySensors.length,
       },
     });
-  });
-
-  const widgetSize = createMemo(() => {
-    const w = ctx.dimensions().width;
-    if (w < 150) return "xs";
-    if (w < 250) return "sm";
-    if (w < 350) return "md";
-    if (w < 500) return "lg";
-    return "xl";
   });
 
   return (
@@ -153,15 +154,13 @@ function AreaWidget(props: { config: AreaConfig }) {
         >
           <Show when={area()}>
             <Widget.Content>
-              <div class="flex w-full flex-col gap-1 overflow-hidden">
-                <Widget.Title>{props.config.title || area()!.name}</Widget.Title>
-                <AreaContent
-                  metrics={metrics()}
-                  groups={groups()}
-                  areaName={area()!.name}
-                  size={widgetSize()}
-                />
-              </div>
+              <AreaContent
+                metrics={metrics()}
+                groups={groups()}
+                areaName={areaName()}
+                areaIcon={areaIcon()}
+                onToggleLights={toggleLights}
+              />
             </Widget.Content>
           </Show>
         </Widget>

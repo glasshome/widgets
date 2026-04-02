@@ -1,5 +1,4 @@
 {
-  "tag": "glasshome-light",
   "name": "Light",
   "description": "Light control with brightness, color, and temperature",
   "icon": "mdi:lightbulb",

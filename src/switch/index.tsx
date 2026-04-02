@@ -155,7 +155,6 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
 export default defineWidget<SwitchConfig>({
   manifest: {
-    tag: "glasshome-switch",
     name: "Switch",
     description: "Toggle switch entities",
     icon: "mdi:power-plug",

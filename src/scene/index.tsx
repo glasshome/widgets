@@ -132,7 +132,6 @@ function SceneWidget(props: { config: SceneConfig }) {
 
 export default defineWidget<SceneConfig>({
   manifest: {
-    tag: "glasshome-scene",
     name: "Scene",
     description: "Activate a scene",
     icon: "mdi:palette",

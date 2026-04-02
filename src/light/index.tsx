@@ -223,7 +223,6 @@ function LightWidget(props: { config: LightConfig }) {
 
 export default defineWidget<LightConfig>({
   manifest: {
-    tag: "glasshome-light",
     name: "Light",
     description: "Light control with brightness, color, and temperature",
     icon: "mdi:lightbulb",

@@ -136,7 +136,6 @@ function ButtonWidget(props: { config: ButtonConfig }) {
 
 export default defineWidget<ButtonConfig>({
   manifest: {
-    tag: "glasshome-button",
     name: "Button",
     description: "Press a button entity",
     icon: "mdi:gesture-tap-button",

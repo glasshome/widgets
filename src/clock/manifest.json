@@ -1,5 +1,4 @@
 {
-  "tag": "glasshome-clock",
   "name": "Clock",
   "description": "Display current time with digital or analog styles, presets, and date",
   "icon": "mdi:clock-outline",

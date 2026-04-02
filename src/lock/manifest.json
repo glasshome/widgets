@@ -1,5 +1,4 @@
 {
-  "tag": "glasshome-lock",
   "name": "Lock",
   "description": "Lock and unlock entities with security indicator",
   "icon": "mdi:lock",
