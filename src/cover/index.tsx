@@ -216,6 +216,7 @@ export default defineWidget<CoverConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "cover",
           default: [],
         },
       },

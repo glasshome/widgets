@@ -146,6 +146,7 @@ export default defineWidget<SceneConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "scene",
           default: [],
         },
       },

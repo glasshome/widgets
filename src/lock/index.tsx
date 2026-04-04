@@ -178,6 +178,7 @@ export default defineWidget<LockConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "lock",
           default: [],
         },
       },

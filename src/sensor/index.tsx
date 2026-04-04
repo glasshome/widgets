@@ -228,6 +228,7 @@ export default defineWidget<SensorConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "sensor",
           default: [],
         },
         aggregationType: {

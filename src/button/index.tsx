@@ -150,6 +150,7 @@ export default defineWidget<ButtonConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "button",
           default: [],
         },
       },

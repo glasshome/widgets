@@ -243,6 +243,7 @@ export default defineWidget<CameraConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "camera",
           default: [],
         },
         streamEngine: {

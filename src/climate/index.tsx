@@ -167,6 +167,7 @@ export default defineWidget<ClimateConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "climate",
           default: [],
         },
       },

@@ -237,6 +237,7 @@ export default defineWidget<LightConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "light",
           default: [],
         },
       },

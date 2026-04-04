@@ -163,6 +163,7 @@ export default defineWidget<BinarySensorConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "binary_sensor",
           default: [],
         },
       },

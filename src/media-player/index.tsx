@@ -187,6 +187,7 @@ export default defineWidget<MediaPlayerConfig>({
           type: "array",
           title: "Entities",
           items: { type: "string" },
+          domain: "media_player",
           default: [],
         },
       },
