@@ -52,8 +52,8 @@ function LightToggle(props: {
         type="button"
         class={`flex items-center justify-center rounded-full border-2 transition-all ${
           anyOn()
-            ? "border-yellow-400/40 bg-yellow-400/20 text-yellow-300 shadow-[0_0_12px_rgba(250,204,21,0.2)] hover:bg-yellow-400/30"
-            : "border-white/15 bg-white/10 text-white/50 hover:bg-white/15 hover:text-white/70"
+            ? "border-yellow-500/40 dark:border-yellow-400/40 bg-yellow-400/20 text-yellow-600 dark:text-yellow-300 shadow-[0_0_12px_rgba(250,204,21,0.2)] hover:bg-yellow-400/30"
+            : "border-foreground/15 bg-foreground/10 text-foreground/50 hover:bg-foreground/15 hover:text-foreground/70"
         }`}
         style={{ width: `${size()}px`, height: `${size()}px` }}
         on:pointerdown={(e: PointerEvent) => e.stopPropagation()}
@@ -62,7 +62,7 @@ function LightToggle(props: {
       >
         <Icon icon={anyOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} width={iconSize()} />
       </button>
-      <span class={`text-[10px] tabular-nums ${anyOn() ? "text-yellow-300/70" : "text-white/30"}`}>
+      <span class={`text-[10px] tabular-nums ${anyOn() ? "text-yellow-600/70 dark:text-yellow-300/70" : "text-foreground/30"}`}>
         {props.lightsOn}/{props.lightsTotal}
       </span>
     </div>
@@ -119,8 +119,8 @@ function buildAllPills(metrics: AreaMetrics): MetricPillDef[] {
       key: "lights",
       icon: anyOn ? "mdi:lightbulb" : "mdi:lightbulb-outline",
       value: `${metrics.lightsOn}/${metrics.lightsTotal}`,
-      color: anyOn ? "text-yellow-300" : "text-white/50",
-      bg: anyOn ? "bg-yellow-400/15" : "bg-white/5",
+      color: anyOn ? "text-yellow-300" : "text-foreground/50",
+      bg: anyOn ? "bg-yellow-400/15" : "bg-foreground/5",
       title: `Lights: ${metrics.lightsOn} of ${metrics.lightsTotal} on`,
     });
   }
@@ -143,17 +143,17 @@ function PrimaryMetrics(props: { metrics: AreaMetrics; large?: boolean }) {
   return (
     <div class="flex items-baseline gap-5">
       <div class="flex items-center gap-1.5">
-        <Icon icon="mdi:thermometer" width={iconSize()} class="text-white/40" />
-        <span class={`${textSize()} font-bold tabular-nums text-white`}>
+        <Icon icon="mdi:thermometer" width={iconSize()} class="text-foreground/40" />
+        <span class={`${textSize()} font-bold tabular-nums text-foreground`}>
           {tempDisplay()}
-          <span class={`${unitSize()} font-medium text-white/40`}>°</span>
+          <span class={`${unitSize()} font-medium text-foreground/40`}>°</span>
         </span>
       </div>
       <div class="flex items-center gap-1.5">
-        <Icon icon="mdi:water-percent" width={iconSize()} class="text-white/40" />
-        <span class={`${textSize()} font-bold tabular-nums text-white`}>
+        <Icon icon="mdi:water-percent" width={iconSize()} class="text-foreground/40" />
+        <span class={`${textSize()} font-bold tabular-nums text-foreground`}>
           {humDisplay()}
-          <span class={`${unitSize()} font-medium text-white/40`}>%</span>
+          <span class={`${unitSize()} font-medium text-foreground/40`}>%</span>
         </span>
       </div>
     </div>

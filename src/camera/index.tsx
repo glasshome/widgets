@@ -80,13 +80,19 @@ function CameraWidget(props: { config: CameraConfig }) {
     return `${state.hassUrl}/api/camera_proxy/${id}?token=${token}`;
   });
 
+  let cascadeTimer: ReturnType<typeof setTimeout> | null = null;
   const handleStreamError = () => {
     if (isManualMode()) return;
-    const currentIdx = CASCADE.indexOf(activeMode());
-    if (currentIdx < CASCADE.length - 1) {
-      setActiveMode(CASCADE[currentIdx + 1]);
-    }
+    if (cascadeTimer) return;
+    cascadeTimer = setTimeout(() => {
+      cascadeTimer = null;
+      const currentIdx = CASCADE.indexOf(activeMode());
+      if (currentIdx < CASCADE.length - 1) {
+        setActiveMode(CASCADE[currentIdx + 1]!);
+      }
+    }, 100);
   };
+  onCleanup(() => { if (cascadeTimer) clearTimeout(cascadeTimer); });
 
   const cameraName = createMemo(() => props.config.title || entity()?.friendlyName || "Camera");
 

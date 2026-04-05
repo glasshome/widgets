@@ -2,8 +2,14 @@
   "name": "Light",
   "description": "Light control with brightness, color, and temperature",
   "icon": "mdi:lightbulb",
-  "minSize": { "w": 1, "h": 1 },
-  "maxSize": { "w": 4, "h": 4 },
+  "minSize": {
+    "w": 1,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 4,
+    "h": 4
+  },
   "sdkVersion": "^0.2.0",
-  "version": "0.1.2"
+  "version": "0.2.0"
 }

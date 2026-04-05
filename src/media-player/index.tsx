@@ -105,7 +105,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         <img src={albumArt()} alt="" class="h-full w-full object-cover" />
                       </Show>
                       <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <Icon icon={getMediaIcon(entity()!.state)} width={16} class="text-white" />
+                        <Icon icon={getMediaIcon(entity()!.state)} width={16} class="text-foreground" />
                       </div>
                     </div>
                     <div class="flex flex-col overflow-hidden">

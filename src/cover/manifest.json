@@ -2,8 +2,14 @@
   "name": "Cover",
   "description": "Control covers, blinds, and shutters",
   "icon": "mdi:window-shutter",
-  "minSize": { "w": 1, "h": 1 },
-  "maxSize": { "w": 4, "h": 4 },
+  "minSize": {
+    "w": 1,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 4,
+    "h": 4
+  },
   "sdkVersion": "^0.2.0",
-  "version": "0.1.2"
+  "version": "0.2.0"
 }

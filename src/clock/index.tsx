@@ -255,7 +255,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 <Show when={cfg().showDate}>
                   <div class="@[200px]:mt-3 mt-2 flex flex-col items-center @[200px]:gap-1 gap-0.5">
                     <span
-                      class={`font-medium ${dayClasses()} ${digital().dayColor || "text-white/60"}`}
+                      class={`font-medium ${dayClasses()} ${digital().dayColor || "text-foreground/60"}`}
                       style={{ "font-family": digital().fontFamily }}
                     >
                       {dayOfWeek()}

@@ -41,6 +41,8 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
     if (!id) return;
 
     cleanup();
+    let cancelled = false;
+    onCleanup(() => { cancelled = true; });
 
     (async () => {
       try {
@@ -52,6 +54,8 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
         } catch {
           rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
         }
+
+        if (cancelled) return;
 
         // Create peer connection
         const peerConnection = new RTCPeerConnection(rtcConfig);
@@ -127,7 +131,7 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
         );
       } catch {
         cleanup();
-        props.onError?.();
+        if (!cancelled) props.onError?.();
       }
     })();
   });

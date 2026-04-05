@@ -138,7 +138,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
             <WeatherBackground condition={condition()} />
             <Widget.Content>
               <div
-                class="relative z-10 flex h-full flex-col justify-between text-white"
+                class="relative z-10 flex h-full flex-col justify-between text-foreground"
                 style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.4)" }}
               >
                 {/* Main weather display */}
