@@ -1,4 +1,5 @@
-import { byDomain, useEntities } from "@glasshome/sync-layer/solid";
+import { extractDomain, state } from "@glasshome/sync-layer";
+import { useEntities } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   stateColors,
@@ -32,8 +33,17 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
     draftWhitelist() !== (props.config.whitelist ?? []).join(", ") ||
     draftBlacklist() !== (props.config.blacklist ?? []).join(", ");
 
-  const sensorIds = createMemo(() => byDomain()["sensor"] ?? []);
-  const sensorEntities = useEntities(sensorIds);
+  // Derive battery entity IDs from registry metadata instead of subscribing to all sensors
+  const batteryIds = createMemo(() => {
+    const ids: string[] = [];
+    for (const [entityId, entry] of Object.entries(state.entityRegistry)) {
+      if (extractDomain(entityId) !== "sensor") continue;
+      const dc = entry.device_class ?? entry.original_device_class;
+      if (dc === "battery") ids.push(entityId);
+    }
+    return ids;
+  });
+  const sensorEntities = useEntities(batteryIds);
 
   const batteries = createMemo(() => filterAndSortBatteries(sensorEntities(), props.config));
 

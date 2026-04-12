@@ -1,4 +1,5 @@
-import { byDomain, useEntity } from "@glasshome/sync-layer/solid";
+import { getEntityView } from "@glasshome/sync-layer";
+import { byDomain } from "@glasshome/sync-layer/solid";
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 interface EntitySelectorProps {
@@ -9,7 +10,8 @@ interface EntitySelectorProps {
 }
 
 function EntityRow(props: { entityId: string; selected: boolean; onToggle: (id: string) => void }) {
-  const entity = useEntity(() => props.entityId);
+  // Use getEntityView directly — no subscription registration needed for picker UI
+  const entity = createMemo(() => getEntityView(props.entityId));
 
   return (
     <button
