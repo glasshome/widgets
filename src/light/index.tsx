@@ -219,7 +219,7 @@ export default defineWidget<LightConfig>({
     icon: "mdi:lightbulb",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.2.0",
+    sdkVersion: "^0.3.0",
   },
   configSchema,
   component: LightWidget,
