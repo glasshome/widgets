@@ -14,7 +14,7 @@ import {
   widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, getBinarySensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
