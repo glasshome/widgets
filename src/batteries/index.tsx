@@ -19,9 +19,9 @@ import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils
 
 const configSchema = z.object({
   title: widgetFields.title(),
-  threshold: z.number().min(0).max(100).default(20).meta({ label: "Low Battery Threshold (%)" }),
-  whitelist: z.array(z.string()).default([]).meta({ label: "Whitelist (include only these)" }),
-  blacklist: z.array(z.string()).default([]).meta({ label: "Blacklist (exclude these)" }),
+  threshold: z.number().min(0).max(100).default(20).meta({ title: "Low Battery Threshold (%)" }),
+  whitelist: z.array(z.string()).default([]).meta({ title: "Whitelist (include only these)" }),
+  blacklist: z.array(z.string()).default([]).meta({ title: "Blacklist (exclude these)" }),
 });
 type BatteriesConfig = z.infer<typeof configSchema>;
 

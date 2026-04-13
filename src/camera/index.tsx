@@ -20,8 +20,8 @@ import { type StreamMode, StreamPlayer } from "./stream-player";
 const configSchema = z.object({
   title: widgetFields.title(),
   entityIds: widgetFields.singleEntity("camera"),
-  streamEngine: z.enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"]).default("auto").meta({ label: "Stream Engine" }),
-  refreshInterval: z.number().default(10).meta({ label: "Snapshot Refresh (seconds)" }),
+  streamEngine: z.enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"]).default("auto").meta({ title: "Stream Engine" }),
+  refreshInterval: z.number().default(10).meta({ title: "Snapshot Refresh (seconds)" }),
 });
 type CameraConfig = z.infer<typeof configSchema>;
 

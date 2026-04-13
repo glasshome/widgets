@@ -12,44 +12,44 @@ export const configSchema = z.object({
   clockStyle: z
     .enum(["digital", "analog"])
     .default("digital")
-    .meta({ label: "Clock Style" }),
+    .meta({ title: "Clock Style" }),
   clockSize: z
     .enum(["small", "medium", "large"])
     .default("small")
-    .meta({ label: "Clock Size" }),
-  showSeconds: z.boolean().default(false).meta({ label: "Show Seconds" }),
+    .meta({ title: "Clock Size" }),
+  showSeconds: z.boolean().default(false).meta({ title: "Show Seconds" }),
   timeFormat: z
     .enum(["24", "12"])
     .default("24")
-    .meta({ label: "Time Format" }),
-  timeZone: z.string().optional().meta({ label: "Timezone" }),
+    .meta({ title: "Time Format" }),
+  timeZone: z.string().optional().meta({ title: "Timezone" }),
   preset: z
     .enum(["modern", "classic", "minimal", "bold"])
     .default("modern")
-    .meta({ label: "Theme Preset" }),
-  showDate: z.boolean().default(false).meta({ label: "Show Date" }),
+    .meta({ title: "Theme Preset" }),
+  showDate: z.boolean().default(false).meta({ title: "Show Date" }),
   dateFormat: z
     .enum(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"])
     .default("MM/DD/YYYY")
-    .meta({ label: "Date Format" }),
+    .meta({ title: "Date Format" }),
   fontSize: z
     .enum(["small", "medium", "large"])
     .default("medium")
-    .meta({ label: "Font Size" }),
+    .meta({ title: "Font Size" }),
   layout: z
     .enum(["auto", "horizontal", "stacked"])
     .default("auto")
-    .meta({ label: "Layout" }),
+    .meta({ title: "Layout" }),
   analogOptions: z
     .object({
-      border: z.boolean().default(false).meta({ label: "Show Border" }),
+      border: z.boolean().default(false).meta({ title: "Show Border" }),
       ticks: z
         .enum(["none", "quarter", "hour", "minute"])
         .default("hour")
-        .meta({ label: "Tick Marks" }),
+        .meta({ title: "Tick Marks" }),
     })
     .default({ border: false, ticks: "hour" })
-    .meta({ label: "Analog Options" }),
+    .meta({ title: "Analog Options" }),
 });
 
 export type ClockConfig = z.infer<typeof configSchema>;

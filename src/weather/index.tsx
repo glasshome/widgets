@@ -22,7 +22,7 @@ import { WeatherBackground } from "./weather-background";
 const configSchema = z.object({
   title: widgetFields.title(),
   entityIds: widgetFields.entityIds("weather"),
-  showForecast: z.boolean().default(true).meta({ label: "Show Forecast" }),
+  showForecast: z.boolean().default(true).meta({ title: "Show Forecast" }),
 });
 type WeatherConfig = z.infer<typeof configSchema>;
 

@@ -16,7 +16,6 @@ import { EntitySelector } from "./entity-selector";
 interface ExtendedJSONSchema extends JSONSchema7 {
 	domain?: string;
 	singleSelect?: boolean;
-	label?: string;
 }
 
 interface SchemaFormProps {
@@ -51,7 +50,7 @@ export function SchemaForm(props: SchemaFormProps) {
 			<For each={properties()}>
 				{({ key, prop }) => (
 					<div class="flex flex-col gap-1.5">
-						<Label for={key}>{(prop as ExtendedJSONSchema).label || prop.title || key}</Label>
+						<Label for={key}>{prop.title || key}</Label>
 
 						{prop.description && <p class="text-muted-foreground text-xs">{prop.description}</p>}
 
@@ -128,7 +127,7 @@ export function SchemaForm(props: SchemaFormProps) {
 										return (
 											<div class="flex flex-col gap-1.5">
 												<Label for={`${key}.${subKey}`}>
-													{subProp.label || subProp.title || subKey}
+													{subProp.title || subKey}
 												</Label>
 												{subProp.enum ? (
 													<Select

@@ -27,7 +27,7 @@ const configSchema = z.object({
   aggregationType: z
     .enum(["mean", "min", "max", "sum", "median"])
     .default("mean")
-    .meta({ label: "Aggregation" }),
+    .meta({ title: "Aggregation" }),
 });
 type SensorConfig = z.infer<typeof configSchema>;
 
