@@ -23,7 +23,7 @@ import {
   WidgetDebugView,
   widgetDialogProps,
 } from "../common";
-import { Sparkline } from "./sparkline";
+import { Sparkline, type SparklinePoint } from "./sparkline";
 import { formatSensorValue } from "./utils";
 
 interface SensorConfig {
@@ -60,10 +60,12 @@ function SensorWidget(props: { config: SensorConfig }) {
     if (id) untrackEntityHistory(id);
   });
 
-  const dataPoints = createMemo(() => {
+  const dataPoints = createMemo<SparklinePoint[]>(() => {
     const history = historyData();
     if (!history?.timeline) return [];
-    return history.timeline.map((entry) => Number(entry.state)).filter((v) => !Number.isNaN(v));
+    return history.timeline
+      .map((entry) => ({ value: Number(entry.state), timestamp: entry.timestamp }))
+      .filter((d) => !Number.isNaN(d.value));
   });
 
   const { emptyState, hasEntities, count, aggregatedData } = useWidgetEntityGroup({
@@ -154,7 +156,7 @@ function SensorWidget(props: { config: SensorConfig }) {
               </div>
             </Widget.Content>
             <Show when={dataPoints().length >= 2}>
-              <div class="absolute right-0 bottom-0 left-0 h-8 opacity-40">
+              <div class="absolute right-0 bottom-0 left-0 h-16 opacity-50">
                 <Sparkline data={dataPoints()} />
               </div>
             </Show>

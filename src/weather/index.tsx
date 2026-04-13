@@ -138,7 +138,11 @@ function WeatherWidget(props: { config: WeatherConfig }) {
             <WeatherBackground condition={condition()} />
             <Widget.Content>
               <div
-                class="relative z-10 flex h-full flex-col justify-between text-foreground"
+                class={`relative z-10 flex h-full flex-col text-foreground ${
+                  isLarge() && showForecast() && hourlyData().length > 1
+                    ? "gap-2"
+                    : "justify-between"
+                }`}
                 style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.4)" }}
               >
                 {/* Main weather display */}
@@ -171,15 +175,15 @@ function WeatherWidget(props: { config: WeatherConfig }) {
                     </Show>
                   </div>
                 </Show>
-
-                {/* Forecast chart */}
-                <Show when={isLarge() && showForecast() && hourlyData().length > 1}>
-                  <div class="mt-auto">
-                    <ForecastChart data={hourlyData()} height={50} />
-                  </div>
-                </Show>
               </div>
             </Widget.Content>
+
+            {/* Forecast chart — outside Widget.Content so it bleeds edge-to-edge */}
+            <Show when={isLarge() && showForecast() && hourlyData().length > 1}>
+              <div class="absolute bottom-0 left-0 right-0 z-10 text-white">
+                <ForecastChart data={hourlyData()} height={90} />
+              </div>
+            </Show>
           </Show>
         </Widget>
       </div>
