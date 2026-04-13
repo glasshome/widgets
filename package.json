@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@glasshome/widget-cli": "0.4.1",
+    "@types/json-schema": "^7.0.15",
     "typescript": "^5.0.0",
     "vite": "^7.3.1",
     "vite-plugin-solid": "^2.11.0"
@@ -28,8 +29,8 @@
   },
   "peerDependencies": {
     "solid-js": "^1.9.0",
-    "@glasshome/widget-sdk": "0.2.4",
-    "@glasshome/ui": "0.1.1",
+    "@glasshome/widget-sdk": "0.2.5",
+    "@glasshome/ui": "0.1.2",
     "@glasshome/sync-layer": "0.1.7"
   }
 }

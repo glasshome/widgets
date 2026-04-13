@@ -8,28 +8,28 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { type StreamMode, StreamPlayer } from "./stream-player";
 
-interface CameraConfig {
-  title?: string;
-  entityIds: string[];
-  streamEngine?: "auto" | "webrtc" | "hls" | "mjpeg" | "snapshot";
-  refreshInterval?: number;
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.singleEntity("camera"),
+  streamEngine: z.enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"]).default("auto").meta({ label: "Stream Engine" }),
+  refreshInterval: z.number().default(10).meta({ label: "Snapshot Refresh (seconds)" }),
+});
+type CameraConfig = z.infer<typeof configSchema>;
 
 const CASCADE: StreamMode[] = ["webrtc", "hls", "mjpeg", "snapshot"];
 
 function CameraWidget(props: { config: CameraConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -187,24 +187,15 @@ function CameraWidget(props: { config: CameraConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Camera"
         maxWidth="xl"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="camera"
-          />
-        }
         controlsContent={
           <div class="flex flex-col gap-3">
             <div class="aspect-video overflow-hidden rounded-lg">
@@ -241,31 +232,7 @@ export default defineWidget<CameraConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "camera",
-          default: [],
-        },
-        streamEngine: {
-          type: "string",
-          title: "Stream Engine",
-          enum: ["auto", "webrtc", "hls", "mjpeg", "snapshot"],
-          default: "auto",
-        },
-        refreshInterval: {
-          type: "number",
-          title: "Snapshot Refresh Interval (seconds)",
-          default: 10,
-        },
-      },
-    },
-    defaultConfig: { entityIds: [], streamEngine: "auto", refreshInterval: 10 },
   },
+  configSchema,
   component: CameraWidget,
 });

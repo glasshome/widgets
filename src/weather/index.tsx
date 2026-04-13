@@ -8,31 +8,29 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ForecastChart } from "./forecast-chart";
 import { formatTemp, formatWindSpeed, getWeatherIcon } from "./utils";
 import { WeatherBackground } from "./weather-background";
 
-interface WeatherConfig {
-  title?: string;
-  entityIds: string[];
-  showForecast?: boolean;
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("weather"),
+  showForecast: z.boolean().default(true).meta({ label: "Show Forecast" }),
+});
+type WeatherConfig = z.infer<typeof configSchema>;
 
 const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 function WeatherWidget(props: { config: WeatherConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const [draftShowForecast, setDraftShowForecast] = createSignal(props.config.showForecast ?? true);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds) ||
-    draftShowForecast() !== (props.config.showForecast ?? true);
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -190,42 +188,15 @@ function WeatherWidget(props: { config: WeatherConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDraftEntityIds(props.config.entityIds);
-            setDraftShowForecast(props.config.showForecast ?? true);
-          }
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Weather"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({
-            ...props.config,
-            entityIds: draftEntityIds(),
-            showForecast: draftShowForecast(),
-          });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <div class="flex flex-col gap-4">
-            <EntitySelector
-              entityIds={draftEntityIds()}
-              onEntityIdsChange={setDraftEntityIds}
-              domain="weather"
-            />
-            <label class="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={draftShowForecast()}
-                onChange={(e) => setDraftShowForecast(e.currentTarget.checked)}
-                class="rounded"
-              />
-              Show forecast chart
-            </label>
-          </div>
-        }
         controlsContent={
           <div class="flex flex-col gap-2">
             <h3 class="font-medium text-sm">7-Day Forecast</h3>
@@ -264,24 +235,7 @@ export default defineWidget<WeatherConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          default: [],
-        },
-        showForecast: {
-          type: "boolean",
-          title: "Show Forecast",
-          default: true,
-        },
-      },
-    },
-    defaultConfig: { entityIds: [], showForecast: true },
   },
+  configSchema,
   component: WeatherWidget,
 });

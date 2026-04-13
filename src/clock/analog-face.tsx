@@ -25,9 +25,9 @@ const SIZE_MAP: Record<ClockSize, number> = {
 
 export function AnalogClock(props: AnalogClockProps) {
   const theme = () => props.presetTheme ?? defaultTheme;
-  const options = () => props.analogOptions ?? {};
-  const border = () => options().border ?? false;
-  const ticks = () => options().ticks ?? "hour";
+  const options = () => props.analogOptions ?? { border: false, ticks: "hour" as const };
+  const border = () => options().border;
+  const ticks = () => options().ticks;
 
   const clockSize = () => SIZE_MAP[props.size] ?? 120;
   const center = () => clockSize() / 2;

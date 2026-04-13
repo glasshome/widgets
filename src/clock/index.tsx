@@ -16,12 +16,11 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
-import type { ClockConfig } from "./types";
+import { configSchema, type ClockConfig } from "./types";
 import {
   formatDate,
   getClockGradient,
@@ -611,92 +610,7 @@ export default defineWidget<ClockConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        clockStyle: {
-          type: "string",
-          title: "Clock Style",
-          enum: ["digital", "analog"],
-          default: "digital",
-        },
-        clockSize: {
-          type: "string",
-          title: "Clock Size",
-          enum: ["small", "medium", "large"],
-          default: "small",
-        },
-        showSeconds: {
-          type: "boolean",
-          title: "Show Seconds",
-          default: false,
-        },
-        timeFormat: {
-          type: "string",
-          title: "Time Format",
-          enum: ["12", "24"],
-          default: "24",
-        },
-        timeZone: {
-          type: "string",
-          title: "Timezone",
-        },
-        preset: {
-          type: "string",
-          title: "Theme Preset",
-          enum: ["modern", "classic", "minimal", "bold"],
-          default: "modern",
-        },
-        showDate: {
-          type: "boolean",
-          title: "Show Date",
-          default: false,
-        },
-        dateFormat: {
-          type: "string",
-          title: "Date Format",
-          enum: ["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"],
-          default: "MM/DD/YYYY",
-        },
-        fontSize: {
-          type: "string",
-          title: "Font Size",
-          enum: ["small", "medium", "large"],
-          default: "medium",
-        },
-        layout: {
-          type: "string",
-          title: "Layout",
-          enum: ["auto", "horizontal", "stacked"],
-          default: "auto",
-        },
-        analogOptions: {
-          type: "object",
-          title: "Analog Options",
-          properties: {
-            border: { type: "boolean", title: "Show Border", default: false },
-            ticks: {
-              type: "string",
-              title: "Tick Marks",
-              enum: ["none", "quarter", "hour", "minute"],
-              default: "hour",
-            },
-          },
-        },
-      },
-    },
-    defaultConfig: {
-      clockStyle: "digital",
-      clockSize: "small",
-      showSeconds: false,
-      timeFormat: "24",
-      preset: "modern",
-      showDate: false,
-      dateFormat: "MM/DD/YYYY",
-      fontSize: "medium",
-      layout: "auto",
-      analogOptions: { border: false, ticks: "hour" },
-    },
   },
+  configSchema,
   component: ClockWidget,
 });

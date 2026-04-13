@@ -7,7 +7,7 @@ export interface BatteryDevice {
   isLow: boolean;
 }
 
-export interface BatteriesConfig {
+interface BatteriesConfig {
   title?: string;
   threshold?: number;
   whitelist?: string[];

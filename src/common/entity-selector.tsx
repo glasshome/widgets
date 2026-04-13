@@ -1,5 +1,6 @@
 import { getEntityView } from "@glasshome/sync-layer";
 import { byDomain } from "@glasshome/sync-layer/solid";
+import { Input } from "@glasshome/ui/solid";
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 interface EntitySelectorProps {
@@ -45,7 +46,7 @@ function EntityRow(props: { entityId: string; selected: boolean; onToggle: (id: 
         <div class="truncate text-muted-foreground text-xs">{props.entityId}</div>
       </div>
       <Show when={entity()}>
-        <span class="shrink-0 text-muted-foreground text-xs">{entity()!.state}</span>
+        {(e) => <span class="shrink-0 text-muted-foreground text-xs">{e().state}</span>}
       </Show>
     </button>
   );
@@ -80,12 +81,11 @@ export function EntitySelector(props: EntitySelectorProps) {
 
   return (
     <div class="flex flex-col gap-2">
-      <input
+      <Input
         type="text"
         placeholder={`Search ${props.domain} entities...`}
         value={search()}
         onInput={(e) => setSearch(e.currentTarget.value)}
-        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
       />
       <div class="max-h-64 overflow-y-auto rounded-lg border border-border">
         <Show

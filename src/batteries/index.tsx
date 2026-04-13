@@ -8,30 +8,26 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { createMemo, For, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
-import type { BatteriesConfig } from "./utils";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
+
+const configSchema = z.object({
+  title: widgetFields.title(),
+  threshold: z.number().min(0).max(100).default(20).meta({ label: "Low Battery Threshold (%)" }),
+  whitelist: z.array(z.string()).default([]).meta({ label: "Whitelist (include only these)" }),
+  blacklist: z.array(z.string()).default([]).meta({ label: "Blacklist (exclude these)" }),
+});
+type BatteriesConfig = z.infer<typeof configSchema>;
 
 function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-
-  const [draftThreshold, setDraftThreshold] = createSignal(props.config.threshold ?? 20);
-  const [draftWhitelist, setDraftWhitelist] = createSignal(
-    (props.config.whitelist ?? []).join(", "),
-  );
-  const [draftBlacklist, setDraftBlacklist] = createSignal(
-    (props.config.blacklist ?? []).join(", "),
-  );
-
-  const hasChanges = () =>
-    draftThreshold() !== (props.config.threshold ?? 20) ||
-    draftWhitelist() !== (props.config.whitelist ?? []).join(", ") ||
-    draftBlacklist() !== (props.config.blacklist ?? []).join(", ");
 
   // Derive battery entity IDs from registry metadata instead of subscribing to all sensors
   const batteryIds = createMemo(() => {
@@ -70,12 +66,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
     });
   });
 
-  const parseList = (value: string): string[] =>
-    value
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
   return (
     <>
       <div
@@ -104,65 +94,15 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDraftThreshold(props.config.threshold ?? 20);
-            setDraftWhitelist((props.config.whitelist ?? []).join(", "));
-            setDraftBlacklist((props.config.blacklist ?? []).join(", "));
-          }
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Batteries"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({
-            ...props.config,
-            threshold: draftThreshold(),
-            whitelist: parseList(draftWhitelist()),
-            blacklist: parseList(draftBlacklist()),
-          });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1.5">
-              <label class="font-medium text-sm">Low Battery Threshold (%)</label>
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={draftThreshold()}
-                onInput={(e) => setDraftThreshold(Number(e.currentTarget.value))}
-                class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="font-medium text-sm">
-                Whitelist (comma-separated entity fragments)
-              </label>
-              <input
-                type="text"
-                value={draftWhitelist()}
-                onInput={(e) => setDraftWhitelist(e.currentTarget.value)}
-                placeholder="e.g. phone, tablet"
-                class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="font-medium text-sm">
-                Blacklist (comma-separated entity fragments)
-              </label>
-              <input
-                type="text"
-                value={draftBlacklist()}
-                onInput={(e) => setDraftBlacklist(e.currentTarget.value)}
-                placeholder="e.g. test, virtual"
-                class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-          </div>
-        }
         controlsContent={
           <div class="flex flex-col gap-2">
             <Show
@@ -224,30 +164,7 @@ export default defineWidget<BatteriesConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        threshold: {
-          type: "number",
-          title: "Low Battery Threshold",
-          default: 20,
-        },
-        whitelist: {
-          type: "array",
-          title: "Whitelist",
-          items: { type: "string" },
-          default: [],
-        },
-        blacklist: {
-          type: "array",
-          title: "Blacklist",
-          items: { type: "string" },
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { threshold: 20, whitelist: [], blacklist: [] },
   },
+  configSchema,
   component: BatteriesWidget,
 });

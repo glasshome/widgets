@@ -4,7 +4,6 @@ import {
   defineWidget,
   getEntityAttribute,
   type SensorGroupResult,
-  type SensorGroupType,
   stateColors,
   useWidgetContext,
   useWidgetDialog,
@@ -12,36 +11,29 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, onCleanup, onMount, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import {
-  buildDebugData,
-  EntitySelector,
-  getSensorIcon,
-  WidgetDebugView,
-  widgetDialogProps,
-} from "../common";
+import { buildDebugData, getSensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import { formatSensorValue } from "./utils";
 
-interface SensorConfig {
-  title?: string;
-  entityIds: string[];
-  aggregationType?: SensorGroupType;
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("sensor"),
+  aggregationType: z
+    .enum(["mean", "min", "max", "sum", "median"])
+    .default("mean")
+    .meta({ label: "Aggregation" }),
+});
+type SensorConfig = z.infer<typeof configSchema>;
 
 function SensorWidget(props: { config: SensorConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const [draftAggType, setDraftAggType] = createSignal<SensorGroupType>(
-    props.config.aggregationType ?? "mean",
-  );
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds) ||
-    draftAggType() !== (props.config.aggregationType ?? "mean");
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -166,47 +158,15 @@ function SensorWidget(props: { config: SensorConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDraftEntityIds(props.config.entityIds);
-            setDraftAggType(props.config.aggregationType ?? "mean");
-          }
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Sensor"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({
-            ...props.config,
-            entityIds: draftEntityIds(),
-            aggregationType: draftAggType(),
-          });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <div class="flex flex-col gap-4">
-            <EntitySelector
-              entityIds={draftEntityIds()}
-              onEntityIdsChange={setDraftEntityIds}
-              domain="sensor"
-            />
-            <div class="flex flex-col gap-1.5">
-              <label class="font-medium text-sm">Aggregation Type</label>
-              <select
-                value={draftAggType()}
-                onChange={(e) => setDraftAggType(e.currentTarget.value as SensorGroupType)}
-                class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              >
-                <option value="mean">Mean (Average)</option>
-                <option value="min">Minimum</option>
-                <option value="max">Maximum</option>
-                <option value="sum">Sum</option>
-                <option value="median">Median</option>
-              </select>
-            </div>
-          </div>
-        }
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
       />
@@ -222,26 +182,7 @@ export default defineWidget<SensorConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "sensor",
-          default: [],
-        },
-        aggregationType: {
-          type: "string",
-          title: "Aggregation",
-          enum: ["mean", "min", "max", "sum", "median"],
-          default: "mean",
-        },
-      },
-    },
-    defaultConfig: { entityIds: [], aggregationType: "mean" },
   },
+  configSchema,
   component: SensorWidget,
 });

@@ -7,26 +7,26 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { MediaPlayerControls } from "./controls";
 import { getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
 
-interface MediaPlayerConfig {
-  title?: string;
-  entityIds: string[];
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.singleEntity("media_player"),
+});
+type MediaPlayerConfig = z.infer<typeof configSchema>;
 
 function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -145,24 +145,15 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Media Player"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="media_player"
-          />
-        }
         controlsContent={<MediaPlayerControls entity={entity} />}
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
@@ -179,20 +170,7 @@ export default defineWidget<MediaPlayerConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "media_player",
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { entityIds: [] },
   },
+  configSchema,
   component: MediaPlayerWidget,
 });

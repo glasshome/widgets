@@ -7,16 +7,20 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 
-interface LockConfig {
-  title?: string;
-  entityIds: string[];
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("lock"),
+});
+
+type LockConfig = z.infer<typeof configSchema>;
 
 const lockedColors = {
   gradient: "bg-gradient-to-br from-emerald-600/20 to-green-700/20",
@@ -34,9 +38,6 @@ function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -137,24 +138,15 @@ function LockWidget(props: { config: LockConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Lock"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="lock"
-          />
-        }
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
       />
@@ -170,20 +162,7 @@ export default defineWidget<LockConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "lock",
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { entityIds: [] },
   },
+  configSchema,
   component: LockWidget,
 });

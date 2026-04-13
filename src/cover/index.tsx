@@ -9,30 +9,29 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import {
   buildDebugData,
-  EntitySelector,
   getCoverIcon,
   WidgetDebugView,
   widgetDialogProps,
 } from "../common";
 import { CoverControls } from "./controls";
 
-interface CoverConfig {
-  title?: string;
-  entityIds: string[];
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("cover"),
+});
+type CoverConfig = z.infer<typeof configSchema>;
 
 function CoverWidget(props: { config: CoverConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService } = useService();
@@ -172,24 +171,15 @@ function CoverWidget(props: { config: CoverConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Cover"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="cover"
-          />
-        }
         controlsContent={
           <Show when={entities()[0]}>{(entity) => <CoverControls entity={entity()} />}</Show>
         }
@@ -208,20 +198,7 @@ export default defineWidget<CoverConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "cover",
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { entityIds: [] },
   },
+  configSchema,
   component: CoverWidget,
 });

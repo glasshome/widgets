@@ -11,30 +11,25 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import {
-  buildDebugData,
-  EntitySelector,
-  getBinarySensorIcon,
-  WidgetDebugView,
-  widgetDialogProps,
-} from "../common";
+import { buildDebugData, getBinarySensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { getBinarySensorStateText } from "./utils";
 
-interface BinarySensorConfig {
-  title?: string;
-  entityIds: string[];
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("binary_sensor"),
+});
+
+type BinarySensorConfig = z.infer<typeof configSchema>;
 
 function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -122,24 +117,15 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Binary Sensor"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="binary_sensor"
-          />
-        }
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
       />
@@ -155,20 +141,7 @@ export default defineWidget<BinarySensorConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "binary_sensor",
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { entityIds: [] },
   },
+  configSchema,
   component: BinarySensorWidget,
 });

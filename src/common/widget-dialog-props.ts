@@ -6,6 +6,7 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@glasshome/ui/solid";
+import { SchemaForm } from "./schema-form";
 
 export const widgetDialogProps = {
   ResponsiveDialog,
@@ -14,4 +15,5 @@ export const widgetDialogProps = {
   ResponsiveDialogTitle,
   ResponsiveDialogDescription,
   Button,
+  SchemaForm,
 } as const;

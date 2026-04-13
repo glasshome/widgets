@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export type ClockStyle = "digital" | "analog";
 export type ClockSize = "small" | "medium" | "large";
 export type TickType = "none" | "quarter" | "hour" | "minute";
@@ -6,10 +8,52 @@ export type DateFormat = "MM/DD/YYYY" | "DD/MM/YYYY" | "YYYY-MM-DD";
 export type ClockFontSize = "small" | "medium" | "large";
 export type ClockLayout = "auto" | "horizontal" | "stacked";
 
-export interface AnalogOptions {
-  border?: boolean;
-  ticks?: TickType;
-}
+export const configSchema = z.object({
+  clockStyle: z
+    .enum(["digital", "analog"])
+    .default("digital")
+    .meta({ label: "Clock Style" }),
+  clockSize: z
+    .enum(["small", "medium", "large"])
+    .default("small")
+    .meta({ label: "Clock Size" }),
+  showSeconds: z.boolean().default(false).meta({ label: "Show Seconds" }),
+  timeFormat: z
+    .enum(["24", "12"])
+    .default("24")
+    .meta({ label: "Time Format" }),
+  timeZone: z.string().optional().meta({ label: "Timezone" }),
+  preset: z
+    .enum(["modern", "classic", "minimal", "bold"])
+    .default("modern")
+    .meta({ label: "Theme Preset" }),
+  showDate: z.boolean().default(false).meta({ label: "Show Date" }),
+  dateFormat: z
+    .enum(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"])
+    .default("MM/DD/YYYY")
+    .meta({ label: "Date Format" }),
+  fontSize: z
+    .enum(["small", "medium", "large"])
+    .default("medium")
+    .meta({ label: "Font Size" }),
+  layout: z
+    .enum(["auto", "horizontal", "stacked"])
+    .default("auto")
+    .meta({ label: "Layout" }),
+  analogOptions: z
+    .object({
+      border: z.boolean().default(false).meta({ label: "Show Border" }),
+      ticks: z
+        .enum(["none", "quarter", "hour", "minute"])
+        .default("hour")
+        .meta({ label: "Tick Marks" }),
+    })
+    .default({ border: false, ticks: "hour" })
+    .meta({ label: "Analog Options" }),
+});
+
+export type ClockConfig = z.infer<typeof configSchema>;
+export type AnalogOptions = ClockConfig["analogOptions"];
 
 export interface AnalogPresetTheme {
   faceColor: string;
@@ -34,18 +78,4 @@ export interface ClockPresetTheme {
   description: string;
   digital: DigitalPresetTheme;
   analog: AnalogPresetTheme;
-}
-
-export interface ClockConfig {
-  clockStyle: ClockStyle;
-  clockSize: ClockSize;
-  showSeconds: boolean;
-  timeFormat: "12" | "24";
-  timeZone?: string;
-  analogOptions: AnalogOptions;
-  preset: ClockPreset;
-  showDate: boolean;
-  dateFormat: DateFormat;
-  fontSize: ClockFontSize;
-  layout: ClockLayout;
 }

@@ -8,25 +8,25 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
+  widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, EntitySelector, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ClimateControls } from "./controls";
 import { formatTemperature, getHvacModeColor, getHvacModeIcon, HVAC_MODES } from "./utils";
 
-interface ClimateConfig {
-  title?: string;
-  entityIds: string[];
-}
+const configSchema = z.object({
+  title: widgetFields.title(),
+  entityIds: widgetFields.entityIds("climate"),
+});
+type ClimateConfig = z.infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
-  const [draftEntityIds, setDraftEntityIds] = createSignal<string[]>(props.config.entityIds);
-  const hasChanges = () =>
-    JSON.stringify(draftEntityIds()) !== JSON.stringify(props.config.entityIds);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -125,24 +125,15 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
-        onOpenChange={(open) => {
-          if (!open) setDraftEntityIds(props.config.entityIds);
-          setShowDialog(open);
-        }}
+        onOpenChange={setShowDialog}
         title="Climate"
         maxWidth="lg"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig({ ...props.config, entityIds: draftEntityIds() });
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        editContent={
-          <EntitySelector
-            entityIds={draftEntityIds()}
-            onEntityIdsChange={setDraftEntityIds}
-            domain="climate"
-          />
-        }
         controlsContent={<ClimateControls entities={entities} />}
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
@@ -159,20 +150,7 @@ export default defineWidget<ClimateConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^0.2.0",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string", title: "Title" },
-        entityIds: {
-          type: "array",
-          title: "Entities",
-          items: { type: "string" },
-          domain: "climate",
-          default: [],
-        },
-      },
-    },
-    defaultConfig: { entityIds: [] },
   },
+  configSchema,
   component: ClimateWidget,
 });
