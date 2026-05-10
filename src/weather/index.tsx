@@ -179,7 +179,13 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 
             {/* Forecast chart bleeds to widget edges so it sits below content */}
             <Show when={!isSmall() && showForecast() && hourlyData().length > 1}>
-              <div class="absolute right-0 bottom-0 left-0 z-10 text-white">
+              <div
+                class="absolute right-0 bottom-0 left-0 z-10 text-white"
+                style={{
+                  "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
+                  filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
+                }}
+              >
                 <ForecastChart data={hourlyData()} height={90} />
               </div>
             </Show>
@@ -254,9 +260,9 @@ function HeroLayout(props: HeroLayoutProps) {
 
   return (
     <div
-      class="relative z-10 flex h-full flex-col gap-1.5 text-foreground"
+      class="relative z-10 flex h-full flex-col gap-1.5 text-white"
       style={{
-        "text-shadow": "0 1px 3px rgba(0,0,0,0.4)",
+        "text-shadow": "0 1px 3px rgba(0,0,0,0.5)",
         "padding-bottom": props.hasForecast ? "96px" : undefined,
       }}
     >
@@ -315,8 +321,8 @@ interface CompactLayoutProps {
 function CompactLayout(props: CompactLayoutProps) {
   return (
     <div
-      class="relative z-10 flex h-full items-center gap-3 text-foreground"
-      style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.4)" }}
+      class="relative z-10 flex h-full items-center gap-3 text-white"
+      style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
     >
       <Icon icon={getWeatherIcon(props.condition)} width={32} />
       <span class="font-bold text-3xl leading-none">{props.temperature}</span>

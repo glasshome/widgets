@@ -60,8 +60,7 @@ export function ForecastChart(props: ForecastChartProps) {
   const svgHeight = () => totalHeight() - timeRowHeight;
   const topPad = 16;
   const sidePad = 0;
-  const labelInset = 16;
-  const timeRowPadding = 12;
+  const labelMargin = 14;
 
   let containerRef!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
@@ -106,28 +105,33 @@ export function ForecastChart(props: ForecastChartProps) {
     // Area extends edge-to-edge at the bottom for a clean fill
     const areaPath = `M 0 ${h} L ${points[0].x} ${points[0].y} ${linePath.slice(linePath.indexOf("C"))} L ${w} ${h} Z`;
 
-    let minIdx = 0;
-    let maxIdx = 0;
-    for (let i = 1; i < points.length; i++) {
-      if (points[i].temp < points[minIdx].temp) minIdx = i;
-      if (points[i].temp > points[maxIdx].temp) maxIdx = i;
-    }
-
-    // Time markers: "Now" + midpoint + end
-    const timeMarkers: { label: string; pct: string; align: string }[] = [
-      { label: "Now", pct: "0%", align: "left" },
-    ];
+    // Time + temp markers share same indices so x-positions line up exactly
     const midIdx = Math.round((data.length - 1) / 2);
-    if (midIdx > 0 && midIdx < data.length - 1) {
-      timeMarkers.push({ label: formatHour(data[midIdx].time), pct: "50%", align: "center" });
+    const lastIdx = data.length - 1;
+
+    type Anchor = "start" | "middle" | "end";
+    const clampX = (x: number) => Math.max(labelMargin, Math.min(w - labelMargin, x));
+    const timeMarkers: { label: string; x: number; anchor: Anchor }[] = [
+      { label: "Now", x: clampX(points[0].x), anchor: "start" },
+    ];
+    if (midIdx > 0 && midIdx < lastIdx) {
+      timeMarkers.push({
+        label: formatHour(data[midIdx].time),
+        x: clampX(points[midIdx].x),
+        anchor: "middle",
+      });
     }
     timeMarkers.push({
-      label: formatHour(data[data.length - 1].time),
-      pct: "100%",
-      align: "right",
+      label: formatHour(data[lastIdx].time),
+      x: clampX(points[lastIdx].x),
+      anchor: "end",
     });
 
-    return { areaPath, linePath, points, minIdx, maxIdx, w, h, timeMarkers };
+    const tempMarkers: { idx: number; anchor: Anchor }[] = [];
+    if (midIdx > 0 && midIdx < lastIdx) tempMarkers.push({ idx: midIdx, anchor: "middle" });
+    tempMarkers.push({ idx: lastIdx, anchor: "end" });
+
+    return { areaPath, linePath, points, w, h, timeMarkers, tempMarkers };
   });
 
   const pathLength = createMemo(() => {
@@ -147,17 +151,8 @@ export function ForecastChart(props: ForecastChartProps) {
     const cd = chartData();
     if (!cd) return { x: 0, y: 0 };
     const p = cd.points[idx];
-    const clampedX = Math.max(labelInset, Math.min(cd.w - labelInset, p.x));
-    return { x: clampedX, y: p.y };
-  };
-
-  const labelAnchor = (idx: number) => {
-    const cd = chartData();
-    if (!cd) return "middle";
-    const p = cd.points[idx];
-    if (p.x < labelInset + 8) return "start";
-    if (p.x > cd.w - labelInset - 8) return "end";
-    return "middle";
+    const x = Math.max(labelMargin, Math.min(cd.w - labelMargin, p.x));
+    return { x, y: p.y };
   };
 
   return (
@@ -218,33 +213,23 @@ export function ForecastChart(props: ForecastChartProps) {
               style={{ transition: "opacity 0.3s ease-out 0.6s" }}
             />
 
-            {/* High label */}
-            <text
-              x={labelPos(chartData()!.maxIdx).x}
-              y={labelPos(chartData()!.maxIdx).y - 6}
-              text-anchor={labelAnchor(chartData()!.maxIdx)}
-              fill="currentColor"
-              font-size="11"
-              font-weight="600"
-              opacity={mounted() ? 0.9 : 0}
-              style={{ transition: "opacity 0.3s ease-out 0.7s" }}
-            >
-              {formatTemp(chartData()!.points[chartData()!.maxIdx].temp)}
-            </text>
-
-            {/* Low label — above line, matching high */}
-            <text
-              x={labelPos(chartData()!.minIdx).x}
-              y={labelPos(chartData()!.minIdx).y - 6}
-              text-anchor={labelAnchor(chartData()!.minIdx)}
-              fill="currentColor"
-              font-size="11"
-              font-weight="600"
-              opacity={mounted() ? 0.9 : 0}
-              style={{ transition: "opacity 0.3s ease-out 0.7s" }}
-            >
-              {formatTemp(chartData()!.points[chartData()!.minIdx].temp)}
-            </text>
+            {/* Temp labels above curve at time-marker positions */}
+            <For each={chartData()!.tempMarkers}>
+              {(tm) => (
+                <text
+                  x={labelPos(tm.idx).x}
+                  y={labelPos(tm.idx).y - 6}
+                  text-anchor={tm.anchor}
+                  fill="currentColor"
+                  font-size="11"
+                  font-weight="600"
+                  opacity={mounted() ? 0.9 : 0}
+                  style={{ transition: "opacity 0.3s ease-out 0.7s" }}
+                >
+                  {formatTemp(chartData()!.points[tm.idx].temp)}
+                </text>
+              )}
+            </For>
           </>
         )}
       </svg>
@@ -252,23 +237,33 @@ export function ForecastChart(props: ForecastChartProps) {
       {/* Time labels — HTML for crisp rendering, no SVG clamping issues */}
       {chartData() && (
         <div
-          class="flex w-full justify-between"
+          class="relative w-full"
           style={{
-            padding: `0 ${timeRowPadding}px`,
             height: `${timeRowHeight}px`,
             opacity: mounted() ? 0.7 : 0,
             transition: "opacity 0.4s ease-out 0.8s",
           }}
         >
           <For each={chartData()!.timeMarkers}>
-            {(marker) => (
-              <span
-                class="text-[10px] leading-none"
-                style={{ "text-align": marker.align as "left" | "center" | "right" }}
-              >
-                {marker.label}
-              </span>
-            )}
+            {(marker) => {
+              const translate =
+                marker.anchor === "start"
+                  ? "0%"
+                  : marker.anchor === "end"
+                    ? "-100%"
+                    : "-50%";
+              return (
+                <span
+                  class="absolute text-[10px] leading-none whitespace-nowrap"
+                  style={{
+                    left: `${marker.x}px`,
+                    transform: `translateX(${translate})`,
+                  }}
+                >
+                  {marker.label}
+                </span>
+              );
+            }}
           </For>
         </div>
       )}
