@@ -1,20 +1,3 @@
-export type WeatherCondition =
-  | "sunny"
-  | "clear-night"
-  | "cloudy"
-  | "partlycloudy"
-  | "rainy"
-  | "pouring"
-  | "snowy"
-  | "snowy-rainy"
-  | "lightning"
-  | "lightning-rainy"
-  | "fog"
-  | "hail"
-  | "windy"
-  | "windy-variant"
-  | "exceptional";
-
 const WEATHER_ICONS: Record<string, string> = {
   sunny: "mdi:weather-sunny",
   "clear-night": "mdi:weather-night",
@@ -33,30 +16,31 @@ const WEATHER_ICONS: Record<string, string> = {
   exceptional: "mdi:alert-circle-outline",
 };
 
-const WEATHER_GRADIENTS: Record<string, string> = {
-  sunny: "linear-gradient(135deg, #f59e0b, #f97316, #eab308)",
-  "clear-night": "linear-gradient(135deg, #1e3a5f, #2d1b69, #0f172a)",
-  cloudy: "linear-gradient(135deg, #6b7280, #9ca3af, #6b7280)",
-  partlycloudy: "linear-gradient(135deg, #60a5fa, #93c5fd, #d1d5db)",
-  rainy: "linear-gradient(135deg, #475569, #64748b, #334155)",
-  pouring: "linear-gradient(135deg, #374151, #4b5563, #1f2937)",
-  snowy: "linear-gradient(135deg, #bfdbfe, #e0e7ff, #dbeafe)",
-  "snowy-rainy": "linear-gradient(135deg, #94a3b8, #cbd5e1, #94a3b8)",
-  lightning: "linear-gradient(135deg, #374151, #6b21a8, #374151)",
-  "lightning-rainy": "linear-gradient(135deg, #1e293b, #4c1d95, #1e293b)",
-  fog: "linear-gradient(135deg, #9ca3af, #d1d5db, #9ca3af)",
-  hail: "linear-gradient(135deg, #64748b, #94a3b8, #64748b)",
-  windy: "linear-gradient(135deg, #6ee7b7, #a7f3d0, #67e8f9)",
-  "windy-variant": "linear-gradient(135deg, #6ee7b7, #93c5fd, #67e8f9)",
-  exceptional: "linear-gradient(135deg, #ef4444, #f97316, #ef4444)",
-};
-
 export function getWeatherIcon(condition: string): string {
   return WEATHER_ICONS[condition] ?? "mdi:weather-cloudy";
 }
 
-export function getWeatherGradient(condition: string): string {
-  return WEATHER_GRADIENTS[condition] ?? WEATHER_GRADIENTS.cloudy;
+const WEATHER_ICON_COLORS: Record<string, string> = {
+  sunny: "bg-amber-500 dark:bg-amber-400",
+  "clear-night": "bg-indigo-500 dark:bg-indigo-400",
+  cloudy: "bg-slate-500 dark:bg-slate-400",
+  partlycloudy: "bg-sky-500 dark:bg-sky-400",
+  rainy: "bg-blue-500 dark:bg-blue-400",
+  pouring: "bg-blue-600 dark:bg-blue-500",
+  snowy: "bg-cyan-400 dark:bg-cyan-300",
+  "snowy-rainy": "bg-cyan-500 dark:bg-cyan-400",
+  lightning: "bg-violet-500 dark:bg-violet-400",
+  "lightning-rainy": "bg-violet-600 dark:bg-violet-500",
+  fog: "bg-slate-400 dark:bg-slate-300",
+  hail: "bg-slate-500 dark:bg-slate-400",
+  windy: "bg-teal-500 dark:bg-teal-400",
+  "windy-variant": "bg-teal-500 dark:bg-teal-400",
+  exceptional: "bg-red-500 dark:bg-red-400",
+};
+
+/** Tailwind background classes for the Widget.Icon badge per condition. */
+export function getWeatherIconColor(condition: string): string {
+  return WEATHER_ICON_COLORS[condition] ?? "bg-slate-500 dark:bg-slate-400";
 }
 
 export function formatTemp(value: number | string, unit = "\u00B0"): string {

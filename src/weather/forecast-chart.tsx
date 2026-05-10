@@ -59,7 +59,9 @@ export function ForecastChart(props: ForecastChartProps) {
   const timeRowHeight = 18;
   const svgHeight = () => totalHeight() - timeRowHeight;
   const topPad = 16;
-  const sidePad = 12;
+  const sidePad = 0;
+  const labelInset = 16;
+  const timeRowPadding = 12;
 
   let containerRef!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
@@ -145,7 +147,7 @@ export function ForecastChart(props: ForecastChartProps) {
     const cd = chartData();
     if (!cd) return { x: 0, y: 0 };
     const p = cd.points[idx];
-    const clampedX = Math.max(sidePad + 2, Math.min(cd.w - sidePad - 2, p.x));
+    const clampedX = Math.max(labelInset, Math.min(cd.w - labelInset, p.x));
     return { x: clampedX, y: p.y };
   };
 
@@ -153,8 +155,8 @@ export function ForecastChart(props: ForecastChartProps) {
     const cd = chartData();
     if (!cd) return "middle";
     const p = cd.points[idx];
-    if (p.x < sidePad + 20) return "start";
-    if (p.x > cd.w - sidePad - 20) return "end";
+    if (p.x < labelInset + 8) return "start";
+    if (p.x > cd.w - labelInset - 8) return "end";
     return "middle";
   };
 
@@ -230,10 +232,10 @@ export function ForecastChart(props: ForecastChartProps) {
               {formatTemp(chartData()!.points[chartData()!.maxIdx].temp)}
             </text>
 
-            {/* Low label */}
+            {/* Low label — above line, matching high */}
             <text
               x={labelPos(chartData()!.minIdx).x}
-              y={labelPos(chartData()!.minIdx).y + 14}
+              y={labelPos(chartData()!.minIdx).y - 6}
               text-anchor={labelAnchor(chartData()!.minIdx)}
               fill="currentColor"
               font-size="11"
@@ -252,7 +254,7 @@ export function ForecastChart(props: ForecastChartProps) {
         <div
           class="flex w-full justify-between"
           style={{
-            padding: `0 ${sidePad}px`,
+            padding: `0 ${timeRowPadding}px`,
             height: `${timeRowHeight}px`,
             opacity: mounted() ? 0.7 : 0,
             transition: "opacity 0.4s ease-out 0.8s",

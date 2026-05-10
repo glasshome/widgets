@@ -16,8 +16,8 @@ import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ForecastChart } from "./forecast-chart";
-import { formatTemp, formatWindSpeed, getWeatherIcon } from "./utils";
-import { WeatherBackground } from "./weather-background";
+import { formatTemp, formatWindSpeed, getWeatherIcon, getWeatherIconColor } from "./utils";
+import { WeatherBackground } from "./background";
 
 const configSchema = z.object({
   title: widgetFields.title(),
@@ -57,19 +57,39 @@ function WeatherWidget(props: { config: WeatherConfig }) {
     return temp != null ? formatTemp(temp) : "--";
   });
   const humidity = createMemo(() => {
-    const val = getEntityAttribute<number>(entity()!, "humidity");
+    const e = entity();
+    if (!e) return undefined;
+    const val = getEntityAttribute<number>(e, "humidity");
     return val != null ? `${Math.round(val)}%` : undefined;
   });
   const windSpeed = createMemo(() => {
-    const val = getEntityAttribute<number>(entity()!, "wind_speed");
-    const unit = getEntityAttribute<string>(entity()!, "wind_speed_unit");
+    const e = entity();
+    if (!e) return undefined;
+    const val = getEntityAttribute<number>(e, "wind_speed");
+    const unit = getEntityAttribute<string>(e, "wind_speed_unit");
     return val != null ? formatWindSpeed(val, unit ?? undefined) : undefined;
+  });
+  const pressure = createMemo(() => {
+    const e = entity();
+    if (!e) return undefined;
+    const val = getEntityAttribute<number>(e, "pressure");
+    const unit = getEntityAttribute<string>(e, "pressure_unit") ?? "hPa";
+    return val != null ? `${Math.round(val)} ${unit}` : undefined;
+  });
+  const feelsLike = createMemo(() => {
+    const e = entity();
+    if (!e) return undefined;
+    const apparent = getEntityAttribute<number>(e, "apparent_temperature");
+    const actual = getEntityAttribute<number>(e, "temperature");
+    if (apparent == null || actual == null) return undefined;
+    if (Math.round(apparent) === Math.round(actual)) return undefined;
+    return formatTemp(apparent);
   });
 
   const showForecast = () => props.config.showForecast !== false;
   const size = () => ctx.size();
   const isLarge = () => size() === "lg" || size() === "xl";
-  const isSmall = () => size() === "xs" || size() === "sm";
+  const isSmall = () => size() === "xs";
 
   const hourlyData = createMemo(() => {
     const f = forecast();
@@ -135,50 +155,31 @@ function WeatherWidget(props: { config: WeatherConfig }) {
           <Show when={entity()}>
             <WeatherBackground condition={condition()} />
             <Widget.Content>
-              <div
-                class={`relative z-10 flex h-full flex-col text-foreground ${
-                  isLarge() && showForecast() && hourlyData().length > 1
-                    ? "gap-2"
-                    : "justify-between"
-                }`}
-                style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.4)" }}
+              <Show
+                when={isSmall()}
+                fallback={
+                  <HeroLayout
+                    condition={condition()}
+                    temperature={temperature()}
+                    feelsLike={feelsLike()}
+                    humidity={humidity()}
+                    windSpeed={windSpeed()}
+                    pressure={pressure()}
+                    isLarge={isLarge()}
+                    hasForecast={showForecast() && hourlyData().length > 1}
+                  />
+                }
               >
-                {/* Main weather display */}
-                <div class="flex items-center gap-3">
-                  <Icon icon={getWeatherIcon(condition())} width={isSmall() ? 28 : 36} />
-                  <div class="flex flex-col overflow-hidden">
-                    <span class="font-bold text-2xl leading-tight">{temperature()}</span>
-                    <Show when={!isSmall()}>
-                      <span class="truncate text-sm capitalize opacity-90">
-                        {condition().replace(/-/g, " ")}
-                      </span>
-                    </Show>
-                  </div>
-                </div>
-
-                {/* Metrics row */}
-                <Show when={!isSmall()}>
-                  <div class="flex gap-3 text-xs opacity-80">
-                    <Show when={humidity()}>
-                      <span class="flex items-center gap-1">
-                        <Icon icon="mdi:water-percent" width={14} />
-                        {humidity()}
-                      </span>
-                    </Show>
-                    <Show when={windSpeed()}>
-                      <span class="flex items-center gap-1">
-                        <Icon icon="mdi:weather-windy" width={14} />
-                        {windSpeed()}
-                      </span>
-                    </Show>
-                  </div>
-                </Show>
-              </div>
+                <CompactLayout
+                  condition={condition()}
+                  temperature={temperature()}
+                />
+              </Show>
             </Widget.Content>
 
-            {/* Forecast chart — outside Widget.Content so it bleeds edge-to-edge */}
-            <Show when={isLarge() && showForecast() && hourlyData().length > 1}>
-              <div class="absolute bottom-0 left-0 right-0 z-10 text-white">
+            {/* Forecast chart bleeds to widget edges so it sits below content */}
+            <Show when={!isSmall() && showForecast() && hourlyData().length > 1}>
+              <div class="absolute right-0 bottom-0 left-0 z-10 text-white">
                 <ForecastChart data={hourlyData()} height={90} />
               </div>
             </Show>
@@ -224,6 +225,102 @@ function WeatherWidget(props: { config: WeatherConfig }) {
         debugData={debugData()}
       />
     </>
+  );
+}
+
+interface HeroLayoutProps {
+  condition: string;
+  temperature: string;
+  feelsLike: string | undefined;
+  humidity: string | undefined;
+  windSpeed: string | undefined;
+  pressure: string | undefined;
+  isLarge: boolean;
+  hasForecast: boolean;
+}
+
+/**
+ * Hero layout: icon+temp pair, condition+feels-like subtitle, metric strip.
+ * Pressure shown on large only. Reserves bottom padding for forecast chart.
+ */
+function HeroLayout(props: HeroLayoutProps) {
+  const metrics = () => {
+    const out: Array<{ icon: string; value: string }> = [];
+    if (props.humidity) out.push({ icon: "mdi:water-percent", value: props.humidity });
+    if (props.windSpeed) out.push({ icon: "mdi:weather-windy", value: props.windSpeed });
+    if (props.pressure && props.isLarge) out.push({ icon: "mdi:gauge", value: props.pressure });
+    return out;
+  };
+
+  return (
+    <div
+      class="relative z-10 flex h-full flex-col gap-1.5 text-foreground"
+      style={{
+        "text-shadow": "0 1px 3px rgba(0,0,0,0.4)",
+        "padding-bottom": props.hasForecast ? "96px" : undefined,
+      }}
+    >
+      {/* Hero pair: icon + temp */}
+      <div class="flex items-center gap-4">
+        <Widget.Icon
+          icon={<Icon icon={getWeatherIcon(props.condition)} />}
+          color={getWeatherIconColor(props.condition)}
+        />
+        <span
+          class={`font-black tracking-tight leading-none ${
+            props.isLarge ? "text-6xl" : "text-5xl"
+          }`}
+        >
+          {props.temperature}
+        </span>
+      </div>
+
+      {/* Subtitle line */}
+      <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
+        <span class="font-semibold capitalize">{props.condition.replace(/-/g, " ")}</span>
+        <Show when={props.feelsLike}>
+          <span class="opacity-30">·</span>
+          <span class="opacity-75">Feels like {props.feelsLike}</span>
+        </Show>
+      </div>
+
+      {/* Metric strip — pinned bottom */}
+      <Show when={metrics().length > 0}>
+        <div class="flex items-center gap-2 text-xs">
+          <For each={metrics()}>
+            {(m, i) => (
+              <>
+                <Show when={i() > 0}>
+                  <span class="opacity-30">·</span>
+                </Show>
+                <span class="flex items-center gap-1.5">
+                  <Icon icon={m.icon} width={16} class="opacity-70" />
+                  <span class="font-medium tabular-nums">{m.value}</span>
+                </span>
+              </>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+interface CompactLayoutProps {
+  condition: string;
+  temperature: string;
+}
+
+/** xs widgets: single icon + temperature, no metrics. */
+function CompactLayout(props: CompactLayoutProps) {
+  return (
+    <div
+      class="relative z-10 flex h-full items-center gap-3 text-foreground"
+      style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.4)" }}
+    >
+      <Icon icon={getWeatherIcon(props.condition)} width={32} />
+      <span class="font-bold text-3xl leading-none">{props.temperature}</span>
+    </div>
   );
 }
 
