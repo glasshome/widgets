@@ -66,82 +66,78 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        emptyState={
+          !entity()
+            ? {
+                icon: <Icon icon="mdi:music" width={32} />,
+                title: "No media player",
+                message: "Hold to configure",
+              }
+            : undefined
+        }
       >
-        <Widget
-          variant="classic-glass"
-          emptyState={
-            !entity()
-              ? {
-                  icon: <Icon icon="mdi:music" width={32} />,
-                  title: "No media player",
-                  message: "Hold to configure",
-                }
-              : undefined
-          }
-        >
-          <Show when={entity()}>
-            <Widget.Content>
-              <Show
-                when={!isSmall()}
-                fallback={
-                  /* xs/sm: thumbnail + play icon overlay + truncated title */
-                  <div class="flex h-full items-center gap-2 overflow-hidden">
-                    <div class="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
-                      <Show
-                        when={albumArt()}
-                        fallback={
-                          <div class="flex h-full w-full items-center justify-center bg-muted">
-                            <Icon icon="mdi:music" width={20} />
-                          </div>
-                        }
-                      >
-                        <img src={albumArt()} alt="" class="h-full w-full object-cover" />
-                      </Show>
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <Icon icon={getMediaIcon(entity()!.state)} width={16} class="text-foreground" />
-                      </div>
-                    </div>
-                    <div class="flex flex-col overflow-hidden">
-                      <Widget.Title>
-                        {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
-                      </Widget.Title>
-                      <Show when={mediaArtist()}>
-                        <Widget.Status>{mediaArtist()}</Widget.Status>
-                      </Show>
+        <Show when={entity()}>
+          <Widget.Content>
+            <Show
+              when={!isSmall()}
+              fallback={
+                /* xs/sm: thumbnail + play icon overlay + truncated title */
+                <div class="flex h-full items-center gap-2 overflow-hidden">
+                  <div class="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
+                    <Show
+                      when={albumArt()}
+                      fallback={
+                        <div class="flex h-full w-full items-center justify-center bg-muted">
+                          <Icon icon="mdi:music" width={20} />
+                        </div>
+                      }
+                    >
+                      <img src={albumArt()} alt="" class="h-full w-full object-cover" />
+                    </Show>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Icon
+                        icon={getMediaIcon(entity()!.state)}
+                        width={16}
+                        class="text-foreground"
+                      />
                     </div>
                   </div>
-                }
-              >
-                {/* md+: vinyl record + title/artist */}
-                <div class="flex h-full items-center gap-3">
-                  <div class="h-14 w-14 flex-shrink-0">
-                    <VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />
-                  </div>
-                  <div class="flex flex-col gap-1 overflow-hidden">
+                  <div class="flex flex-col overflow-hidden">
                     <Widget.Title>
                       {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
                     </Widget.Title>
                     <Show when={mediaArtist()}>
                       <Widget.Status>{mediaArtist()}</Widget.Status>
                     </Show>
-                    <span class="flex items-center gap-1 text-xs opacity-60">
-                      <Icon icon={getMediaIcon(entity()!.state)} width={12} />
-                      <span class="capitalize">{entity()!.state}</span>
-                    </span>
                   </div>
                 </div>
-              </Show>
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+              }
+            >
+              {/* md+: vinyl record + title/artist */}
+              <div class="flex h-full items-center gap-3">
+                <div class="h-14 w-14 flex-shrink-0">
+                  <VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />
+                </div>
+                <div class="flex flex-col gap-1 overflow-hidden">
+                  <Widget.Title>
+                    {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
+                  </Widget.Title>
+                  <Show when={mediaArtist()}>
+                    <Widget.Status>{mediaArtist()}</Widget.Status>
+                  </Show>
+                  <span class="flex items-center gap-1 text-xs opacity-60">
+                    <Icon icon={getMediaIcon(entity()!.state)} width={12} />
+                    <span class="capitalize">{entity()!.state}</span>
+                  </span>
+                </div>
+              </div>
+            </Show>
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

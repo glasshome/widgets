@@ -94,38 +94,30 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={colors().gradient}
+        loading={isToggling()}
+        emptyState={emptyState()}
       >
-        <Widget
-          variant="classic-glass"
-          gradient={colors().gradient}
-          loading={isToggling()}
-          emptyState={emptyState()}
-        >
-          <Show when={hasEntities()}>
-            <Widget.Content>
-              <Widget.Icon
-                icon={<Icon icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />}
-                color={colors().icon}
-                glow={isOn() ? colors().glow : undefined}
-                entityCount={entities().length}
-              />
-              <div class="flex flex-col gap-1 overflow-hidden">
-                <Widget.Title>
-                  {props.config.title || entities()[0]?.friendlyName || "Switch"}
-                </Widget.Title>
-                <Widget.Status>{statusText()}</Widget.Status>
-              </div>
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+        <Show when={hasEntities()}>
+          <Widget.Content>
+            <Widget.Icon
+              icon={<Icon icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />}
+              color={colors().icon}
+              glow={isOn() ? colors().glow : undefined}
+              entityCount={entities().length}
+            />
+            <div class="flex flex-col gap-1 overflow-hidden">
+              <Widget.Title>
+                {props.config.title || entities()[0]?.friendlyName || "Switch"}
+              </Widget.Title>
+              <Widget.Status>{statusText()}</Widget.Status>
+            </div>
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

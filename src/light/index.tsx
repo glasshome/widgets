@@ -152,46 +152,38 @@ function LightWidget(props: { config: LightConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={isOn() ? undefined : colors().gradient}
+        emptyState={emptyState()}
+        class={isDragging() ? "duration-0" : undefined}
       >
-        <Widget
-          variant="classic-glass"
-          gradient={isOn() ? undefined : colors().gradient}
-          emptyState={emptyState()}
-          class={isDragging() ? "duration-0" : undefined}
-        >
-          <Show when={hasEntities()}>
-            <WidgetSliderFill
-              value={uiBrightness()}
-              color={displayColor()}
-              glow={isOn()}
-              opacity={0.3}
-              isDragging={isDragging()}
+        <Show when={hasEntities()}>
+          <WidgetSliderFill
+            value={uiBrightness()}
+            color={displayColor()}
+            glow={isOn()}
+            opacity={0.3}
+            isDragging={isDragging()}
+          />
+          <Widget.Content>
+            <Widget.Icon
+              icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
+              color={isOn() ? undefined : colors().icon}
+              glow={isOn() ? undefined : undefined}
+              dynamicColor={isOn() ? displayColor() : undefined}
+              entityCount={entities().length}
             />
-            <Widget.Content>
-              <Widget.Icon
-                icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
-                color={isOn() ? undefined : colors().icon}
-                glow={isOn() ? undefined : undefined}
-                dynamicColor={isOn() ? displayColor() : undefined}
-                entityCount={entities().length}
-              />
-              <div class="flex flex-col gap-1 overflow-hidden">
-                <Widget.Title>
-                  {props.config.title || entities()[0]?.friendlyName || "Light"}
-                </Widget.Title>
-                <Widget.Status>{statusText()}</Widget.Status>
-              </div>
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+            <div class="flex flex-col gap-1 overflow-hidden">
+              <Widget.Title>
+                {props.config.title || entities()[0]?.friendlyName || "Light"}
+              </Widget.Title>
+              <Widget.Status>{statusText()}</Widget.Status>
+            </div>
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

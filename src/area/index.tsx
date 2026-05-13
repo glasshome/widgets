@@ -79,46 +79,38 @@ function AreaWidget(props: { config: AreaConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
-      >
-        <Widget
-          variant="classic-glass"
-          gradient={colors().gradient}
-          emptyState={
-            !props.config.areaId
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={colors().gradient}
+        emptyState={
+          !props.config.areaId
+            ? {
+                icon: <Icon icon="mdi:home-floor-1" width={32} />,
+                title: "No area selected",
+                message: "Hold to select area",
+              }
+            : area() === undefined
               ? {
-                  icon: <Icon icon="mdi:home-floor-1" width={32} />,
-                  title: "No area selected",
-                  message: "Hold to select area",
+                  icon: <Icon icon="mdi:home-alert" width={32} />,
+                  title: "Area not found",
+                  message: "Hold to change area",
                 }
-              : area() === undefined
-                ? {
-                    icon: <Icon icon="mdi:home-alert" width={32} />,
-                    title: "Area not found",
-                    message: "Hold to change area",
-                  }
-                : undefined
-          }
-        >
-          <Show when={area()}>
-            <Widget.Content>
-              <AreaContent
-                metrics={metrics()}
-                groups={groups()}
-                areaName={areaName()}
-                areaIcon={areaIcon()}
-                onToggleLights={toggleLights}
-              />
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+              : undefined
+        }
+      >
+        <Show when={area()}>
+          <Widget.Content>
+            <AreaContent
+              metrics={metrics()}
+              groups={groups()}
+              areaName={areaName()}
+              areaIcon={areaIcon()}
+              onToggleLights={toggleLights}
+            />
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

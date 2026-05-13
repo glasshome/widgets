@@ -117,44 +117,36 @@ function SensorWidget(props: { config: SensorConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={stateColors.active.gradient}
+        emptyState={emptyState()}
       >
-        <Widget
-          variant="classic-glass"
-          gradient={stateColors.active.gradient}
-          emptyState={emptyState()}
-        >
-          <Show when={hasEntities()}>
-            <Widget.Content>
-              <Widget.Icon
-                icon={<Icon icon={iconName()} />}
-                color={stateColors.active.icon}
-                entityCount={entities().length}
-              />
-              <div class="flex flex-col gap-1 overflow-hidden">
-                <Widget.Title>
-                  {props.config.title || entities()[0]?.friendlyName || "Sensor"}
-                </Widget.Title>
-                <Widget.Value value={displayValue()} unit={displayUnit() || undefined} />
-                <Show when={subtitle()}>
-                  <Widget.Status>{subtitle()}</Widget.Status>
-                </Show>
-              </div>
-            </Widget.Content>
-            <Show when={dataPoints().length >= 2}>
-              <div class="absolute right-0 bottom-0 left-0 h-16 opacity-50">
-                <Sparkline data={dataPoints()} />
-              </div>
-            </Show>
+        <Show when={hasEntities()}>
+          <Widget.Content>
+            <Widget.Icon
+              icon={<Icon icon={iconName()} />}
+              color={stateColors.active.icon}
+              entityCount={entities().length}
+            />
+            <div class="flex flex-col gap-1 overflow-hidden">
+              <Widget.Title>
+                {props.config.title || entities()[0]?.friendlyName || "Sensor"}
+              </Widget.Title>
+              <Widget.Value value={displayValue()} unit={displayUnit() || undefined} />
+              <Show when={subtitle()}>
+                <Widget.Status>{subtitle()}</Widget.Status>
+              </Show>
+            </div>
+          </Widget.Content>
+          <Show when={dataPoints().length >= 2}>
+            <div class="absolute right-0 bottom-0 left-0 h-16 opacity-50">
+              <Sparkline data={dataPoints()} />
+            </div>
           </Show>
-        </Widget>
-      </div>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

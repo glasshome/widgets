@@ -132,66 +132,55 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        emptyState={
+          !entity()
+            ? {
+                icon: <Icon icon="mdi:weather-partly-cloudy" width={32} />,
+                title: "No weather entity",
+                message: "Hold to configure",
+              }
+            : undefined
+        }
       >
-        <Widget
-          variant="classic-glass"
-          emptyState={
-            !entity()
-              ? {
-                  icon: <Icon icon="mdi:weather-partly-cloudy" width={32} />,
-                  title: "No weather entity",
-                  message: "Hold to configure",
-                }
-              : undefined
-          }
-        >
-          <Show when={entity()}>
-            <WeatherBackground condition={condition()} />
-            <Widget.Content>
-              <Show
-                when={isSmall()}
-                fallback={
-                  <HeroLayout
-                    condition={condition()}
-                    temperature={temperature()}
-                    feelsLike={feelsLike()}
-                    humidity={humidity()}
-                    windSpeed={windSpeed()}
-                    pressure={pressure()}
-                    isLarge={isLarge()}
-                    hasForecast={showForecast() && hourlyData().length > 1}
-                  />
-                }
-              >
-                <CompactLayout
+        <Show when={entity()}>
+          <WeatherBackground condition={condition()} />
+          <Widget.Content>
+            <Show
+              when={isSmall()}
+              fallback={
+                <HeroLayout
                   condition={condition()}
                   temperature={temperature()}
+                  feelsLike={feelsLike()}
+                  humidity={humidity()}
+                  windSpeed={windSpeed()}
+                  pressure={pressure()}
+                  isLarge={isLarge()}
+                  hasForecast={showForecast() && hourlyData().length > 1}
                 />
-              </Show>
-            </Widget.Content>
-
-            {/* Forecast chart bleeds to widget edges so it sits below content */}
-            <Show when={!isSmall() && showForecast() && hourlyData().length > 1}>
-              <div
-                class="absolute right-0 bottom-0 left-0 z-10 text-white"
-                style={{
-                  "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
-                  filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
-                }}
-              >
-                <ForecastChart data={hourlyData()} height={90} />
-              </div>
+              }
+            >
+              <CompactLayout condition={condition()} temperature={temperature()} />
             </Show>
+          </Widget.Content>
+
+          {/* Forecast chart bleeds to widget edges so it sits below content */}
+          <Show when={!isSmall() && showForecast() && hourlyData().length > 1}>
+            <div
+              class="absolute right-0 bottom-0 left-0 z-10 text-white"
+              style={{
+                "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
+                filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
+              }}
+            >
+              <ForecastChart data={hourlyData()} height={90} />
+            </div>
           </Show>
-        </Widget>
-      </div>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

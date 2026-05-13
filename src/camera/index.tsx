@@ -20,7 +20,10 @@ import { type StreamMode, StreamPlayer } from "./stream-player";
 const configSchema = z.object({
   title: widgetFields.title(),
   entityIds: widgetFields.singleEntity("camera"),
-  streamEngine: z.enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"]).default("auto").meta({ title: "Stream Engine" }),
+  streamEngine: z
+    .enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"])
+    .default("auto")
+    .meta({ title: "Stream Engine" }),
   refreshInterval: z.number().default(10).meta({ title: "Snapshot Refresh (seconds)" }),
 });
 type CameraConfig = z.infer<typeof configSchema>;
@@ -92,7 +95,9 @@ function CameraWidget(props: { config: CameraConfig }) {
       }
     }, 100);
   };
-  onCleanup(() => { if (cascadeTimer) clearTimeout(cascadeTimer); });
+  onCleanup(() => {
+    if (cascadeTimer) clearTimeout(cascadeTimer);
+  });
 
   const cameraName = createMemo(() => props.config.title || entity()?.friendlyName || "Camera");
 
@@ -115,75 +120,67 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        emptyState={
+          !entity()
+            ? {
+                icon: <Icon icon="mdi:cctv" width={32} />,
+                title: "No camera entity",
+                message: "Hold to configure",
+              }
+            : undefined
+        }
       >
-        <Widget
-          variant="classic-glass"
-          emptyState={
-            !entity()
-              ? {
-                  icon: <Icon icon="mdi:cctv" width={32} />,
-                  title: "No camera entity",
-                  message: "Hold to configure",
-                }
-              : undefined
-          }
-        >
-          <Show when={entity()}>
-            <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
-              <Show
-                when={activeMode() !== "hls" || streamUrl()}
-                fallback={
-                  <Show
-                    when={poster()}
-                    fallback={
-                      <div class="flex h-full w-full items-center justify-center bg-black/50">
-                        <Icon icon="mdi:loading" width={32} class="animate-spin text-white/60" />
-                      </div>
-                    }
-                  >
-                    <img src={poster()} alt={cameraName()} class="h-full w-full object-cover" />
-                  </Show>
-                }
-              >
-                <StreamPlayer
-                  mode={activeMode()}
-                  entityId={entityId()}
-                  hlsUrl={streamUrl()}
-                  mjpegUrl={mjpegUrl()}
-                  snapshotUrl={snapshotUrl()}
-                  refreshInterval={props.config.refreshInterval ?? 10}
-                  poster={poster()}
-                  onError={handleStreamError}
+        <Show when={entity()}>
+          <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
+            <Show
+              when={activeMode() !== "hls" || streamUrl()}
+              fallback={
+                <Show
+                  when={poster()}
+                  fallback={
+                    <div class="flex h-full w-full items-center justify-center bg-black/50">
+                      <Icon icon="mdi:loading" width={32} class="animate-spin text-white/60" />
+                    </div>
+                  }
+                >
+                  <img src={poster()} alt={cameraName()} class="h-full w-full object-cover" />
+                </Show>
+              }
+            >
+              <StreamPlayer
+                mode={activeMode()}
+                entityId={entityId()}
+                hlsUrl={streamUrl()}
+                mjpegUrl={mjpegUrl()}
+                snapshotUrl={snapshotUrl()}
+                refreshInterval={props.config.refreshInterval ?? 10}
+                poster={poster()}
+                onError={handleStreamError}
+              />
+            </Show>
+
+            <div class="absolute top-0 left-0 rounded-br-lg bg-black/40 px-2 py-1">
+              <span class="font-medium text-white text-xs">{cameraName()}</span>
+            </div>
+
+            <div class="absolute top-0 right-0 px-2 py-1">
+              <div class="flex items-center gap-1 rounded-bl-lg bg-black/40 px-2 py-0.5">
+                <div
+                  class={`h-1.5 w-1.5 rounded-full ${
+                    entity()?.state === "idle" || !entity() ? "bg-red-400" : "bg-green-400"
+                  }`}
                 />
-              </Show>
-
-              <div class="absolute top-0 left-0 rounded-br-lg bg-black/40 px-2 py-1">
-                <span class="font-medium text-white text-xs">{cameraName()}</span>
-              </div>
-
-              <div class="absolute top-0 right-0 px-2 py-1">
-                <div class="flex items-center gap-1 rounded-bl-lg bg-black/40 px-2 py-0.5">
-                  <div
-                    class={`h-1.5 w-1.5 rounded-full ${
-                      entity()?.state === "idle" || !entity() ? "bg-red-400" : "bg-green-400"
-                    }`}
-                  />
-                  <span class="font-medium text-[10px] text-white/80 uppercase">
-                    {entity()?.state === "idle" || !entity() ? "Offline" : "Live"}
-                  </span>
-                </div>
+                <span class="font-medium text-[10px] text-white/80 uppercase">
+                  {entity()?.state === "idle" || !entity() ? "Offline" : "Live"}
+                </span>
               </div>
             </div>
-          </Show>
-        </Widget>
-      </div>
+          </div>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

@@ -15,12 +15,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { z } from "zod";
 import type { WidgetDebugData } from "../common";
-import {
-  buildDebugData,
-  getCoverIcon,
-  WidgetDebugView,
-  widgetDialogProps,
-} from "../common";
+import { buildDebugData, getCoverIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { CoverControls } from "./controls";
 
 const configSchema = z.object({
@@ -136,38 +131,34 @@ function CoverWidget(props: { config: CoverConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={colors().gradient}
+        emptyState={emptyState()}
       >
-        <Widget variant="classic-glass" gradient={colors().gradient} emptyState={emptyState()}>
-          <Show when={hasEntities()}>
-            <Widget.SliderFill
-              value={displayPosition()}
-              color="rgb(59, 130, 246)"
-              isDragging={slidePosition() !== null}
+        <Show when={hasEntities()}>
+          <Widget.SliderFill
+            value={displayPosition()}
+            color="rgb(59, 130, 246)"
+            isDragging={slidePosition() !== null}
+          />
+          <Widget.Content>
+            <Widget.Icon
+              icon={<Icon icon={iconName()} />}
+              color={colors().icon}
+              glow={isOpen() ? colors().glow : undefined}
+              entityCount={entities().length}
             />
-            <Widget.Content>
-              <Widget.Icon
-                icon={<Icon icon={iconName()} />}
-                color={colors().icon}
-                glow={isOpen() ? colors().glow : undefined}
-                entityCount={entities().length}
-              />
-              <div class="flex flex-col gap-1 overflow-hidden">
-                <Widget.Title>
-                  {props.config.title || entities()[0]?.friendlyName || "Cover"}
-                </Widget.Title>
-                <Widget.Status>{statusText()}</Widget.Status>
-              </div>
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+            <div class="flex flex-col gap-1 overflow-hidden">
+              <Widget.Title>
+                {props.config.title || entities()[0]?.friendlyName || "Cover"}
+              </Widget.Title>
+              <Widget.Status>{statusText()}</Widget.Status>
+            </div>
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

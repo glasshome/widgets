@@ -87,33 +87,29 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        gradient={colors().gradient}
+        emptyState={emptyState()}
       >
-        <Widget variant="classic-glass" gradient={colors().gradient} emptyState={emptyState()}>
-          <Show when={hasEntities()}>
-            <Widget.Content>
-              <Widget.Icon
-                icon={<Icon icon={iconName()} />}
-                color={colors().icon}
-                glow={isOn() ? colors().glow : undefined}
-                entityCount={entities().length}
-              />
-              <div class="flex flex-col gap-1 overflow-hidden">
-                <Widget.Title>
-                  {props.config.title || entities()[0]?.friendlyName || "Binary Sensor"}
-                </Widget.Title>
-                <Widget.Status>{statusText()}</Widget.Status>
-              </div>
-            </Widget.Content>
-          </Show>
-        </Widget>
-      </div>
+        <Show when={hasEntities()}>
+          <Widget.Content>
+            <Widget.Icon
+              icon={<Icon icon={iconName()} />}
+              color={colors().icon}
+              glow={isOn() ? colors().glow : undefined}
+              entityCount={entities().length}
+            />
+            <div class="flex flex-col gap-1 overflow-hidden">
+              <Widget.Title>
+                {props.config.title || entities()[0]?.friendlyName || "Binary Sensor"}
+              </Widget.Title>
+              <Widget.Status>{statusText()}</Widget.Status>
+            </div>
+          </Widget.Content>
+        </Show>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}

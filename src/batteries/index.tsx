@@ -68,29 +68,20 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 
   return (
     <>
-      <div
-        class="h-full w-full"
-        on:pointerenter={gestures.onPointerEnter}
-        on:pointerdown={gestures.onPointerDown}
-        on:pointermove={gestures.onPointerMove}
-        on:pointerup={gestures.onPointerUp}
-        on:pointercancel={gestures.onPointerCancel}
-      >
-        <Widget variant="classic-glass" gradient={colors().gradient}>
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />}
-              color={colors().icon}
-              glow={hasLow() ? colors().glow : undefined}
-            />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
-              <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />
-              <Widget.Status>{totalCount()} batteries</Widget.Status>
-            </div>
-          </Widget.Content>
-        </Widget>
-      </div>
+      <Widget gestures={gestures} variant="classic-glass" gradient={colors().gradient}>
+        <Widget.Content>
+          <Widget.Icon
+            icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />}
+            color={colors().icon}
+            glow={hasLow() ? colors().glow : undefined}
+          />
+          <div class="flex flex-col gap-1 overflow-hidden">
+            <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
+            <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />
+            <Widget.Status>{totalCount()} batteries</Widget.Status>
+          </div>
+        </Widget.Content>
+      </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         open={showDialog()}
