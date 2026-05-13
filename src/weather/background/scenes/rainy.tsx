@@ -39,16 +39,14 @@ export function RainyScene(props: RainyProps) {
       <div
         class="absolute inset-x-0 top-0 h-1/3"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.15 0.02 250) 0%, transparent 100%)",
+          background: "linear-gradient(180deg, oklch(0.15 0.02 250) 0%, transparent 100%)",
         }}
       />
 
       <div
         class="absolute inset-0 opacity-30"
         style={{
-          background:
-            "radial-gradient(ellipse at 50% 0%, rgba(180,200,220,0.5), transparent 60%)",
+          background: "radial-gradient(ellipse at 50% 0%, rgba(180,200,220,0.5), transparent 60%)",
           "mix-blend-mode": "overlay",
         }}
       />

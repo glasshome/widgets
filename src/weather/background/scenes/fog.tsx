@@ -10,15 +10,13 @@ export function FogScene() {
       <div
         class="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(180deg, #B8BCB6 0%, #9DA29B 55%, #828780 100%)",
+          background: "linear-gradient(180deg, #B8BCB6 0%, #9DA29B 55%, #828780 100%)",
         }}
       />
       <div
         class="absolute inset-0 hidden dark:block"
         style={{
-          background:
-            "linear-gradient(180deg, #3A3D39 0%, #2E312D 55%, #232622 100%)",
+          background: "linear-gradient(180deg, #3A3D39 0%, #2E312D 55%, #232622 100%)",
         }}
       />
 
@@ -43,15 +41,13 @@ export function FogScene() {
       <div
         class="absolute inset-x-0 bottom-0 h-1/4 dark:hidden"
         style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, rgba(220,224,218,0.55) 100%)",
+          background: "linear-gradient(180deg, transparent 0%, rgba(220,224,218,0.55) 100%)",
         }}
       />
       <div
         class="absolute inset-x-0 bottom-0 h-1/4 hidden dark:block"
         style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, rgba(40,44,38,0.6) 100%)",
+          background: "linear-gradient(180deg, transparent 0%, rgba(40,44,38,0.6) 100%)",
         }}
       />
 

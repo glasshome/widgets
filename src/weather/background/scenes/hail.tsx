@@ -20,8 +20,7 @@ export function HailScene() {
       <div
         class="absolute inset-x-0 top-0 h-1/3"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.25 0.02 240) 0%, transparent 100%)",
+          background: "linear-gradient(180deg, oklch(0.25 0.02 240) 0%, transparent 100%)",
         }}
       />
 

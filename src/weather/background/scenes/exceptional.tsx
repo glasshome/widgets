@@ -10,15 +10,13 @@ export function ExceptionalScene() {
       <div
         class="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.32 0.06 30) 0%, oklch(0.22 0.04 20) 100%)",
+          background: "linear-gradient(180deg, oklch(0.32 0.06 30) 0%, oklch(0.22 0.04 20) 100%)",
         }}
       />
       <div
         class="absolute inset-0 opacity-20"
         style={{
-          background:
-            "radial-gradient(circle at 80% 15%, rgba(255,180,80,0.5), transparent 50%)",
+          background: "radial-gradient(circle at 80% 15%, rgba(255,180,80,0.5), transparent 50%)",
           "mix-blend-mode": "overlay",
         }}
       />

@@ -1,5 +1,12 @@
 import { useService } from "@glasshome/sync-layer/solid";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider } from "@glasshome/ui/solid";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Slider,
+} from "@glasshome/ui/solid";
 import type { EntityView } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
@@ -49,16 +56,18 @@ export function LightControls(props: LightControlsProps) {
     return ((features ?? 0) & EFFECT_SUPPORT_FLAG) !== 0;
   };
 
-  const effectList = () =>
-    (firstEntity()?.attributes?.effect_list as string[] | undefined) ?? [];
+  const effectList = () => (firstEntity()?.attributes?.effect_list as string[] | undefined) ?? [];
 
-  const currentEffect = () =>
-    (firstEntity()?.attributes?.effect as string | undefined) ?? null;
+  const currentEffect = () => (firstEntity()?.attributes?.effect as string | undefined) ?? null;
 
   const currentWhite = () => {
-    const rgbw = firstEntity()?.attributes?.rgbw_color as [number, number, number, number] | undefined;
+    const rgbw = firstEntity()?.attributes?.rgbw_color as
+      | [number, number, number, number]
+      | undefined;
     if (rgbw) return rgbw[3];
-    const rgbww = firstEntity()?.attributes?.rgbww_color as [number, number, number, number, number] | undefined;
+    const rgbww = firstEntity()?.attributes?.rgbww_color as
+      | [number, number, number, number, number]
+      | undefined;
     if (rgbww) return rgbww[3];
     return 0;
   };
@@ -126,7 +135,9 @@ export function LightControls(props: LightControlsProps) {
     whiteDebounce = setTimeout(() => {
       const w = Math.round((percent / 100) * 255);
       for (const id of props.entities().map((e) => e.id)) {
-        const rgbw = firstEntity()?.attributes?.rgbw_color as [number, number, number, number] | undefined;
+        const rgbw = firstEntity()?.attributes?.rgbw_color as
+          | [number, number, number, number]
+          | undefined;
         const rgb = rgbw ? [rgbw[0], rgbw[1], rgbw[2]] : [0, 0, 0];
         lightTurnOn({ rgbw_color: [...rgb, w] }, id);
       }

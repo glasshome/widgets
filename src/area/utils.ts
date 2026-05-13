@@ -64,7 +64,9 @@ function readNumericState(entity: EntityView | undefined): number | null {
 }
 
 function findSensorByClass(sensors: EntityView[], deviceClass: string): EntityView | undefined {
-  return sensors.find((s) => s.deviceClass === deviceClass && s.state !== "unavailable" && s.state !== "unknown");
+  return sensors.find(
+    (s) => s.deviceClass === deviceClass && s.state !== "unavailable" && s.state !== "unknown",
+  );
 }
 
 /**
@@ -95,8 +97,22 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
     (e) => e.deviceClass === "motion" && e.state === "on",
   );
   const alertCount = groups.binarySensors.filter(
-    (e) => (e.deviceClass === "smoke" || e.deviceClass === "gas" || e.deviceClass === "carbon_monoxide") && e.state === "on",
+    (e) =>
+      (e.deviceClass === "smoke" ||
+        e.deviceClass === "gas" ||
+        e.deviceClass === "carbon_monoxide") &&
+      e.state === "on",
   ).length;
 
-  return { lightsOn, lightsTotal, temperature, humidity, co2, pm25, hasPresence, hasMotion, alertCount };
+  return {
+    lightsOn,
+    lightsTotal,
+    temperature,
+    humidity,
+    co2,
+    pm25,
+    hasPresence,
+    hasMotion,
+    alertCount,
+  };
 }

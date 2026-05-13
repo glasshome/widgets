@@ -13,8 +13,7 @@ interface SparklineProps {
 /** Monotone cubic Hermite spline — no overshoot between data points */
 function monotoneCubicPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return "";
-  if (points.length === 2)
-    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
 
   const n = points.length;
   const dx: number[] = [];
@@ -139,12 +138,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
 
   return (
     <div ref={containerRef} class="h-full w-full">
-      <svg
-        width={width()}
-        height={height()}
-        viewBox={`0 0 ${width()} ${height()}`}
-        class="block"
-      >
+      <svg width={width()} height={height()} viewBox={`0 0 ${width()} ${height()}`} class="block">
         {chartData() && (
           <>
             <defs>
@@ -185,7 +179,8 @@ export function Sparkline(props: SparklineProps): JSX.Element {
               opacity={mounted() ? 0.9 : 0}
               style={{ transition: "opacity 0.3s ease-out 0.6s" }}
             >
-              {fmt(chartData()!.points[chartData()!.maxIdx].value)}            </text>
+              {fmt(chartData()!.points[chartData()!.maxIdx].value)}{" "}
+            </text>
 
             {/* Low label */}
             {chartData()!.showLow && (
@@ -199,7 +194,8 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 opacity={mounted() ? 0.9 : 0}
                 style={{ transition: "opacity 0.3s ease-out 0.6s" }}
               >
-                {fmt(chartData()!.points[chartData()!.minIdx].value)}              </text>
+                {fmt(chartData()!.points[chartData()!.minIdx].value)}{" "}
+              </text>
             )}
           </>
         )}

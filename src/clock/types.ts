@@ -9,19 +9,10 @@ export type ClockFontSize = "small" | "medium" | "large";
 export type ClockLayout = "auto" | "horizontal" | "stacked";
 
 export const configSchema = z.object({
-  clockStyle: z
-    .enum(["digital", "analog"])
-    .default("digital")
-    .meta({ title: "Clock Style" }),
-  clockSize: z
-    .enum(["small", "medium", "large"])
-    .default("small")
-    .meta({ title: "Clock Size" }),
+  clockStyle: z.enum(["digital", "analog"]).default("digital").meta({ title: "Clock Style" }),
+  clockSize: z.enum(["small", "medium", "large"]).default("small").meta({ title: "Clock Size" }),
   showSeconds: z.boolean().default(false).meta({ title: "Show Seconds" }),
-  timeFormat: z
-    .enum(["24", "12"])
-    .default("24")
-    .meta({ title: "Time Format" }),
+  timeFormat: z.enum(["24", "12"]).default("24").meta({ title: "Time Format" }),
   timeZone: z.string().optional().meta({ title: "Timezone" }),
   preset: z
     .enum(["modern", "classic", "minimal", "bold"])
@@ -32,14 +23,8 @@ export const configSchema = z.object({
     .enum(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"])
     .default("MM/DD/YYYY")
     .meta({ title: "Date Format" }),
-  fontSize: z
-    .enum(["small", "medium", "large"])
-    .default("medium")
-    .meta({ title: "Font Size" }),
-  layout: z
-    .enum(["auto", "horizontal", "stacked"])
-    .default("auto")
-    .meta({ title: "Layout" }),
+  fontSize: z.enum(["small", "medium", "large"]).default("medium").meta({ title: "Font Size" }),
+  layout: z.enum(["auto", "horizontal", "stacked"]).default("auto").meta({ title: "Layout" }),
   analogOptions: z
     .object({
       border: z.boolean().default(false).meta({ title: "Show Border" }),

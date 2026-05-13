@@ -9,8 +9,7 @@ interface ForecastChartProps {
 /** Monotone cubic Hermite spline — no overshoot between data points */
 function monotoneCubicPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return "";
-  if (points.length === 2)
-    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
 
   const n = points.length;
   const dx: number[] = [];
@@ -93,7 +92,7 @@ export function ForecastChart(props: ForecastChartProps) {
     const rawRange = rawMax - rawMin;
     const pad = rawRange < minRange ? (minRange - rawRange) / 2 : 0;
     const min = rawMin - pad;
-    const range = (rawMax + pad) - min;
+    const range = rawMax + pad - min;
 
     const points = data.map((d, i) => ({
       x: sidePad + (i / (data.length - 1)) * drawWidth,
@@ -247,11 +246,7 @@ export function ForecastChart(props: ForecastChartProps) {
           <For each={chartData()!.timeMarkers}>
             {(marker) => {
               const translate =
-                marker.anchor === "start"
-                  ? "0%"
-                  : marker.anchor === "end"
-                    ? "-100%"
-                    : "-50%";
+                marker.anchor === "start" ? "0%" : marker.anchor === "end" ? "-100%" : "-50%";
               return (
                 <span
                   class="absolute text-[10px] leading-none whitespace-nowrap"

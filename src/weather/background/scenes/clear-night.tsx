@@ -86,17 +86,14 @@ export function ClearNightScene() {
           class="absolute rounded-full"
           style={{
             inset: "-40%",
-            background:
-              "radial-gradient(circle, rgba(230,235,255,0.25) 0%, transparent 60%)",
+            background: "radial-gradient(circle, rgba(230,235,255,0.25) 0%, transparent 60%)",
           }}
         />
         <div
           class="absolute inset-0 rounded-full"
           style={{
-            background:
-              "radial-gradient(circle at 35% 35%, #F5F1E8 0%, #D8D0BC 60%, #998E76 100%)",
-            "box-shadow":
-              "0 0 20px rgba(255,250,230,0.3), inset -8px -6px 16px rgba(0,0,0,0.4)",
+            background: "radial-gradient(circle at 35% 35%, #F5F1E8 0%, #D8D0BC 60%, #998E76 100%)",
+            "box-shadow": "0 0 20px rgba(255,250,230,0.3), inset -8px -6px 16px rgba(0,0,0,0.4)",
           }}
         />
         <div

@@ -25,8 +25,7 @@ export function SnowyScene(props: SnowyProps) {
       <div
         class="absolute inset-0 hidden dark:block"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.30 0.02 250) 0%, oklch(0.42 0.02 240) 100%)",
+          background: "linear-gradient(180deg, oklch(0.30 0.02 250) 0%, oklch(0.42 0.02 240) 100%)",
         }}
       />
 

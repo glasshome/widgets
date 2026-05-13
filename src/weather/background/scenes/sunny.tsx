@@ -10,8 +10,7 @@ export function SunnyScene() {
       <div
         class="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(180deg, #6FB5D8 0%, #8FC8DC 55%, #ADD7DE 100%)",
+          background: "linear-gradient(180deg, #6FB5D8 0%, #8FC8DC 55%, #ADD7DE 100%)",
         }}
       />
 
@@ -39,8 +38,7 @@ export function SunnyScene() {
             transparent 240deg, rgba(255,230,170,0.16) 248deg, transparent 256deg,
             transparent 300deg, rgba(255,230,170,0.20) 308deg, transparent 316deg,
             transparent 360deg)`,
-          "mask-image":
-            "radial-gradient(circle at 78% 22%, black 0%, black 30%, transparent 70%)",
+          "mask-image": "radial-gradient(circle at 78% 22%, black 0%, black 30%, transparent 70%)",
           "-webkit-mask-image":
             "radial-gradient(circle at 78% 22%, black 0%, black 30%, transparent 70%)",
           filter: "blur(1.5px)",

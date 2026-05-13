@@ -42,7 +42,9 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
 
     cleanup();
     let cancelled = false;
-    onCleanup(() => { cancelled = true; });
+    onCleanup(() => {
+      cancelled = true;
+    });
 
     (async () => {
       try {
@@ -95,7 +97,9 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
           if (!event.candidate) return;
           const candidateInit = event.candidate.toJSON();
           if (sessionId) {
-            sendWebRtcCandidate(id, sessionId, candidateInit as Record<string, unknown>).catch(() => {});
+            sendWebRtcCandidate(id, sessionId, candidateInit as Record<string, unknown>).catch(
+              () => {},
+            );
           } else {
             pendingCandidates.push(candidateInit);
           }

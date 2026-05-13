@@ -62,7 +62,9 @@ function LightToggle(props: {
       >
         <Icon icon={anyOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} width={iconSize()} />
       </button>
-      <span class={`text-[10px] tabular-nums ${anyOn() ? "text-yellow-600/70 dark:text-yellow-300/70" : "text-foreground/30"}`}>
+      <span
+        class={`text-[10px] tabular-nums ${anyOn() ? "text-yellow-600/70 dark:text-yellow-300/70" : "text-foreground/30"}`}
+      >
         {props.lightsOn}/{props.lightsTotal}
       </span>
     </div>
@@ -78,19 +80,47 @@ function buildSecondaryPills(metrics: AreaMetrics): MetricPillDef[] {
     const c = metrics.co2;
     const color = c >= 1000 ? "text-red-300" : c >= 800 ? "text-amber-300" : "text-emerald-300";
     const bg = c >= 1000 ? "bg-red-500/15" : c >= 800 ? "bg-amber-500/15" : "bg-emerald-500/15";
-    pills.push({ key: "co2", icon: "mdi:molecule-co2", value: `${c.toFixed(0)}`, color, bg, title: `CO₂: ${c.toFixed(0)} ppm` });
+    pills.push({
+      key: "co2",
+      icon: "mdi:molecule-co2",
+      value: `${c.toFixed(0)}`,
+      color,
+      bg,
+      title: `CO₂: ${c.toFixed(0)} ppm`,
+    });
   }
   if (metrics.pm25 !== null) {
     const p = metrics.pm25;
     const color = p >= 35 ? "text-red-300" : p >= 12 ? "text-amber-300" : "text-emerald-300";
     const bg = p >= 35 ? "bg-red-500/15" : p >= 12 ? "bg-amber-500/15" : "bg-emerald-500/15";
-    pills.push({ key: "pm25", icon: "mdi:blur", value: `${p.toFixed(0)}`, color, bg, title: `PM2.5: ${p.toFixed(0)} µg/m³` });
+    pills.push({
+      key: "pm25",
+      icon: "mdi:blur",
+      value: `${p.toFixed(0)}`,
+      color,
+      bg,
+      title: `PM2.5: ${p.toFixed(0)} µg/m³`,
+    });
   }
   if (metrics.hasPresence) {
-    pills.push({ key: "presence", icon: "mdi:account", value: "Occupied", color: "text-violet-300", bg: "bg-violet-500/15", title: "Presence detected" });
+    pills.push({
+      key: "presence",
+      icon: "mdi:account",
+      value: "Occupied",
+      color: "text-violet-300",
+      bg: "bg-violet-500/15",
+      title: "Presence detected",
+    });
   }
   if (metrics.hasMotion) {
-    pills.push({ key: "motion", icon: "mdi:motion-sensor", value: "Motion", color: "text-amber-300", bg: "bg-amber-500/15", title: "Motion detected" });
+    pills.push({
+      key: "motion",
+      icon: "mdi:motion-sensor",
+      value: "Motion",
+      color: "text-amber-300",
+      bg: "bg-amber-500/15",
+      title: "Motion detected",
+    });
   }
 
   return pills;
@@ -105,13 +135,27 @@ function buildAllPills(metrics: AreaMetrics): MetricPillDef[] {
     const t = metrics.temperature;
     const color = t >= 26 ? "text-red-300" : t <= 18 ? "text-blue-300" : "text-emerald-300";
     const bg = t >= 26 ? "bg-red-500/15" : t <= 18 ? "bg-blue-500/15" : "bg-emerald-500/15";
-    pills.push({ key: "temp", icon: "mdi:thermometer", value: `${t.toFixed(1)}°`, color, bg, title: `Temperature: ${t.toFixed(1)}°` });
+    pills.push({
+      key: "temp",
+      icon: "mdi:thermometer",
+      value: `${t.toFixed(1)}°`,
+      color,
+      bg,
+      title: `Temperature: ${t.toFixed(1)}°`,
+    });
   }
   if (metrics.humidity !== null) {
     const h = metrics.humidity;
     const color = h >= 60 ? "text-blue-300" : h <= 30 ? "text-amber-300" : "text-cyan-300";
     const bg = h >= 60 ? "bg-blue-500/15" : h <= 30 ? "bg-amber-500/15" : "bg-cyan-500/15";
-    pills.push({ key: "hum", icon: "mdi:water-percent", value: `${h.toFixed(0)}%`, color, bg, title: `Humidity: ${h.toFixed(0)}%` });
+    pills.push({
+      key: "hum",
+      icon: "mdi:water-percent",
+      value: `${h.toFixed(0)}%`,
+      color,
+      bg,
+      title: `Humidity: ${h.toFixed(0)}%`,
+    });
   }
   if (metrics.lightsTotal > 0) {
     const anyOn = metrics.lightsOn > 0;
@@ -180,9 +224,7 @@ export function AreaContent(props: AreaContentProps) {
           <div class="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
             <Widget.Title>{props.areaName}</Widget.Title>
             <div class="flex flex-wrap items-center gap-1">
-              <Index each={allPills().slice(0, 3)}>
-                {(pill) => <MetricPill {...pill()} />}
-              </Index>
+              <Index each={allPills().slice(0, 3)}>{(pill) => <MetricPill {...pill()} />}</Index>
             </div>
           </div>
           <Show when={hasLights()}>

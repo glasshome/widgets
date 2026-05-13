@@ -15,15 +15,13 @@ export function WindyScene() {
       <div
         class="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.75 0.04 180) 0%, oklch(0.82 0.03 170) 100%)",
+          background: "linear-gradient(180deg, oklch(0.75 0.04 180) 0%, oklch(0.82 0.03 170) 100%)",
         }}
       />
       <div
         class="absolute inset-0 hidden dark:block"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.30 0.03 200) 0%, oklch(0.38 0.03 190) 100%)",
+          background: "linear-gradient(180deg, oklch(0.30 0.03 200) 0%, oklch(0.38 0.03 190) 100%)",
         }}
       />
 
@@ -46,8 +44,7 @@ export function WindyScene() {
               top: `${5 + y * 90}%`,
               width: `${40 + (sLen[i()] ?? 0) * 80}px`,
               left: "-20%",
-              background:
-                "linear-gradient(90deg, transparent, rgba(220,240,245,0.6), transparent)",
+              background: "linear-gradient(90deg, transparent, rgba(220,240,245,0.6), transparent)",
               filter: "blur(0.5px)",
               animation: `wind-streak ${2.5 + (sDur[i()] ?? 0) * 1.5}s ease-out -${(sDelay[i()] ?? 0) * 4}s infinite`,
               "will-change": "transform",
@@ -86,11 +83,7 @@ export function WindyScene() {
           color: "#0b1410",
         }}
       >
-        <svg
-          viewBox="0 0 100 140"
-          preserveAspectRatio="xMaxYMax meet"
-          class="h-full w-full"
-        >
+        <svg viewBox="0 0 100 140" preserveAspectRatio="xMaxYMax meet" class="h-full w-full">
           <title>Wind-blown tree</title>
           {/* Trunk: simple straight rectangle */}
           <rect x="46" y="78" width="8" height="62" rx="2" fill="currentColor" />
