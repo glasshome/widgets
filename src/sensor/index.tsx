@@ -101,7 +101,7 @@ function SensorWidget(props: { config: SensorConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

@@ -81,7 +81,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

@@ -109,7 +109,7 @@ function LightWidget(props: { config: LightConfig }) {
         orientation: "auto" as const,
         activationDelay: 0,
       },
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

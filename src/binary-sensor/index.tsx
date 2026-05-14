@@ -71,7 +71,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

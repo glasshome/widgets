@@ -52,7 +52,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const gestures = useWidgetGestures(
     () => ({
       tap: handleTap,
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

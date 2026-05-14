@@ -103,7 +103,7 @@ function CoverWidget(props: { config: CoverConfig }) {
   const gestures = useWidgetGestures(
     () => ({
       tap: handleTap,
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
       slide: {
         value: displayPosition(),
         onChange: handleSlideChange,

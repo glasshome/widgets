@@ -116,7 +116,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   });
 
   const gestures = useWidgetGestures(
-    () => ({ hold: { action: openDialog, delay: 300 } }),
+    () => ({ hold: { action: openDialog } }),
     () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);

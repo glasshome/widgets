@@ -108,7 +108,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

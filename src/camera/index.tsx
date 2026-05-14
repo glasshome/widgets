@@ -103,7 +103,7 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({
-      hold: { action: openDialog, delay: 300 },
+      hold: { action: openDialog },
     }),
     () => ctx.orientation(),
   );

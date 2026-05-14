@@ -56,7 +56,7 @@ function AreaWidget(props: { config: AreaConfig }) {
   };
 
   const gestures = useWidgetGestures(
-    () => ({ hold: { action: openDialog, delay: 300 } }),
+    () => ({ hold: { action: openDialog } }),
     () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
