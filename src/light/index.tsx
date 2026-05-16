@@ -163,8 +163,6 @@ function LightWidget(props: { config: LightConfig }) {
           <WidgetSliderFill
             value={uiBrightness()}
             color={displayColor()}
-            glow={isOn()}
-            opacity={0.3}
             isDragging={isDragging()}
           />
           <Widget.Content>
