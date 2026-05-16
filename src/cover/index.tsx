@@ -2,7 +2,6 @@ import { useEntities, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -119,8 +118,6 @@ function CoverWidget(props: { config: CoverConfig }) {
     clearTimeout(positionDebounce);
   });
 
-  const colors = createMemo(() => (isOpen() ? stateColors.active : stateColors.inactive));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -134,7 +131,7 @@ function CoverWidget(props: { config: CoverConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={colors().gradient}
+        tone={isOpen() ? "info" : "neutral"}
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
@@ -145,8 +142,6 @@ function CoverWidget(props: { config: CoverConfig }) {
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={iconName()} />}
-              color={colors().icon}
-              glow={isOpen() ? colors().glow : undefined}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">

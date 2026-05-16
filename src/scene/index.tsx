@@ -1,7 +1,6 @@
 import { useEntities, useTurnOn } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  getGradient,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -76,16 +75,13 @@ function SceneWidget(props: { config: SceneConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={getGradient(undefined, "scene")}
+        tone="accent"
         loading={isLoading()}
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
           <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon="mdi:palette" />}
-              color="bg-purple-500 dark:bg-purple-400"
-            />
+            <Widget.Icon icon={<Icon icon="mdi:palette" />} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title || entities()[0]?.friendlyName || "Scene"}

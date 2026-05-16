@@ -2,7 +2,6 @@ import { extractDomain, state } from "@glasshome/sync-layer";
 import { useEntities } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -55,8 +54,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  const colors = createMemo(() => (hasLow() ? stateColors.warning : stateColors.active));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = sensorEntities();
     if (ents.length === 0) return undefined;
@@ -68,13 +65,13 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" gradient={colors().gradient}>
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        tone={hasLow() ? "warning" : "success"}
+      >
         <Widget.Content>
-          <Widget.Icon
-            icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />}
-            color={colors().icon}
-            glow={hasLow() ? colors().glow : undefined}
-          />
+          <Widget.Icon icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />} />
           <div class="flex flex-col gap-1 overflow-hidden">
             <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
             <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />

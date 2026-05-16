@@ -1,8 +1,6 @@
 import { useEntities, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  getGradient,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -66,8 +64,6 @@ function ButtonWidget(props: { config: ButtonConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  const colors = stateColors.active;
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -79,7 +75,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={getGradient(undefined, "button")}
+        tone="accent"
         loading={isLoading()}
         emptyState={emptyState()}
       >
@@ -87,7 +83,6 @@ function ButtonWidget(props: { config: ButtonConfig }) {
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon="mdi:gesture-tap-button" />}
-              color={colors.icon}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">
