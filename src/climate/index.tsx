@@ -15,6 +15,8 @@ import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ClimateControls } from "./controls";
+// Climate-scoped channel transition (--widget-color 300ms ease) — see transition.css
+import "./transition.css";
 import { formatTemperature, getHvacModeIcon, HVAC_MODES, MODE_COLORS } from "./utils";
 
 const configSchema = z.object({
@@ -96,9 +98,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
         color={mode().color}
         colorTo={mode().colorTo}
         emptyState={emptyState()}
-        style={{
-          transition: "--widget-color 300ms ease, --widget-color-to 300ms ease",
-        }}
+        class="climate-widget-shell"
       >
         <Show when={hasEntities()}>
           <Widget.Content>
