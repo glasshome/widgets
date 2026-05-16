@@ -13,7 +13,7 @@ import {
   widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
@@ -64,17 +64,9 @@ function LightWidget(props: { config: LightConfig }) {
   const [isDragging, setIsDragging] = createSignal(false);
 
   // Sync server brightness to UI when not dragging
-  let lastServerBrightness = serverBrightness();
-  const syncBrightness = () => {
+  createEffect(() => {
     const sb = serverBrightness();
-    if (!isDragging() && sb !== lastServerBrightness) {
-      setUiBrightness(sb);
-      lastServerBrightness = sb;
-    }
-  };
-  // Use a memo to track changes reactively
-  createMemo(() => {
-    syncBrightness();
+    if (!isDragging()) setUiBrightness(sb);
   });
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
@@ -169,7 +161,6 @@ function LightWidget(props: { config: LightConfig }) {
             <Widget.Icon
               icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
               color={isOn() ? undefined : colors().icon}
-              glow={isOn() ? undefined : undefined}
               dynamicColor={isOn() ? displayColor() : undefined}
               entityCount={entities().length}
             />
