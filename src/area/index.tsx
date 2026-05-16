@@ -1,7 +1,6 @@
 import { useArea, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -43,7 +42,6 @@ function AreaWidget(props: { config: AreaConfig }) {
   const areaIcon = createMemo(() => area()?.icon || "mdi:home-floor-1");
   const areaName = createMemo(() => props.config.title || area()?.name || "Area");
   const isActive = createMemo(() => metrics().lightsOn > 0);
-  const colors = createMemo(() => (isActive() ? stateColors.active : stateColors.inactive));
 
   // Light toggle handler — lifted here so useService() is called once
   const toggleLights = () => {
@@ -82,7 +80,7 @@ function AreaWidget(props: { config: AreaConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={colors().gradient}
+        tone={isActive() ? "warning" : "neutral"}
         emptyState={
           !props.config.areaId
             ? {
