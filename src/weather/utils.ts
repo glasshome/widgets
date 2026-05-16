@@ -20,27 +20,28 @@ export function getWeatherIcon(condition: string): string {
   return WEATHER_ICONS[condition] ?? "mdi:weather-cloudy";
 }
 
+/* Placeholder oklch values; Phase 29 retunes per VIS-P05. */
 const WEATHER_ICON_COLORS: Record<string, string> = {
-  sunny: "bg-amber-500 dark:bg-amber-400",
-  "clear-night": "bg-indigo-500 dark:bg-indigo-400",
-  cloudy: "bg-slate-500 dark:bg-slate-400",
-  partlycloudy: "bg-sky-500 dark:bg-sky-400",
-  rainy: "bg-blue-500 dark:bg-blue-400",
-  pouring: "bg-blue-600 dark:bg-blue-500",
-  snowy: "bg-cyan-400 dark:bg-cyan-300",
-  "snowy-rainy": "bg-cyan-500 dark:bg-cyan-400",
-  lightning: "bg-violet-500 dark:bg-violet-400",
-  "lightning-rainy": "bg-violet-600 dark:bg-violet-500",
-  fog: "bg-slate-400 dark:bg-slate-300",
-  hail: "bg-slate-500 dark:bg-slate-400",
-  windy: "bg-teal-500 dark:bg-teal-400",
-  "windy-variant": "bg-teal-500 dark:bg-teal-400",
-  exceptional: "bg-red-500 dark:bg-red-400",
+  sunny: "oklch(0.80 0.16 75)",
+  "clear-night": "oklch(0.65 0.10 250)",
+  cloudy: "oklch(0.70 0.04 250)",
+  partlycloudy: "oklch(0.74 0.06 240)",
+  rainy: "oklch(0.66 0.14 230)",
+  pouring: "oklch(0.62 0.16 235)",
+  snowy: "oklch(0.85 0.02 240)",
+  "snowy-rainy": "oklch(0.75 0.08 235)",
+  hail: "oklch(0.78 0.06 235)",
+  fog: "oklch(0.70 0.02 250)",
+  lightning: "oklch(0.75 0.18 290)",
+  "lightning-rainy": "oklch(0.70 0.16 280)",
+  windy: "oklch(0.72 0.05 200)",
+  "windy-variant": "oklch(0.72 0.05 200)",
+  exceptional: "oklch(0.70 0.20 30)",
 };
 
-/** Tailwind background classes for the Widget.Icon badge per condition. */
+/** Raw CSS color string for the Widget.Icon color channel per HA weather condition. */
 export function getWeatherIconColor(condition: string): string {
-  return WEATHER_ICON_COLORS[condition] ?? "bg-slate-500 dark:bg-slate-400";
+  return WEATHER_ICON_COLORS[condition] ?? "oklch(0.70 0.04 250)";
 }
 
 export function formatTemp(value: number | string, unit = "\u00B0"): string {
