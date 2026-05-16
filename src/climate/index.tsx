@@ -1,7 +1,6 @@
 import { useEntities } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -11,12 +10,12 @@ import {
   widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ClimateControls } from "./controls";
-import { formatTemperature, getHvacModeColor, getHvacModeIcon, HVAC_MODES } from "./utils";
+import { formatTemperature, getHvacModeIcon, HVAC_MODES, MODE_COLORS } from "./utils";
 
 const configSchema = z.object({
   title: widgetFields.title(),
@@ -42,7 +41,6 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 
   const entity = createMemo(() => entities()[0]);
   const hvacMode = createMemo(() => (entity()?.state ?? "off") as string);
-  const isOff = createMemo(() => hvacMode() === "off");
 
   const currentTemp = createMemo(
     () => entity()?.attributes?.current_temperature as number | undefined,
@@ -56,10 +54,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   });
 
   const iconName = createMemo(() => getHvacModeIcon(hvacMode()));
-  const gradient = createMemo(() => {
-    if (isOff()) return stateColors.inactive.gradient;
-    return getHvacModeColor(hvacMode());
-  });
+  const mode = createMemo(() => MODE_COLORS[hvacMode()] ?? MODE_COLORS.off);
 
   const statusText = createMemo(() => {
     const mode = HVAC_MODES[hvacMode()]?.label ?? hvacMode();
@@ -98,15 +93,17 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={gradient()}
+        color={mode().color}
+        colorTo={mode().colorTo}
         emptyState={emptyState()}
+        style={{
+          transition: "--widget-color 300ms ease, --widget-color-to 300ms ease",
+        }}
       >
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={iconName()} />}
-              color={isOff() ? stateColors.inactive.icon : stateColors.active.icon}
-              glow={!isOff() ? stateColors.active.glow : undefined}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">
