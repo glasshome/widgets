@@ -2,7 +2,6 @@ import { useEntities, useService, useToggle } from "@glasshome/sync-layer/solid"
 import {
   defineWidget,
   isEntityActive,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -107,9 +106,8 @@ function LightWidget(props: { config: LightConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  // Display color derived from current HS or color temp
+  // Display color derived from current HS or color temp (only meaningful when on)
   const displayColor = createMemo(() => {
-    if (!isOn()) return "rgb(100, 100, 100)";
     const data = lightData();
     if (data?.color) return data.color as string;
     const first = entities()[0];
@@ -131,8 +129,6 @@ function LightWidget(props: { config: LightConfig }) {
     return `${active}/${total} on - ${bri}`;
   });
 
-  const colors = createMemo(() => (isOn() ? stateColors.active : stateColors.inactive));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -147,7 +143,7 @@ function LightWidget(props: { config: LightConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={isOn() ? undefined : colors().gradient}
+        tone="neutral"
         emptyState={emptyState()}
         class={isDragging() ? "duration-0" : undefined}
       >
@@ -160,8 +156,7 @@ function LightWidget(props: { config: LightConfig }) {
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
-              color={isOn() ? undefined : colors().icon}
-              dynamicColor={isOn() ? displayColor() : undefined}
+              color={isOn() ? displayColor() : undefined}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">
