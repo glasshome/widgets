@@ -47,8 +47,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   onCleanup(() => clearInterval(timer));
 
   const presetTheme = createMemo(() => getPresetTheme(cfg().preset));
-  const gradientConfig = createMemo(() => getClockGradient(cfg().preset));
-  const gradient = () => `bg-gradient-to-br ${gradientConfig().from} ${gradientConfig().to}`;
+  const gradient = createMemo(() => getClockGradient(cfg().preset));
 
   const effectiveLayout = createMemo(() => {
     const layout = cfg().layout;

@@ -1,5 +1,17 @@
-import { getPresetTheme } from "./presets";
 import type { ClockConfig, ClockPreset, DateFormat } from "./types";
+
+/* Per-preset gradient strings — raw CSS for the channel API's <Widget gradient=...> contract.
+ * tuned in Phase 29 — placeholder oklch hues match the shell formula's direction/opacities. */
+export const CLOCK_GRADIENTS: Record<ClockPreset, string> = {
+  modern:
+    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 240) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 200) 12%, transparent))",
+  classic:
+    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 70) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 40) 12%, transparent))",
+  minimal:
+    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.02 250) 22%, transparent), color-mix(in oklch, oklch(0.7 0.02 250) 12%, transparent))",
+  bold:
+    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 20) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 330) 12%, transparent))",
+};
 
 export function getTimeParts(
   date: Date,
@@ -72,11 +84,8 @@ export function formatDate(date: Date, format: DateFormat, timeZone?: string): s
   }
 }
 
-export function getClockGradient(preset?: ClockPreset): { from: string; to: string } {
-  if (preset) {
-    return getPresetTheme(preset).digital.gradient;
-  }
-  return { from: "from-cyan-500/20", to: "to-blue-600/20" };
+export function getClockGradient(preset?: ClockPreset): string {
+  return CLOCK_GRADIENTS[preset ?? "modern"];
 }
 
 export function getDefaultConfig(): ClockConfig {
