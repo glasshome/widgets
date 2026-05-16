@@ -220,7 +220,7 @@ export function AreaContent(props: AreaContentProps) {
       fallback={
         // --- Small (xs/sm): Compact single-row ---
         <div class="flex items-center gap-2 overflow-hidden">
-          <Widget.Icon icon={<Icon icon={props.areaIcon} />} color="bg-white/10" />
+          <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
           <div class="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
             <Widget.Title>{props.areaName}</Widget.Title>
             <div class="flex flex-wrap items-center gap-1">
@@ -241,7 +241,7 @@ export function AreaContent(props: AreaContentProps) {
       <div class="flex h-full flex-col justify-between overflow-hidden">
         {/* Header */}
         <div class="flex items-center gap-3">
-          <Widget.Icon icon={<Icon icon={props.areaIcon} />} color="bg-white/10" />
+          <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
           <div class="min-w-0 flex-1 overflow-hidden">
             <Widget.Title>{props.areaName}</Widget.Title>
             <Show when={isLarge() && (props.metrics.hasPresence || props.metrics.hasMotion)}>
