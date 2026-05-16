@@ -22,18 +22,6 @@ const configSchema = z.object({
 
 type LockConfig = z.infer<typeof configSchema>;
 
-const lockedColors = {
-  gradient: "bg-gradient-to-br from-emerald-600/20 to-green-700/20",
-  icon: "bg-emerald-500 dark:bg-emerald-400",
-  glow: "shadow-emerald-500/50 dark:shadow-emerald-400/50",
-};
-
-const unlockedColors = {
-  gradient: "bg-gradient-to-br from-amber-500/20 to-orange-600/20",
-  icon: "bg-amber-500 dark:bg-amber-400",
-  glow: "shadow-amber-500/50 dark:shadow-amber-400/50",
-};
-
 function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
@@ -93,8 +81,6 @@ function LockWidget(props: { config: LockConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  const colors = createMemo(() => (isLocked() ? lockedColors : unlockedColors));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -106,7 +92,7 @@ function LockWidget(props: { config: LockConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={colors().gradient}
+        tone={isLocked() ? "success" : "warning"}
         loading={isToggling()}
         emptyState={emptyState()}
       >
@@ -114,8 +100,6 @@ function LockWidget(props: { config: LockConfig }) {
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />}
-              color={colors().icon}
-              glow={colors().glow}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">

@@ -4,7 +4,6 @@ import {
   defineWidget,
   getEntityAttribute,
   type SensorGroupResult,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -120,14 +119,13 @@ function SensorWidget(props: { config: SensorConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={stateColors.active.gradient}
+        tone="info"
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={iconName()} />}
-              color={stateColors.active.icon}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">

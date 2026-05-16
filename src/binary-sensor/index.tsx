@@ -4,7 +4,6 @@ import {
   defineWidget,
   getEntityAttribute,
   isEntityActive,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -77,8 +76,6 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  const colors = createMemo(() => (isOn() ? stateColors.active : stateColors.inactive));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -90,15 +87,13 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={colors().gradient}
+        tone={isOn() ? "info" : "neutral"}
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={iconName()} />}
-              color={colors().icon}
-              glow={isOn() ? colors().glow : undefined}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">

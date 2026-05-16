@@ -3,7 +3,6 @@ import {
   countActiveEntities,
   defineWidget,
   isEntityActive,
-  stateColors,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -84,8 +83,6 @@ function SwitchWidget(props: { config: SwitchConfig }) {
   );
   onCleanup(gestures.dispose);
 
-  const colors = createMemo(() => (isOn() ? stateColors.active : stateColors.inactive));
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -97,7 +94,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        gradient={colors().gradient}
+        tone={isOn() ? "success" : "neutral"}
         loading={isToggling()}
         emptyState={emptyState()}
       >
@@ -105,8 +102,6 @@ function SwitchWidget(props: { config: SwitchConfig }) {
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />}
-              color={colors().icon}
-              glow={isOn() ? colors().glow : undefined}
               entityCount={entities().length}
             />
             <div class="flex flex-col gap-1 overflow-hidden">
