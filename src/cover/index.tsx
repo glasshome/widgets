@@ -140,7 +140,6 @@ function CoverWidget(props: { config: CoverConfig }) {
         <Show when={hasEntities()}>
           <Widget.SliderFill
             value={displayPosition()}
-            color="rgb(59, 130, 246)"
             isDragging={slidePosition() !== null}
           />
           <Widget.Content>
