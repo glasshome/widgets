@@ -93,6 +93,10 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     if (ents.length === 0) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, ents);
   });
+  const debugView = createMemo(() => {
+    const dbg = debugData();
+    return dbg ? <WidgetDebugView data={dbg} /> : undefined;
+  });
 
   return (
     <>
@@ -132,7 +136,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<ClimateControls entities={entities} />}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={debugView()}
         debugData={debugData()}
       />
     </>
