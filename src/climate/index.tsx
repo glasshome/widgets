@@ -1,6 +1,7 @@
 import { useEntities } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
+  isDark,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -17,7 +18,7 @@ import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { ClimateControls } from "./controls";
 // Climate-scoped channel transition (--widget-color 300ms ease) — see transition.css
 import "./transition.css";
-import { formatTemperature, getHvacModeIcon, HVAC_MODES, MODE_COLORS } from "./utils";
+import { formatTemperature, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const configSchema = z.object({
   title: widgetFields.title(),
@@ -56,7 +57,10 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   });
 
   const iconName = createMemo(() => getHvacModeIcon(hvacMode()));
-  const mode = createMemo(() => MODE_COLORS[hvacMode()] ?? MODE_COLORS.off);
+  // isDark() is called inside the memo so re-evaluation on mode() change
+  // also re-reads the theme; live theme-toggle without a mode change picks up
+  // on next memo invalidation (acceptable per CONTEXT D-10 / T-29-04).
+  const mode = createMemo(() => getModeColors(hvacMode(), isDark()));
 
   const statusText = createMemo(() => {
     const mode = HVAC_MODES[hvacMode()]?.label ?? hvacMode();
