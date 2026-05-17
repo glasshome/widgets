@@ -219,7 +219,7 @@ export function AreaContent(props: AreaContentProps) {
       when={!isSmall()}
       fallback={
         // --- Small (xs/sm): Compact single-row ---
-        <div class="flex items-center gap-2 overflow-hidden">
+        <div class="flex items-center gap-2">
           <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
           <div class="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
             <Widget.Title>{props.areaName}</Widget.Title>
@@ -238,7 +238,7 @@ export function AreaContent(props: AreaContentProps) {
       }
     >
       {/* --- Medium+ (md/lg/xl): Header top, metrics bottom --- */}
-      <div class="flex h-full flex-col justify-between overflow-hidden">
+      <div class="flex h-full flex-col justify-between">
         {/* Header */}
         <div class="flex items-center gap-3">
           <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
