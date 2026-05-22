@@ -4,7 +4,7 @@
   "exports": {
     "./tailwind-sources": "./tailwind-sources.css"
   },
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Reference implementation of built-in GlassHome dashboard widgets",
   "license": "MIT",
   "repository": {

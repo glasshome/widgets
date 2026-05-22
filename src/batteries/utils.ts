@@ -38,8 +38,7 @@ export function filterAndSortBatteries(
 
   return entities
     .filter((e) => {
-      const dc = e.attributes?.device_class;
-      if (dc !== "battery") return false;
+      if (e.deviceClass !== "battery") return false;
 
       const id = e.id;
       if (config.whitelist?.length) {
