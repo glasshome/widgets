@@ -98,7 +98,9 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Binary Sensor"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Binary Sensors" : entities()[0]?.friendlyName) ||
+                  "Binary Sensor"}
               </Widget.Title>
               <Widget.Status>{statusText()}</Widget.Status>
             </div>

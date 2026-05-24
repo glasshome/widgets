@@ -130,7 +130,9 @@ function SensorWidget(props: { config: SensorConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Sensor"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Sensors" : entities()[0]?.friendlyName) ||
+                  "Sensor"}
               </Widget.Title>
               <Widget.Value value={displayValue()} unit={displayUnit() || undefined} />
               <Show when={subtitle()}>

@@ -11,10 +11,10 @@ interface AnalogClockProps {
 }
 
 const defaultTheme: AnalogPresetTheme = {
-  faceColor: "rgba(255, 255, 255, 0.05)",
+  faceColor: "rgba(127, 127, 127, 0.08)",
   handColor: "rgb(59, 130, 246)",
   accentColor: "rgb(147, 51, 234)",
-  tickColor: "rgba(255, 255, 255, 0.6)",
+  tickColor: "currentColor",
 };
 
 const SIZE_MAP: Record<ClockSize, number> = {
@@ -98,7 +98,7 @@ export function AnalogClock(props: AnalogClockProps) {
       width={clockSize()}
       height={clockSize()}
       viewBox={`0 0 ${clockSize()} ${clockSize()}`}
-      class="drop-shadow-lg"
+      class="text-foreground/70 drop-shadow-lg"
     >
       <circle
         cx={center()}

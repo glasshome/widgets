@@ -104,7 +104,9 @@ function LockWidget(props: { config: LockConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Lock"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Locks" : entities()[0]?.friendlyName) ||
+                  "Lock"}
               </Widget.Title>
               <Widget.Status>{statusText()}</Widget.Status>
             </div>

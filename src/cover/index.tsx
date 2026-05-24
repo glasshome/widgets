@@ -146,7 +146,9 @@ function CoverWidget(props: { config: CoverConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Cover"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Covers" : entities()[0]?.friendlyName) ||
+                  "Cover"}
               </Widget.Title>
               <Widget.Status>{statusText()}</Widget.Status>
             </div>

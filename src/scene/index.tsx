@@ -84,7 +84,9 @@ function SceneWidget(props: { config: SceneConfig }) {
             <Widget.Icon icon={<Icon icon="mdi:palette" />} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Scene"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Scenes" : entities()[0]?.friendlyName) ||
+                  "Scene"}
               </Widget.Title>
               <Widget.Status>Activate</Widget.Status>
             </div>

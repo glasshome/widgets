@@ -106,7 +106,9 @@ function SwitchWidget(props: { config: SwitchConfig }) {
             />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
-                {props.config.title || entities()[0]?.friendlyName || "Switch"}
+                {props.config.title ||
+                  (entities().length > 1 ? "Switches" : entities()[0]?.friendlyName) ||
+                  "Switch"}
               </Widget.Title>
               <Widget.Status>{statusText()}</Widget.Status>
             </div>
