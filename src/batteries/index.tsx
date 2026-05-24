@@ -27,10 +27,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
 
-  // Subscribe to all sensor entities and let filterAndSortBatteries filter by
-  // EntityView.deviceClass — sync-layer resolves that from the registry OR the
-  // entity attributes, so integrations that set device_class only at runtime
-  // (Zigbee2MQTT, Z-Wave, etc.) are still caught.
   const sensorIds = createMemo(() => byDomain().sensor ?? []);
   const sensorEntities = useEntities(sensorIds);
 
