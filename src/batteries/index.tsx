@@ -1,5 +1,4 @@
-import { extractDomain, state } from "@glasshome/sync-layer";
-import { useEntities } from "@glasshome/sync-layer/solid";
+import { byDomain, useEntities } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   useWidgetContext,
@@ -28,17 +27,12 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
   const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
 
-  // Derive battery entity IDs from registry metadata instead of subscribing to all sensors
-  const batteryIds = createMemo(() => {
-    const ids: string[] = [];
-    for (const [entityId, entry] of Object.entries(state.entityRegistry)) {
-      if (extractDomain(entityId) !== "sensor") continue;
-      const dc = entry.device_class ?? entry.original_device_class;
-      if (dc === "battery") ids.push(entityId);
-    }
-    return ids;
-  });
-  const sensorEntities = useEntities(batteryIds);
+  // Subscribe to all sensor entities and let filterAndSortBatteries filter by
+  // EntityView.deviceClass — sync-layer resolves that from the registry OR the
+  // entity attributes, so integrations that set device_class only at runtime
+  // (Zigbee2MQTT, Z-Wave, etc.) are still caught.
+  const sensorIds = createMemo(() => byDomain().sensor ?? []);
+  const sensorEntities = useEntities(sensorIds);
 
   const batteries = createMemo(() => filterAndSortBatteries(sensorEntities(), props.config));
 
