@@ -85,7 +85,9 @@ function SceneWidget(props: { config: SceneConfig }) {
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
-                  (entities().length > 1 ? "Scenes" : entities()[0]?.friendlyName) ||
+                  entities()
+                    .map((e) => e.friendlyName)
+                    .join(", ") ||
                   "Scene"}
               </Widget.Title>
               <Widget.Status>Activate</Widget.Status>

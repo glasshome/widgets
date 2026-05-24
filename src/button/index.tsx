@@ -88,7 +88,9 @@ function ButtonWidget(props: { config: ButtonConfig }) {
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
-                  (entities().length > 1 ? "Buttons" : entities()[0]?.friendlyName) ||
+                  entities()
+                    .map((e) => e.friendlyName)
+                    .join(", ") ||
                   "Button"}
               </Widget.Title>
               <Widget.Status>Press</Widget.Status>

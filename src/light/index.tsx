@@ -162,7 +162,9 @@ function LightWidget(props: { config: LightConfig }) {
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
-                  (entities().length > 1 ? "Lights" : entities()[0]?.friendlyName) ||
+                  entities()
+                    .map((e) => e.friendlyName)
+                    .join(", ") ||
                   "Light"}
               </Widget.Title>
               <Widget.Status>{statusText()}</Widget.Status>
