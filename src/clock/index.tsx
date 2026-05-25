@@ -241,23 +241,36 @@ function ClockWidget(props: { config: ClockConfig }) {
                 </div>
               </Show>
 
-              {/* Date display */}
-              <Show when={cfg().showDate}>
-                <div class="@[200px]:mt-3 mt-2 flex flex-col items-center @[200px]:gap-1 gap-0.5">
-                  <span
-                    class={`font-medium ${dayClasses()} ${digital().dayColor || "text-foreground/60"}`}
-                    style={{ "font-family": digital().fontFamily }}
-                  >
-                    {dayOfWeek()}
-                  </span>
-                  <span
-                    class={`opacity-50 ${dateClasses()} ${digital().textColor}`}
-                    style={{ "font-family": digital().fontFamily }}
-                  >
-                    {formattedDate()}
-                  </span>
-                </div>
-              </Show>
+            </Show>
+
+            {/* Date display — visible in both digital and analogue modes */}
+            <Show when={cfg().showDate}>
+              <div class="@[200px]:mt-3 mt-2 flex flex-col items-center @[200px]:gap-1 gap-0.5">
+                <span
+                  class={`font-medium ${dayClasses()} ${
+                    cfg().clockStyle === "analog"
+                      ? "text-foreground/60"
+                      : digital().dayColor || "text-foreground/60"
+                  }`}
+                  style={{
+                    "font-family":
+                      cfg().clockStyle === "analog" ? undefined : digital().fontFamily,
+                  }}
+                >
+                  {dayOfWeek()}
+                </span>
+                <span
+                  class={`opacity-50 ${dateClasses()} ${
+                    cfg().clockStyle === "analog" ? "text-foreground" : digital().textColor
+                  }`}
+                  style={{
+                    "font-family":
+                      cfg().clockStyle === "analog" ? undefined : digital().fontFamily,
+                  }}
+                >
+                  {formattedDate()}
+                </span>
+              </div>
             </Show>
           </div>
 
@@ -461,38 +474,39 @@ function ClockWidget(props: { config: ClockConfig }) {
                 </Select>
               </div>
 
-              {/* Show Date */}
-              <div class="flex items-center justify-between">
-                <Label>Show Date</Label>
-                <Switch
-                  checked={draftConfig().showDate}
-                  onChange={(checked) => updateDraft("showDate", checked)}
-                />
-              </div>
+            </Show>
 
-              {/* Date Format */}
-              <Show when={draftConfig().showDate}>
-                <div class="flex flex-col gap-1.5">
-                  <Label>Date Format</Label>
-                  <Select
-                    value={draftConfig().dateFormat}
-                    onChange={(val) => {
-                      if (val) updateDraft("dateFormat", val as ClockConfig["dateFormat"]);
-                    }}
-                    options={["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]}
-                    itemComponent={(itemProps) => (
-                      <SelectItem item={itemProps.item}>
-                        {String(itemProps.item.rawValue)}
-                      </SelectItem>
-                    )}
-                  >
-                    <SelectTrigger class="w-full">
-                      <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent />
-                  </Select>
-                </div>
-              </Show>
+            {/* Show Date — shared between digital and analogue */}
+            <div class="flex items-center justify-between">
+              <Label>Show Date</Label>
+              <Switch
+                checked={draftConfig().showDate}
+                onChange={(checked) => updateDraft("showDate", checked)}
+              />
+            </div>
+
+            {/* Date Format */}
+            <Show when={draftConfig().showDate}>
+              <div class="flex flex-col gap-1.5">
+                <Label>Date Format</Label>
+                <Select
+                  value={draftConfig().dateFormat}
+                  onChange={(val) => {
+                    if (val) updateDraft("dateFormat", val as ClockConfig["dateFormat"]);
+                  }}
+                  options={["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]}
+                  itemComponent={(itemProps) => (
+                    <SelectItem item={itemProps.item}>
+                      {String(itemProps.item.rawValue)}
+                    </SelectItem>
+                  )}
+                >
+                  <SelectTrigger class="w-full">
+                    <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent />
+                </Select>
+              </div>
             </Show>
 
             {/* Analog-specific options */}

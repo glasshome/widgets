@@ -20,7 +20,7 @@ function Cloud(props: { class?: string; style?: Record<string, string | number> 
            C60 4 40 4 36 16
            C28 6 10 12 16 24
            C4 28 4 44 14 44 Z"
-        fill="currentColor"
+        fill="white"
       />
     </svg>
   );
@@ -65,9 +65,8 @@ export function CloudyScene(props: CloudyProps) {
         />
       )}
 
-      {/* Far cloud — top, slow, faint */}
       <Cloud
-        class="absolute text-white/25 dark:text-white/10"
+        class="absolute opacity-60 dark:opacity-15"
         style={{
           top: "4%",
           left: "-40%",
@@ -78,9 +77,8 @@ export function CloudyScene(props: CloudyProps) {
         }}
       />
 
-      {/* Mid cloud — slightly lower, medium speed */}
       <Cloud
-        class="absolute text-white/30 dark:text-white/10"
+        class="absolute opacity-70 dark:opacity-15"
         style={{
           top: "14%",
           left: "-50%",
@@ -91,9 +89,8 @@ export function CloudyScene(props: CloudyProps) {
         }}
       />
 
-      {/* Near cloud — small accent, faster */}
       <Cloud
-        class="absolute text-white/20 dark:text-white/10"
+        class="absolute opacity-50 dark:opacity-15"
         style={{
           top: "8%",
           left: "-35%",

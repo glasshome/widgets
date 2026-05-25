@@ -262,9 +262,11 @@ function HeroLayout(props: HeroLayoutProps) {
           color={getWeatherIconColor(props.condition)}
         />
         <span
-          class={`font-black tracking-tight leading-none ${
-            props.isLarge ? "text-6xl" : "text-5xl"
-          }`}
+          class="font-black leading-none"
+          style={{
+            "font-size": "5px",
+            "letter-spacing": "-0.04em",
+          }}
         >
           {props.temperature}
         </span>
@@ -314,7 +316,9 @@ function CompactLayout(props: CompactLayoutProps) {
       style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
     >
       <Icon icon={getWeatherIcon(props.condition)} width={32} />
-      <span class="font-bold text-3xl leading-none">{props.temperature}</span>
+      <span class="font-bold leading-none" style={{ "font-size": "2.25rem" }}>
+        {props.temperature}
+      </span>
     </div>
   );
 }
