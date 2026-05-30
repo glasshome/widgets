@@ -105,7 +105,6 @@ function CameraWidget(props: { config: CameraConfig }) {
     () => ({
       hold: { action: openDialog },
     }),
-    () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
 
@@ -228,7 +227,7 @@ export default defineWidget<CameraConfig>({
     icon: "mdi:cctv",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: CameraWidget,

@@ -211,8 +211,15 @@ export function AreaContent(props: AreaContentProps) {
   const secondaryPills = createMemo(() => buildSecondaryPills(props.metrics));
   const allPills = createMemo(() => buildAllPills(props.metrics));
   const hasLights = createMemo(() => props.metrics.lightsTotal > 0);
-  const isSmall = createMemo(() => ctx.size() === "xs" || ctx.size() === "sm");
-  const isLarge = createMemo(() => ctx.size() === "lg" || ctx.size() === "xl");
+  // Pixel-threshold replacements for the old xs/sm and lg/xl tier checks.
+  const isSmall = createMemo(() => {
+    const d = ctx.dimensions();
+    return d.width <= 300 || d.height <= 150;
+  });
+  const isLarge = createMemo(() => {
+    const d = ctx.dimensions();
+    return d.width >= 600 || d.height >= 300;
+  });
 
   return (
     <Show

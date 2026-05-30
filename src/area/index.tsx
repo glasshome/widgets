@@ -55,7 +55,6 @@ function AreaWidget(props: { config: AreaConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({ hold: { action: openDialog } }),
-    () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
 
@@ -136,7 +135,7 @@ export default defineWidget<AreaConfig>({
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: AreaWidget,

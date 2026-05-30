@@ -60,7 +60,6 @@ function SceneWidget(props: { config: SceneConfig }) {
       tap: handleTap,
       hold: { action: openDialog },
     }),
-    () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
 
@@ -121,7 +120,7 @@ export default defineWidget<SceneConfig>({
     icon: "mdi:palette",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: SceneWidget,

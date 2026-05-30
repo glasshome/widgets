@@ -33,8 +33,12 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const { callService } = useService();
 
   const isPlaying = () => entity()?.state === "playing";
-  const size = () => ctx.size();
-  const isSmall = () => size() === "xs" || size() === "sm";
+  // Compact layout when widget is ≤ 2 cells wide (≈ 300 px) OR ≤ 2 cells tall.
+  // Equivalent to the old `xs`/`sm` tiers (area ≤ 4).
+  const isSmall = () => {
+    const d = ctx.dimensions();
+    return d.width <= 300 || d.height <= 150;
+  };
 
   const mediaTitle = createMemo(() => getEntityAttribute<string>(entity()!, "media_title") ?? "");
   const mediaArtist = createMemo(() => getEntityAttribute<string>(entity()!, "media_artist") ?? "");
@@ -49,13 +53,10 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     }
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-    }),
-    () => ctx.orientation(),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -165,7 +166,7 @@ export default defineWidget<MediaPlayerConfig>({
     icon: "mdi:music",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: MediaPlayerWidget,

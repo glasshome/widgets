@@ -87,9 +87,16 @@ function WeatherWidget(props: { config: WeatherConfig }) {
   });
 
   const showForecast = () => props.config.showForecast !== false;
-  const size = () => ctx.size();
-  const isLarge = () => size() === "lg" || size() === "xl";
-  const isSmall = () => size() === "xs";
+  // Replaces the old xs/lg/xl tier checks with direct pixel thresholds.
+  // xs ≈ area ≤ 2 (≈ 1x1, 1x2): one tiny axis. lg/xl ≈ area ≥ 12 (4x2 / 4x4).
+  const isSmall = () => {
+    const d = ctx.dimensions();
+    return d.width <= 150 || d.height <= 75;
+  };
+  const isLarge = () => {
+    const d = ctx.dimensions();
+    return d.width >= 600 || d.height >= 300;
+  };
 
   const hourlyData = createMemo(() => {
     const f = forecast();
@@ -106,12 +113,9 @@ function WeatherWidget(props: { config: WeatherConfig }) {
     return f?.forecasts?.daily?.slice(0, 7) ?? [];
   });
 
-  const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog },
-    }),
-    () => ctx.orientation(),
-  );
+  const gestures = useWidgetGestures(() => ({
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -264,7 +268,7 @@ function HeroLayout(props: HeroLayoutProps) {
         <span
           class="font-black leading-none"
           style={{
-            "font-size": "5px",
+            "font-size": props.isLarge ? "3rem" : "2rem",
             "letter-spacing": "-0.04em",
           }}
         >
@@ -330,8 +334,9 @@ export default defineWidget<WeatherConfig>({
     icon: "mdi:weather-partly-cloudy",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: WeatherWidget,
 });
+ 

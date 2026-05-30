@@ -52,7 +52,8 @@ function ClockWidget(props: { config: ClockConfig }) {
   const effectiveLayout = createMemo(() => {
     const layout = cfg().layout;
     if (layout === "auto") {
-      return ctx.orientation() === "vertical" ? "stacked" : "horizontal";
+      const d = ctx.dimensions();
+      return d.height > d.width ? "stacked" : "horizontal";
     }
     return layout;
   });
@@ -116,7 +117,6 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   const gestures = useWidgetGestures(
     () => ({ hold: { action: openDialog } }),
-    () => ctx.orientation(),
   );
   onCleanup(gestures.dispose);
 
@@ -613,7 +613,7 @@ export default defineWidget<ClockConfig>({
     icon: "mdi:clock-outline",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.3.0",
+    sdkVersion: "^0.5.0",
   },
   configSchema,
   component: ClockWidget,
