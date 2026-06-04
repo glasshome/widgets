@@ -1,3 +1,4 @@
+import { monotoneCubicPath } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, type JSX, onCleanup, onMount } from "solid-js";
 
 export interface SparklinePoint {
@@ -8,43 +9,6 @@ export interface SparklinePoint {
 interface SparklineProps {
   data: SparklinePoint[];
   color?: string;
-}
-
-/** Monotone cubic Hermite spline — no overshoot between data points */
-function monotoneCubicPath(points: { x: number; y: number }[]): string {
-  if (points.length < 2) return "";
-  if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
-
-  const n = points.length;
-  const dx: number[] = [];
-  const dy: number[] = [];
-  const m: number[] = [];
-
-  for (let i = 0; i < n - 1; i++) {
-    dx.push(points[i + 1].x - points[i].x);
-    dy.push(points[i + 1].y - points[i].y);
-    m.push(dy[i] / dx[i]);
-  }
-
-  const tangents: number[] = [m[0]];
-  for (let i = 1; i < n - 1; i++) {
-    if (m[i - 1] * m[i] <= 0) {
-      tangents.push(0);
-    } else {
-      tangents.push(
-        (3 * (dx[i - 1] + dx[i])) /
-          ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]),
-      );
-    }
-  }
-  tangents.push(m[n - 2]);
-
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 0; i < n - 1; i++) {
-    const seg = dx[i] / 3;
-    d += ` C ${points[i].x + seg} ${points[i].y + tangents[i] * seg}, ${points[i + 1].x - seg} ${points[i + 1].y - tangents[i + 1] * seg}, ${points[i + 1].x} ${points[i + 1].y}`;
-  }
-  return d;
 }
 
 export function Sparkline(props: SparklineProps): JSX.Element {
