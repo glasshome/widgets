@@ -1,0 +1,19 @@
+{
+  "name": "Energy Flow",
+  "description": "Live power flow between solar, grid, battery, home, and EV",
+  "icon": "mdi:lightning-bolt",
+  "minSize": {
+    "w": 2,
+    "h": 3
+  },
+  "maxSize": {
+    "w": 4,
+    "h": 4
+  },
+  "sdkVersion": "^0.5.0",
+  "version": "0.1.0",
+  "defaultSize": {
+    "w": 3,
+    "h": 3
+  }
+}
