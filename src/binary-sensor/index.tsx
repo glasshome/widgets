@@ -28,7 +28,7 @@ type BinarySensorConfig = z.infer<typeof configSchema>;
 
 function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -110,8 +110,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Binary Sensor"
         maxWidth="lg"
         configSchema={configSchema}

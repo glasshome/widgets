@@ -32,7 +32,7 @@ const CASCADE: StreamMode[] = ["webrtc", "hls", "mjpeg", "snapshot"];
 
 function CameraWidget(props: { config: CameraConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -182,8 +182,7 @@ function CameraWidget(props: { config: CameraConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Camera"
         maxWidth="xl"
         configSchema={configSchema}

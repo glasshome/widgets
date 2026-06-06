@@ -25,7 +25,7 @@ type CoverConfig = z.infer<typeof configSchema>;
 
 function CoverWidget(props: { config: CoverConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService } = useService();
@@ -158,8 +158,7 @@ function CoverWidget(props: { config: CoverConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Cover"
         maxWidth="lg"
         configSchema={configSchema}

@@ -26,7 +26,7 @@ type MediaPlayerConfig = z.infer<typeof configSchema>;
 
 function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -141,8 +141,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Media Player"
         maxWidth="lg"
         configSchema={configSchema}

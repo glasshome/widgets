@@ -24,7 +24,7 @@ type LockConfig = z.infer<typeof configSchema>;
 
 function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -116,8 +116,7 @@ function LockWidget(props: { config: LockConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Lock"
         maxWidth="lg"
         configSchema={configSchema}

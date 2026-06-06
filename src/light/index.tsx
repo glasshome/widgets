@@ -27,7 +27,7 @@ type LightConfig = z.infer<typeof configSchema>;
 
 function LightWidget(props: { config: LightConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
   const toggle = useToggle();
@@ -173,8 +173,7 @@ function LightWidget(props: { config: LightConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Light"
         maxWidth="lg"
         configSchema={configSchema}

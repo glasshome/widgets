@@ -28,7 +28,7 @@ type ClimateConfig = z.infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -124,8 +124,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Climate"
         maxWidth="lg"
         configSchema={configSchema}

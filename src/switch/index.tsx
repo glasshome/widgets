@@ -26,7 +26,7 @@ type SwitchConfig = z.infer<typeof configSchema>;
 
 function SwitchWidget(props: { config: SwitchConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -118,8 +118,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Switch"
         maxWidth="lg"
         configSchema={configSchema}

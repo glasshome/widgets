@@ -30,7 +30,7 @@ const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 function WeatherWidget(props: { config: WeatherConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -87,16 +87,6 @@ function WeatherWidget(props: { config: WeatherConfig }) {
   });
 
   const showForecast = () => props.config.showForecast !== false;
-  // Replaces the old xs/lg/xl tier checks with direct pixel thresholds.
-  // xs ≈ area ≤ 2 (≈ 1x1, 1x2): one tiny axis. lg/xl ≈ area ≥ 12 (4x2 / 4x4).
-  const isSmall = () => {
-    const d = ctx.dimensions();
-    return d.width <= 150 || d.height <= 75;
-  };
-  const isLarge = () => {
-    const d = ctx.dimensions();
-    return d.width >= 600 || d.height >= 300;
-  };
 
   const hourlyData = createMemo(() => {
     const f = forecast();
@@ -151,44 +141,21 @@ function WeatherWidget(props: { config: WeatherConfig }) {
       >
         <Show when={entity()}>
           <WeatherBackground condition={condition()} />
-          <Widget.Content>
-            <Show
-              when={isSmall()}
-              fallback={
-                <HeroLayout
-                  condition={condition()}
-                  temperature={temperature()}
-                  feelsLike={feelsLike()}
-                  humidity={humidity()}
-                  windSpeed={windSpeed()}
-                  pressure={pressure()}
-                  isLarge={isLarge()}
-                  hasForecast={showForecast() && hourlyData().length > 1}
-                />
-              }
-            >
-              <CompactLayout condition={condition()} temperature={temperature()} />
-            </Show>
-          </Widget.Content>
-
-          {/* Forecast chart bleeds to widget edges so it sits below content */}
-          <Show when={!isSmall() && showForecast() && hourlyData().length > 1}>
-            <div
-              class="absolute right-0 bottom-0 left-0 z-10 text-white"
-              style={{
-                "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
-                filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
-              }}
-            >
-              <ForecastChart data={hourlyData()} height={90} />
-            </div>
-          </Show>
+          <WeatherBody
+            condition={condition()}
+            temperature={temperature()}
+            feelsLike={feelsLike()}
+            humidity={humidity()}
+            windSpeed={windSpeed()}
+            pressure={pressure()}
+            hasForecast={showForecast() && hourlyData().length > 1}
+            hourlyData={hourlyData()}
+          />
         </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Weather"
         maxWidth="lg"
         configSchema={configSchema}
@@ -223,6 +190,69 @@ function WeatherWidget(props: { config: WeatherConfig }) {
         debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
         debugData={debugData()}
       />
+    </>
+  );
+}
+
+interface WeatherBodyProps {
+  condition: string;
+  temperature: string;
+  feelsLike: string | undefined;
+  humidity: string | undefined;
+  windSpeed: string | undefined;
+  pressure: string | undefined;
+  hasForecast: boolean;
+  hourlyData: Array<{ temp: number; time: string }>;
+}
+
+// Must render inside <Widget>: the top-level widget scope only sees the stub
+// context (fixed 300x156), so size checks there never react to resizes.
+function WeatherBody(props: WeatherBodyProps) {
+  const ctx = useWidgetContext();
+  // Direct pixel thresholds. xs ≈ area ≤ 2 (≈ 1x1, 1x2): one tiny axis. lg/xl ≈ area ≥ 12 (4x2 / 4x4).
+  const isSmall = () => {
+    const d = ctx.dimensions();
+    return d.width <= 150 || d.height <= 75;
+  };
+  const isLarge = () => {
+    const d = ctx.dimensions();
+    return d.width >= 600 || d.height >= 300;
+  };
+
+  return (
+    <>
+      <Widget.Content>
+        <Show
+          when={isSmall()}
+          fallback={
+            <HeroLayout
+              condition={props.condition}
+              temperature={props.temperature}
+              feelsLike={props.feelsLike}
+              humidity={props.humidity}
+              windSpeed={props.windSpeed}
+              pressure={props.pressure}
+              isLarge={isLarge()}
+              hasForecast={props.hasForecast}
+            />
+          }
+        >
+          <CompactLayout condition={props.condition} temperature={props.temperature} />
+        </Show>
+      </Widget.Content>
+
+      {/* Forecast chart bleeds to widget edges so it sits below content */}
+      <Show when={!isSmall() && props.hasForecast}>
+        <div
+          class="absolute right-0 bottom-0 left-0 z-10 text-white"
+          style={{
+            "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
+            filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
+          }}
+        >
+          <ForecastChart data={props.hourlyData} height={90} />
+        </div>
+      </Show>
     </>
   );
 }

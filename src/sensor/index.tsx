@@ -32,7 +32,7 @@ type SensorConfig = z.infer<typeof configSchema>;
 
 function SensorWidget(props: { config: SensorConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -150,8 +150,7 @@ function SensorWidget(props: { config: SensorConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Sensor"
         maxWidth="lg"
         configSchema={configSchema}

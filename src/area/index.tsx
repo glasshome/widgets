@@ -25,7 +25,7 @@ type AreaConfig = z.infer<typeof configSchema>;
 
 function AreaWidget(props: { config: AreaConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const { turnOn, turnOff } = useService();
 
   const area = useArea(() => props.config.areaId ?? "");
@@ -110,8 +110,7 @@ function AreaWidget(props: { config: AreaConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Area"
         maxWidth="lg"
         configSchema={configSchema}

@@ -24,7 +24,7 @@ type ButtonConfig = z.infer<typeof configSchema>;
 
 function ButtonWidget(props: { config: ButtonConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const [isLoading, setIsLoading] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -99,8 +99,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Button"
         maxWidth="lg"
         configSchema={configSchema}

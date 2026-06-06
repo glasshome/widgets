@@ -43,7 +43,7 @@ function configEntityIds(config: EnergyFlowConfig): string[] {
 
 function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const ids = createMemo(() => configEntityIds(props.config));
   const entities = useEntities(ids);
@@ -145,8 +145,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Energy Flow"
         maxWidth="lg"
         configSchema={configSchema}

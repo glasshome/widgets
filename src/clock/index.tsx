@@ -34,7 +34,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   const cfg = createMemo(() => ({ ...defaults, ...props.config }));
 
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   // Draft state for dialog edits
   const [draftConfig, setDraftConfig] = createSignal<ClockConfig>(cfg());
@@ -286,7 +286,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
+        {...dialogProps}
         onOpenChange={(open) => {
           if (!open) setDraftConfig(cfg());
           setShowDialog(open);

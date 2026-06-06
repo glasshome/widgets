@@ -25,7 +25,7 @@ type BatteriesConfig = z.infer<typeof configSchema>;
 
 function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog } = useWidgetDialog();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const sensorIds = createMemo(() => byDomain().sensor ?? []);
   const sensorEntities = useEntities(sensorIds);
@@ -70,8 +70,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
-        open={showDialog()}
-        onOpenChange={setShowDialog}
+        {...dialogProps}
         title="Batteries"
         maxWidth="lg"
         configSchema={configSchema}
