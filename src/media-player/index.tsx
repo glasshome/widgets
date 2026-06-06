@@ -33,12 +33,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const { callService } = useService();
 
   const isPlaying = () => entity()?.state === "playing";
-  // Compact layout when widget is ≤ 2 cells wide (≈ 300 px) OR ≤ 2 cells tall.
-  // Equivalent to the old `xs`/`sm` tiers (area ≤ 4).
-  const isSmall = () => {
-    const d = ctx.dimensions();
-    return d.width <= 300 || d.height <= 150;
-  };
 
   const mediaTitle = createMemo(() => getEntityAttribute<string>(entity()!, "media_title") ?? "");
   const mediaArtist = createMemo(() => getEntityAttribute<string>(entity()!, "media_artist") ?? "");
@@ -81,62 +75,15 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         }
       >
         <Show when={entity()}>
-          <Widget.Content>
-            <Show
-              when={!isSmall()}
-              fallback={
-                /* xs/sm: thumbnail + play icon overlay + truncated title */
-                <div class="flex h-full items-center gap-2 overflow-hidden">
-                  <div class="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
-                    <Show
-                      when={albumArt()}
-                      fallback={
-                        <div class="flex h-full w-full items-center justify-center bg-muted">
-                          <Icon icon="mdi:music" width={20} />
-                        </div>
-                      }
-                    >
-                      <img src={albumArt()} alt="" class="h-full w-full object-cover" />
-                    </Show>
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Icon
-                        icon={getMediaIcon(entity()!.state)}
-                        width={16}
-                        class="text-foreground"
-                      />
-                    </div>
-                  </div>
-                  <div class="flex flex-col overflow-hidden">
-                    <Widget.Title>
-                      {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
-                    </Widget.Title>
-                    <Show when={mediaArtist()}>
-                      <Widget.Status>{mediaArtist()}</Widget.Status>
-                    </Show>
-                  </div>
-                </div>
-              }
-            >
-              {/* md+: vinyl record + title/artist */}
-              <div class="flex h-full items-center gap-3">
-                <div class="h-14 w-14 flex-shrink-0">
-                  <VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />
-                </div>
-                <div class="flex flex-col gap-1 overflow-hidden">
-                  <Widget.Title>
-                    {mediaTitle() || props.config.title || entity()?.friendlyName || "Media"}
-                  </Widget.Title>
-                  <Show when={mediaArtist()}>
-                    <Widget.Status>{mediaArtist()}</Widget.Status>
-                  </Show>
-                  <span class="flex items-center gap-1 text-xs opacity-60">
-                    <Icon icon={getMediaIcon(entity()!.state)} width={12} />
-                    <span class="capitalize">{entity()!.state}</span>
-                  </span>
-                </div>
-              </div>
-            </Show>
-          </Widget.Content>
+          {(e) => (
+            <MediaPlayerContent
+              state={e().state}
+              title={mediaTitle() || props.config.title || e().friendlyName || "Media"}
+              artist={mediaArtist()}
+              albumArt={albumArt()}
+              isPlaying={isPlaying()}
+            />
+          )}
         </Show>
       </Widget>
       <WidgetDialog
@@ -155,6 +102,77 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         debugData={debugData()}
       />
     </>
+  );
+}
+
+interface MediaPlayerContentProps {
+  state: string;
+  title: string;
+  artist: string;
+  albumArt: string | undefined;
+  isPlaying: boolean;
+}
+
+// Must render inside <Widget>: the top-level widget scope only sees the stub
+// context whose dimensions() is always (0,0), so size checks there never react.
+function MediaPlayerContent(props: MediaPlayerContentProps) {
+  const ctx = useWidgetContext();
+  // Compact layout when widget is ≤ 2 cells wide (≈ 300 px) OR ≤ 2 cells tall.
+  // Equivalent to the old `xs`/`sm` tiers (area ≤ 4).
+  const isSmall = () => {
+    const d = ctx.dimensions();
+    return d.width <= 300 || d.height <= 150;
+  };
+
+  return (
+    <Widget.Content>
+      <Show
+        when={!isSmall()}
+        fallback={
+          /* xs/sm: thumbnail + play icon overlay + truncated title */
+          <div class="flex h-full items-center gap-2 overflow-hidden">
+            <div class="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
+              <Show
+                when={props.albumArt}
+                fallback={
+                  <div class="flex h-full w-full items-center justify-center bg-muted">
+                    <Icon icon="mdi:music" width={20} />
+                  </div>
+                }
+              >
+                <img src={props.albumArt} alt="" class="h-full w-full object-cover" />
+              </Show>
+              <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                <Icon icon={getMediaIcon(props.state)} width={16} class="text-foreground" />
+              </div>
+            </div>
+            <div class="flex flex-col overflow-hidden">
+              <Widget.Title>{props.title}</Widget.Title>
+              <Show when={props.artist}>
+                <Widget.Status>{props.artist}</Widget.Status>
+              </Show>
+            </div>
+          </div>
+        }
+      >
+        {/* md+: vinyl record + title/artist */}
+        <div class="flex h-full items-center gap-3">
+          <div class="h-14 w-14 flex-shrink-0">
+            <VinylRecord imageUrl={props.albumArt} isPlaying={props.isPlaying} />
+          </div>
+          <div class="flex flex-col gap-1 overflow-hidden">
+            <Widget.Title>{props.title}</Widget.Title>
+            <Show when={props.artist}>
+              <Widget.Status>{props.artist}</Widget.Status>
+            </Show>
+            <span class="flex items-center gap-1 text-xs opacity-60">
+              <Icon icon={getMediaIcon(props.state)} width={12} />
+              <span class="capitalize">{props.state}</span>
+            </span>
+          </div>
+        </div>
+      </Show>
+    </Widget.Content>
   );
 }
 

@@ -49,15 +49,6 @@ function ClockWidget(props: { config: ClockConfig }) {
   const presetTheme = createMemo(() => getPresetTheme(cfg().preset));
   const gradient = createMemo(() => getClockGradient(cfg().preset));
 
-  const effectiveLayout = createMemo(() => {
-    const layout = cfg().layout;
-    if (layout === "auto") {
-      const d = ctx.dimensions();
-      return d.height > d.width ? "stacked" : "horizontal";
-    }
-    return layout;
-  });
-
   const timeParts = createMemo(() => getTimeParts(currentTime(), cfg().timeFormat, cfg().timeZone));
   const formattedDate = createMemo(() =>
     formatDate(currentTime(), cfg().dateFormat, cfg().timeZone),
@@ -122,6 +113,118 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   const digital = () => presetTheme().digital;
 
+  // Closure component: renders inside <Widget>, so it sees the real measured
+  // context. The top-level widget scope only gets the stub whose dimensions()
+  // is always (0,0), which froze "auto" layout on horizontal.
+  const DigitalTime = () => {
+    const innerCtx = useWidgetContext();
+    const effectiveLayout = createMemo(() => {
+      const layout = cfg().layout;
+      if (layout === "auto") {
+        const d = innerCtx.dimensions();
+        return d.height > d.width ? "stacked" : "horizontal";
+      }
+      return layout;
+    });
+
+    return (
+      <Show
+        when={effectiveLayout() !== "stacked"}
+        fallback={
+          /* Stacked layout */
+          <div class="flex flex-col items-center justify-center leading-none">
+            <div
+              class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
+              style={{
+                "font-family": digital().fontFamily,
+                "font-weight": digital().fontWeight,
+                "letter-spacing": digital().letterSpacing,
+                "line-height": "0.9",
+                ...glowStyle(),
+              }}
+            >
+              {timeParts().hours}
+            </div>
+            <div
+              class={`font-bold tabular-nums opacity-70 ${timeClasses()} ${digital().textColor}`}
+              style={{
+                "font-family": digital().fontFamily,
+                "font-weight": digital().fontWeight,
+                "letter-spacing": digital().letterSpacing,
+                "line-height": "0.9",
+                ...glowStyle(),
+              }}
+            >
+              {timeParts().minutes}
+            </div>
+            <Show when={cfg().showSeconds}>
+              <div class="@[200px]:mt-2 mt-1 flex items-center gap-1">
+                <div
+                  class={`font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
+                  style={{
+                    "font-family": digital().fontFamily,
+                    "font-weight": digital().fontWeight,
+                  }}
+                >
+                  {timeParts().seconds}
+                </div>
+                <span
+                  class={`font-medium @[200px]:text-xs text-[10px] uppercase opacity-50 ${digital().textColor}`}
+                >
+                  sec
+                </span>
+              </div>
+            </Show>
+            <Show when={timeParts().period && !cfg().showSeconds}>
+              <span
+                class={`mt-1 font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
+              >
+                {timeParts().period}
+              </span>
+            </Show>
+          </div>
+        }
+      >
+        {/* Horizontal layout (default) */}
+        <div class="flex items-baseline justify-center gap-0.5">
+          <div
+            class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
+            style={{
+              "font-family": digital().fontFamily,
+              "font-weight": digital().fontWeight,
+              "letter-spacing": digital().letterSpacing,
+              ...glowStyle(),
+            }}
+          >
+            {timeParts().hours}
+            <span class="mx-0.5 opacity-60">:</span>
+            {timeParts().minutes}
+          </div>
+
+          <Show when={cfg().showSeconds}>
+            <div
+              class={`mb-[0.1em] self-end font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
+              style={{
+                "font-family": digital().fontFamily,
+                "font-weight": digital().fontWeight,
+              }}
+            >
+              :{timeParts().seconds}
+            </div>
+          </Show>
+
+          <Show when={timeParts().period}>
+            <span
+              class={`mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
+            >
+              {timeParts().period}
+            </span>
+          </Show>
+        </div>
+      </Show>
+    );
+  };
+
   // Draft update helper
   const updateDraft = <K extends keyof ClockConfig>(key: K, value: ClockConfig[K]) => {
     setDraftConfig((prev) => ({ ...prev, [key]: value }));
@@ -146,101 +249,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 />
               }
             >
-              <Show
-                when={effectiveLayout() !== "stacked"}
-                fallback={
-                  /* Stacked layout */
-                  <div class="flex flex-col items-center justify-center leading-none">
-                    <div
-                      class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
-                      style={{
-                        "font-family": digital().fontFamily,
-                        "font-weight": digital().fontWeight,
-                        "letter-spacing": digital().letterSpacing,
-                        "line-height": "0.9",
-                        ...glowStyle(),
-                      }}
-                    >
-                      {timeParts().hours}
-                    </div>
-                    <div
-                      class={`font-bold tabular-nums opacity-70 ${timeClasses()} ${digital().textColor}`}
-                      style={{
-                        "font-family": digital().fontFamily,
-                        "font-weight": digital().fontWeight,
-                        "letter-spacing": digital().letterSpacing,
-                        "line-height": "0.9",
-                        ...glowStyle(),
-                      }}
-                    >
-                      {timeParts().minutes}
-                    </div>
-                    <Show when={cfg().showSeconds}>
-                      <div class="@[200px]:mt-2 mt-1 flex items-center gap-1">
-                        <div
-                          class={`font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
-                          style={{
-                            "font-family": digital().fontFamily,
-                            "font-weight": digital().fontWeight,
-                          }}
-                        >
-                          {timeParts().seconds}
-                        </div>
-                        <span
-                          class={`font-medium @[200px]:text-xs text-[10px] uppercase opacity-50 ${digital().textColor}`}
-                        >
-                          sec
-                        </span>
-                      </div>
-                    </Show>
-                    <Show when={timeParts().period && !cfg().showSeconds}>
-                      <span
-                        class={`mt-1 font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
-                      >
-                        {timeParts().period}
-                      </span>
-                    </Show>
-                  </div>
-                }
-              >
-                {/* Horizontal layout (default) */}
-                <div class="flex items-baseline justify-center gap-0.5">
-                  <div
-                    class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
-                    style={{
-                      "font-family": digital().fontFamily,
-                      "font-weight": digital().fontWeight,
-                      "letter-spacing": digital().letterSpacing,
-                      ...glowStyle(),
-                    }}
-                  >
-                    {timeParts().hours}
-                    <span class="mx-0.5 opacity-60">:</span>
-                    {timeParts().minutes}
-                  </div>
-
-                  <Show when={cfg().showSeconds}>
-                    <div
-                      class={`mb-[0.1em] self-end font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
-                      style={{
-                        "font-family": digital().fontFamily,
-                        "font-weight": digital().fontWeight,
-                      }}
-                    >
-                      :{timeParts().seconds}
-                    </div>
-                  </Show>
-
-                  <Show when={timeParts().period}>
-                    <span
-                      class={`mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
-                    >
-                      {timeParts().period}
-                    </span>
-                  </Show>
-                </div>
-              </Show>
-
+              <DigitalTime />
             </Show>
 
             {/* Date display — visible in both digital and analogue modes */}
