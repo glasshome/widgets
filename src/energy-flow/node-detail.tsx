@@ -2,15 +2,16 @@ import { Icon } from "@iconify-icon/solid";
 import { Show } from "solid-js";
 import { energyIcons, formatEnergy, formatPower } from "../_energy-shared";
 import type { EnergyFlow } from "./flow";
-import type { NodeId } from "./layout";
+
+export type NodeDetailId = "solar" | "grid" | "battery" | "home" | "ev";
 
 interface NodeDetailProps {
   flow: EnergyFlow;
-  node: NodeId;
+  node: NodeDetailId;
   onClose: () => void;
 }
 
-function nodeData(flow: EnergyFlow, node: NodeId) {
+function nodeData(flow: EnergyFlow, node: NodeDetailId) {
   switch (node) {
     case "solar":
       return { label: "Solar", icon: energyIcons.solar, watts: flow.solar.watts, soc: undefined };

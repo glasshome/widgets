@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js";
 import type { EnergyRole } from "./colors";
 
-export const energyIcons: Record<EnergyRole | "ev", string> = {
+export const energyIcons: Record<EnergyRole, string> = {
   solar: "mdi:solar-power-variant",
   grid: "mdi:transmission-tower",
   battery: "mdi:battery-high",

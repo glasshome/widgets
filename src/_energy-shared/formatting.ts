@@ -43,33 +43,63 @@ export function describePower(label: string, watts: number, locale = "en-US"): s
   return `${label}: ${formatPower(watts, locale)}`;
 }
 
-export function describeFlow(state: FlowState, locale = "en-US"): string {
+export interface FlowDescription {
+  headline: string;
+  detail: string;
+}
+
+const THRESHOLD = 50;
+
+/**
+ * Headline + secondary line describing the current flow. Rules are evaluated in
+ * priority order; a headline never names a minority source while a larger one is
+ * active (so battery never headlines while solar out-contributes it).
+ */
+export function describeFlow(state: FlowState, locale = "en-US"): FlowDescription {
   const solar = state.solarW ?? 0;
   const gridImport = state.gridImportW ?? 0;
   const gridExport = state.gridExportW ?? 0;
+  const batteryCharge = state.batteryChargeW ?? 0;
   const batteryDischarge = state.batteryDischargeW ?? 0;
   const home = state.homeW ?? 0;
 
-  const anyActivity =
-    solar > 50 || gridImport > 50 || gridExport > 50 || batteryDischarge > 50;
+  const solarActive = solar > THRESHOLD;
+  const batteryDischarging = batteryDischarge > THRESHOLD;
+  const batteryCharging = batteryCharge > THRESHOLD;
+  const importing = gridImport > THRESHOLD;
 
-  if (state.solarSleeping && !anyActivity) {
-    return "Solar is resting until sunrise";
+  if (gridExport > THRESHOLD) {
+    return {
+      headline: `Sending ${formatPower(gridExport, locale)} to the grid`,
+      detail: "Solar is covering everything",
+    };
   }
-  if (gridExport > 50) {
-    return `Sending ${formatPower(gridExport, locale)} to the grid`;
+  if (solar >= home && solarActive && !batteryDischarging) {
+    return {
+      headline: "Solar is powering your home",
+      detail: batteryCharging ? "Charging the battery" : "Grid untouched",
+    };
   }
-  if (solar > 50 && solar >= home) {
-    return "Solar is powering your home";
+  if (solarActive && batteryDischarging && !importing) {
+    return {
+      headline: "Solar and battery are powering your home",
+      detail: "Grid untouched",
+    };
   }
-  if (batteryDischarge > 50 && batteryDischarge >= gridImport) {
-    return "Running on battery";
+  if (batteryDischarging && !solarActive) {
+    return { headline: "Running on battery", detail: "Grid untouched" };
   }
-  if (solar > 50 && gridImport > 50) {
-    return "Solar and grid are powering your home";
+  if (solarActive && importing) {
+    return {
+      headline: "Solar and grid are powering your home",
+      detail: "Solar is covering part of it",
+    };
   }
-  if (gridImport > 50) {
-    return `Using ${formatPower(gridImport, locale)} from the grid`;
+  if (importing) {
+    return {
+      headline: `Using ${formatPower(gridImport, locale)} from the grid`,
+      detail: state.solarSleeping ? "Solar is resting until sunrise" : "",
+    };
   }
-  return `Home using ${formatPower(home, locale)}`;
+  return { headline: `Home using ${formatPower(home, locale)}`, detail: "" };
 }

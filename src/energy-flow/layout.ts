@@ -1,25 +1,18 @@
 /**
- * Pure geometry + scaling math for the energy-flow topology.
+ * Pure scaling + path math for the energy-flow spine.
  *
- * Coordinate space is a fixed 100x100 viewBox; the SVG scales to fit.
- * No SolidJS, no DOM — everything here is unit-testable.
+ * Coordinates are supplied by runtime measurement (getBoundingClientRect of the
+ * HTML chips and hub, relative to the stage), so nothing here assumes a fixed
+ * canvas. No SolidJS, no DOM — everything here is unit-testable.
  */
 
-export type NodeId = "solar" | "grid" | "battery" | "home" | "ev";
+export type SourceId = "solar" | "battery" | "grid";
+export type SpendId = "ev" | "home";
 
-export interface NodePoint {
+export interface Point {
   x: number;
   y: number;
 }
-
-/** Fixed node positions inside the 100x100 viewBox. */
-export const NODE_POSITIONS: Record<NodeId, NodePoint> = {
-  solar: { x: 50, y: 12 },
-  grid: { x: 86, y: 50 },
-  battery: { x: 14, y: 50 },
-  home: { x: 50, y: 54 },
-  ev: { x: 50, y: 90 },
-};
 
 export type Tier = "glance" | "mid" | "full";
 
@@ -28,7 +21,7 @@ export type Tier = "glance" | "mid" | "full";
  *
  * - glance: too short for any topology — single headline line.
  * - mid: liquid-house glyph under the headline.
- * - full: full node topology with beams.
+ * - full: the source → home → spend spine.
  */
 export function selectTier(width: number, height: number): Tier {
   if (height < 150) return "glance";
@@ -36,14 +29,53 @@ export function selectTier(width: number, height: number): Tier {
   return "mid";
 }
 
-const BEAM_MIN_WIDTH = 3;
-const BEAM_MAX_WIDTH = 14;
+/**
+ * Smooth horizontal cubic bezier between two measured anchor points. Control
+ * points sit at the horizontal midpoint so beams leave each endpoint flat and
+ * curve through the middle, regardless of the vertical offset.
+ */
+export function beamPath(from: Point, to: Point): string {
+  const midX = (from.x + to.x) / 2;
+  const c1: Point = { x: midX, y: from.y };
+  const c2: Point = { x: midX, y: to.y };
+  return cubic(from, c1, c2, to);
+}
+
+function cubic(p0: Point, c1: Point, c2: Point, p1: Point): string {
+  return `M ${r(p0.x)} ${r(p0.y)} C ${r(c1.x)} ${r(c1.y)} ${r(c2.x)} ${r(c2.y)} ${r(p1.x)} ${r(p1.y)}`;
+}
 
 /**
- * Stroke width for a beam, proportional to its power magnitude.
- *
- * Zero (a configured-but-idle path) renders at the minimum as a thin hint.
- * Scales linearly up to `maxValue`, capped at BEAM_MAX_WIDTH.
+ * Closed Sankey ribbon between two vertical bands: a band of height
+ * (y0bot - y0top) at x0 flowing to a band (y1bot - y1top) at x1. Top and bottom
+ * edges are mirrored cubic beziers; tension controls the S-curve. Filled, this
+ * is one proportional flow that stacks edge-to-edge with its neighbors.
+ */
+export function sankeyRibbon(
+  x0: number,
+  y0top: number,
+  y0bot: number,
+  x1: number,
+  y1top: number,
+  y1bot: number,
+  tension = 0.5,
+): string {
+  const cx = (x1 - x0) * tension;
+  return [
+    `M ${r(x0)} ${r(y0top)}`,
+    `C ${r(x0 + cx)} ${r(y0top)}, ${r(x1 - cx)} ${r(y1top)}, ${r(x1)} ${r(y1top)}`,
+    `L ${r(x1)} ${r(y1bot)}`,
+    `C ${r(x1 - cx)} ${r(y1bot)}, ${r(x0 + cx)} ${r(y0bot)}, ${r(x0)} ${r(y0bot)}`,
+    "Z",
+  ].join(" ");
+}
+
+const BEAM_MIN_WIDTH = 3;
+const BEAM_MAX_WIDTH = 16;
+
+/**
+ * Stroke width for a beam, proportional to its power. Idle (≤0) renders at the
+ * thin minimum as a static hint; scales linearly up to `maxValue`.
  */
 export function beamWidth(value: number, maxValue: number): number {
   if (maxValue <= 0 || value <= 0) return BEAM_MIN_WIDTH;
@@ -51,91 +83,20 @@ export function beamWidth(value: number, maxValue: number): number {
   return BEAM_MIN_WIDTH + ratio * (BEAM_MAX_WIDTH - BEAM_MIN_WIDTH);
 }
 
-const DOT_MIN_DUR = 1.5;
-const DOT_MAX_DUR = 6;
+const FLOW_MIN_DUR = 2;
+const FLOW_MAX_DUR = 4;
 
 /**
- * Travel duration (seconds) for a dot on a beam. Faster (shorter dur) for
- * higher power. Clamped to [DOT_MIN_DUR, DOT_MAX_DUR].
+ * Dash-travel duration (seconds) for the flow overlay. Faster (shorter dur) for
+ * higher power. Clamped to [FLOW_MIN_DUR, FLOW_MAX_DUR].
  */
-export function dotDuration(value: number, maxValue: number): number {
-  if (maxValue <= 0 || value <= 0) return DOT_MAX_DUR;
+export function flowDuration(value: number, maxValue: number): number {
+  if (maxValue <= 0 || value <= 0) return FLOW_MAX_DUR;
   const ratio = Math.min(1, value / maxValue);
-  const dur = DOT_MAX_DUR - ratio * (DOT_MAX_DUR - DOT_MIN_DUR);
-  return Math.max(DOT_MIN_DUR, Math.min(DOT_MAX_DUR, dur));
+  const dur = FLOW_MAX_DUR - ratio * (FLOW_MAX_DUR - FLOW_MIN_DUR);
+  return Math.max(FLOW_MIN_DUR, Math.min(FLOW_MAX_DUR, dur));
 }
 
-const MAX_DOTS = 3;
-
-/**
- * How many traveling dots a beam should carry, and their `begin` offsets
- * (seconds) so they stagger evenly across the duration.
- */
-export function dotSchedule(value: number, dur: number): number[] {
-  if (value <= 0) return [];
-  const count = value >= 2000 ? MAX_DOTS : value >= 600 ? 2 : 1;
-  const begins: number[] = [];
-  for (let i = 0; i < count; i++) {
-    begins.push((dur / count) * i);
-  }
-  return begins;
-}
-
-/**
- * Build a refracting beam path from a source node to the home node.
- *
- * The beam is a two-segment polyline: it travels straight toward home, then
- * bends `angleDeg` at the crossing point (a fraction `bendAt` along the line)
- * to read as light refracting through the house outline.
- */
-export function refractedBeamPath(
-  from: NodePoint,
-  to: NodePoint,
-  angleDeg = 11,
-  bendAt = 0.55,
-): string {
-  const mid = {
-    x: from.x + (to.x - from.x) * bendAt,
-    y: from.y + (to.y - from.y) * bendAt,
-  };
-  // Offset the bend point perpendicular to the line so the two segments
-  // meet at a slight angle rather than forming a straight line.
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const nx = -dy / len;
-  const ny = dx / len;
-  const offset = Math.tan((angleDeg * Math.PI) / 180) * (len * bendAt * 0.5);
-  const bend = { x: mid.x + nx * offset, y: mid.y + ny * offset };
-  return `M ${round(from.x)} ${round(from.y)} L ${round(bend.x)} ${round(bend.y)} L ${round(to.x)} ${round(to.y)}`;
-}
-
-/**
- * A direction chevron (small ">" arrowhead) placed at fraction `t` along the
- * straight from→to line, pointing toward `to`. Returns a 3-point polyline.
- */
-export function chevronPoints(
-  from: NodePoint,
-  to: NodePoint,
-  t: number,
-  size = 2.5,
-): string {
-  const px = from.x + (to.x - from.x) * t;
-  const py = from.y + (to.y - from.y) * t;
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len;
-  const uy = dy / len;
-  // Perpendicular for the two wings.
-  const nx = -uy;
-  const ny = ux;
-  const tip = { x: px + ux * size, y: py + uy * size };
-  const a = { x: px - nx * size, y: py - ny * size };
-  const b = { x: px + nx * size, y: py + ny * size };
-  return `${round(a.x)},${round(a.y)} ${round(tip.x)},${round(tip.y)} ${round(b.x)},${round(b.y)}`;
-}
-
-function round(n: number): number {
+function r(n: number): number {
   return Math.round(n * 100) / 100;
 }

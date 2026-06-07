@@ -49,46 +49,82 @@ describe("describePower", () => {
 });
 
 describe("describeFlow", () => {
-  test("solar sleeping with no other activity", () => {
-    expect(describeFlow({ solarSleeping: true })).toBe("Solar is resting until sunrise");
-  });
-
   test("exporting to the grid", () => {
-    expect(describeFlow({ gridExportW: 1500 })).toBe("Sending 1.5 kW to the grid");
+    expect(describeFlow({ gridExportW: 1500 })).toEqual({
+      headline: "Sending 1.5 kW to the grid",
+      detail: "Solar is covering everything",
+    });
   });
 
-  test("solar powering the home", () => {
-    expect(describeFlow({ solarW: 2000, homeW: 1500 })).toBe("Solar is powering your home");
+  test("solar powering the home, grid untouched", () => {
+    expect(describeFlow({ solarW: 2000, homeW: 1500 })).toEqual({
+      headline: "Solar is powering your home",
+      detail: "Grid untouched",
+    });
   });
 
-  test("running on battery", () => {
-    expect(describeFlow({ batteryDischargeW: 800, gridImportW: 100 })).toBe("Running on battery");
+  test("solar powering the home while charging the battery", () => {
+    expect(describeFlow({ solarW: 3000, homeW: 1500, batteryChargeW: 800 })).toEqual({
+      headline: "Solar is powering your home",
+      detail: "Charging the battery",
+    });
+  });
+
+  test("solar and battery powering the home", () => {
+    expect(describeFlow({ solarW: 1700, batteryDischargeW: 1000, homeW: 2700 })).toEqual({
+      headline: "Solar and battery are powering your home",
+      detail: "Grid untouched",
+    });
+  });
+
+  test("running on battery when solar is asleep", () => {
+    expect(describeFlow({ batteryDischargeW: 800 })).toEqual({
+      headline: "Running on battery",
+      detail: "Grid untouched",
+    });
   });
 
   test("solar and grid together", () => {
-    expect(describeFlow({ solarW: 1000, gridImportW: 500, homeW: 2000 })).toBe(
-      "Solar and grid are powering your home",
-    );
+    expect(describeFlow({ solarW: 1000, gridImportW: 500, homeW: 2000 })).toEqual({
+      headline: "Solar and grid are powering your home",
+      detail: "Solar is covering part of it",
+    });
   });
 
   test("importing from the grid", () => {
-    expect(describeFlow({ gridImportW: 600 })).toBe("Using 600 W from the grid");
+    expect(describeFlow({ gridImportW: 600 })).toEqual({
+      headline: "Using 600 W from the grid",
+      detail: "",
+    });
+  });
+
+  test("grid import notes resting solar at night", () => {
+    expect(describeFlow({ gridImportW: 600, solarSleeping: true })).toEqual({
+      headline: "Using 600 W from the grid",
+      detail: "Solar is resting until sunrise",
+    });
   });
 
   test("fallback to home usage", () => {
-    expect(describeFlow({ homeW: 450 })).toBe("Home using 450 W");
-    expect(describeFlow({})).toBe("Home using 0 W");
+    expect(describeFlow({ homeW: 450 })).toEqual({ headline: "Home using 450 W", detail: "" });
+    expect(describeFlow({})).toEqual({ headline: "Home using 0 W", detail: "" });
   });
 
   test("export takes priority over solar-powering", () => {
-    expect(describeFlow({ solarW: 3000, gridExportW: 1000, homeW: 1000 })).toBe(
+    expect(describeFlow({ solarW: 3000, gridExportW: 1000, homeW: 1000 }).headline).toBe(
       "Sending 1.0 kW to the grid",
+    );
+  });
+
+  test("never headlines battery while solar out-contributes it", () => {
+    // Solar 1700 > battery 1000: headline must name solar first, not battery.
+    expect(describeFlow({ solarW: 1700, batteryDischargeW: 1000, homeW: 2700 }).headline).not.toBe(
+      "Running on battery",
     );
   });
 
   test("no exclamation marks anywhere", () => {
     const samples = [
-      describeFlow({ solarSleeping: true }),
       describeFlow({ gridExportW: 1500 }),
       describeFlow({ solarW: 2000, homeW: 1500 }),
       describeFlow({ batteryDischargeW: 800 }),
@@ -96,7 +132,8 @@ describe("describeFlow", () => {
       describeFlow({ homeW: 450 }),
     ];
     for (const s of samples) {
-      expect(s).not.toContain("!");
+      expect(s.headline).not.toContain("!");
+      expect(s.detail).not.toContain("!");
     }
   });
 });

@@ -31,11 +31,12 @@ const powerEntity = (label: string, description: string) =>
   z
     .array(z.string())
     .default([])
-    .meta({ domain: "sensor", title: label, description, singleSelect: true });
+    .meta({ domain: "sensor", deviceClass: "power", title: label, description, singleSelect: true });
 
 const socEntity = (label: string) =>
   z.array(z.string()).default([]).meta({
     domain: "sensor",
+    deviceClass: "battery",
     title: label,
     description: "Optional. State-of-charge sensor (%) shown on the node.",
     singleSelect: true,
@@ -84,6 +85,7 @@ export const configSchema = z.object({
   ),
   consumerEntities: z.array(z.string()).default([]).meta({
     domain: "sensor",
+    deviceClass: "power",
     title: "Consumers",
     description: "Individual consumer power sensors (W). Summed when consumption is 'sum_consumers'.",
   }),
