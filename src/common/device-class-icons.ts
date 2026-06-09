@@ -78,8 +78,7 @@ const COVER_ICONS: Record<string, [string, string]> = {
   window: ["mdi:window-open", "mdi:window-closed"],
 };
 
-export function getCoverIcon(position: number | null, deviceClass: string | null): string {
-  const isOpen = position !== null ? position > 0 : true;
+export function getCoverIcon(isOpen: boolean, deviceClass: string | null): string {
   const icons = COVER_ICONS[deviceClass ?? ""];
   if (icons) return isOpen ? icons[0] : icons[1];
   return isOpen ? "mdi:window-open" : "mdi:window-closed";

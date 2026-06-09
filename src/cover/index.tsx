@@ -1,7 +1,6 @@
 import { useEntities, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
-  getEntityAttribute,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -11,17 +10,27 @@ import {
   widgetFields,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
 import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, getCoverIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { CoverControls } from "./controls";
+import {
+  getCoverCapabilities,
+  getCoverPosition,
+  getCoverStatusText,
+  isCoverOpen,
+} from "./cover-entity";
 
 const configSchema = z.object({
   title: widgetFields.title(),
   entityIds: widgetFields.entityIds("cover"),
 });
 type CoverConfig = z.infer<typeof configSchema>;
+
+// Minimum slide travel (in slide units, range 200 across the widget) before
+// a directional slide commits to open/close.
+const DIRECTIONAL_SLIDE_THRESHOLD = 20;
 
 function CoverWidget(props: { config: CoverConfig }) {
   const ctx = useWidgetContext();
@@ -40,88 +49,101 @@ function CoverWidget(props: { config: CoverConfig }) {
     },
   });
 
-  const position = createMemo(() => {
-    const first = entities()[0];
-    if (!first) return 0;
-    return getEntityAttribute<number>(first, "current_position") ?? 0;
+  const primary = createMemo(() => entities()[0]);
+  const entityIds = () => entities().map((e) => e.id);
+
+  const position = createMemo(() => getCoverPosition(primary()));
+  const supportsPosition = createMemo(() => {
+    const first = primary();
+    return !!first && getCoverCapabilities(first).canSetPosition && position() !== null;
   });
 
   const [slidePosition, setSlidePosition] = createSignal<number | null>(null);
+  const [slideDelta, setSlideDelta] = createSignal(0);
 
   const displayPosition = createMemo(() => slidePosition() ?? position());
 
-  const deviceClass = createMemo(() => {
-    const first = entities()[0];
-    if (!first) return null;
-    return getEntityAttribute<string>(first, "device_class") ?? null;
-  });
+  const isOpen = createMemo(() => entities().some(isCoverOpen));
+  const openCount = createMemo(() => entities().filter(isCoverOpen).length);
 
-  const iconName = createMemo(() => getCoverIcon(displayPosition(), deviceClass()));
+  const fillValue = createMemo(() => displayPosition() ?? (isOpen() ? 100 : 0));
+
+  const iconName = createMemo(() => getCoverIcon(isOpen(), primary()?.deviceClass ?? null));
 
   const statusText = createMemo(() => {
-    const first = entities()[0];
-    if (!first) return "Unknown";
-    const state = first.state;
-    if (state === "opening") return "Opening...";
-    if (state === "closing") return "Closing...";
-    const pos = displayPosition();
-    if (pos === 0) return "Closed";
-    if (pos === 100) return "Open";
-    return `${pos}%`;
+    const sliding = slidePosition();
+    if (sliding !== null) return `${sliding}%`;
+    if (count() > 1) return `${openCount()}/${count()} open`;
+    return getCoverStatusText(primary(), position());
   });
 
-  const isOpen = createMemo(() => displayPosition() > 0);
+  let slideDebounce: ReturnType<typeof setTimeout> | undefined;
 
-  let positionDebounce: ReturnType<typeof setTimeout> | undefined;
-  const handleSlideChange = (value: number) => {
+  const handlePositionSlide = (value: number) => {
     setSlidePosition(value);
-    clearTimeout(positionDebounce);
-    positionDebounce = setTimeout(() => {
-      const first = entities()[0];
-      if (!first) return;
-      callService(
-        "cover" as any,
-        "set_cover_position" as any,
-        { position: value },
-        { entity_id: first.id },
-      );
+    clearTimeout(slideDebounce);
+    slideDebounce = setTimeout(() => {
+      const targets = entities()
+        .filter((e) => getCoverCapabilities(e).canSetPosition)
+        .map((e) => e.id);
+      if (targets.length > 0) {
+        callService("cover", "set_cover_position", { position: value }, { entity_id: targets });
+      }
       setSlidePosition(null);
     }, 300);
   };
 
-  const handleTap = () => {
-    const first = entities()[0];
-    if (!first) return;
-    if (displayPosition() > 50) {
-      callService("cover" as any, "close_cover" as any, {}, { entity_id: first.id });
-    } else {
-      callService("cover" as any, "open_cover" as any, {}, { entity_id: first.id });
-    }
+  const handleDirectionalSlide = (delta: number) => {
+    setSlideDelta(delta);
+    clearTimeout(slideDebounce);
+    slideDebounce = setTimeout(() => {
+      const targets = entityIds();
+      if (Math.abs(delta) >= DIRECTIONAL_SLIDE_THRESHOLD && targets.length > 0) {
+        callService("cover", delta > 0 ? "open_cover" : "close_cover", {}, { entity_id: targets });
+      }
+      setSlideDelta(0);
+    }, 250);
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-      slide: {
-        value: displayPosition(),
-        onChange: handleSlideChange,
-        min: 0,
-        max: 100,
-        orientation: "auto" as const,
-      },
-    }),
-  );
+  // cover.toggle: HA picks per entity — closed opens, open/partial closes,
+  // moving with stop support stops.
+  const handleTap = () => {
+    const targets = entityIds();
+    if (targets.length === 0) return;
+    callService("cover", "toggle", {}, { entity_id: targets });
+  };
+
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+    slide: supportsPosition()
+      ? {
+          value: displayPosition() ?? 0,
+          onChange: handlePositionSlide,
+          min: 0,
+          max: 100,
+          orientation: "auto" as const,
+        }
+      : {
+          value: slideDelta(),
+          onChange: handleDirectionalSlide,
+          min: -100,
+          max: 100,
+          orientation: "auto" as const,
+        },
+  }));
   onCleanup(() => {
     gestures.dispose();
-    clearTimeout(positionDebounce);
+    clearTimeout(slideDebounce);
   });
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, ents, {
-      position: displayPosition(),
+      position: position(),
+      capabilities: getCoverCapabilities(primary()),
+      supportsPosition: supportsPosition(),
     });
   });
 
@@ -134,15 +156,9 @@ function CoverWidget(props: { config: CoverConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.SliderFill
-            value={displayPosition()}
-            isDragging={slidePosition() !== null}
-          />
+          <Widget.SliderFill value={fillValue()} isDragging={slidePosition() !== null} />
           <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={iconName()} />}
-              entityCount={entities().length}
-            />
+            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
@@ -168,9 +184,15 @@ function CoverWidget(props: { config: CoverConfig }) {
           setShowDialog(false);
         }}
         controlsContent={
-          <Show when={entities()[0]}>{(entity) => <CoverControls entity={entity()} />}</Show>
+          <Show when={hasEntities()}>
+            <div class="flex flex-col gap-6">
+              <Index each={entities()}>
+                {(entity) => <CoverControls entity={entity()} showName={entities().length > 1} />}
+              </Index>
+            </div>
+          </Show>
         }
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>
