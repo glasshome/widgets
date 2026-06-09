@@ -4,7 +4,7 @@
   "exports": {
     "./tailwind-sources": "./tailwind-sources.css"
   },
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Reference implementation of built-in GlassHome dashboard widgets",
   "license": "MIT",
   "repository": {
@@ -32,6 +32,6 @@
     "solid-js": "^1.9.0",
     "@glasshome/widget-sdk": "^0.5.2",
     "@glasshome/ui": "0.2.3",
-    "@glasshome/sync-layer": "0.1.14"
+    "@glasshome/sync-layer": "0.1.15"
   }
 }

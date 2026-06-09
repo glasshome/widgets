@@ -1,4 +1,4 @@
-import { useService } from "@glasshome/sync-layer/solid";
+import { useService, useTemperatureUnit } from "@glasshome/sync-layer/solid";
 import type { EntityView } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
@@ -23,10 +23,10 @@ export function ClimateControls(props: ClimateControlsProps) {
     return entity()?.attributes?.temperature as number | undefined;
   };
   const tempStep = () => (entity()?.attributes?.target_temp_step as number | undefined) ?? 0.5;
+  const temperatureUnit = useTemperatureUnit();
   const tempUnit = () => {
     const unit = entity()?.attributes?.temperature_unit as string | undefined;
-    if (unit) return unit.replace("°", "");
-    return "C";
+    return (unit ?? temperatureUnit()).replace("°", "");
   };
 
   const hvacMode = () => (entity()?.state ?? "off") as string;

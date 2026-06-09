@@ -1,4 +1,4 @@
-import { useEntities } from "@glasshome/sync-layer/solid";
+import { useEntities, useTemperatureUnit } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   isDark,
@@ -50,10 +50,10 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   );
   const targetTemp = createMemo(() => entity()?.attributes?.temperature as number | undefined);
   const hvacAction = createMemo(() => entity()?.attributes?.hvac_action as string | undefined);
+  const temperatureUnit = useTemperatureUnit();
   const tempUnit = createMemo(() => {
     const unit = entity()?.attributes?.temperature_unit as string | undefined;
-    if (unit) return unit.replace("°", "");
-    return "C";
+    return (unit ?? temperatureUnit()).replace("°", "");
   });
 
   const iconName = createMemo(() => getHvacModeIcon(hvacMode()));
