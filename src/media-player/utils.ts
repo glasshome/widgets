@@ -1,4 +1,4 @@
-import type { EntityView } from "@glasshome/sync-layer";
+import type { EntityView } from "@glasshome/widget-sdk";
 
 // Home Assistant supported_features bitmask values for media_player
 const FEATURE_PAUSE = 1;

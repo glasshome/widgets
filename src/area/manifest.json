@@ -10,10 +10,36 @@
     "w": 4,
     "h": 6
   },
-  "sdkVersion": "^0.5.2",
-  "version": "0.4.0",
+  "sdkVersion": "^1.0.0",
+  "version": "0.5.0",
   "defaultSize": {
     "w": 3,
     "h": 3
-  }
+  },
+  "capabilities": [
+    {
+      "domain": "light",
+      "access": "control"
+    },
+    {
+      "domain": "switch",
+      "access": "control"
+    },
+    {
+      "domain": "cover",
+      "access": "control"
+    },
+    {
+      "domain": "climate",
+      "access": "read"
+    },
+    {
+      "domain": "sensor",
+      "access": "read"
+    },
+    {
+      "domain": "binary_sensor",
+      "access": "read"
+    }
+  ]
 }

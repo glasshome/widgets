@@ -1,6 +1,7 @@
-import { useEntities, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
+  useEntities,
+  useService,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -122,7 +123,7 @@ export default defineWidget<ButtonConfig>({
     icon: "mdi:gesture-tap-button",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: ButtonWidget,

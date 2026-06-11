@@ -94,8 +94,15 @@ describe("deriveFlow", () => {
 
   test("solar does not rest while still producing after dark", () => {
     const config = makeConfig({ solarEntity: ["sensor.solar"] });
-    const flow = deriveFlow(config, lookupFrom({ "sensor.solar": 50 }), true);
+    const flow = deriveFlow(config, lookupFrom({ "sensor.solar": 200 }), true);
     expect(flow.solarSleeping).toBe(false);
+  });
+
+  test("solar rests at night with small inverter standby draw", () => {
+    const config = makeConfig({ solarEntity: ["sensor.solar"] });
+    const flow = deriveFlow(config, lookupFrom({ "sensor.solar": 10 }), true);
+    expect(flow.solarSleeping).toBe(true);
+    expect(flow.flowState.solarSleeping).toBe(true);
   });
 
   test("battery SOC is surfaced when configured", () => {

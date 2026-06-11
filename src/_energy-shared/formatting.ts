@@ -33,7 +33,7 @@ export function formatEnergy(wh: number, locale = "en-US"): string {
     return `${formatNumber(Math.round(wh), locale, 0)} Wh`;
   }
   const kwh = wh / 1000;
-  if (abs >= 100000) {
+  if (abs >= 10000) {
     return `${formatNumber(Math.round(kwh), locale, 0)} kWh`;
   }
   return `${formatNumber(kwh, locale, 1)} kWh`;
@@ -69,9 +69,17 @@ export function describeFlow(state: FlowState, locale = "en-US"): FlowDescriptio
   const importing = gridImport > THRESHOLD;
 
   if (gridExport > THRESHOLD) {
+    // Don't credit solar unless it's actually running and covers home plus what we export.
+    const solarCoversExport = solarActive && solar >= home + gridExport;
+    let detail = "Pushing power back to the grid";
+    if (solarCoversExport) {
+      detail = "Solar is covering everything";
+    } else if (batteryDischarging && !solarActive) {
+      detail = "Discharging the battery to the grid";
+    }
     return {
       headline: `Sending ${formatPower(gridExport, locale)} to the grid`,
-      detail: "Solar is covering everything",
+      detail,
     };
   }
   if (solar >= home && solarActive && !batteryDischarging) {
@@ -100,6 +108,10 @@ export function describeFlow(state: FlowState, locale = "en-US"): FlowDescriptio
       headline: `Using ${formatPower(gridImport, locale)} from the grid`,
       detail: state.solarSleeping ? "Solar is resting until sunrise" : "",
     };
+  }
+  // Nothing flowing and home draw is negligible: calmer than "Home using 0 W".
+  if (home <= THRESHOLD) {
+    return { headline: "All quiet", detail: "" };
   }
   return { headline: `Home using ${formatPower(home, locale)}`, detail: "" };
 }

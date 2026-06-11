@@ -1,8 +1,10 @@
-import { getStream, state } from "@glasshome/sync-layer";
-import { useCamera, useEntity } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
+  getStream,
+  state,
+  useCamera,
+  useEntity,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -226,7 +228,7 @@ export default defineWidget<CameraConfig>({
     icon: "mdi:cctv",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: CameraWidget,

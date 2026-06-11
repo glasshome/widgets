@@ -1,9 +1,11 @@
-import { trackEntityHistory, untrackEntityHistory } from "@glasshome/sync-layer";
-import { useEntities, useEntityHistory } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
   type SensorGroupResult,
+  trackEntityHistory,
+  untrackEntityHistory,
+  useEntities,
+  useEntityHistory,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -173,7 +175,7 @@ export default defineWidget<SensorConfig>({
     icon: "mdi:eye",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: SensorWidget,

@@ -1,9 +1,9 @@
-import { useEntities } from "@glasshome/sync-layer/solid";
 import {
   countActiveEntities,
   defineWidget,
   getEntityAttribute,
   isEntityActive,
+  useEntities,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -133,7 +133,7 @@ export default defineWidget<BinarySensorConfig>({
     icon: "mdi:checkbox-marked-circle",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: BinarySensorWidget,

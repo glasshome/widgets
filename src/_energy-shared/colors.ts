@@ -1,5 +1,3 @@
-export { type SvgColorKey, svgColors } from "@glasshome/widget-sdk";
-
 export const energyColors = {
   solar: "var(--tone-accent)",
   grid: "oklch(0.62 0.12 245)",

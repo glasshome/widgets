@@ -1,7 +1,8 @@
-import { useEntities, useTemperatureUnit } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   isDark,
+  useEntities,
+  useTemperatureUnit,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -148,7 +149,7 @@ export default defineWidget<ClimateConfig>({
     icon: "mdi:thermostat",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: ClimateWidget,

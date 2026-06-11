@@ -25,7 +25,7 @@ describe("formatPower", () => {
 
 describe("formatEnergy", () => {
   test("roadmap fixtures", () => {
-    expect(formatEnergy(18400)).toBe("18.4 kWh");
+    expect(formatEnergy(8400)).toBe("8.4 kWh");
     expect(formatEnergy(320)).toBe("320 Wh");
   });
 
@@ -33,11 +33,14 @@ describe("formatEnergy", () => {
     expect(formatEnergy(999)).toBe("999 Wh");
   });
 
-  test("1000-99999 → one-decimal kWh", () => {
+  test("1000-9999 → one-decimal kWh", () => {
     expect(formatEnergy(1000)).toBe("1.0 kWh");
+    expect(formatEnergy(9999)).toBe("10.0 kWh");
   });
 
-  test("≥100000 → integer kWh", () => {
+  test("≥10000 → integer kWh (consistent with formatPower)", () => {
+    expect(formatEnergy(10000)).toBe("10 kWh");
+    expect(formatEnergy(18400)).toBe("18 kWh");
     expect(formatEnergy(120000)).toBe("120 kWh");
   });
 });
@@ -49,11 +52,25 @@ describe("describePower", () => {
 });
 
 describe("describeFlow", () => {
-  test("exporting to the grid", () => {
-    expect(describeFlow({ gridExportW: 1500 })).toEqual({
+  test("exporting from solar that covers home plus export", () => {
+    expect(describeFlow({ solarW: 4000, homeW: 1000, gridExportW: 1500 })).toEqual({
       headline: "Sending 1.5 kW to the grid",
       detail: "Solar is covering everything",
     });
+  });
+
+  test("exporting with no solar does not credit solar", () => {
+    const desc = describeFlow({ gridExportW: 1500 });
+    expect(desc.headline).toBe("Sending 1.5 kW to the grid");
+    expect(desc.detail).toBe("Pushing power back to the grid");
+    expect(desc.detail).not.toContain("Solar");
+  });
+
+  test("exporting from a discharging battery attributes the battery", () => {
+    const desc = describeFlow({ batteryDischargeW: 1500, gridExportW: 1500 });
+    expect(desc.headline).toBe("Sending 1.5 kW to the grid");
+    expect(desc.detail).toBe("Discharging the battery to the grid");
+    expect(desc.detail).not.toContain("Solar");
   });
 
   test("solar powering the home, grid untouched", () => {
@@ -107,7 +124,13 @@ describe("describeFlow", () => {
 
   test("fallback to home usage", () => {
     expect(describeFlow({ homeW: 450 })).toEqual({ headline: "Home using 450 W", detail: "" });
-    expect(describeFlow({})).toEqual({ headline: "Home using 0 W", detail: "" });
+  });
+
+  test("fully idle state reads as all quiet, not Home using 0 W", () => {
+    expect(describeFlow({})).toEqual({ headline: "All quiet", detail: "" });
+    expect(describeFlow({ homeW: 0 })).toEqual({ headline: "All quiet", detail: "" });
+    // Negligible home draw at/under the 50 W threshold is still quiet.
+    expect(describeFlow({ homeW: 50 })).toEqual({ headline: "All quiet", detail: "" });
   });
 
   test("export takes priority over solar-powering", () => {

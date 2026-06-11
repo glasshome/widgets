@@ -1,6 +1,7 @@
-import { useArea, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
+  useArea,
+  useService,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -134,7 +135,7 @@ export default defineWidget<AreaConfig>({
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: AreaWidget,

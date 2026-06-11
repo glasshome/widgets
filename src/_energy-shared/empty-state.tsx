@@ -1,5 +1,5 @@
 import { type JSX, Match, Show, Switch } from "solid-js";
-import { HouseGlyph } from "./icons";
+import { HouseGlyph } from "./house-glyph";
 
 export type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
 

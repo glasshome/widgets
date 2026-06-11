@@ -1,5 +1,4 @@
-import { useService, useTemperatureUnit } from "@glasshome/sync-layer/solid";
-import type { EntityView } from "@glasshome/widget-sdk";
+import { type EntityView, useService, useTemperatureUnit } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
 import { FAN_MODES, formatTemperature, HVAC_MODES } from "./utils";

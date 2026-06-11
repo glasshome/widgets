@@ -1,4 +1,4 @@
-import type { EntityView } from "@glasshome/sync-layer";
+import type { EntityView } from "@glasshome/widget-sdk";
 import { For } from "solid-js";
 
 export interface WidgetDebugData {

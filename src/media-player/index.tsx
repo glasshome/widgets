@@ -1,7 +1,8 @@
-import { useEntity, useService } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
+  useEntity,
+  useService,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -183,7 +184,7 @@ export default defineWidget<MediaPlayerConfig>({
     icon: "mdi:music",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: MediaPlayerWidget,

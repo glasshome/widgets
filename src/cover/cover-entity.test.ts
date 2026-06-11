@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { EntityView } from "@glasshome/sync-layer";
+import type { EntityView } from "@glasshome/widget-sdk";
 import {
   getCoverCapabilities,
   getCoverPosition,

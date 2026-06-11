@@ -1,8 +1,9 @@
-import { getForecasts } from "@glasshome/sync-layer";
-import { useEntity, useForecast } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   getEntityAttribute,
+  getForecasts,
+  useEntity,
+  useForecast,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -364,7 +365,7 @@ export default defineWidget<WeatherConfig>({
     icon: "mdi:weather-partly-cloudy",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: WeatherWidget,

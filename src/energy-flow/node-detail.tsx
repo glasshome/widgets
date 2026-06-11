@@ -1,5 +1,11 @@
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@glasshome/ui/solid";
 import { Icon } from "@iconify-icon/solid";
-import { Show } from "solid-js";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import { energyIcons, formatEnergy, formatPower } from "../_energy-shared";
 import type { EnergyFlow } from "./flow";
 
@@ -7,7 +13,7 @@ export type NodeDetailId = "solar" | "grid" | "battery" | "home" | "ev";
 
 interface NodeDetailProps {
   flow: EnergyFlow;
-  node: NodeDetailId;
+  node: NodeDetailId | null;
   onClose: () => void;
 }
 
@@ -32,44 +38,56 @@ function nodeData(flow: EnergyFlow, node: NodeDetailId) {
 }
 
 export function NodeDetail(props: NodeDetailProps) {
-  const data = () => nodeData(props.flow, props.node);
+  // Retain the last node through the close animation so the panel stays
+  // populated while the dialog fades out (props.node clears immediately).
+  const [shown, setShown] = createSignal<NodeDetailId | null>(props.node);
+  createEffect(() => {
+    if (props.node) setShown(props.node);
+  });
+
+  const data = createMemo(() => {
+    const node = props.node ?? shown();
+    return node ? nodeData(props.flow, node) : null;
+  });
 
   return (
-    <div
-      class="absolute inset-0 z-10 flex flex-col rounded-[inherit] bg-background/90 p-4 backdrop-blur-md"
-      on:pointerdown={(e: PointerEvent) => e.stopPropagation()}
+    <ResponsiveDialog
+      open={props.node !== null}
+      onOpenChange={(open) => {
+        if (!open) props.onClose();
+      }}
     >
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <Icon icon={data().icon} width={22} class="text-foreground/70" />
-          <span class="text-sm font-semibold text-foreground">{data().label}</span>
-        </div>
-        <button
-          type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full text-foreground/50 hover:bg-foreground/10 hover:text-foreground"
-          aria-label="Close"
-          on:click={() => props.onClose()}
-        >
-          <Icon icon="mdi:close" width={18} />
-        </button>
-      </div>
+      <ResponsiveDialogContent class="max-w-sm">
+        <Show when={data()}>
+          {(d) => (
+            <>
+              <ResponsiveDialogHeader>
+                <ResponsiveDialogTitle class="flex items-center gap-2">
+                  <Icon icon={d().icon} width={22} class="text-foreground/70" />
+                  {d().label}
+                </ResponsiveDialogTitle>
+              </ResponsiveDialogHeader>
 
-      <div class="mt-3 flex items-baseline gap-3">
-        <span class="text-3xl font-bold tabular-nums text-foreground">
-          {formatPower(data().watts)}
-        </span>
-        <Show when={data().soc !== undefined}>
-          <span class="text-sm tabular-nums text-foreground/50">
-            {Math.round(data().soc ?? 0)}% charged
-          </span>
+              <div class="flex items-baseline gap-3">
+                <span class="text-3xl font-bold tabular-nums text-foreground">
+                  {formatPower(d().watts)}
+                </span>
+                <Show when={d().soc !== undefined}>
+                  <span class="text-sm tabular-nums text-foreground/50">
+                    {Math.round(d().soc ?? 0)}% charged
+                  </span>
+                </Show>
+              </div>
+
+              {/* Today's energy + sparkline are wired in a later plan. */}
+              <div class="mt-6 flex items-center justify-between text-xs text-foreground/40">
+                <span>Today: {formatEnergy(0)}</span>
+                <span class="italic">history coming soon</span>
+              </div>
+            </>
+          )}
         </Show>
-      </div>
-
-      {/* Today's energy + sparkline are wired in a later plan. */}
-      <div class="mt-auto flex items-center justify-between text-xs text-foreground/40">
-        <span>Today: {formatEnergy(0)}</span>
-        <span class="italic">history coming soon</span>
-      </div>
-    </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

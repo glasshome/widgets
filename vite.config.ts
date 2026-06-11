@@ -3,5 +3,11 @@ import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [solid(), ...glasshomeWidgets()],
+  plugins: [
+    // delegateEvents: false — widgets render inside closed shadow roots where
+    // Solid's document-level event delegation cannot see the target. Events
+    // must attach directly to elements.
+    solid({ solid: { delegateEvents: false } }),
+    ...glasshomeWidgets(),
+  ],
 });

@@ -1,4 +1,4 @@
-import { useService } from "@glasshome/sync-layer/solid";
+import { useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
 import type { EntityGroups } from "./utils";

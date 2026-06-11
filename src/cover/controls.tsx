@@ -1,6 +1,5 @@
-import type { EntityView } from "@glasshome/sync-layer";
-import { useService } from "@glasshome/sync-layer/solid";
 import { Slider } from "@glasshome/ui/solid";
+import { type EntityView, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import {

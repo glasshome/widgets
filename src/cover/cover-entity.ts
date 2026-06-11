@@ -1,4 +1,4 @@
-import type { EntityView } from "@glasshome/sync-layer";
+import type { EntityView } from "@glasshome/widget-sdk";
 
 // HA CoverEntityFeature bitmask values.
 const FEATURE_OPEN = 1;

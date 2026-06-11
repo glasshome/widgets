@@ -1,7 +1,9 @@
-import { useEntities, useService, useToggle } from "@glasshome/sync-layer/solid";
 import {
   defineWidget,
   isEntityActive,
+  useEntities,
+  useService,
+  useToggle,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -197,7 +199,7 @@ export default defineWidget<LightConfig>({
     icon: "mdi:lightbulb",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: LightWidget,

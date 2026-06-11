@@ -1,4 +1,3 @@
-import { useService } from "@glasshome/sync-layer/solid";
 import {
   Select,
   SelectContent,
@@ -7,7 +6,7 @@ import {
   SelectValue,
   Slider,
 } from "@glasshome/ui/solid";
-import type { EntityView } from "@glasshome/widget-sdk";
+import { type EntityView, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
 import { ColorWheel } from "./color-wheel";

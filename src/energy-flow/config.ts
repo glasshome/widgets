@@ -94,11 +94,14 @@ export const configSchema = z.object({
   evEntity: powerEntity("EV charging power", "Electric-vehicle charging power sensor (W)."),
   evSocEntity: socEntity("EV charge level"),
 
-  // Sun (for the night-resting solar state).
-  sunEntity: powerEntity(
-    "Sun sensor",
-    "Optional. Your sun.sun entity, used to rest the solar node after sunset.",
-  ),
+  // Sun (for the night-resting solar state). Targets the sun domain, not a
+  // power sensor: the runtime reads sun.sun's state ("below_horizon").
+  sunEntity: z.array(z.string()).default([]).meta({
+    domain: "sun",
+    title: "Sun entity",
+    description: "Optional. Your sun.sun entity, used to rest the solar node after sunset.",
+    singleSelect: true,
+  }),
 
   // Tariff (both-or-neither; enforced softly via descriptions).
   tariffCurrency: z.string().optional().meta({

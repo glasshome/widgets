@@ -1,8 +1,4 @@
-import {
-  fetchEnergyPreferences,
-  getConnection,
-} from "@glasshome/sync-layer";
-import { useEntities, useEntity } from "@glasshome/sync-layer/solid";
+import { useEntities, useEntity } from "@glasshome/widget-sdk";
 import {
   defineWidget,
   useWidgetContext,
@@ -11,13 +7,11 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import {
   describeFlow,
   energyColors,
   EnergyEmptyState,
-  mapEnergyPreferences,
 } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { configSchema, type EnergyFlowConfig } from "./config";
@@ -25,6 +19,24 @@ import { EnergyContent } from "./energy-content";
 import { deriveFlow, type EnergyFlow, isUnconfigured, type PowerLookup } from "./flow";
 
 const ACTIVE_THRESHOLD = 50;
+
+/** Scale a power reading to watts based on the sensor's reported unit.
+ *  HA power sensors commonly report kW. "MW" and "mW" collide under a
+ *  case-insensitive compare, so the megawatt/milliwatt branches stay exact-case;
+ *  unknown/missing units are treated as W. */
+function toWatts(value: number, unit: string | null | undefined): number {
+  if (!unit) return value;
+  if (unit === "MW") return value * 1e6;
+  if (unit === "mW") return value / 1000;
+  switch (unit.toLowerCase()) {
+    case "kw":
+      return value * 1000;
+    case "mw":
+      return value * 1e6;
+    default:
+      return value;
+  }
+}
 
 /** Dominant source color tints the widget shell channel. Picks the source
  *  (solar / battery discharge / grid import) carrying the most power; falls
@@ -79,7 +91,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
         continue;
       }
       const n = Number(e.state);
-      map.set(e.id, Number.isFinite(n) ? n : null);
+      map.set(e.id, Number.isFinite(n) ? toWatts(n, e.unitOfMeasurement) : null);
     }
     return (id: string) => (map.has(id) ? (map.get(id) ?? null) : null);
   });
@@ -95,38 +107,6 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
     const nodes = [f.solar, f.grid, f.battery, f.home, f.ev].filter((n) => n.configured);
     return nodes.length > 0 && nodes.every((n) => n.stale);
   });
-
-  const [discovering, setDiscovering] = createSignal(false);
-  const runDiscovery = () => {
-    const conn = getConnection();
-    if (!conn) return;
-    setDiscovering(true);
-    fetchEnergyPreferences(conn)
-      .then((prefs) => {
-        const discovered = mapEnergyPreferences(prefs);
-        ctx.updateConfig({
-          ...props.config,
-          solarEntity: discovered.solar ? [discovered.solar] : props.config.solarEntity,
-          gridImportEntity: discovered.gridImport
-            ? [discovered.gridImport]
-            : props.config.gridImportEntity,
-          gridExportEntity: discovered.gridExport
-            ? [discovered.gridExport]
-            : props.config.gridExportEntity,
-          batteryChargeEntity: discovered.batteryCharge
-            ? [discovered.batteryCharge]
-            : props.config.batteryChargeEntity,
-          batteryDischargeEntity: discovered.batteryDischarge
-            ? [discovered.batteryDischarge]
-            : props.config.batteryDischargeEntity,
-          consumerEntities:
-            discovered.consumers.length > 0
-              ? discovered.consumers.map((c) => c.statId)
-              : props.config.consumerEntities,
-        });
-      })
-      .finally(() => setDiscovering(false));
-  };
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -144,16 +124,6 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
             fallback={
               <div class="flex h-full flex-col items-center justify-center gap-3 p-3 text-center">
                 <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
-                <button
-                  type="button"
-                  class="flex items-center gap-1.5 rounded-full border border-foreground/15 bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:bg-foreground/10 disabled:opacity-50"
-                  disabled={discovering()}
-                  on:pointerdown={(e: PointerEvent) => e.stopPropagation()}
-                  on:click={runDiscovery}
-                >
-                  <Icon icon={discovering() ? "mdi:loading" : "mdi:home-lightning-bolt"} width={14} />
-                  Use my Home Assistant energy settings
-                </button>
               </div>
             }
           >
@@ -189,7 +159,7 @@ export default defineWidget<EnergyFlowConfig>({
     icon: "mdi:lightning-bolt",
     minSize: { w: 2, h: 3 },
     maxSize: { w: 4, h: 4 },
-    sdkVersion: "^0.5.0",
+    sdkVersion: "^1.0.0",
   },
   configSchema,
   component: EnergyFlowWidget,

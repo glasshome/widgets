@@ -1,4 +1,4 @@
-import type { AreaView, EntityView } from "@glasshome/sync-layer";
+import type { AreaView, EntityView } from "@glasshome/widget-sdk";
 
 export interface EntityGroups {
   lights: EntityView[];

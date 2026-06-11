@@ -18,6 +18,10 @@ import type { EnergyFlowConfig } from "./config";
 
 export type PowerLookup = (entityId: string) => number | null;
 
+// Inverters report a few watts of standby draw at night, so an exact <= 0 test
+// almost never fires. Treat anything at or below this as "resting".
+const SOLAR_SLEEP_THRESHOLD_W = 20;
+
 export interface NodeState {
   /** Configured (at least one entity selected for this node). */
   configured: boolean;
@@ -56,13 +60,26 @@ function resolveSingle(id: string | undefined, lookup: PowerLookup): Resolved {
   return { watts: v, stale: false, configured: true };
 }
 
-/** Resolve a bidirectional node (dual sensors OR a single signed sensor). */
+// Avoids re-warning on every reactive tick when both signed and dual are set.
+const warnedBothModes = new Set<string>();
+
+/**
+ * Resolve a bidirectional node (dual sensors OR a single signed sensor).
+ * Precedence is intentional: a configured signed sensor wins and the dual
+ * pos/neg sensors are ignored. Configuring both is a user mistake, so warn once.
+ */
 function resolveBidirectional(
   posId: string | undefined,
   negId: string | undefined,
   signedId: string | undefined,
   lookup: PowerLookup,
 ): { flow: { positive: number; negative: number }; stale: boolean; configured: boolean } {
+  if (signedId && (posId || negId) && !warnedBothModes.has(signedId)) {
+    warnedBothModes.add(signedId);
+    console.warn(
+      `energy-flow: both a signed sensor (${signedId}) and dual sensors are configured for the same node; the signed sensor wins and the dual sensors are ignored.`,
+    );
+  }
   if (signedId) {
     const v = lookup(signedId);
     if (v === null) {
@@ -136,7 +153,7 @@ export function deriveFlow(
         ? config.consumerEntities.length > 0
         : solar.configured || grid.configured;
 
-  const solarSleeping = sunBelowHorizon && solar.watts <= 0;
+  const solarSleeping = sunBelowHorizon && solar.watts <= SOLAR_SLEEP_THRESHOLD_W;
 
   const flowState: FlowState = {
     solarW: solar.watts,

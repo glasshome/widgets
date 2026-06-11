@@ -4,7 +4,7 @@
   "exports": {
     "./tailwind-sources": "./tailwind-sources.css"
   },
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Reference implementation of built-in GlassHome dashboard widgets",
   "license": "MIT",
   "repository": {
@@ -17,7 +17,7 @@
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123"
   },
   "devDependencies": {
-    "@glasshome/widget-cli": "0.4.13",
+    "@glasshome/widget-cli": "0.5.0",
     "@types/bun": "latest",
     "@types/json-schema": "^7.0.15",
     "typescript": "^5.0.0",
@@ -30,8 +30,7 @@
   },
   "peerDependencies": {
     "solid-js": "^1.9.0",
-    "@glasshome/widget-sdk": "^0.5.2",
-    "@glasshome/ui": "0.2.3",
-    "@glasshome/sync-layer": "0.1.15"
+    "@glasshome/widget-sdk": "1.0.0",
+    "@glasshome/ui": "0.2.7"
   }
 }

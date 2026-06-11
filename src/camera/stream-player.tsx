@@ -2,7 +2,7 @@ import {
   getWebRtcClientConfig,
   sendWebRtcCandidate,
   startWebRtcSession,
-} from "@glasshome/sync-layer";
+} from "@glasshome/widget-sdk";
 import Hls from "hls.js";
 import { createEffect, createSignal, Match, onCleanup, Switch } from "solid-js";
 

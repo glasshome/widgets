@@ -1,5 +1,3 @@
-export { mapEnergyPreferences } from "./auto-discovery";
-export type { DiscoveredEnergyEntities } from "./auto-discovery";
 export {
   calculateHomeConsumption,
   normalizeBidirectional,
@@ -10,11 +8,12 @@ export type {
   ConsumptionStrategy,
   NormalizedFlow,
 } from "./calculations";
-export { energyColors, svgColors } from "./colors";
-export type { EnergyRole, SvgColorKey } from "./colors";
+export { energyColors } from "./colors";
+export type { EnergyRole } from "./colors";
 export { EnergyEmptyState } from "./empty-state";
 export type { EnergyEmptyStateKind, EnergyEmptyStateProps } from "./empty-state";
 export { describeFlow, describePower, formatEnergy, formatPower } from "./formatting";
 export type { FlowDescription, FlowState } from "./formatting";
-export { energyIcons, houseGlyphPath, HouseGlyph } from "./icons";
-export type { HouseGlyphProps } from "./icons";
+export { HouseGlyph } from "./house-glyph";
+export type { HouseGlyphProps } from "./house-glyph";
+export { energyIcons, houseGlyphPath } from "./icons";
