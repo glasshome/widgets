@@ -14,6 +14,4 @@ export { EnergyEmptyState } from "./empty-state";
 export type { EnergyEmptyStateKind, EnergyEmptyStateProps } from "./empty-state";
 export { describeFlow, describePower, formatEnergy, formatPower } from "./formatting";
 export type { FlowDescription, FlowState } from "./formatting";
-export { HouseGlyph } from "./house-glyph";
-export type { HouseGlyphProps } from "./house-glyph";
-export { energyIcons, houseGlyphPath } from "./icons";
+export { energyIcons } from "./icons";

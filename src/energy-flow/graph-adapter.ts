@@ -12,14 +12,17 @@ import { energyColors } from "../_energy-shared/colors";
 import { formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import type { FlowEdge, FlowGraph, FlowNode } from "../_flow-graph/types";
-import type { EnergyFlow } from "./flow";
+import { ACTIVE_THRESHOLD, type EnergyFlow } from "./flow";
 import type { NodeDetailId } from "./node-detail";
 
-const ACTIVE_THRESHOLD = 50;
-
-/** Shared color every ribbon fades to at the hub end, so all flows converge to
- *  one tone at the center (unique source color outward, common color inward). */
-const MERGE_COLOR = "oklch(0.82 0.05 250)";
+/** Hub-end fade for a ribbon: its own color receding toward the theme
+ *  background, so the flow quiets down as it reaches the house in either
+ *  theme. Staying on one hue per ribbon matters: SVG gradients interpolate in
+ *  sRGB, and blending two distant hues (e.g. solar amber into a shared blue)
+ *  passes near gray and reads muddy. */
+function hubFade(color: string): string {
+  return `color-mix(in oklch, ${color} 55%, var(--background, transparent))`;
+}
 
 export interface NodeView {
   icon: string;
@@ -34,8 +37,6 @@ export interface NodeView {
 export interface EnergyGraph {
   graph: FlowGraph;
   views: Map<string, NodeView>;
-  /** Dominant active source color, for the hub glow. */
-  hubGlow: string;
 }
 
 function socSuffix(soc: number | undefined): string {
@@ -46,15 +47,6 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
   const nodes: FlowNode[] = [];
   const edges: FlowEdge[] = [];
   const views = new Map<string, NodeView>();
-
-  let glow: string = energyColors.home;
-  let glowWatts = 0;
-  const considerGlow = (watts: number, color: string) => {
-    if (watts > glowWatts) {
-      glowWatts = watts;
-      glow = color;
-    }
-  };
 
   // --- Sources (solar, battery, grid) feed the hub on the left. ---
   if (flow.solar.configured) {
@@ -74,11 +66,10 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       to: { node: "hub" },
       magnitude: watts,
       color: energyColors.solar,
-      colorTo: MERGE_COLOR,
+      colorTo: hubFade(energyColors.solar),
       direction: "forward",
       idle,
     });
-    if (!idle) considerGlow(watts, energyColors.solar);
   }
 
   if (flow.battery.configured) {
@@ -100,11 +91,10 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       magnitude: watts,
       // Charging flows hub -> battery (reverse); discharging powers the home.
       color: energyColors.battery,
-      colorTo: MERGE_COLOR,
+      colorTo: hubFade(energyColors.battery),
       direction: charging ? "reverse" : "forward",
       idle: !active,
     });
-    if (active && !charging) considerGlow(watts, energyColors.battery);
   }
 
   if (flow.grid.configured) {
@@ -128,12 +118,11 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       to: { node: "hub" },
       magnitude: watts,
       color,
-      colorTo: MERGE_COLOR,
+      colorTo: hubFade(color),
       // Export flows home -> grid (reverse).
       direction: exporting ? "reverse" : "forward",
       idle: !active,
     });
-    if (active && importing) considerGlow(watts, energyColors.grid);
   }
 
   // --- Hub: the house, carrying total home consumption. ---
@@ -165,8 +154,8 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       from: { node: "hub" },
       to: { node: "ev" },
       magnitude: watts,
-      // Hub end is the shared merge color; the node end is the EV color.
-      color: MERGE_COLOR,
+      // Soft at the hub end, full EV color at the node end.
+      color: hubFade(energyColors.ev),
       colorTo: energyColors.ev,
       direction: "forward",
       idle,
@@ -192,14 +181,14 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       from: { node: "hub" },
       to: { node: "home" },
       magnitude: rest,
-      color: MERGE_COLOR,
+      color: hubFade(energyColors.home),
       colorTo: energyColors.home,
       direction: "forward",
       idle,
     });
   }
 
-  return { graph: { nodes, edges }, views, hubGlow: glow };
+  return { graph: { nodes, edges }, views };
 }
 
 const DETAIL_IDS: Record<string, NodeDetailId> = {

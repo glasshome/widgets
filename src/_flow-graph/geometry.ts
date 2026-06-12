@@ -30,6 +30,16 @@ export function ribbonPath(from: Band, to: Band, tension = 0.5): string {
   ].join(" ");
 }
 
+/** Open centerline of a ribbon: the band midpoints joined by the same cubic
+ *  the ribbon edges use. Stroke-based flow animation runs along this path so
+ *  the motion follows the ribbon's curve. */
+export function centerPath(from: Band, to: Band, tension = 0.5): string {
+  const cx = (to.x - from.x) * tension;
+  const fy = (from.top + from.bottom) / 2;
+  const ty = (to.top + to.bottom) / 2;
+  return `M ${r(from.x)} ${r(fy)} C ${r(from.x + cx)} ${r(fy)}, ${r(to.x - cx)} ${r(ty)}, ${r(to.x)} ${r(ty)}`;
+}
+
 export interface Lane {
   id: string;
   /** Magnitude weight. */

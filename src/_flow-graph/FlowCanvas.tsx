@@ -1,15 +1,15 @@
-import { type Accessor, createMemo, createUniqueId, Index, type JSX, Show } from "solid-js";
+import { type Accessor, createMemo, Index, type JSX, Show } from "solid-js";
 import { FlowNode } from "./FlowNode";
 import { type ColumnsLayoutOpts, columnsLayout } from "./layout";
-import { Ribbon, STREAM_PERIOD } from "./Ribbon";
+import { Ribbon } from "./Ribbon";
 import type { FlowGraph, FlowNode as FlowNodeData, Rect } from "./types";
 
-/** Keyframes + reduced-motion fallback for every ribbon's shine. Inlined so it
- *  ships in the widget JS bundle (extracted .css is never loaded). */
-const SHINE_CSS = `
-@keyframes flow-shine { to { transform: translateX(var(--flow-travel, 0px)); } }
-.flow-shine { animation: flow-shine var(--flow-dur, 3s) linear infinite; will-change: transform; }
-@media (prefers-reduced-motion: reduce) { .flow-shine { animation: none; opacity: 0; } }
+/** Keyframes + reduced-motion fallback for every ribbon's flow stream. Inlined
+ *  so it ships in the widget JS bundle (extracted .css is never loaded). */
+const STREAM_CSS = `
+@keyframes flow-stream { to { stroke-dashoffset: var(--flow-travel, -64); } }
+.flow-stream { animation: flow-stream var(--flow-dur, 3s) linear infinite; }
+@media (prefers-reduced-motion: reduce) { .flow-stream { animation: none; opacity: 0; } }
 `;
 
 interface FlowCanvasProps {
@@ -33,9 +33,6 @@ interface FlowCanvasProps {
  * graph or container size changes.
  */
 export function FlowCanvas(props: FlowCanvasProps): JSX.Element {
-  // Canvas-scoped stream id: multiple canvases on a dashboard never collide.
-  const streamId = `stream-${createUniqueId()}`;
-
   const layout = createMemo(() =>
     columnsLayout(props.graph, props.width, props.height, props.layoutOpts ?? {}),
   );
@@ -53,35 +50,14 @@ export function FlowCanvas(props: FlowCanvasProps): JSX.Element {
           viewBox={`0 0 ${props.width} ${props.height}`}
           aria-hidden="true"
         >
-          <style>{SHINE_CSS}</style>
-          <defs>
-            {/* One soft pulse per period, tiled. userSpaceOnUse + repeat means a
-                one-period translate loops seamlessly across every ribbon. */}
-            <linearGradient
-              id={streamId}
-              x1="0"
-              y1="0"
-              x2={`${STREAM_PERIOD}`}
-              y2="0"
-              gradientUnits="userSpaceOnUse"
-              spreadMethod="repeat"
-            >
-              <stop offset="0" stop-color="#fff" stop-opacity="0" />
-              <stop offset="0.42" stop-color="#fff" stop-opacity="0" />
-              <stop offset="0.5" stop-color="#fff" stop-opacity="0.3" />
-              <stop offset="0.58" stop-color="#fff" stop-opacity="0" />
-              <stop offset="1" stop-color="#fff" stop-opacity="0" />
-            </linearGradient>
-          </defs>
+          <style>{STREAM_CSS}</style>
           {/* Index (not For): reuse each ribbon's DOM across value ticks so the
-              CSS shine keeps running instead of restarting from frame 0. */}
+              CSS stream keeps running instead of restarting from frame 0. */}
           <Index each={layout().edges}>
             {(placed) => (
               <Ribbon
                 placed={placed()}
-                canvasHeight={props.height}
                 maxMagnitude={maxMagnitude()}
-                streamId={streamId}
                 paused={props.paused ?? false}
               />
             )}

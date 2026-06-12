@@ -33,6 +33,9 @@ export interface ColumnsLayoutOpts {
   /** Vertical space reserved at the top (e.g. for a headline overlay); nodes
    *  center in the region below it. */
   topReserve: number;
+  /** Strip at the top of the hub no ribbon may attach to (e.g. a shaped hub
+   *  whose roof narrows toward the top). */
+  hubAttachTop: number;
 }
 
 export const DEFAULT_COLUMNS_OPTS: ColumnsLayoutOpts = {
@@ -50,6 +53,7 @@ export const DEFAULT_COLUMNS_OPTS: ColumnsLayoutOpts = {
   minCorridor: 24,
   minColumnWidth: 80,
   topReserve: 0,
+  hubAttachTop: 0,
 };
 
 interface Column {
@@ -130,7 +134,8 @@ export function columnsLayout(
   if (hub) placedNodes.push({ node: hub, rect: hubRect });
   const hubLeft = hubRect.x + o.hubInset;
   const hubRight = hubRect.x + hubRect.w - o.hubInset;
-  const hubMidY = hubRect.y + hubRect.h / 2;
+  const hubSpan = hubRect.h - o.hubAttachTop;
+  const hubMidY = hubRect.y + o.hubAttachTop + hubSpan / 2;
 
   // Split edges by which hub side they attach to: source->hub on the left,
   // hub->spend on the right. Order follows the column's node order so stacked
@@ -148,8 +153,8 @@ export function columnsLayout(
   const toLane = (e: FlowEdge): Lane => ({ id: e.id, weight: e.magnitude, max: laneCap });
   const stackOpts = { minWidth: o.minRibbon, activeFraction: o.activeFraction };
 
-  const leftLanes = stackLanes(sourceEdges.map(toLane), hubMidY, hubRect.h, stackOpts);
-  const rightLanes = stackLanes(spendEdges.map(toLane), hubMidY, hubRect.h, stackOpts);
+  const leftLanes = stackLanes(sourceEdges.map(toLane), hubMidY, hubSpan, stackOpts);
+  const rightLanes = stackLanes(spendEdges.map(toLane), hubMidY, hubSpan, stackOpts);
 
   const placedEdges: PlacedEdge[] = [];
 

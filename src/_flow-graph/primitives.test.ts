@@ -13,17 +13,25 @@ describe("FlowCanvas contracts", () => {
     expect(src).not.toContain("<For each={layout().edges}>");
   });
 
-  test("scopes the stream gradient id per canvas (no cross-instance collision)", async () => {
+  test("stream animation respects prefers-reduced-motion", async () => {
     const src = await read("./FlowCanvas.tsx");
-    expect(src).toContain("createUniqueId()");
-    expect(src).toContain("id={streamId}");
+    expect(src).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(src).toContain("animation: none");
   });
 });
 
 describe("Ribbon contracts", () => {
-  test("omits the shine when idle, paused, or zero magnitude", async () => {
+  test("omits the stream when idle, paused, or zero magnitude", async () => {
     const src = await read("./Ribbon.tsx");
     expect(src).toContain("!edge().idle && !props.paused && edge().magnitude > 0");
     expect(src).toContain("<Show when={animate()}>");
+  });
+
+  test("dash pattern sums to the loop period (seamless offset cycle)", async () => {
+    const src = await read("./Ribbon.tsx");
+    const dash = src.match(/STREAM_DASH = "(\d+) (\d+)"/);
+    const period = src.match(/STREAM_PERIOD = (\d+)/);
+    if (!dash || !period) throw new Error("stream constants not found");
+    expect(Number(dash[1]) + Number(dash[2])).toBe(Number(period[1]));
   });
 });

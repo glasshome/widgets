@@ -16,9 +16,8 @@ import {
 import { widgetDialogProps } from "../common";
 import { configSchema, type EnergyFlowConfig } from "./config";
 import { EnergyContent } from "./energy-content";
-import { deriveFlow, type EnergyFlow, isUnconfigured, type PowerLookup } from "./flow";
-
-const ACTIVE_THRESHOLD = 50;
+import { ACTIVE_THRESHOLD, deriveFlow, type EnergyFlow, isUnconfigured, type PowerLookup } from "./flow";
+import { EnergyHeader } from "./header";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
  *  HA power sensors commonly report kW. "MW" and "mW" collide under a
@@ -122,14 +121,24 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           <Show
             when={!unconfigured()}
             fallback={
-              <div class="flex h-full flex-col items-center justify-center gap-3 p-3 text-center">
-                <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
+              <div class="flex h-full min-h-0 flex-col gap-2">
+                <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
+                <div class="min-h-0 flex-1">
+                  <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
+                </div>
               </div>
             }
           >
             <Show
               when={!allStale()}
-              fallback={<EnergyEmptyState kind="unavailable" />}
+              fallback={
+                <div class="flex h-full min-h-0 flex-col gap-2">
+                  <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
+                  <div class="min-h-0 flex-1">
+                    <EnergyEmptyState kind="unavailable" />
+                  </div>
+                </div>
+              }
             >
               <EnergyContent flow={flow()} description={description()} />
             </Show>

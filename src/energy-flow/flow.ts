@@ -22,6 +22,9 @@ export type PowerLookup = (entityId: string) => number | null;
 // almost never fires. Treat anything at or below this as "resting".
 const SOLAR_SLEEP_THRESHOLD_W = 20;
 
+/** Flows at or below this read as idle everywhere in the widget (W). */
+export const ACTIVE_THRESHOLD = 50;
+
 export interface NodeState {
   /** Configured (at least one entity selected for this node). */
   configured: boolean;

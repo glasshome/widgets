@@ -1,15 +1,20 @@
 import { useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { type Accessor, createEffect, createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
-import type { FlowDescription } from "../_energy-shared";
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  type JSX,
+  onCleanup,
+  Show,
+} from "solid-js";
 import { FlowCanvas } from "../_flow-graph/FlowCanvas";
 import type { FlowNode as FlowNodeData, Rect } from "../_flow-graph/types";
 import type { EnergyFlow } from "./flow";
 import { buildEnergyGraph, type NodeView, toDetailId } from "./graph-adapter";
 import type { NodeDetailId } from "./node-detail";
-
-/** Reserved top strip for the headline overlay; nodes center below it. */
-const TOP_RESERVE = 56;
 
 /** True while the document is hidden (tab switched, app backgrounded). Covers the
  *  Capacitor WebView, which fires visibilitychange on app-state changes, without
@@ -63,40 +68,66 @@ function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): J
   );
 }
 
-/** The central house hub: glyph + total consumption, over a soft glow in the
- *  dominant source color. */
-function Hub(props: { view: NodeView | undefined; glow: string }): JSX.Element {
+/** Same auto-contrast formula as the SDK icon tile: light text on a dark fill,
+ *  dark text on a light fill, in either theme. */
+const HOUSE_TEXT =
+  "oklch(from var(--widget-color) calc(0.52 + sign(0.5 - l) * 0.43) calc(c * 0.2) h)";
+
+/** Pentagon inset 8 viewBox-units inside the node box; the 16-wide stroke
+ *  centered on it reaches back out to the box edge and its round joins give
+ *  the 8px corner radius. Eaves sit at y=42 — keep `hubAttachTop` in sync so
+ *  ribbons attach below the roofline. */
+const HOUSE_PATH = "M52 8 L96 42 V84 H8 V42 Z";
+
+/** The central hub: a house-shaped tile in the dominant source color (the
+ *  widget channel), carrying total home consumption. The silhouette fills the
+ *  node box so the ribbon ends tuck under its walls. */
+function Hub(props: { view: NodeView | undefined }): JSX.Element {
+  const sheenId = `house-sheen-${createUniqueId()}`;
   return (
-    <div class="relative flex h-full w-full items-center justify-center">
-      <div
-        class="pointer-events-none absolute h-[160%] w-[160%] rounded-full"
-        style={{
-          background: `radial-gradient(circle, color-mix(in oklch, ${props.glow} 8%, transparent) 0%, transparent 70%)`,
-          filter: "blur(6px)",
-        }}
+    <div class="relative h-full w-full" aria-label={`Home, ${props.view?.value ?? ""}`}>
+      <svg
+        class="absolute inset-0 h-full w-full"
+        viewBox="0 0 104 92"
+        preserveAspectRatio="none"
         aria-hidden="true"
-      />
-      {/* Fill the node box so its edges match the layout rect the ribbons attach
-          to (the ribbon ends tuck under this tile, like the chips). */}
-      <div class="relative z-[1] flex h-full w-full flex-col items-center justify-center gap-1 rounded-2xl bg-foreground/[0.06] backdrop-blur-md">
-        <svg
-          viewBox="0 0 56 50"
-          aria-hidden="true"
-          class="block"
-          style={{ width: "clamp(36px, 6cqi, 60px)", height: "clamp(32px, 5.4cqi, 54px)" }}
-        >
-          <path
-            d="M28 4 L4 24 V46 H52 V24 Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linejoin="round"
-            class="text-foreground/55"
-          />
-        </svg>
+        style={{
+          filter:
+            "drop-shadow(0 0 14px color-mix(in oklch, var(--widget-color) 40%, transparent))",
+        }}
+      >
+        <defs>
+          {/* Top-down white sheen over the fill: the same glass highlight the
+              widget shell carries via --widget-border-highlight. */}
+          <linearGradient id={sheenId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.32" />
+            <stop offset="0.55" stop-color="#fff" stop-opacity="0.06" />
+            <stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          d={HOUSE_PATH}
+          fill="var(--widget-color)"
+          stroke="var(--widget-color)"
+          stroke-width="16"
+          stroke-linejoin="round"
+        />
+        <path
+          d={HOUSE_PATH}
+          fill={`url(#${sheenId})`}
+          stroke={`url(#${sheenId})`}
+          stroke-width="16"
+          stroke-linejoin="round"
+        />
+      </svg>
+      {/* Center the reading in the house body, below the roofline. */}
+      <div
+        class="absolute inset-x-0 top-[42%] bottom-0 z-[1] flex items-center justify-center"
+        style={{ color: HOUSE_TEXT }}
+      >
         <span
-          class="font-semibold tabular-nums text-foreground"
-          style={{ "font-size": "clamp(14px, 2.5cqi, 21px)" }}
+          class="font-bold tabular-nums"
+          style={{ "font-size": "clamp(19px, 3.8cqi, 30px)" }}
         >
           {props.view?.value ?? ""}
         </span>
@@ -107,7 +138,6 @@ function Hub(props: { view: NodeView | undefined; glow: string }): JSX.Element {
 
 export function Spine(props: {
   flow: EnergyFlow;
-  description: FlowDescription;
   onTap: (id: NodeDetailId) => void;
 }): JSX.Element {
   const energy = createMemo(() => buildEnergyGraph(props.flow));
@@ -141,7 +171,7 @@ export function Spine(props: {
         when={node().kind === "hub"}
         fallback={<Chip view={view()} align={node().kind === "source" ? "left" : "right"} />}
       >
-        <Hub view={view()} glow={energy().hubGlow} />
+        <Hub view={view()} />
       </Show>
     );
   };
@@ -156,25 +186,16 @@ export function Spine(props: {
           width={size().w}
           height={size().h}
           paused={paused()}
-          layoutOpts={{ topReserve: TOP_RESERVE }}
+          // Tuck ribbon ends deeper under the hub and keep them attached
+          // below the house silhouette's roofline (eaves at y=42, minus the
+          // stroke bulge).
+          layoutOpts={{ hubInset: 18, hubAttachTop: 40 }}
           renderNode={renderNode}
           onNodeTap={(id) => {
             const detail = toDetailId(id);
             if (detail) props.onTap(detail);
           }}
         />
-
-        {/* Headline overlay, above the canvas in the reserved top strip. */}
-        <div class="pointer-events-none absolute inset-x-0 top-0 z-[2] flex min-w-0 flex-col px-1 leading-tight">
-          <span class="truncate font-semibold text-foreground" style={{ "font-size": "clamp(15px, 2.4cqi, 21px)" }}>
-            {props.description.headline}
-          </span>
-          <Show when={props.description.detail}>
-            <span class="truncate text-foreground/60" style={{ "font-size": "clamp(11px, 1.7cqi, 14px)" }}>
-              {props.description.detail}
-            </span>
-          </Show>
-        </div>
       </div>
     </div>
   );

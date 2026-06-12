@@ -1,5 +1,4 @@
 import { type JSX, Match, Show, Switch } from "solid-js";
-import { HouseGlyph } from "./house-glyph";
 
 export type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
 
@@ -13,8 +12,8 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
   return (
     <Switch>
       <Match when={props.kind === "unconfigured"}>
+        {/* No glyph: the widget header above already carries the house icon. */}
         <div class="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
-          <HouseGlyph class="h-10 w-10 text-muted-foreground opacity-30" />
           <div class="flex flex-col gap-1">
             <p class="font-medium text-foreground text-sm">Set up your energy sensors</p>
             <p class="text-muted-foreground text-xs">
@@ -46,7 +45,6 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
 
       <Match when={props.kind === "first-day"}>
         <div class="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
-          <HouseGlyph class="h-10 w-10 text-muted-foreground opacity-15" />
           <div class="flex flex-col gap-1">
             <p class="font-medium text-foreground text-sm">Check back tomorrow</p>
             <p class="text-muted-foreground text-xs">Your energy history is being recorded</p>
