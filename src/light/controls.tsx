@@ -1,4 +1,8 @@
 import {
+  type Color,
+  ColorSlider,
+  ColorWheel,
+  parseColor,
   Select,
   SelectContent,
   SelectItem,
@@ -9,8 +13,12 @@ import {
 import { type EntityView, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
-import { ColorWheel } from "./color-wheel";
 import { COLOR_PRESETS, formatBrightness, getTempPresets, hsToCSS } from "./utils";
+
+const colorToHs = (c: Color): [number, number] => [
+  Math.round(c.getChannelValue("hue")),
+  Math.round(c.getChannelValue("saturation")),
+];
 
 interface LightControlsProps {
   entities: () => EntityView[];
@@ -28,6 +36,11 @@ export function LightControls(props: LightControlsProps) {
     (firstEntity()?.attributes?.hs_color as [number, number] | undefined) ?? null,
   );
   let hsDebounce: ReturnType<typeof setTimeout> | undefined;
+
+  const hsColor = () => {
+    const hs = localHs();
+    return parseColor(`hsl(${Math.round(hs?.[0] ?? 0)}, ${Math.round(hs?.[1] ?? 100)}%, 50%)`);
+  };
 
   const [localTemp, setLocalTemp] = createSignal(
     (firstEntity()?.attributes?.color_temp_kelvin as number | undefined) ?? 4000,
@@ -192,16 +205,26 @@ export function LightControls(props: LightControlsProps) {
         <div class="flex flex-col gap-4">
           <span class="font-medium text-sm">Color</span>
           <ColorWheel
-            value={localHs()}
-            onChange={handleHsChange}
-            onChangeEnd={(hs) => setColor(hs)}
+            class="mx-auto"
+            size={208}
+            value={hsColor()}
+            onChange={(c) => handleHsChange(colorToHs(c))}
+            onChangeEnd={(c) => setColor(colorToHs(c))}
+            aria-label="Hue"
+          />
+          <ColorSlider
+            channel="saturation"
+            value={hsColor()}
+            onChange={(c) => handleHsChange(colorToHs(c))}
+            onChangeEnd={(c) => setColor(colorToHs(c))}
+            aria-label="Saturation"
           />
           {/* Quick-access presets */}
           <div class="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={setWhite}
-              class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-white transition-transform active:scale-95"
+              class="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-border bg-white transition-transform active:scale-95"
               title="White"
             >
               <Icon icon="mdi:white-balance-sunny" width={14} class="text-gray-600" />
@@ -209,7 +232,7 @@ export function LightControls(props: LightControlsProps) {
             <button
               type="button"
               onClick={setWarmWhite}
-              class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border transition-transform active:scale-95"
+              class="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-border transition-transform active:scale-95"
               style={{ "background-color": "hsl(35, 100%, 60%)" }}
               title="Warm White"
             >
@@ -223,7 +246,7 @@ export function LightControls(props: LightControlsProps) {
                     setColor([...preset.hs]);
                     setLocalHs([...preset.hs]);
                   }}
-                  class="h-9 w-9 rounded-full border-2 transition-transform active:scale-95"
+                  class="h-9 w-9 rounded-lg border-2 transition-transform active:scale-95"
                   classList={{
                     "border-white ring-2 ring-primary": isHsMatch([...preset.hs], currentHs()),
                     "border-transparent": !isHsMatch([...preset.hs], currentHs()),
