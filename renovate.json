@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
+  "timezone": "Europe/Berlin",
+  "schedule": ["before 6am on monday"],
+  "rangeStrategy": "bump",
+  "minimumReleaseAge": "5 days",
+  "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"]
+  },
+  "packageRules": [
+    {
+      "description": "@glasshome/* cross-package deps are bumped by hand during coordinated releases.",
+      "matchPackageNames": ["@glasshome/**"],
+      "enabled": false
+    },
+    {
+      "description": "Batch dev/build tooling into one weekly PR.",
+      "matchPackageNames": [
+        "typescript",
+        "vite",
+        "vite-plugin-solid",
+        "vitest",
+        "@biomejs/biome",
+        "tsdown",
+        "@types/node",
+        "@types/bun"
+      ],
+      "groupName": "dev tooling"
+    },
+    {
+      "description": "Majors get their own PR with a longer soak.",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days"
+    }
+  ]
+}
