@@ -12,6 +12,8 @@ export interface EntityGroups {
 export interface AreaMetrics {
   lightsOn: number;
   lightsTotal: number;
+  coversOpen: number;
+  coversTotal: number;
   temperature: number | null;
   humidity: number | null;
   co2: number | null;
@@ -77,6 +79,9 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
   const lightsOn = groups.lights.filter((e) => e.state === "on").length;
   const lightsTotal = groups.lights.length;
 
+  const coversTotal = groups.covers.length;
+  const coversOpen = groups.covers.filter((e) => e.state === "open").length;
+
   // Prefer HA-configured area sensors, fall back to deviceClass scan
   const tempEntity = area?.temperatureEntityId
     ? groups.sensors.find((s) => s.id === area.temperatureEntityId)
@@ -107,6 +112,8 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
   return {
     lightsOn,
     lightsTotal,
+    coversOpen,
+    coversTotal,
     temperature,
     humidity,
     co2,

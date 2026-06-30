@@ -101,7 +101,6 @@ function AreaWidget(props: { config: AreaConfig }) {
           <Widget.Content>
             <AreaContent
               metrics={metrics()}
-              groups={groups()}
               areaName={areaName()}
               areaIcon={areaIcon()}
               onToggleLights={toggleLights}
