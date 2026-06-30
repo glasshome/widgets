@@ -2,7 +2,7 @@ import {
   defineWidget,
   getEntityAttribute,
   getStream,
-  state,
+  hassMediaUrl,
   useCamera,
   useEntity,
   useWidgetContext,
@@ -66,23 +66,26 @@ function CameraWidget(props: { config: CameraConfig }) {
   const poster = createMemo(() => {
     const e = entity();
     if (!e) return undefined;
-    return getEntityAttribute<string>(e, "entity_picture") ?? undefined;
+    return hassMediaUrl(getEntityAttribute<string>(e, "entity_picture"));
   });
 
-  const accessToken = () => getEntityAttribute<string>(entity(), "access_token") ?? "";
+  const accessToken = () => {
+    const e = entity();
+    return e ? (getEntityAttribute<string>(e, "access_token") ?? "") : "";
+  };
 
   const mjpegUrl = createMemo(() => {
     const id = entityId();
     const token = accessToken();
-    if (!id || !token || !state.hassUrl) return null;
-    return `${state.hassUrl}/api/camera_proxy_stream/${id}?token=${token}`;
+    if (!id || !token) return null;
+    return hassMediaUrl(`/api/camera_proxy_stream/${id}?token=${token}`) ?? null;
   });
 
   const snapshotUrl = createMemo(() => {
     const id = entityId();
     const token = accessToken();
-    if (!id || !token || !state.hassUrl) return null;
-    return `${state.hassUrl}/api/camera_proxy/${id}?token=${token}`;
+    if (!id || !token) return null;
+    return hassMediaUrl(`/api/camera_proxy/${id}?token=${token}`) ?? null;
   });
 
   let cascadeTimer: ReturnType<typeof setTimeout> | null = null;

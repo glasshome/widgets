@@ -1,6 +1,7 @@
 import {
   defineWidget,
   getEntityAttribute,
+  hassMediaUrl,
   useEntity,
   useService,
   useWidgetContext,
@@ -35,11 +36,19 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 
   const isPlaying = () => entity()?.state === "playing";
 
-  const mediaTitle = createMemo(() => getEntityAttribute<string>(entity()!, "media_title") ?? "");
-  const mediaArtist = createMemo(() => getEntityAttribute<string>(entity()!, "media_artist") ?? "");
-  const albumArt = createMemo(
-    () => getEntityAttribute<string>(entity()!, "entity_picture") ?? undefined,
-  );
+  const mediaTitle = createMemo(() => {
+    const e = entity();
+    return e ? (getEntityAttribute<string>(e, "media_title") ?? "") : "";
+  });
+  const mediaArtist = createMemo(() => {
+    const e = entity();
+    return e ? (getEntityAttribute<string>(e, "media_artist") ?? "") : "";
+  });
+  const albumArt = createMemo(() => {
+    const e = entity();
+    if (!e) return undefined;
+    return hassMediaUrl(getEntityAttribute<string>(e, "entity_picture"));
+  });
 
   const handleTap = () => {
     const id = entityId();
