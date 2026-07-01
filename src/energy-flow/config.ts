@@ -15,8 +15,7 @@
  * dual-vs-signed and tariff both-or-neither can become real unions.
  */
 
-import { widgetFields } from "@glasshome/widget-sdk";
-import { z } from "zod";
+import { widgetFields, z } from "@glasshome/widget-sdk";
 
 const consumptionStrategy = z
   .enum(["entity", "grid_plus_solar", "sum_consumers"])

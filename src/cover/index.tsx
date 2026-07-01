@@ -9,10 +9,10 @@ import {
   Widget,
   WidgetDialog,
   widgetFields,
+  z,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
-import { z } from "zod";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, getCoverIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { CoverControls } from "./controls";

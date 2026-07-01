@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@glasshome/widget-sdk";
 
 export type ClockStyle = "digital" | "analog";
 export type ClockSize = "small" | "medium" | "large";
