@@ -9,8 +9,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
@@ -20,12 +21,12 @@ import { ForecastChart } from "./forecast-chart";
 import { formatTemp, formatWindSpeed, getWeatherIcon, getWeatherIconColor } from "./utils";
 import { WeatherBackground } from "./background";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("weather"),
-  showForecast: z.boolean().default(true).meta({ title: "Show Forecast" }),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("weather"),
+  showForecast: field.toggle({ title: "Show Forecast", default: true }),
 });
-type WeatherConfig = z.infer<typeof configSchema>;
+type WeatherConfig = Infer<typeof configSchema>;
 
 const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 

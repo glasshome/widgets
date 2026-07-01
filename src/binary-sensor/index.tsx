@@ -10,8 +10,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -19,12 +20,12 @@ import type { WidgetDebugData } from "../common";
 import { buildDebugData, getBinarySensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { getBinarySensorStateText } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("binary_sensor"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("binary_sensor"),
 });
 
-type BinarySensorConfig = z.infer<typeof configSchema>;
+type BinarySensorConfig = Infer<typeof configSchema>;
 
 function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const ctx = useWidgetContext();

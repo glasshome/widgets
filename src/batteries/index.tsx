@@ -7,8 +7,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
@@ -16,13 +17,13 @@ import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  threshold: z.number().min(0).max(100).default(20).meta({ title: "Low Battery Threshold (%)" }),
-  whitelist: z.array(z.string()).default([]).meta({ title: "Whitelist (include only these)" }),
-  blacklist: z.array(z.string()).default([]).meta({ title: "Blacklist (exclude these)" }),
+const configSchema = defineConfig({
+  title: field.title(),
+  threshold: field.number({ title: "Low Battery Threshold (%)", min: 0, max: 100, default: 20 }),
+  whitelist: field.stringList({ title: "Whitelist (include only these)" }),
+  blacklist: field.stringList({ title: "Blacklist (exclude these)" }),
 });
-type BatteriesConfig = z.infer<typeof configSchema>;
+type BatteriesConfig = Infer<typeof configSchema>;
 
 function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();

@@ -8,20 +8,21 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("lock"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("lock"),
 });
 
-type LockConfig = z.infer<typeof configSchema>;
+type LockConfig = Infer<typeof configSchema>;
 
 function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();

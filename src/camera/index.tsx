@@ -10,8 +10,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
@@ -19,16 +20,13 @@ import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { type StreamMode, StreamPlayer } from "./stream-player";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.singleEntity("camera"),
-  streamEngine: z
-    .enum(["auto", "webrtc", "hls", "mjpeg", "snapshot"])
-    .default("auto")
-    .meta({ title: "Stream Engine" }),
-  refreshInterval: z.number().default(10).meta({ title: "Snapshot Refresh (seconds)" }),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entity("camera"),
+  streamEngine: field.choice(["auto", "webrtc", "hls", "mjpeg", "snapshot"], { title: "Stream Engine", default: "auto" }),
+  refreshInterval: field.number({ title: "Snapshot Refresh (seconds)", default: 10 }),
 });
-type CameraConfig = z.infer<typeof configSchema>;
+type CameraConfig = Infer<typeof configSchema>;
 
 const CASCADE: StreamMode[] = ["webrtc", "hls", "mjpeg", "snapshot"];
 

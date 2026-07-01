@@ -9,8 +9,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -21,11 +22,11 @@ import { ClimateControls } from "./controls";
 import "./transition.css";
 import { formatTemperature, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("climate"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("climate"),
 });
-type ClimateConfig = z.infer<typeof configSchema>;
+type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();

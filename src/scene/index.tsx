@@ -8,20 +8,21 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("scene"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("scene"),
 });
 
-type SceneConfig = z.infer<typeof configSchema>;
+type SceneConfig = Infer<typeof configSchema>;
 
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();

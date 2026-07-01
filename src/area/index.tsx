@@ -7,8 +7,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -18,11 +19,11 @@ import { AreaContent } from "./area-content";
 import { AreaControls } from "./area-controls";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  areaId: widgetFields.areaId(),
+const configSchema = defineConfig({
+  title: field.title(),
+  areaId: field.area(),
 });
-type AreaConfig = z.infer<typeof configSchema>;
+type AreaConfig = Infer<typeof configSchema>;
 
 function AreaWidget(props: { config: AreaConfig }) {
   const ctx = useWidgetContext();

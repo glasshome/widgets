@@ -8,8 +8,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
@@ -23,11 +24,11 @@ import {
   isCoverOpen,
 } from "./cover-entity";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("cover"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("cover"),
 });
-type CoverConfig = z.infer<typeof configSchema>;
+type CoverConfig = Infer<typeof configSchema>;
 
 // Minimum slide travel (in slide units, range 200 across the widget) before
 // a directional slide commits to open/close.

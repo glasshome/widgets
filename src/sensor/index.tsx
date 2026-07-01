@@ -12,8 +12,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
@@ -22,15 +23,12 @@ import { buildDebugData, getSensorIcon, WidgetDebugView, widgetDialogProps } fro
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import { formatSensorValue } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("sensor"),
-  aggregationType: z
-    .enum(["mean", "min", "max", "sum", "median"])
-    .default("mean")
-    .meta({ title: "Aggregation" }),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("sensor"),
+  aggregationType: field.choice(["mean", "min", "max", "sum", "median"], { title: "Aggregation", default: "mean" }),
 });
-type SensorConfig = z.infer<typeof configSchema>;
+type SensorConfig = Infer<typeof configSchema>;
 
 function SensorWidget(props: { config: SensorConfig }) {
   const ctx = useWidgetContext();

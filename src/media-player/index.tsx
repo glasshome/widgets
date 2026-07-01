@@ -9,8 +9,9 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -20,11 +21,11 @@ import { MediaPlayerControls } from "./controls";
 import { getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.singleEntity("media_player"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entity("media_player"),
 });
-type MediaPlayerConfig = z.infer<typeof configSchema>;
+type MediaPlayerConfig = Infer<typeof configSchema>;
 
 function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const ctx = useWidgetContext();

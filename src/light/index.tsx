@@ -11,8 +11,9 @@ import {
   Widget,
   WidgetDialog,
   WidgetSliderFill,
-  widgetFields,
-  z,
+  field,
+  defineConfig,
+  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -21,11 +22,11 @@ import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { LightControls } from "./controls";
 import { brightnessToPercent, formatBrightness, hsToCSS } from "./utils";
 
-const configSchema = z.object({
-  title: widgetFields.title(),
-  entityIds: widgetFields.entityIds("light"),
+const configSchema = defineConfig({
+  title: field.title(),
+  entityIds: field.entities("light"),
 });
-type LightConfig = z.infer<typeof configSchema>;
+type LightConfig = Infer<typeof configSchema>;
 
 function LightWidget(props: { config: LightConfig }) {
   const ctx = useWidgetContext();

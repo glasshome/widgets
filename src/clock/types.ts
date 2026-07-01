@@ -1,4 +1,4 @@
-import { z } from "@glasshome/widget-sdk";
+import { field, defineConfig, type Infer } from "@glasshome/widget-sdk";
 
 export type ClockStyle = "digital" | "analog";
 export type ClockSize = "small" | "medium" | "large";
@@ -8,36 +8,27 @@ export type DateFormat = "MM/DD/YYYY" | "DD/MM/YYYY" | "YYYY-MM-DD";
 export type ClockFontSize = "small" | "medium" | "large";
 export type ClockLayout = "auto" | "horizontal" | "stacked";
 
-export const configSchema = z.object({
-  clockStyle: z.enum(["digital", "analog"]).default("digital").meta({ title: "Clock Style" }),
-  clockSize: z.enum(["small", "medium", "large"]).default("small").meta({ title: "Clock Size" }),
-  showSeconds: z.boolean().default(false).meta({ title: "Show Seconds" }),
-  timeFormat: z.enum(["24", "12"]).default("24").meta({ title: "Time Format" }),
-  timeZone: z.string().optional().meta({ title: "Timezone" }),
-  preset: z
-    .enum(["modern", "classic", "minimal", "bold"])
-    .default("modern")
-    .meta({ title: "Theme Preset" }),
-  showDate: z.boolean().default(false).meta({ title: "Show Date" }),
-  dateFormat: z
-    .enum(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"])
-    .default("MM/DD/YYYY")
-    .meta({ title: "Date Format" }),
-  fontSize: z.enum(["small", "medium", "large"]).default("medium").meta({ title: "Font Size" }),
-  layout: z.enum(["auto", "horizontal", "stacked"]).default("auto").meta({ title: "Layout" }),
-  analogOptions: z
-    .object({
-      border: z.boolean().default(false).meta({ title: "Show Border" }),
-      ticks: z
-        .enum(["none", "quarter", "hour", "minute"])
-        .default("hour")
-        .meta({ title: "Tick Marks" }),
-    })
-    .default({ border: false, ticks: "hour" })
-    .meta({ title: "Analog Options" }),
+export const configSchema = defineConfig({
+  clockStyle: field.choice(["digital", "analog"], { title: "Clock Style", default: "digital" }),
+  clockSize: field.choice(["small", "medium", "large"], { title: "Clock Size", default: "small" }),
+  showSeconds: field.toggle({ title: "Show Seconds", default: false }),
+  timeFormat: field.choice(["24", "12"], { title: "Time Format", default: "24" }),
+  timeZone: field.text({ title: "Timezone" }),
+  preset: field.choice(["modern", "classic", "minimal", "bold"], { title: "Theme Preset", default: "modern" }),
+  showDate: field.toggle({ title: "Show Date", default: false }),
+  dateFormat: field.choice(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], { title: "Date Format", default: "MM/DD/YYYY" }),
+  fontSize: field.choice(["small", "medium", "large"], { title: "Font Size", default: "medium" }),
+  layout: field.choice(["auto", "horizontal", "stacked"], { title: "Layout", default: "auto" }),
+  analogOptions: field.group(
+    {
+      border: field.toggle({ title: "Show Border", default: false }),
+      ticks: field.choice(["none", "quarter", "hour", "minute"], { title: "Tick Marks", default: "hour" }),
+    },
+    { title: "Analog Options" },
+  ),
 });
 
-export type ClockConfig = z.infer<typeof configSchema>;
+export type ClockConfig = Infer<typeof configSchema>;
 export type AnalogOptions = ClockConfig["analogOptions"];
 
 export interface AnalogPresetTheme {
