@@ -58,9 +58,8 @@ function ClockWidget(props: { config: ClockConfig }) {
   // Live minute-progress: drives the sweeping bottom bar (digital only).
   const secondsNum = createMemo(() => Number.parseInt(timeParts().seconds, 10) || 0);
   const secondsProgress = createMemo(() => (secondsNum() / 60) * 100);
-  const barColor = createMemo(
-    () => presetTheme().digital.glowColor ?? "color-mix(in oklch, var(--widget-color) 70%, white)",
-  );
+  // Single accent drives the live seconds bar — same palette as the analog/square faces.
+  const barColor = () => "var(--tone-accent)";
 
   // Responsive font classes
   const timeClasses = () => {
@@ -107,9 +106,10 @@ function ClockWidget(props: { config: ClockConfig }) {
     }
   };
 
+  // Preset presence gates the glow (minimal stays flat); the accent tone paints it.
   const glowStyle = createMemo(() => {
-    const glow = presetTheme().digital.glowColor;
-    if (!glow) return {};
+    if (!presetTheme().digital.glowColor) return {};
+    const glow = "var(--tone-accent)";
     return { "text-shadow": `0 0 20px ${glow}, 0 0 40px ${glow}, 0 0 60px ${glow}` };
   });
 
@@ -141,7 +141,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           /* Stacked layout */
           <div class="flex flex-col items-center justify-center leading-none">
             <div
-              class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
+              class={`font-bold tabular-nums ${timeClasses()} text-foreground`}
               style={{
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
@@ -153,7 +153,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               {timeParts().hours}
             </div>
             <div
-              class={`font-bold tabular-nums opacity-70 ${timeClasses()} ${digital().textColor}`}
+              class={`font-bold tabular-nums opacity-70 ${timeClasses()} text-foreground`}
               style={{
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
@@ -167,16 +167,17 @@ function ClockWidget(props: { config: ClockConfig }) {
             <Show when={cfg().showSeconds}>
               <div class="@[200px]:mt-2 mt-1 flex items-center gap-1">
                 <div
-                  class={`font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
+                  class={`font-bold tabular-nums ${secondsClasses()}`}
                   style={{
                     "font-family": digital().fontFamily,
                     "font-weight": digital().fontWeight,
+                    color: "var(--tone-accent)",
                   }}
                 >
                   {timeParts().seconds}
                 </div>
                 <span
-                  class={`font-medium @[200px]:text-xs text-[10px] uppercase opacity-50 ${digital().textColor}`}
+                  class={`font-medium @[200px]:text-xs text-[10px] uppercase opacity-50 text-foreground`}
                 >
                   sec
                 </span>
@@ -184,7 +185,7 @@ function ClockWidget(props: { config: ClockConfig }) {
             </Show>
             <Show when={timeParts().period && !cfg().showSeconds}>
               <span
-                class={`mt-1 font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
+                class={`mt-1 font-medium @[200px]:text-sm text-xs opacity-50 text-foreground`}
               >
                 {timeParts().period}
               </span>
@@ -195,7 +196,7 @@ function ClockWidget(props: { config: ClockConfig }) {
         {/* Horizontal layout (default) */}
         <div class="flex items-baseline justify-center gap-0.5">
           <div
-            class={`font-bold tabular-nums ${timeClasses()} ${digital().textColor}`}
+            class={`font-bold tabular-nums ${timeClasses()} text-foreground`}
             style={{
               "font-family": digital().fontFamily,
               "font-weight": digital().fontWeight,
@@ -210,10 +211,11 @@ function ClockWidget(props: { config: ClockConfig }) {
 
           <Show when={cfg().showSeconds}>
             <div
-              class={`mb-[0.1em] self-end font-bold tabular-nums ${secondsClasses()} ${digital().secondsColor || digital().textColor}`}
+              class={`mb-[0.1em] self-end font-bold tabular-nums ${secondsClasses()}`}
               style={{
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
+                color: "var(--tone-accent)",
               }}
             >
               :{timeParts().seconds}
@@ -222,7 +224,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 
           <Show when={timeParts().period}>
             <span
-              class={`mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-xs opacity-50 ${digital().textColor}`}
+              class={`mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-xs opacity-50 text-foreground`}
             >
               {timeParts().period}
             </span>
@@ -237,28 +239,13 @@ function ClockWidget(props: { config: ClockConfig }) {
     setDraftConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Day + date. Analog and square faces use plain foreground; digital follows its theme.
-  const DateBlock = () => {
-    const isDigital = () => cfg().clockStyle === "digital";
-    return (
-      <div class="@[200px]:gap-1 flex flex-col items-center gap-0.5">
-        <span
-          class={`font-medium ${dayClasses()} ${
-            isDigital() ? digital().dayColor || "text-foreground/60" : "text-foreground/60"
-          }`}
-          style={{ "font-family": isDigital() ? digital().fontFamily : undefined }}
-        >
-          {dayOfWeek()}
-        </span>
-        <span
-          class={`opacity-50 ${dateClasses()} ${isDigital() ? digital().textColor : "text-foreground"}`}
-          style={{ "font-family": isDigital() ? digital().fontFamily : undefined }}
-        >
-          {formattedDate()}
-        </span>
-      </div>
-    );
-  };
+  // Day + date. Uniform foreground palette across all three faces.
+  const DateBlock = () => (
+    <div class="@[200px]:gap-1 flex flex-col items-center gap-0.5">
+      <span class={`font-medium text-foreground/60 ${dayClasses()}`}>{dayOfWeek()}</span>
+      <span class={`text-foreground opacity-50 ${dateClasses()}`}>{formattedDate()}</span>
+    </div>
+  );
 
   return (
     <>
@@ -275,7 +262,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               presetTheme={presetTheme().analog}
             />
             <Show when={cfg().showDate}>
-              <div class="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+              <div class="pointer-events-none absolute inset-x-0 top-[58%] flex justify-center">
                 <DateBlock />
               </div>
             </Show>
@@ -292,8 +279,8 @@ function ClockWidget(props: { config: ClockConfig }) {
                     timeZone={cfg().timeZone}
                     size={cfg().clockSize}
                     showSeconds={cfg().showSeconds}
+                    preset={cfg().preset}
                     analogOptions={cfg().analogOptions}
-                    presetTheme={presetTheme().analog}
                   />
                 }
               >
@@ -312,7 +299,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={digital().glowColor && cfg().clockStyle === "digital"}>
             <div
               class="pointer-events-none absolute inset-0 -z-10 opacity-30 blur-3xl"
-              style={{ "background-color": digital().glowColor }}
+              style={{ "background-color": "var(--tone-accent)" }}
             />
           </Show>
 

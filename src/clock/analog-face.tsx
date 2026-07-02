@@ -18,8 +18,8 @@ function readAnalogTime(date: Date, timeZone?: string) {
   return { hours: get("hour") % 12, minutes: get("minute"), seconds: get("second") };
 }
 
-/** Per-preset character for the square face: ticks, hands, numerals, font. */
-interface SquareStyle {
+/** Per-preset character shared by the round + square faces: ticks, hands, numerals, font. */
+interface FaceStyle {
   minuteTicks: boolean;
   doubleQuarter: boolean; // twin bars at 12/3/6/9
   hourLen: number;
@@ -32,7 +32,7 @@ interface SquareStyle {
   hand: "taper" | "line" | "bar";
 }
 
-const SQUARE_STYLES: Record<ClockPreset, SquareStyle> = {
+const FACE_STYLES: Record<ClockPreset, FaceStyle> = {
   // Baker+Brown look: thin minute ticks, bold hour bars, twin bars at quarters.
   minimal: {
     minuteTicks: true,
@@ -89,73 +89,136 @@ interface AnalogClockProps {
   timeZone?: string;
   size: ClockSize;
   showSeconds: boolean;
+  preset: ClockPreset;
   analogOptions?: AnalogOptions;
   presetTheme?: AnalogPresetTheme;
 }
 
-const defaultTheme: AnalogPresetTheme = {
-  faceColor: "rgba(127, 127, 127, 0.08)",
-  handColor: "rgb(59, 130, 246)",
-  accentColor: "rgb(147, 51, 234)",
-  tickColor: "currentColor",
-};
-
 const SIZE_MAP: Record<ClockSize, number> = {
-  small: 120,
-  medium: 160,
-  large: 200,
+  small: 130,
+  medium: 170,
+  large: 210,
 };
 
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+
+// Colours come from the theme (adapt to light/dark); the preset drives shape/character only.
+// Shared verbatim with the square face so all three clock styles read as one system.
+const FACE_THEME = {
+  tickColor: "var(--color-foreground)",
+  handColor: "var(--color-foreground)",
+  accentColor: "var(--tone-accent)",
+  faceColor: "var(--tone-neutral)",
+} as const;
+
+/**
+ * Round analog face. A circular sibling of the square face: same theme-aware
+ * palette, same per-preset character (shaped/gradient/glowing hands, numerals,
+ * ornaments, jeweled cap) — only the geometry is a circle instead of the box.
+ */
 export function AnalogClock(props: AnalogClockProps) {
-  const theme = () => props.presetTheme ?? defaultTheme;
+  const theme = FACE_THEME;
+  const style = () => FACE_STYLES[props.preset] ?? FACE_STYLES.minimal;
   const options = () => props.analogOptions ?? { border: false, ticks: "hour" as const };
   const border = () => options().border;
   const ticks = () => options().ticks;
 
-  const clockSize = () => SIZE_MAP[props.size] ?? 120;
-  const center = () => clockSize() / 2;
-  const radius = () => clockSize() / 2 - 10;
+  const size = () => SIZE_MAP[props.size] ?? 130;
+  const cx = () => size() / 2;
+  const cy = () => size() / 2;
+  const radius = () => size() / 2 - 14;
+  const k = () => radius() / 88; // scale the square face's px metrics onto the round face
 
-  const timeComponents = createMemo(() => readAnalogTime(props.date, props.timeZone));
-
-  const hourAngle = () => {
-    const { hours, minutes } = timeComponents();
-    return (hours * 30 + minutes * 0.5) % 360;
-  };
-  const minuteAngle = () => timeComponents().minutes * 6 + timeComponents().seconds * 0.1;
-  const secondAngle = () => timeComponents().seconds * 6;
+  const time = createMemo(() => readAnalogTime(props.date, props.timeZone));
   // Skip the transition on the 59→0 wrap so the second hand / ring don't unwind.
-  const wrap = () => timeComponents().seconds === 0;
+  const wrap = () => time().seconds === 0;
 
+  const hourAngle = () => (time().hours * 30 + time().minutes * 0.5) % 360;
+  const minuteAngle = () => time().minutes * 6 + time().seconds * 0.1;
+  const secondAngle = () => time().seconds * 6;
+
+  // Point on the face at `angleDeg` (0 = up, clockwise), `r` out from centre.
+  const polar = (angleDeg: number, r: number) => {
+    const a = (angleDeg * Math.PI) / 180;
+    const dx = Math.sin(a);
+    const dy = -Math.cos(a);
+    return { x: cx() + dx * r, y: cy() + dy * r, dx, dy };
+  };
+
+  // Slanted (radial) ticks pointing inward, mirroring the square face's marks.
   const tickElements = createMemo(() => {
-    const t = ticks();
-    if (t === "none") return [];
+    if (ticks() === "none") return [];
+    const s = style();
+    const out: { x1: number; y1: number; x2: number; y2: number; width: number }[] = [];
 
-    const tickCount = t === "minute" ? 60 : t === "quarter" ? 4 : 12;
-    const tickLength = t === "minute" ? 2 : t === "quarter" ? 8 : 6;
-    const tickWidth = t === "minute" ? 1 : 2;
-    const r = radius();
-    const c = center();
+    if (s.minuteTicks) {
+      const len = s.minuteLen * k();
+      const width = Math.max(0.75, s.minuteWidth * k());
+      for (let i = 0; i < 60; i++) {
+        if (i % 5 === 0) continue;
+        const p = polar(i * 6, radius());
+        out.push({ x1: p.x, y1: p.y, x2: p.x - p.dx * len, y2: p.y - p.dy * len, width });
+      }
+    }
 
-    return Array.from({ length: tickCount }, (_, i) => {
-      const angle = ((i * 360) / tickCount - 90) * (Math.PI / 180);
-      const major = t === "minute" && i % 5 === 0;
-      const len = major ? tickLength + 3 : tickLength;
-      return {
-        x1: c + (r - len) * Math.cos(angle),
-        y1: c + (r - len) * Math.sin(angle),
-        x2: c + r * Math.cos(angle),
-        y2: c + r * Math.sin(angle),
-        width: major ? tickWidth + 1 : tickWidth,
-      };
+    const len = s.hourLen * k();
+    const width = Math.max(1, s.hourWidth * k());
+    for (let h = 0; h < 12; h++) {
+      const p = polar(h * 30, radius());
+      const isQuarter = h % 3 === 0;
+      if (s.doubleQuarter && isQuarter) {
+        const px = -p.dy;
+        const py = p.dx;
+        const gap = (s.hourWidth + 2) * k();
+        for (const off of [-gap / 2, gap / 2]) {
+          const ox = px * off;
+          const oy = py * off;
+          out.push({
+            x1: p.x + ox,
+            y1: p.y + oy,
+            x2: p.x + ox - p.dx * len,
+            y2: p.y + oy - p.dy * len,
+            width,
+          });
+        }
+      } else {
+        out.push({ x1: p.x, y1: p.y, x2: p.x - p.dx * len, y2: p.y - p.dy * len, width });
+      }
+    }
+    return out;
+  });
+
+  const numeralElements = createMemo(() => {
+    const mode = style().numerals;
+    if (mode === "none") return [];
+    const fs = Math.max(9, radius() * 0.15);
+    const hours = mode === "quarter" ? [12, 3, 6, 9] : [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const roman = props.preset === "classic";
+    const off = style().hourLen * k() + fs * 0.85;
+    return hours.map((h) => {
+      const p = polar((h % 12) * 30, radius() - off);
+      return { label: roman ? ROMAN[h] : `${h}`, x: p.x, y: p.y, size: fs };
     });
   });
 
-  const ringCircumference = () => 2 * Math.PI * radius();
-  const ringOffset = () => ringCircumference() * (1 - timeComponents().seconds / 60);
+  const ringC = () => 2 * Math.PI * radius();
+  const ringOffset = () => ringC() * (1 - time().seconds / 60);
+
+  // Bold: radar wedge swept from 12 to the minute hand.
+  const wedgePath = createMemo(() => {
+    const r = radius() * 0.92;
+    const a = (minuteAngle() * Math.PI) / 180;
+    const ex = cx() + r * Math.sin(a);
+    const ey = cy() - r * Math.cos(a);
+    const large = minuteAngle() % 360 > 180 ? 1 : 0;
+    return `M ${cx()} ${cy()} L ${cx()} ${cy() - r} A ${r} ${r} 0 ${large} 1 ${ex} ${ey} Z`;
+  });
+
+  const gid = () => `round-${props.preset}`;
+  const handLen = () => radius();
 
   const handStyle = (angle: number, animate: boolean) => ({
-    "transform-origin": `${center()}px ${center()}px`,
+    "transform-origin": `${cx()}px ${cy()}px`,
     transform: `rotate(${angle}deg)`,
     transition: animate
       ? wrap()
@@ -164,53 +227,145 @@ export function AnalogClock(props: AnalogClockProps) {
       : "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
   });
 
-  const gradId = createMemo(() => `clock-face-${Math.round(clockSize())}`);
+  // One hand, shaped by the preset and optionally ornamented / glowing.
+  const Hand = (p: {
+    angle: number;
+    lenFrac: number;
+    tailFrac: number;
+    color: string;
+    width: number;
+    animate?: boolean;
+    forceLine?: boolean;
+    gradient?: boolean;
+    glow?: boolean;
+    ornate?: boolean;
+  }) => {
+    const tipY = () => cy() - handLen() * p.lenFrac;
+    const baseY = () => cy() + handLen() * p.tailFrac;
+    const shape = () => (p.forceLine ? "line" : style().hand);
+    const paint = () => (p.gradient ? `url(#${gid()}-hand)` : p.color);
+    return (
+      <g style={handStyle(p.angle, p.animate ?? false)} filter={p.glow ? `url(#${gid()}-glow)` : undefined}>
+        <Show
+          when={shape() === "taper"}
+          fallback={
+            <line
+              x1={cx()}
+              y1={baseY()}
+              x2={cx()}
+              y2={tipY()}
+              stroke={paint()}
+              stroke-width={p.width}
+              stroke-linecap="round"
+            />
+          }
+        >
+          <polygon
+            points={`${cx() - p.width / 2},${baseY()} ${cx() - p.width * 0.22},${tipY()} ${cx() + p.width * 0.22},${tipY()} ${cx() + p.width / 2},${baseY()}`}
+            fill={paint()}
+          />
+        </Show>
+        <Show when={p.ornate}>
+          <polygon
+            points={`${cx()},${tipY() + handLen() * 0.16} ${cx() + p.width * 1.6},${tipY() + handLen() * 0.08} ${cx()},${tipY()} ${cx() - p.width * 1.6},${tipY() + handLen() * 0.08}`}
+            fill={paint()}
+          />
+          <circle cx={cx()} cy={baseY()} r={p.width * 1.3} fill="none" stroke={paint()} stroke-width={1.5} />
+        </Show>
+      </g>
+    );
+  };
+
+  const hourW = () => (style().hand === "bar" ? 10 : style().hand === "line" ? 3.5 : 8) * Math.max(0.7, k());
+  const minuteW = () => (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6) * Math.max(0.7, k());
+  const ornate = () => props.preset === "classic";
+  const glowHands = () => props.preset === "modern";
+  const gradHands = () => props.preset !== "classic";
 
   return (
     <svg
-      width={clockSize()}
-      height={clockSize()}
-      viewBox={`0 0 ${clockSize()} ${clockSize()}`}
-      class="overflow-visible drop-shadow-lg"
+      width={size()}
+      height={size()}
+      viewBox={`0 0 ${size()} ${size()}`}
+      class="overflow-visible"
     >
       <defs>
-        <radialGradient id={gradId()} cx="50%" cy="38%" r="70%">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.10)" />
-          <stop offset="100%" stop-color="rgba(0,0,0,0.10)" />
-        </radialGradient>
+        <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color={theme.handColor} stop-opacity="0.75" />
+          <stop offset="100%" stop-color={theme.handColor} />
+        </linearGradient>
+        <filter id={`${gid()}-glow`} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="2.4" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
 
       {/* Face */}
-      <circle cx={center()} cy={center()} r={radius()} fill={theme().faceColor} />
-      <circle cx={center()} cy={center()} r={radius()} fill={`url(#${gradId()})`} />
-      <Show when={border()}>
+      <circle cx={cx()} cy={cy()} r={radius()} fill={theme.faceColor} />
+
+      {/* ── BOLD: ghost hour numeral + radar wedge ── */}
+      <Show when={props.preset === "bold"}>
+        <text
+          x={cx()}
+          y={cy()}
+          fill={theme.accentColor}
+          opacity={0.08}
+          font-size={`${radius() * 1.1}`}
+          font-family="ui-sans-serif, system-ui, sans-serif"
+          font-weight="900"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          {((time().hours + 11) % 12) + 1}
+        </text>
+        <path d={wedgePath()} fill={theme.accentColor} opacity={0.14} />
+      </Show>
+
+      {/* ── MODERN: inner HUD ring + centre reticle ── */}
+      <Show when={props.preset === "modern"}>
         <circle
-          cx={center()}
-          cy={center()}
-          r={radius()}
+          cx={cx()}
+          cy={cy()}
+          r={radius() - 8}
           fill="none"
-          stroke={theme().tickColor}
-          stroke-width={2}
-          opacity={0.5}
+          stroke={theme.accentColor}
+          stroke-width={1}
+          stroke-dasharray="2 5"
+          opacity={0.35}
         />
+        <circle cx={cx()} cy={cy()} r={11} fill="none" stroke={theme.accentColor} stroke-width={1} opacity={0.5} />
+      </Show>
+
+      {/* ── CLASSIC: double ring frame ── */}
+      <Show when={props.preset === "classic"}>
+        <circle cx={cx()} cy={cy()} r={radius()} fill="none" stroke={theme.tickColor} stroke-width={2} opacity={0.35} />
+        <circle cx={cx()} cy={cy()} r={radius() - 6} fill="none" stroke={theme.tickColor} stroke-width={1} opacity={0.25} />
+      </Show>
+
+      {/* User-toggled outline (kept for non-classic) */}
+      <Show when={border() && props.preset !== "classic"}>
+        <circle cx={cx()} cy={cy()} r={radius()} fill="none" stroke={theme.tickColor} stroke-width={2} opacity={0.4} />
       </Show>
 
       {/* Seconds progress ring */}
       <Show when={props.showSeconds}>
         <circle
-          cx={center()}
-          cy={center()}
+          cx={cx()}
+          cy={cy()}
           r={radius()}
           fill="none"
-          stroke={theme().accentColor}
+          stroke={theme.accentColor}
           stroke-width={2.5}
           stroke-linecap="round"
-          stroke-dasharray={`${ringCircumference()}`}
+          stroke-dasharray={`${ringC()}`}
           stroke-dashoffset={`${ringOffset()}`}
-          transform={`rotate(-90 ${center()} ${center()})`}
+          transform={`rotate(-90 ${cx()} ${cy()})`}
           style={{
             transition: wrap() ? "none" : "stroke-dashoffset 950ms linear",
-            filter: `drop-shadow(0 0 4px ${theme().accentColor})`,
+            filter: `drop-shadow(0 0 4px ${theme.accentColor})`,
           }}
         />
       </Show>
@@ -222,58 +377,65 @@ export function AnalogClock(props: AnalogClockProps) {
             y1={tick.y1}
             x2={tick.x2}
             y2={tick.y2}
-            stroke={theme().tickColor}
+            stroke={theme.tickColor}
             stroke-width={tick.width}
             stroke-linecap="round"
           />
         )}
       </For>
 
-      {/* Hour hand */}
-      <g style={handStyle(hourAngle(), false)}>
-        <line
-          x1={center()}
-          y1={center() + radius() * 0.12}
-          x2={center()}
-          y2={center() - radius() * 0.5}
-          stroke={theme().handColor}
-          stroke-width={5}
-          stroke-linecap="round"
-        />
-      </g>
+      {/* Numerals */}
+      <For each={numeralElements()}>
+        {(n) => (
+          <text
+            x={n.x}
+            y={n.y}
+            fill={theme.tickColor}
+            font-size={`${n.size}`}
+            font-family={style().numeralFont}
+            font-weight={style().numeralWeight}
+            text-anchor="middle"
+            dominant-baseline="central"
+          >
+            {n.label}
+          </text>
+        )}
+      </For>
 
-      {/* Minute hand */}
-      <g style={handStyle(minuteAngle(), false)}>
-        <line
-          x1={center()}
-          y1={center() + radius() * 0.16}
-          x2={center()}
-          y2={center() - radius() * 0.74}
-          stroke={theme().handColor}
-          stroke-width={3.5}
-          stroke-linecap="round"
-        />
-      </g>
+      {/* Hour + minute hands */}
+      <Hand
+        angle={hourAngle()}
+        lenFrac={0.5}
+        tailFrac={0.12}
+        color={theme.handColor}
+        width={hourW()}
+        gradient={gradHands()}
+        glow={glowHands()}
+        ornate={ornate()}
+      />
+      <Hand
+        angle={minuteAngle()}
+        lenFrac={0.78}
+        tailFrac={0.16}
+        color={theme.handColor}
+        width={minuteW()}
+        gradient={gradHands()}
+        glow={glowHands()}
+        ornate={ornate()}
+      />
 
-      {/* Second hand */}
+      {/* Second hand (thin line, glowing accent) */}
       <Show when={props.showSeconds}>
-        <g style={handStyle(secondAngle(), true)}>
-          <line
-            x1={center()}
-            y1={center() + radius() * 0.22}
-            x2={center()}
-            y2={center() - radius() * 0.84}
-            stroke={theme().accentColor}
-            stroke-width={1.5}
-            stroke-linecap="round"
-          />
-          <circle cx={center()} cy={center() - radius() * 0.84} r={2.5} fill={theme().accentColor} />
-        </g>
+        <Hand angle={secondAngle()} lenFrac={0.9} tailFrac={0.22} color={theme.accentColor} width={1.5} animate forceLine glow />
       </Show>
 
-      {/* Center cap */}
-      <circle cx={center()} cy={center()} r={5.5} fill={theme().handColor} />
-      <circle cx={center()} cy={center()} r={2} fill={theme().faceColor} />
+      {/* Center cap — layered for a jeweled look */}
+      <circle cx={cx()} cy={cy()} r={7} fill={theme.faceColor} />
+      <circle cx={cx()} cy={cy()} r={5} fill={theme.handColor} />
+      <Show when={props.preset === "classic"}>
+        <circle cx={cx()} cy={cy()} r={9} fill="none" stroke={theme.handColor} stroke-width={1} opacity={0.6} />
+      </Show>
+      <circle cx={cx()} cy={cy()} r={1.6} fill={theme.accentColor} />
     </svg>
   );
 }
@@ -311,13 +473,12 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     const d = ctx.dimensions();
     // Ticks sit flush on the widget edge; tiny inset only clears the shell border.
     const pad = 3;
-    const corner = 14; // matches the rounded-xl shell so the trace hugs the corners
     const w = Math.max(d.width, 1);
     const h = Math.max(d.height, 1);
-    return { w, h, pad, corner, cx: w / 2, cy: h / 2, hw: w / 2 - pad, hh: h / 2 - pad };
+    return { w, h, pad, cx: w / 2, cy: h / 2, hw: w / 2 - pad, hh: h / 2 - pad };
   });
 
-  const style = () => SQUARE_STYLES[props.preset] ?? SQUARE_STYLES.minimal;
+  const style = () => FACE_STYLES[props.preset] ?? FACE_STYLES.minimal;
 
   // Where a ray from the centre at `angleDeg` (0 = up, clockwise) meets the box.
   const edgePoint = (angleDeg: number) => {
@@ -382,8 +543,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     return out;
   });
 
-  const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-
   const numeralElements = createMemo(() => {
     const mode = style().numerals;
     if (mode === "none") return [];
@@ -400,12 +559,15 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
 
   // Perimeter path from top-centre, clockwise. pathLength=60 → dash math in seconds.
   const perimeter = createMemo(() => {
-    const { w, h, pad, corner, cx } = dims();
-    const r = corner;
-    const x0 = pad;
-    const y0 = pad;
-    const x1 = w - pad;
-    const y1 = h - pad;
+    const { w, h, cx } = dims();
+    // Inset + round the trace so it stays inside the shell's clipped rounded corner
+    // (larger than the tick pad). Too-tight a corner here chamfers under overflow-hidden.
+    const inset = 6;
+    const r = 16;
+    const x0 = inset;
+    const y0 = inset;
+    const x1 = w - inset;
+    const y1 = h - inset;
     return `M ${cx} ${y0}
       L ${x1 - r} ${y0} Q ${x1} ${y0} ${x1} ${y0 + r}
       L ${x1} ${y1 - r} Q ${x1} ${y1} ${x1 - r} ${y1}
@@ -483,9 +645,12 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     glow?: boolean;
     ornate?: boolean;
   }) => {
-    const { cx, cy } = dims();
-    const tipY = () => cy - handLen() * p.lenFrac;
-    const baseY = () => cy + handLen() * p.tailFrac;
+    // Reactive: destructuring dims() to numbers here froze the drawn coords at
+    // creation-time size, so hands drifted off-centre on resize until reload.
+    const cx = () => dims().cx;
+    const cy = () => dims().cy;
+    const tipY = () => cy() - handLen() * p.lenFrac;
+    const baseY = () => cy() + handLen() * p.tailFrac;
     const shape = () => (p.forceLine ? "line" : style().hand);
     const paint = () => (p.gradient ? `url(#${gid()}-hand)` : p.color);
     return (
@@ -497,9 +662,9 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
           when={shape() === "taper"}
           fallback={
             <line
-              x1={cx}
+              x1={cx()}
               y1={baseY()}
-              x2={cx}
+              x2={cx()}
               y2={tipY()}
               stroke={paint()}
               stroke-width={p.width}
@@ -508,16 +673,16 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
           }
         >
           <polygon
-            points={`${cx - p.width / 2},${baseY()} ${cx - p.width * 0.22},${tipY()} ${cx + p.width * 0.22},${tipY()} ${cx + p.width / 2},${baseY()}`}
+            points={`${cx() - p.width / 2},${baseY()} ${cx() - p.width * 0.22},${tipY()} ${cx() + p.width * 0.22},${tipY()} ${cx() + p.width / 2},${baseY()}`}
             fill={paint()}
           />
         </Show>
         <Show when={p.ornate}>
           <polygon
-            points={`${cx},${tipY() + handLen() * 0.16} ${cx + p.width * 1.6},${tipY() + handLen() * 0.08} ${cx},${tipY()} ${cx - p.width * 1.6},${tipY() + handLen() * 0.08}`}
+            points={`${cx()},${tipY() + handLen() * 0.16} ${cx() + p.width * 1.6},${tipY() + handLen() * 0.08} ${cx()},${tipY()} ${cx() - p.width * 1.6},${tipY() + handLen() * 0.08}`}
             fill={paint()}
           />
-          <circle cx={cx} cy={baseY()} r={p.width * 1.3} fill="none" stroke={paint()} stroke-width={1.5} />
+          <circle cx={cx()} cy={baseY()} r={p.width * 1.3} fill="none" stroke={paint()} stroke-width={1.5} />
         </Show>
       </g>
     );
@@ -526,17 +691,15 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const hourW = () => (style().hand === "bar" ? 10 : style().hand === "line" ? 3.5 : 9);
   const minuteW = () => (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6.5);
   const ornate = () => props.preset === "classic";
-  const glowHands = () => props.preset === "modern" || props.preset === "bold";
+  const glowHands = () => props.preset === "modern";
   const gradHands = () => props.preset !== "classic";
 
   return (
     <Show when={ctx.dimensions().width > 0}>
       <svg
-        width={dims().w}
-        height={dims().h}
         viewBox={`0 0 ${dims().w} ${dims().h}`}
         preserveAspectRatio="none"
-        class="absolute left-0 top-0"
+        class="absolute inset-0 h-full w-full"
       >
         <defs>
           <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">
@@ -550,14 +713,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          <radialGradient id={`${gid()}-vignette`} cx="50%" cy="40%" r="75%">
-            <stop offset="60%" stop-color="rgba(255,255,255,0)" />
-            <stop offset="100%" stop-color="rgba(0,0,0,0.16)" />
-          </radialGradient>
         </defs>
-
-        {/* Subtle face vignette */}
-        <rect x="0" y="0" width={dims().w} height={dims().h} fill={`url(#${gid()}-vignette)`} />
 
         {/* ── BOLD: ghost hour numeral + radar wedge ── */}
         <Show when={props.preset === "bold"}>
