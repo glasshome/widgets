@@ -1,6 +1,6 @@
 import { field, defineConfig, type Infer } from "@glasshome/widget-sdk";
 
-export type ClockStyle = "digital" | "analog";
+export type ClockStyle = "digital" | "analog" | "square";
 export type ClockSize = "small" | "medium" | "large";
 export type TickType = "none" | "quarter" | "hour" | "minute";
 export type ClockPreset = "modern" | "classic" | "minimal" | "bold";
@@ -9,7 +9,10 @@ export type ClockFontSize = "small" | "medium" | "large";
 export type ClockLayout = "auto" | "horizontal" | "stacked";
 
 export const configSchema = defineConfig({
-  clockStyle: field.choice(["digital", "analog"], { title: "Clock Style", default: "digital" }),
+  clockStyle: field.choice(["digital", "analog", "square"], {
+    title: "Clock Style",
+    default: "digital",
+  }),
   clockSize: field.choice(["small", "medium", "large"], { title: "Clock Size", default: "small" }),
   showSeconds: field.toggle({ title: "Show Seconds", default: false }),
   timeFormat: field.choice(["24", "12"], { title: "Time Format", default: "24" }),

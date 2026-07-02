@@ -18,7 +18,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { AnalogClock } from "./analog-face";
+import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
 import { configSchema, type ClockConfig } from "./types";
 import {
@@ -54,6 +54,13 @@ function ClockWidget(props: { config: ClockConfig }) {
     formatDate(currentTime(), cfg().dateFormat, cfg().timeZone),
   );
   const dayOfWeek = createMemo(() => getDayOfWeek(currentTime(), cfg().timeZone));
+
+  // Live minute-progress: drives the sweeping bottom bar (digital only).
+  const secondsNum = createMemo(() => Number.parseInt(timeParts().seconds, 10) || 0);
+  const secondsProgress = createMemo(() => (secondsNum() / 60) * 100);
+  const barColor = createMemo(
+    () => presetTheme().digital.glowColor ?? "color-mix(in oklch, var(--widget-color) 70%, white)",
+  );
 
   // Responsive font classes
   const timeClasses = () => {
@@ -230,58 +237,76 @@ function ClockWidget(props: { config: ClockConfig }) {
     setDraftConfig((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Day + date. Analog and square faces use plain foreground; digital follows its theme.
+  const DateBlock = () => {
+    const isDigital = () => cfg().clockStyle === "digital";
+    return (
+      <div class="@[200px]:gap-1 flex flex-col items-center gap-0.5">
+        <span
+          class={`font-medium ${dayClasses()} ${
+            isDigital() ? digital().dayColor || "text-foreground/60" : "text-foreground/60"
+          }`}
+          style={{ "font-family": isDigital() ? digital().fontFamily : undefined }}
+        >
+          {dayOfWeek()}
+        </span>
+        <span
+          class={`opacity-50 ${dateClasses()} ${isDigital() ? digital().textColor : "text-foreground"}`}
+          style={{ "font-family": isDigital() ? digital().fontFamily : undefined }}
+        >
+          {formattedDate()}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" gradient={gradient()}>
         <div class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-          {/* Clock display */}
-          <div class="flex flex-col items-center justify-center">
-            <Show
-              when={cfg().clockStyle !== "analog"}
-              fallback={
-                <AnalogClock
-                  date={currentTime()}
-                  timeZone={cfg().timeZone}
-                  size={cfg().clockSize}
-                  showSeconds={cfg().showSeconds}
-                  analogOptions={cfg().analogOptions}
-                  presetTheme={presetTheme().analog}
-                />
-              }
-            >
-              <DigitalTime />
-            </Show>
-
-            {/* Date display — visible in both digital and analogue modes */}
+          {/* Square face fills the widget; ticks ride its edges */}
+          <Show when={cfg().clockStyle === "square"}>
+            <SquareAnalogClock
+              date={currentTime()}
+              timeZone={cfg().timeZone}
+              showSeconds={cfg().showSeconds}
+              preset={cfg().preset}
+              analogOptions={cfg().analogOptions}
+              presetTheme={presetTheme().analog}
+            />
             <Show when={cfg().showDate}>
-              <div class="@[200px]:mt-3 mt-2 flex flex-col items-center @[200px]:gap-1 gap-0.5">
-                <span
-                  class={`font-medium ${dayClasses()} ${
-                    cfg().clockStyle === "analog"
-                      ? "text-foreground/60"
-                      : digital().dayColor || "text-foreground/60"
-                  }`}
-                  style={{
-                    "font-family":
-                      cfg().clockStyle === "analog" ? undefined : digital().fontFamily,
-                  }}
-                >
-                  {dayOfWeek()}
-                </span>
-                <span
-                  class={`opacity-50 ${dateClasses()} ${
-                    cfg().clockStyle === "analog" ? "text-foreground" : digital().textColor
-                  }`}
-                  style={{
-                    "font-family":
-                      cfg().clockStyle === "analog" ? undefined : digital().fontFamily,
-                  }}
-                >
-                  {formattedDate()}
-                </span>
+              <div class="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+                <DateBlock />
               </div>
             </Show>
-          </div>
+          </Show>
+
+          {/* Centered clock display (digital + round analog) */}
+          <Show when={cfg().clockStyle !== "square"}>
+            <div class="flex flex-col items-center justify-center">
+              <Show
+                when={cfg().clockStyle !== "analog"}
+                fallback={
+                  <AnalogClock
+                    date={currentTime()}
+                    timeZone={cfg().timeZone}
+                    size={cfg().clockSize}
+                    showSeconds={cfg().showSeconds}
+                    analogOptions={cfg().analogOptions}
+                    presetTheme={presetTheme().analog}
+                  />
+                }
+              >
+                <DigitalTime />
+              </Show>
+
+              <Show when={cfg().showDate}>
+                <div class="@[200px]:mt-3 mt-2">
+                  <DateBlock />
+                </div>
+              </Show>
+            </div>
+          </Show>
 
           {/* Ambient glow effect */}
           <Show when={digital().glowColor && cfg().clockStyle === "digital"}>
@@ -290,6 +315,27 @@ function ClockWidget(props: { config: ClockConfig }) {
               style={{ "background-color": digital().glowColor }}
             />
           </Show>
+
+          {/* Live minute-progress bar — sweeps each minute, snaps on the wrap */}
+          <Show when={cfg().clockStyle === "digital"}>
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
+              <div
+                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? " snap" : ""}`}
+                style={{
+                  transform: `scaleX(${secondsProgress() / 100})`,
+                  background: `linear-gradient(90deg, transparent, ${barColor()})`,
+                }}
+              />
+            </div>
+          </Show>
+
+          <style>{`
+            .clock-seconds-fill { width: 100%; transition: transform 1000ms linear; will-change: transform; }
+            .clock-seconds-fill.snap { transition: none; }
+            @media (prefers-reduced-motion: reduce) {
+              .clock-seconds-fill { transition: none; }
+            }
+          `}</style>
         </div>
       </Widget>
 
@@ -317,16 +363,22 @@ function ClockWidget(props: { config: ClockConfig }) {
                 onChange={(val) => {
                   if (val) updateDraft("clockStyle", val as ClockConfig["clockStyle"]);
                 }}
-                options={["digital", "analog"]}
+                options={["digital", "analog", "square"]}
                 itemComponent={(itemProps) => (
                   <SelectItem item={itemProps.item}>
-                    {itemProps.item.rawValue === "digital" ? "Digital" : "Analog"}
+                    {{ digital: "Digital", analog: "Analog", square: "Square (edge ticks)" }[
+                      itemProps.item.rawValue as string
+                    ] ?? itemProps.item.rawValue}
                   </SelectItem>
                 )}
               >
                 <SelectTrigger class="w-full">
                   <SelectValue<string>>
-                    {(state) => (state.selectedOption() === "digital" ? "Digital" : "Analog")}
+                    {(state) =>
+                      ({ digital: "Digital", analog: "Analog", square: "Square" })[
+                        state.selectedOption() as string
+                      ] ?? state.selectedOption()
+                    }
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent />
@@ -518,9 +570,10 @@ function ClockWidget(props: { config: ClockConfig }) {
               </div>
             </Show>
 
-            {/* Analog-specific options */}
-            <Show when={draftConfig().clockStyle === "analog"}>
-              {/* Clock Size */}
+            {/* Analog + square options */}
+            <Show when={draftConfig().clockStyle !== "digital"}>
+              {/* Clock Size — only the round analog face has a fixed size */}
+              <Show when={draftConfig().clockStyle === "analog"}>
               <div class="flex flex-col gap-1.5">
                 <Label>Clock Size</Label>
                 <Select
@@ -553,6 +606,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                   <SelectContent />
                 </Select>
               </div>
+              </Show>
 
               {/* Border */}
               <div class="flex items-center justify-between">
