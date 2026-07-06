@@ -1,6 +1,6 @@
 # @glasshome/widgets
 
-Reference implementation of built-in GlassHome dashboard widgets. Not published to npm -- browse the source for widget development patterns.
+Reference implementation of the built-in widgets that ship with [GlassHome](https://glasshome.app), the local-first dashboard for Home Assistant. Not published to npm -- browse the source for widget development patterns, and see the [widget development guide](https://glasshome.app/docs/widget-development) to build your own.
 
 ## Structure
 
