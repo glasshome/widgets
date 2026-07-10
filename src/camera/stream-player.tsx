@@ -22,6 +22,9 @@ interface StreamPlayerProps {
 
 const PLAYER_CLASS = "h-full w-full rounded-[inherit] object-cover";
 const MAX_NETWORK_RETRIES = 2;
+// Idle/battery cameras can complete WebRTC signaling yet never send a track.
+// Without a track no error fires, so fall through to the next protocol.
+const WEBRTC_TRACK_TIMEOUT_MS = 8000;
 
 function WebRtcMode(props: {
   entityId: string;
@@ -48,8 +51,16 @@ function WebRtcMode(props: {
 
     cleanup();
     let cancelled = false;
+    let gotTrack = false;
+    const watchdog = setTimeout(() => {
+      if (!cancelled && !gotTrack) {
+        cleanup();
+        props.onError?.();
+      }
+    }, WEBRTC_TRACK_TIMEOUT_MS);
     onCleanup(() => {
       cancelled = true;
+      clearTimeout(watchdog);
     });
 
     (async () => {
@@ -71,6 +82,8 @@ function WebRtcMode(props: {
 
         // Set up track handler
         peerConnection.ontrack = (event) => {
+          gotTrack = true;
+          clearTimeout(watchdog);
           if (event.streams[0]) {
             videoRef.srcObject = event.streams[0];
           }
@@ -244,7 +257,12 @@ function MjpegMode(props: { url: string; poster?: string; onError?: () => void; 
   );
 }
 
-function SnapshotMode(props: { url: string; refreshInterval: number; poster?: string }) {
+function SnapshotMode(props: {
+  url: string;
+  refreshInterval: number;
+  poster?: string;
+  onActive?: () => void;
+}) {
   const [src, setSrc] = createSignal(props.url);
 
   createEffect(() => {
@@ -267,6 +285,7 @@ function SnapshotMode(props: { url: string; refreshInterval: number; poster?: st
       src={src()}
       alt="Camera snapshot"
       class={PLAYER_CLASS}
+      onLoad={() => props.onActive?.()}
       onError={(e) => {
         const el = e.currentTarget;
         if (props.poster) el.src = props.poster;
@@ -307,6 +326,7 @@ export function StreamPlayer(props: StreamPlayerProps) {
           url={props.snapshotUrl!}
           refreshInterval={props.refreshInterval ?? 10}
           poster={props.poster}
+          onActive={props.onActive}
         />
       </Match>
     </Switch>

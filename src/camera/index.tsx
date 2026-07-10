@@ -55,11 +55,17 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   const streamUrl = createMemo(() => stream()?.stream?.url ?? null);
 
-  // Pre-fetch HLS stream URL when cascading from WebRTC to HLS
+  // Pre-fetch HLS stream URL when cascading from WebRTC to HLS.
+  // A null URL (fetch failed / camera asleep) advances the cascade instead of
+  // stalling on the poster with no error to trigger the next protocol.
   createEffect(() => {
     const id = entityId();
     if (id && activeMode() === "hls" && !streamUrl()) {
-      getStream(id, { format: "hls", autoRefresh: true }).catch(() => {});
+      getStream(id, { format: "hls", autoRefresh: true })
+        .then((data) => {
+          if (!data.stream.url) handleStreamError();
+        })
+        .catch(() => handleStreamError());
     }
   });
   const poster = createMemo(() => {
@@ -180,6 +186,15 @@ function CameraWidget(props: { config: CameraConfig }) {
                 onError={handleStreamError}
                 onActive={() => setIsPlaying(true)}
               />
+            </Show>
+
+            <Show when={!isPlaying() && camStatus().label !== "Offline"}>
+              <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div class="flex items-center gap-2 rounded-full bg-black/45 px-3 py-1.5 backdrop-blur-sm">
+                  <Icon icon="mdi:loading" width={16} class="animate-spin text-white/90" />
+                  <span class="font-medium text-[11px] text-white/90">Connecting…</span>
+                </div>
+              </div>
             </Show>
 
             <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
