@@ -1,10 +1,12 @@
 import { svgColors } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, type JSX, Show } from "solid-js";
-import { energyIcons } from "../_energy-shared";
+import { energyIcons, formatPower } from "../_energy-shared";
 
 const AMBER = svgColors.solar.solid;
 const BLUE = svgColors.grid.solid;
+
+export type ValueUnit = "W" | "kWh";
 
 // Undulating liquid surface at the top of a fill: two wave layers scrolling at
 // different speeds. The crest/trough pattern repeats every 100 units, so a -100
@@ -28,11 +30,29 @@ function WaveTop(props: { color: string; speed: number }): JSX.Element {
 // ── Compact tier: a center-anchored diverging bar ──────────────────────────
 
 interface BarProps {
-  /** -1 (drawing from grid) … 0 (balanced) … +1 (producing surplus). */
+  produced: number;
+  consumed: number;
+  unit: ValueUnit;
+  /** -1 (home outweighs) … 0 (balanced) … +1 (solar surplus). */
   balance: number;
   reducedMotion: boolean;
 }
 
+function fmtEnd(value: number, unit: ValueUnit): JSX.Element {
+  if (unit === "W") return <>{formatPower(value)}</>;
+  return (
+    <>
+      {value.toFixed(1)}
+      <span class="text-[10px] opacity-70">kWh</span>
+    </>
+  );
+}
+
+/**
+ * Compact tier: home use on the left, solar made on the right (same poles as
+ * the columns). The fill diverges from the balanced centre toward whichever
+ * outweighs; surplus fills amber to the right, a shortfall blue to the left.
+ */
 export function BalanceBar(props: BarProps): JSX.Element {
   const b = () => Math.max(-1, Math.min(1, props.balance));
   const surplus = () => b() > 0;
@@ -43,10 +63,15 @@ export function BalanceBar(props: BarProps): JSX.Element {
 
   return (
     <div class="w-full">
-      <div class="mb-2 flex items-end justify-between text-[10px] leading-none">
-        <span style={{ color: BLUE }}>grid</span>
-        <span class="text-muted-foreground">balanced</span>
-        <span style={{ color: AMBER }}>solar</span>
+      <div class="mb-2 flex items-center justify-between text-xs tabular-nums">
+        <span class="flex items-center gap-1.5" style={{ color: BLUE }}>
+          <Icon icon={energyIcons.home} style={{ "font-size": "14px" }} />
+          {fmtEnd(props.consumed, props.unit)}
+        </span>
+        <span class="flex items-center gap-1.5" style={{ color: AMBER }}>
+          {fmtEnd(props.produced, props.unit)}
+          <Icon icon={energyIcons.solar} style={{ "font-size": "14px" }} />
+        </span>
       </div>
       <div
         class="relative h-3.5 w-full rounded-full"
@@ -57,7 +82,7 @@ export function BalanceBar(props: BarProps): JSX.Element {
           style={{ background: "color-mix(in oklch, currentColor 38%, transparent)" }}
         />
         <div
-          class="absolute inset-y-0 rounded-full"
+          class={`absolute inset-y-0 ${surplus() ? "rounded-r-full" : "rounded-l-full"}`}
           style={{
             left: surplus() ? "50%" : `${50 - mag()}%`,
             width: `${mag()}%`,
@@ -74,8 +99,9 @@ export function BalanceBar(props: BarProps): JSX.Element {
 // ── Full tier: two columns comparing what solar made vs what home used ──────
 
 interface ColumnsProps {
-  producedKWh: number;
-  consumedKWh: number;
+  produced: number;
+  consumed: number;
+  unit: ValueUnit;
   reducedMotion: boolean;
 }
 
@@ -86,10 +112,10 @@ interface ColumnsProps {
  * energy; suppressed under reduced motion.
  */
 export function EnergyColumns(props: ColumnsProps): JSX.Element {
-  const max = () => Math.max(props.producedKWh, props.consumedKWh, 0.1);
+  const max = () => Math.max(props.produced, props.consumed, 0.1);
   const cols = () => [
-    { label: "Solar", value: props.producedKWh, color: AMBER, icon: energyIcons.solar },
-    { label: "Home", value: props.consumedKWh, color: BLUE, icon: energyIcons.home },
+    { label: "Solar", value: props.produced, color: AMBER, icon: energyIcons.solar },
+    { label: "Home", value: props.consumed, color: BLUE, icon: energyIcons.home },
   ];
   return (
     <div class="flex h-full w-full items-stretch justify-center gap-4">
@@ -99,13 +125,14 @@ export function EnergyColumns(props: ColumnsProps): JSX.Element {
           // More energy → quicker flow.
           const speed = () => Math.max(1, 2.4 - frac() * 1.4);
           return (
-            <div class="flex min-h-0 min-w-0 max-w-[64px] flex-1 flex-col items-center gap-2">
+            <div class="flex min-h-0 min-w-0 max-w-[72px] flex-1 flex-col items-center">
               <div
                 class="relative min-h-0 w-full flex-1 overflow-hidden rounded-lg"
                 style={{ background: "color-mix(in oklch, currentColor 8%, transparent)" }}
               >
+                {/* Fill (colour + waves only). */}
                 <div
-                  class="absolute inset-x-0 bottom-0 flex flex-col justify-end rounded-b-lg"
+                  class="absolute inset-x-0 bottom-0 rounded-b-lg"
                   style={{
                     height: `${frac() * 100}%`,
                     background: c.color,
@@ -116,24 +143,39 @@ export function EnergyColumns(props: ColumnsProps): JSX.Element {
                   <Show when={!props.reducedMotion}>
                     <WaveTop color={c.color} speed={speed()} />
                   </Show>
-                  {/* Dark scrim so the white number reads on any fill colour. */}
-                  <div
-                    class="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-lg"
-                    style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.45), transparent)" }}
-                  />
-                  <span
-                    class="relative z-10 truncate px-1 pb-1.5 text-center font-semibold text-white text-sm leading-none tabular-nums"
-                    style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
-                  >
-                    {c.value.toFixed(1)}
-                    <span class="ml-0.5 font-normal text-[10px] opacity-85">kWh</span>
-                  </span>
                 </div>
+                {/* Scrim + number pinned to the track bottom so they stay put
+                    even when the fill is empty (e.g. solar at night). */}
+                <div
+                  class="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-lg"
+                  style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.45), transparent)" }}
+                />
+                {/* Icon + label centered in the bar; neutral white + a soft
+                    shadow so they stay legible over the fill and the dark track. */}
+                <div
+                  class="-translate-x-1/2 -translate-y-1/2 pointer-events-none absolute top-1/2 left-1/2 z-10 flex flex-col items-center gap-1 text-foreground"
+                  style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.35))" }}
+                >
+                  <Icon icon={c.icon} style={{ "font-size": "26px" }} />
+                  <span class="font-medium text-xs">{c.label}</span>
+                </div>
+                <span
+                  class="absolute inset-x-0 bottom-3 px-0.5 text-center font-semibold text-[13px] text-white leading-none tabular-nums"
+                  style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
+                >
+                  <Show
+                    when={props.unit === "W"}
+                    fallback={
+                      <>
+                        {c.value.toFixed(1)}
+                        <span class="ml-0.5 font-normal text-[9px] opacity-85">kWh</span>
+                      </>
+                    }
+                  >
+                    {formatPower(c.value)}
+                  </Show>
+                </span>
               </div>
-              <span class="flex min-w-0 items-center gap-1.5 text-muted-foreground text-xs">
-                <Icon icon={c.icon} style={{ color: c.color, "font-size": "14px", "flex-shrink": "0" }} />
-                <span class="truncate">{c.label}</span>
-              </span>
             </div>
           );
         }}

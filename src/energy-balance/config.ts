@@ -47,6 +47,14 @@ export const configSchema = defineConfig({
     "Grid live (signed)",
     "Single live grid sensor where positive = import, negative = export. Use instead of the two above.",
   ),
+  solarPowerEntity: powerEntity(
+    "Solar power (live)",
+    "Live solar production power (W). Enables the Live mode (tap the widget to cycle).",
+  ),
+  homePowerEntity: powerEntity(
+    "Home power (live)",
+    "Live home consumption power (W). Enables the Live mode.",
+  ),
 });
 
 export type EnergyBalanceConfig = Infer<typeof configSchema>;

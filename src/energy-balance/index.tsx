@@ -10,13 +10,14 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { Badge } from "@glasshome/ui/solid";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
-import { EnergyEmptyState, normalizeBidirectional } from "../_energy-shared";
+import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
-import { BalanceBar, EnergyColumns } from "./ring";
+import { BalanceBar, EnergyColumns, type ValueUnit } from "./ring";
 
 const STATS_REFRESH_MS = 5 * 60 * 1000;
 // Below this measured height the produced-vs-used bars can't breathe, so the
@@ -24,6 +25,16 @@ const STATS_REFRESH_MS = 5 * 60 * 1000;
 const COMPACT_HEIGHT = 210;
 const AMBER = svgColors.solar.solid;
 const BLUE = svgColors.grid.solid;
+
+type Mode = "live" | "today" | "week" | "month";
+const MODES: Mode[] = ["today", "live", "week", "month"];
+const MODE_LABEL: Record<Mode, string> = { live: "Now", today: "Today", week: "Week", month: "Month" };
+const MODE_WHEN: Record<Mode, string> = {
+  live: "now",
+  today: "today",
+  week: "this week",
+  month: "this month",
+};
 
 function sumChange(values: { change?: number }[] | undefined): number {
   if (!values) return 0;
@@ -40,11 +51,12 @@ interface BodyProps {
   unit: string;
   caption: string;
   color: string;
-  producedKWh: number;
-  consumedKWh: number;
+  modeLabel: string;
+  dataUnit: ValueUnit;
+  produced: number;
+  consumed: number;
   balance: number;
   reducedMotion: boolean;
-  tint: string;
 }
 
 // Rendered inside <Widget>, so useWidgetContext here sees real measured
@@ -53,7 +65,10 @@ function BalanceBody(props: BodyProps): JSX.Element {
   const ctx = useWidgetContext();
   const compact = () => ctx.dimensions().height < COMPACT_HEIGHT;
   return (
-    <div class="flex h-full min-h-0 flex-col gap-2" style={{ background: props.tint }}>
+    <div class="relative flex h-full min-h-0 flex-col gap-2">
+      <Badge variant="secondary" class="absolute top-0 right-0 z-10">
+        {props.modeLabel}
+      </Badge>
       <div class="flex min-w-0 shrink-0 items-center gap-3">
         <Widget.Icon icon={<Icon icon="mdi:scale-balance" />} />
         <div class="flex min-w-0 flex-col overflow-hidden">
@@ -72,13 +87,20 @@ function BalanceBody(props: BodyProps): JSX.Element {
           when={compact()}
           fallback={
             <EnergyColumns
-              producedKWh={props.producedKWh}
-              consumedKWh={props.consumedKWh}
+              produced={props.produced}
+              consumed={props.consumed}
+              unit={props.dataUnit}
               reducedMotion={props.reducedMotion}
             />
           }
         >
-          <BalanceBar balance={props.balance} reducedMotion={props.reducedMotion} />
+          <BalanceBar
+            produced={props.produced}
+            consumed={props.consumed}
+            unit={props.dataUnit}
+            balance={props.balance}
+            reducedMotion={props.reducedMotion}
+          />
         </Show>
       </div>
     </div>
@@ -89,6 +111,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const reducedMotion = useReducedMotion();
+  const [mode, setMode] = createSignal<Mode>("today");
 
   // Bumping the tick hands useEntityStatistics a fresh options object, re-running the daily query.
   const [tick, setTick] = createSignal(0);
@@ -97,9 +120,14 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     onCleanup(() => clearInterval(iv));
   });
 
+  // Window start for the statistics query: today's / this week's / this month's
+  // midnight. Live mode uses today's window (its value comes from live power).
   const dayOptions = createMemo(() => {
     tick();
     const start = new Date();
+    const m = mode();
+    if (m === "week") start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+    else if (m === "month") start.setDate(1);
     start.setHours(0, 0, 0, 0);
     return { startTime: start, period: "day" as const };
   });
@@ -117,36 +145,45 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       firstId(props.config.gridImportPowerEntity),
       firstId(props.config.gridExportPowerEntity),
       firstId(props.config.gridSignedPowerEntity),
+      firstId(props.config.solarPowerEntity),
+      firstId(props.config.homePowerEntity),
     ].filter((id) => id.length > 0),
   );
   const liveEntities = useEntities(livePowerIds);
-
-  const netW = createMemo(() => {
+  const liveMap = createMemo(() => {
     const map = new Map<string, number>();
     for (const e of liveEntities()) {
       const n = Number(e.state);
       if (Number.isFinite(n)) map.set(e.id, n);
     }
+    return map;
+  });
+  const liveSolarW = () => liveMap().get(firstId(props.config.solarPowerEntity)) ?? 0;
+  const liveHomeW = () => liveMap().get(firstId(props.config.homePowerEntity)) ?? 0;
+
+  const netW = createMemo(() => {
+    const map = liveMap();
     const signedId = firstId(props.config.gridSignedPowerEntity);
     if (signedId && map.has(signedId)) {
       const n = normalizeBidirectional({ signed: map.get(signedId) ?? 0 });
       return n.import - n.export;
     }
-    const importId = firstId(props.config.gridImportPowerEntity);
-    const exportId = firstId(props.config.gridExportPowerEntity);
     const n = normalizeBidirectional({
-      importValue: map.get(importId) ?? 0,
-      exportValue: map.get(exportId) ?? 0,
+      importValue: map.get(firstId(props.config.gridImportPowerEntity)) ?? 0,
+      exportValue: map.get(firstId(props.config.gridExportPowerEntity)) ?? 0,
     });
     return n.import - n.export;
   });
 
   const configured = createMemo(() => {
-    const hasSolar = firstId(props.config.solarEnergyEntity).length > 0;
-    const hasConsumption =
-      firstId(props.config.homeEnergyEntity).length > 0 ||
-      firstId(props.config.gridImportEnergyEntity).length > 0;
-    return hasSolar && hasConsumption;
+    const hasStats =
+      firstId(props.config.solarEnergyEntity).length > 0 &&
+      (firstId(props.config.homeEnergyEntity).length > 0 ||
+        firstId(props.config.gridImportEnergyEntity).length > 0);
+    const hasLive =
+      firstId(props.config.solarPowerEntity).length > 0 &&
+      firstId(props.config.homePowerEntity).length > 0;
+    return hasStats || hasLive;
   });
 
   const balance = createMemo(() =>
@@ -164,28 +201,42 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     ),
   );
 
-  // Daily balance: -1 draws entirely from grid, 0 matches, +1 all surplus.
+  const isLive = () => mode() === "live";
+  const produced = () => (isLive() ? liveSolarW() : balance().producedKWh);
+  const consumed = () => (isLive() ? liveHomeW() : balance().consumedKWh);
+  const dataUnit = (): ValueUnit => (isLive() ? "W" : "kWh");
+
+  // -1 draws entirely from the grid, 0 matches, +1 all surplus.
   const dayBalance = createMemo(() => {
-    const b = balance();
-    const total = b.producedKWh + b.consumedKWh;
+    const p = produced();
+    const c = consumed();
+    const total = p + c;
     if (total <= 0) return 0;
-    return Math.max(-1, Math.min(1, (b.producedKWh - b.consumedKWh) / total));
+    return Math.max(-1, Math.min(1, (p - c) / total));
   });
   const readout = createMemo(() => {
-    const diff = balance().producedKWh - balance().consumedKWh;
-    if (Math.abs(diff) < 0.3) return { value: "Balanced", unit: "", caption: "today", color: "" };
+    const when = MODE_WHEN[mode()];
+    const p = produced();
+    const c = consumed();
+    if (dataUnit() === "W") {
+      const diff = p - c;
+      if (Math.abs(diff) < 50) return { value: "Balanced", unit: "", caption: when, color: "" };
+      if (diff > 0)
+        return { value: `+${formatPower(diff)}`, unit: "", caption: `solar surplus ${when}`, color: AMBER };
+      return { value: `−${formatPower(-diff)}`, unit: "", caption: `grid top-up ${when}`, color: BLUE };
+    }
+    // Difference of the rounded values the bars display, so the header adds up.
+    const pr = Math.round(p * 10) / 10;
+    const cr = Math.round(c * 10) / 10;
+    const diff = Math.round((pr - cr) * 10) / 10;
+    if (Math.abs(diff) < 0.05) return { value: "Balanced", unit: "", caption: when, color: "" };
     if (diff > 0)
-      return { value: `+${diff.toFixed(1)}`, unit: "kWh", caption: "solar surplus today", color: AMBER };
-    return { value: `−${Math.abs(diff).toFixed(1)}`, unit: "kWh", caption: "grid top-up today", color: BLUE };
-  });
-  const cardTint = createMemo(() => {
-    const s = balance().status;
-    if (s === "export") return "color-mix(in oklch, var(--tone-success) 8%, transparent)";
-    if (s === "import") return "color-mix(in oklch, var(--tone-info) 7%, transparent)";
-    return "transparent";
+      return { value: `+${diff.toFixed(1)}`, unit: "kWh", caption: `solar surplus ${when}`, color: AMBER };
+    return { value: `−${Math.abs(diff).toFixed(1)}`, unit: "kWh", caption: `grid top-up ${when}`, color: BLUE };
   });
 
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
+  const cycleMode = () => setMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length]);
+  const gestures = useWidgetGestures(() => ({ tap: cycleMode, hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
   return (
@@ -202,11 +253,12 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
               unit={readout().unit}
               caption={readout().caption}
               color={readout().color}
-              producedKWh={balance().producedKWh}
-              consumedKWh={balance().consumedKWh}
+              modeLabel={MODE_LABEL[mode()]}
+              dataUnit={dataUnit()}
+              produced={produced()}
+              consumed={consumed()}
               balance={dayBalance()}
               reducedMotion={reducedMotion()}
-              tint={cardTint()}
             />
           </Show>
         </Widget.Content>
