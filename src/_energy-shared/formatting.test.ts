@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { describeFlow, describePower, formatEnergy, formatPower } from "./formatting";
+import {
+  describeFlow,
+  describePower,
+  formatEnergy,
+  formatMoney,
+  formatPower,
+} from "./formatting";
 
 describe("formatPower", () => {
   test("roadmap fixtures", () => {
@@ -48,6 +54,20 @@ describe("formatEnergy", () => {
 describe("describePower", () => {
   test("label and formatted power", () => {
     expect(describePower("Solar", 3200)).toBe("Solar: 3.2 kW");
+  });
+});
+
+describe("formatMoney", () => {
+  test("prefixes the currency symbol with two decimals", () => {
+    expect(formatMoney(0.42, "€")).toBe("€0.42");
+  });
+
+  test("uses magnitude so callers phrase the sign", () => {
+    expect(formatMoney(-0.45, "€")).toBe("€0.45");
+  });
+
+  test("respects an arbitrary symbol", () => {
+    expect(formatMoney(1.5, "kr")).toBe("kr1.50");
   });
 });
 

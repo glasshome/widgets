@@ -4,6 +4,7 @@ import { createMemo, createSignal, Match, Switch } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
+import type { Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, type EnergyFlow, netPower } from "./flow";
 import { EnergyHeader } from "./header";
 import { selectTier } from "./layout";
@@ -14,6 +15,8 @@ import { Spine } from "./spine";
 interface EnergyContentProps {
   flow: EnergyFlow;
   description: FlowDescription;
+  tariff: Tariff;
+  title: string;
 }
 
 export function EnergyContent(props: EnergyContentProps) {
@@ -59,8 +62,8 @@ export function EnergyContent(props: EnergyContentProps) {
         <Match when={tier() === "mid"}>
           <div class="flex h-full min-h-0 flex-col justify-between gap-2">
             <EnergyHeader
-              headline={props.description.headline}
-              detail={props.description.detail}
+              headline={props.title}
+              detail={props.description.headline}
               dimmed={idle()}
             />
             <div class="flex min-w-0 flex-col gap-2">
@@ -70,7 +73,7 @@ export function EnergyContent(props: EnergyContentProps) {
                 </Widget.Status>
                 <span class="text-xs text-foreground/50">home</span>
               </div>
-              <SourceMix flow={props.flow} />
+              <SourceMix flow={props.flow} tariff={props.tariff} />
             </div>
           </div>
         </Match>
@@ -79,18 +82,23 @@ export function EnergyContent(props: EnergyContentProps) {
         <Match when={tier() === "full"}>
           <div class="flex h-full min-h-0 flex-col gap-1">
             <EnergyHeader
-              headline={props.description.headline}
-              detail={props.description.detail}
+              headline={props.title}
+              detail={props.description.headline}
               dimmed={idle()}
             />
             <div class="min-h-0 flex-1">
-              <Spine flow={props.flow} onTap={setOpenNode} />
+              <Spine flow={props.flow} tariff={props.tariff} onTap={setOpenNode} />
             </div>
           </div>
         </Match>
       </Switch>
 
-      <NodeDetail flow={props.flow} node={openNode()} onClose={() => setOpenNode(null)} />
+      <NodeDetail
+        flow={props.flow}
+        tariff={props.tariff}
+        node={openNode()}
+        onClose={() => setOpenNode(null)}
+      />
     </div>
   );
 }

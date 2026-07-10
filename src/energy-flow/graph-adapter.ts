@@ -12,6 +12,7 @@ import { energyColors } from "../_energy-shared/colors";
 import { formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import type { FlowEdge, FlowGraph, FlowNode } from "../_flow-graph/types";
+import { computeCost, gridCostSub, solarSavingSub, type Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, type EnergyFlow } from "./flow";
 import type { NodeDetailId } from "./node-detail";
 
@@ -30,6 +31,9 @@ export interface NodeView {
   value: string;
   color: string;
   idle: boolean;
+  /** Running cost/earning/saving for the node (e.g. "€0.11/h"), when a tariff
+   *  is configured and the node carries a priceable flow. */
+  sub?: string;
   /** Hub renders the house glyph instead of an icon chip. */
   hub?: boolean;
 }
@@ -43,10 +47,12 @@ function socSuffix(soc: number | undefined): string {
   return soc === undefined ? "" : ` · ${Math.round(soc)}%`;
 }
 
-export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
+export function buildEnergyGraph(flow: EnergyFlow, tariff?: Tariff): EnergyGraph {
   const nodes: FlowNode[] = [];
   const edges: FlowEdge[] = [];
   const views = new Map<string, NodeView>();
+
+  const cost = tariff ? computeCost(flow.flowState, tariff) : null;
 
   // --- Sources (solar, battery, grid) feed the hub on the left. ---
   if (flow.solar.configured) {
@@ -58,6 +64,7 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       value: flow.solarSleeping ? "Back at sunrise" : idle ? "idle" : formatPower(flow.solar.watts),
       color: energyColors.solar,
       idle,
+      sub: solarSavingSub(cost),
     });
     nodes.push({ id: "solar", kind: "source" });
     edges.push({
@@ -110,6 +117,7 @@ export function buildEnergyGraph(flow: EnergyFlow): EnergyGraph {
       value: active ? formatPower(flow.grid.watts) : "idle",
       color,
       idle: !active,
+      sub: active ? gridCostSub(cost) : undefined,
     });
     nodes.push({ id: "grid", kind: "source" });
     edges.push({

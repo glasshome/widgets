@@ -43,6 +43,12 @@ export function describePower(label: string, watts: number, locale = "en-US"): s
   return `${label}: ${formatPower(watts, locale)}`;
 }
 
+/** Money with a user-supplied currency symbol (e.g. "€0.42"). Always magnitude:
+ *  callers phrase the sign as "costs"/"earns". */
+export function formatMoney(amount: number, currency: string, locale = "en-US"): string {
+  return `${currency}${formatNumber(Math.abs(amount), locale, 2)}`;
+}
+
 export interface FlowDescription {
   headline: string;
   detail: string;

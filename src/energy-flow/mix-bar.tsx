@@ -3,6 +3,7 @@ import { createMemo, For, type JSX, Show } from "solid-js";
 import { energyColors } from "../_energy-shared/colors";
 import { formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
+import { computeCost, gridCostSub, solarSavingSub, type Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, type EnergyFlow } from "./flow";
 import { type MixRole, sourceMix } from "./mix";
 
@@ -12,11 +13,14 @@ interface LegendItem {
   color: string;
   value: string;
   active: boolean;
+  sub?: string;
 }
 
 /** One legend entry per configured source; idle sources stay listed but dim,
- *  so the row teaches what the widget tracks even when nothing flows. */
-function legendItems(flow: EnergyFlow): LegendItem[] {
+ *  so the row teaches what the widget tracks even when nothing flows. The
+ *  cost/saving sub-line mirrors the full-tier chips. */
+function legendItems(flow: EnergyFlow, tariff: Tariff): LegendItem[] {
+  const cost = computeCost(flow.flowState, tariff);
   const items: LegendItem[] = [];
   if (flow.solar.configured) {
     const active = flow.solar.watts > ACTIVE_THRESHOLD;
@@ -26,6 +30,7 @@ function legendItems(flow: EnergyFlow): LegendItem[] {
       color: energyColors.solar,
       value: flow.solarSleeping ? "resting" : active ? formatPower(flow.solar.watts) : "idle",
       active,
+      sub: solarSavingSub(cost),
     });
   }
   if (flow.battery.configured) {
@@ -48,13 +53,14 @@ function legendItems(flow: EnergyFlow): LegendItem[] {
       color: exporting ? energyColors.export : energyColors.grid,
       value: active ? formatPower(flow.grid.watts) : "idle",
       active,
+      sub: active ? gridCostSub(cost) : undefined,
     });
   }
   return items;
 }
 
 /** Segmented supply-mix bar + per-source legend (the mid-tier body). */
-export function SourceMix(props: { flow: EnergyFlow }): JSX.Element {
+export function SourceMix(props: { flow: EnergyFlow; tariff: Tariff }): JSX.Element {
   const shares = createMemo(() =>
     sourceMix({
       solarW: props.flow.solar.watts,
@@ -66,7 +72,7 @@ export function SourceMix(props: { flow: EnergyFlow }): JSX.Element {
   // For over role strings keeps DOM nodes stable across data ticks, so the
   // flex-grow transition animates share changes instead of recreating pills.
   const activeRoles = createMemo(() => shares().map((s) => s.role));
-  const legend = createMemo(() => legendItems(props.flow));
+  const legend = createMemo(() => legendItems(props.flow, props.tariff));
   const barLabel = createMemo(() => {
     const s = shares();
     if (s.length === 0) return "No power flowing";
@@ -95,13 +101,13 @@ export function SourceMix(props: { flow: EnergyFlow }): JSX.Element {
           </For>
         </Show>
       </div>
-      <div class="flex min-w-0 items-center gap-3">
+      <div class="flex min-w-0 items-start gap-3">
         <For each={legend()}>
           {(item) => (
             <span
-              class="flex min-w-0 items-center gap-1 text-xs tabular-nums transition-opacity"
+              class="flex min-w-0 items-start gap-1 text-xs tabular-nums transition-opacity"
               classList={{ "opacity-50": !item.active }}
-              aria-label={`${item.role}: ${item.value}`}
+              aria-label={`${item.role}: ${item.value}${item.sub ? `, ${item.sub}` : ""}`}
             >
               <Icon
                 icon={item.icon}
@@ -109,7 +115,12 @@ export function SourceMix(props: { flow: EnergyFlow }): JSX.Element {
                 class="shrink-0"
                 style={{ color: item.active ? item.color : "currentColor" }}
               />
-              <span class="truncate text-foreground/70">{item.value}</span>
+              <span class="flex min-w-0 flex-col leading-tight">
+                <span class="truncate text-foreground/70">{item.value}</span>
+                <Show when={item.sub}>
+                  <span class="truncate text-[10px] text-foreground/45">{item.sub}</span>
+                </Show>
+              </span>
             </span>
           )}
         </For>

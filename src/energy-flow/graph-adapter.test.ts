@@ -99,6 +99,59 @@ describe("buildEnergyGraph edge cases", () => {
   });
 });
 
+describe("buildEnergyGraph tariff sub-lines", () => {
+  const tariff = { currency: "€", rate: 0.3 };
+
+  test("no tariff -> no chip sub-lines", () => {
+    const g = buildEnergyGraph(
+      flow({
+        grid: { configured: true, stale: false, watts: 2000, direction: "import" },
+        home: { configured: true, stale: false, watts: 2000 },
+        flowState: { gridImportW: 2000, homeW: 2000 },
+      }),
+    );
+    expect(g.views.get("grid")?.sub).toBeUndefined();
+  });
+
+  test("grid import shows a bare cost rate", () => {
+    const g = buildEnergyGraph(
+      flow({
+        grid: { configured: true, stale: false, watts: 2000, direction: "import" },
+        home: { configured: true, stale: false, watts: 2000 },
+        flowState: { gridImportW: 2000, homeW: 2000 },
+      }),
+      tariff,
+    );
+    // 2 kW * €0.30 = €0.60/h
+    expect(g.views.get("grid")?.sub).toBe("€0.60/h");
+  });
+
+  test("grid export is framed as earnings", () => {
+    const g = buildEnergyGraph(
+      flow({
+        grid: { configured: true, stale: false, watts: 1500, direction: "export" },
+        home: { configured: true, stale: false, watts: 100 },
+        flowState: { gridExportW: 1500, homeW: 100 },
+      }),
+      tariff,
+    );
+    expect(g.views.get("grid")?.sub).toBe("Earns €0.45/h");
+  });
+
+  test("solar self-consumption is framed as savings", () => {
+    const g = buildEnergyGraph(
+      flow({
+        solar: { configured: true, stale: false, watts: 3000 },
+        home: { configured: true, stale: false, watts: 3000 },
+        flowState: { solarW: 3000, gridExportW: 0, homeW: 3000 },
+      }),
+      tariff,
+    );
+    // 3 kW self-consumed * €0.30 = €0.90/h
+    expect(g.views.get("solar")?.sub).toBe("Saves €0.90/h");
+  });
+});
+
 describe("toDetailId", () => {
   test("hub maps to the home detail; sources map to themselves", () => {
     expect(toDetailId("hub")).toBe("home");

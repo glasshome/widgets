@@ -140,7 +140,12 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
                 </div>
               }
             >
-              <EnergyContent flow={flow()} description={description()} />
+              <EnergyContent
+                flow={flow()}
+                description={description()}
+                tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
+                title={props.config.title || "Energy Flow"}
+              />
             </Show>
           </Show>
         </Widget.Content>

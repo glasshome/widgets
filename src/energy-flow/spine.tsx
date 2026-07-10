@@ -12,6 +12,7 @@ import {
 } from "solid-js";
 import { FlowCanvas } from "../_flow-graph/FlowCanvas";
 import type { FlowNode as FlowNodeData, Rect } from "../_flow-graph/types";
+import type { Tariff } from "./cost";
 import type { EnergyFlow } from "./flow";
 import { buildEnergyGraph, type NodeView, toDetailId } from "./graph-adapter";
 import type { NodeDetailId } from "./node-detail";
@@ -61,6 +62,14 @@ function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): J
             >
               {v().value}
             </span>
+            <Show when={v().sub}>
+              <span
+                class="truncate tabular-nums text-foreground/45"
+                style={{ "font-size": "clamp(10px, 1.5cqi, 12px)" }}
+              >
+                {v().sub}
+              </span>
+            </Show>
           </span>
         </div>
       )}
@@ -138,9 +147,10 @@ function Hub(props: { view: NodeView | undefined }): JSX.Element {
 
 export function Spine(props: {
   flow: EnergyFlow;
+  tariff: Tariff;
   onTap: (id: NodeDetailId) => void;
 }): JSX.Element {
-  const energy = createMemo(() => buildEnergyGraph(props.flow));
+  const energy = createMemo(() => buildEnergyGraph(props.flow, props.tariff));
 
   // One ResizeObserver on the canvas box feeds the pure layout. This is the only
   // measurement: a single stable container, not per-node anchor chasing.
