@@ -85,6 +85,29 @@ describe("deriveFlow", () => {
     expect(flow.solar.configured).toBe(true);
   });
 
+  test("multiple solar sensors sum into one node", () => {
+    const config = makeConfig({ solarEntity: ["sensor.roof", "sensor.garage"] });
+    const flow = deriveFlow(
+      config,
+      lookupFrom({ "sensor.roof": 1500, "sensor.garage": 800 }),
+      false,
+    );
+    expect(flow.solar.watts).toBe(2300);
+    expect(flow.solar.configured).toBe(true);
+    expect(flow.solar.stale).toBe(false);
+  });
+
+  test("one unavailable solar sensor marks the node stale but sums the rest", () => {
+    const config = makeConfig({ solarEntity: ["sensor.roof", "sensor.garage"] });
+    const flow = deriveFlow(
+      config,
+      lookupFrom({ "sensor.roof": 1500, "sensor.garage": null }),
+      false,
+    );
+    expect(flow.solar.watts).toBe(1500);
+    expect(flow.solar.stale).toBe(true);
+  });
+
   test("solar rests at night when below horizon and not producing", () => {
     const config = makeConfig({ solarEntity: ["sensor.solar"] });
     const flow = deriveFlow(config, lookupFrom({ "sensor.solar": 0 }), true);

@@ -27,6 +27,9 @@ const consumptionStrategy = field.choice(["entity", "grid_plus_solar", "sum_cons
 const powerEntity = (label: string, description: string) =>
   field.entity("sensor", { title: label, description, deviceClass: "power" });
 
+const powerEntities = (label: string, description: string) =>
+  field.entities("sensor", { title: label, description, deviceClass: "power" });
+
 const socEntity = (label: string) =>
   field.entity("sensor", {
     title: label,
@@ -36,7 +39,10 @@ const socEntity = (label: string) =>
 
 export const configSchema = defineConfig({
   title: field.title(),
-  solarEntity: powerEntity("Solar power", "Solar production power sensor (W)."),
+  solarEntity: powerEntities(
+    "Solar power",
+    "Solar production power sensors (W). Add one per array or inverter; they are summed.",
+  ),
   gridImportEntity: powerEntity(
     "Grid import",
     "Power drawn from the grid (W). Leave empty if your grid sensor reports signed values.",

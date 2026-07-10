@@ -169,6 +169,10 @@ export default defineWidget<EnergyFlowConfig>({
     minSize: { w: 2, h: 3 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    // v2: solarEntity went single-select -> multi (sum several arrays/inverters).
+    // Single-select already stored as string[], so v1 configs (["sensor.x"]) are
+    // valid as-is; Zod re-validates on load and no transform function is needed.
+    configVersion: 2,
   },
   configSchema,
   component: EnergyFlowWidget,

@@ -63,6 +63,20 @@ function resolveSingle(id: string | undefined, lookup: PowerLookup): Resolved {
   return { watts: v, stale: false, configured: true };
 }
 
+// Sum several sensors into one node (e.g. multiple solar arrays/inverters).
+// Any unavailable member marks the node stale; its share reads as 0.
+function resolveSum(ids: string[], lookup: PowerLookup): Resolved {
+  if (ids.length === 0) return { watts: 0, stale: false, configured: false };
+  let watts = 0;
+  let stale = false;
+  for (const id of ids) {
+    const v = lookup(id);
+    if (v === null) stale = true;
+    else watts += v;
+  }
+  return { watts, stale, configured: true };
+}
+
 // Avoids re-warning on every reactive tick when both signed and dual are set.
 const warnedBothModes = new Set<string>();
 
@@ -111,7 +125,7 @@ export function deriveFlow(
   lookup: PowerLookup,
   sunBelowHorizon: boolean,
 ): EnergyFlow {
-  const solar = resolveSingle(first(config.solarEntity), lookup);
+  const solar = resolveSum(config.solarEntity, lookup);
 
   const grid = resolveBidirectional(
     first(config.gridImportEntity),
