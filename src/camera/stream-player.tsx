@@ -17,12 +17,18 @@ interface StreamPlayerProps {
   refreshInterval?: number;
   poster?: string;
   onError?: () => void;
+  onActive?: () => void;
 }
 
 const PLAYER_CLASS = "h-full w-full rounded-[inherit] object-cover";
 const MAX_NETWORK_RETRIES = 2;
 
-function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => void }) {
+function WebRtcMode(props: {
+  entityId: string;
+  poster?: string;
+  onError?: () => void;
+  onActive?: () => void;
+}) {
   let videoRef!: HTMLVideoElement;
   let pc: RTCPeerConnection | null = null;
   let sessionUnsubscribe: (() => Promise<void>) | null = null;
@@ -143,11 +149,19 @@ function WebRtcMode(props: { entityId: string; poster?: string; onError?: () => 
   onCleanup(cleanup);
 
   return (
-    <video ref={videoRef} autoplay muted playsinline class={PLAYER_CLASS} poster={props.poster} />
+    <video
+      ref={videoRef}
+      autoplay
+      muted
+      playsinline
+      class={PLAYER_CLASS}
+      poster={props.poster}
+      onPlaying={() => props.onActive?.()}
+    />
   );
 }
 
-function HlsMode(props: { url: string; poster?: string; onError?: () => void }) {
+function HlsMode(props: { url: string; poster?: string; onError?: () => void; onActive?: () => void }) {
   let videoRef!: HTMLVideoElement;
   let hls: Hls | null = null;
 
@@ -206,16 +220,25 @@ function HlsMode(props: { url: string; poster?: string; onError?: () => void }) 
   onCleanup(destroyHls);
 
   return (
-    <video ref={videoRef} autoplay muted playsinline class={PLAYER_CLASS} poster={props.poster} />
+    <video
+      ref={videoRef}
+      autoplay
+      muted
+      playsinline
+      class={PLAYER_CLASS}
+      poster={props.poster}
+      onPlaying={() => props.onActive?.()}
+    />
   );
 }
 
-function MjpegMode(props: { url: string; poster?: string; onError?: () => void }) {
+function MjpegMode(props: { url: string; poster?: string; onError?: () => void; onActive?: () => void }) {
   return (
     <img
       src={props.url}
       alt="Camera stream"
       class={PLAYER_CLASS}
+      onLoad={() => props.onActive?.()}
       onError={() => props.onError?.()}
     />
   );
@@ -256,13 +279,28 @@ export function StreamPlayer(props: StreamPlayerProps) {
   return (
     <Switch>
       <Match when={props.mode === "webrtc" && props.entityId}>
-        <WebRtcMode entityId={props.entityId!} poster={props.poster} onError={props.onError} />
+        <WebRtcMode
+          entityId={props.entityId!}
+          poster={props.poster}
+          onError={props.onError}
+          onActive={props.onActive}
+        />
       </Match>
       <Match when={props.mode === "hls" && props.hlsUrl}>
-        <HlsMode url={props.hlsUrl!} poster={props.poster} onError={props.onError} />
+        <HlsMode
+          url={props.hlsUrl!}
+          poster={props.poster}
+          onError={props.onError}
+          onActive={props.onActive}
+        />
       </Match>
       <Match when={props.mode === "mjpeg" && props.mjpegUrl}>
-        <MjpegMode url={props.mjpegUrl!} poster={props.poster} onError={props.onError} />
+        <MjpegMode
+          url={props.mjpegUrl!}
+          poster={props.poster}
+          onError={props.onError}
+          onActive={props.onActive}
+        />
       </Match>
       <Match when={props.mode === "snapshot" && props.snapshotUrl}>
         <SnapshotMode

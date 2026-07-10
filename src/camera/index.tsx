@@ -14,6 +14,7 @@ import {
   defineConfig,
   type Infer,
 } from "@glasshome/widget-sdk";
+import { Badge } from "@glasshome/ui/solid";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
@@ -104,6 +105,22 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   const cameraName = createMemo(() => props.config.title || entity()?.friendlyName || "Camera");
 
+  const [isPlaying, setIsPlaying] = createSignal(false);
+  // Reset play state when the source protocol or entity changes
+  createEffect(() => {
+    activeMode();
+    entityId();
+    setIsPlaying(false);
+  });
+
+  const camStatus = createMemo(() => {
+    const s = entity()?.state;
+    if (!s || s === "unavailable" || s === "unknown") return { label: "Offline", tone: "var(--destructive)" };
+    if (isPlaying()) return { label: "Live", tone: "var(--success)" };
+    if (s === "idle") return { label: "Idle", tone: "var(--warning)" };
+    return { label: "Live", tone: "var(--success)" };
+  });
+
   const gestures = useWidgetGestures(
     () => ({
       hold: { action: openDialog },
@@ -161,24 +178,17 @@ function CameraWidget(props: { config: CameraConfig }) {
                 refreshInterval={props.config.refreshInterval ?? 10}
                 poster={poster()}
                 onError={handleStreamError}
+                onActive={() => setIsPlaying(true)}
               />
             </Show>
 
-            <div class="absolute top-0 left-0 rounded-br-lg bg-black/40 px-2 py-1">
-              <span class="font-medium text-white text-xs">{cameraName()}</span>
-            </div>
-
-            <div class="absolute top-0 right-0 px-2 py-1">
-              <div class="flex items-center gap-1 rounded-bl-lg bg-black/40 px-2 py-0.5">
-                <div
-                  class={`h-1.5 w-1.5 rounded-full ${
-                    entity()?.state === "idle" || !entity() ? "bg-red-400" : "bg-green-400"
-                  }`}
-                />
-                <span class="font-medium text-[10px] text-white/80 uppercase">
-                  {entity()?.state === "idle" || !entity() ? "Offline" : "Live"}
-                </span>
-              </div>
+            <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
+              <span class="min-w-0 truncate rounded-full bg-black/45 px-2.5 py-0.5 font-medium text-white text-xs backdrop-blur-sm">
+                {cameraName()}
+              </span>
+              <Badge tone={camStatus().tone} class="uppercase tracking-wide">
+                {camStatus().label}
+              </Badge>
             </div>
           </div>
         </Show>
@@ -206,6 +216,7 @@ function CameraWidget(props: { config: CameraConfig }) {
                 refreshInterval={props.config.refreshInterval ?? 10}
                 poster={poster()}
                 onError={handleStreamError}
+                onActive={() => setIsPlaying(true)}
               />
             </div>
             <div class="flex items-center gap-2 text-muted-foreground text-sm">
