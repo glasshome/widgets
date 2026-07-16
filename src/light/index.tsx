@@ -201,6 +201,21 @@ export default defineWidget<LightConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Single light",
+        size: { w: 1, h: 1 },
+        config: { title: "Reading Lamp", entityIds: ["light.bedroom_ceiling"] },
+      },
+      {
+        label: "Room group",
+        size: { w: 3, h: 2 },
+        config: {
+          title: "Living Room",
+          entityIds: ["light.living_room_main", "light.kitchen_counter", "light.hallway"],
+        },
+      },
+    ],
   },
   configSchema,
   component: LightWidget,

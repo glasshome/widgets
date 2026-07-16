@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Widget Preview Harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+      }
+      /* The capture target: a padded frame (theme background) wrapping the tile,
+         so the widget reads with breathing room instead of flush to the crop. */
+      #frame {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: inline-block;
+      }
+      #stage {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="frame"><div id="stage"></div></div>
+    <script type="module" src="./harness.tsx"></script>
+  </body>
+</html>
