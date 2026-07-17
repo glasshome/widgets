@@ -136,6 +136,13 @@ export default defineWidget<AreaConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Living Room",
+        size: { w: 3, h: 3 },
+        config: { areaId: "living_room", title: "Living Room" },
+      },
+    ],
   },
   configSchema,
   component: AreaWidget,

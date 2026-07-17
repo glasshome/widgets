@@ -142,6 +142,13 @@ export default defineWidget<LockConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Locks",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["lock.front_door_lock", "lock.back_door_lock"], title: "Locks" },
+      },
+    ],
   },
   configSchema,
   component: LockWidget,

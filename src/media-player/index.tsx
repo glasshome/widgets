@@ -195,6 +195,13 @@ export default defineWidget<MediaPlayerConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Living Room",
+        size: { w: 4, h: 2 },
+        config: { entityIds: ["media_player.living_room_speaker"], title: "Living Room" },
+      },
+    ],
   },
   configSchema,
   component: MediaPlayerWidget,

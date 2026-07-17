@@ -142,6 +142,13 @@ export default defineWidget<BatteriesConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Batteries",
+        size: { w: 2, h: 3 },
+        config: { title: "Batteries", threshold: 20, whitelist: [], blacklist: [] },
+      },
+    ],
   },
   configSchema,
   component: BatteriesWidget,

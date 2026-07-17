@@ -144,6 +144,13 @@ export default defineWidget<SwitchConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Switches",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["switch.coffee_machine", "switch.fan_living_room"], title: "Switches" },
+      },
+    ],
   },
   configSchema,
   component: SwitchWidget,

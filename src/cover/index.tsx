@@ -209,6 +209,13 @@ export default defineWidget<CoverConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Blinds",
+        size: { w: 3, h: 2 },
+        config: { entityIds: ["cover.living_room_blinds", "cover.bedroom_curtains"], title: "Blinds" },
+      },
+    ],
   },
   configSchema,
   component: CoverWidget,

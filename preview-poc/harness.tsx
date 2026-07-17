@@ -16,8 +16,25 @@ import "@glasshome/ui/styles";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/caveat";
-import widget from "../dist/light.js";
-import cssText from "../dist/light.css?raw";
+
+// Every built widget bundle + its CSS, selected by the `?widget=` param. Glob
+// keeps the imports static-analyzable while staying widget-agnostic — the same
+// real dist artifacts the hub serves.
+const bundles = import.meta.glob<{ default: WidgetDefinition }>("../dist/*.js");
+const styles = import.meta.glob<string>("../dist/*.css", {
+  query: "?raw",
+  import: "default",
+});
+
+async function loadWidget(name: string): Promise<{ def: WidgetDefinition; css: string | null }> {
+  const jsKey = `../dist/${name}.js`;
+  const loadJs = bundles[jsKey];
+  if (!loadJs) throw new Error(`no built bundle for widget "${name}" (${jsKey})`);
+  const def = (await loadJs()).default;
+  const loadCss = styles[`../dist/${name}.css`];
+  const css = loadCss ? await loadCss() : null;
+  return { def, css };
+}
 
 // Grid geometry mirrored from the dash route (rowHeight 70, margin 16, lg 12
 // cols at a 1024px reference container). A preview approximates one dashboard
@@ -44,13 +61,16 @@ function mount(
   config: Record<string, unknown>,
   ctx: ReactiveWidgetContext,
   dark: boolean,
+  cssText: string | null,
 ): void {
   const shadow = host.attachShadow({ mode: "closed" });
   host.classList.toggle("dark", dark);
   injectTokens(shadow);
-  const sheet = new CSSStyleSheet();
-  sheet.replaceSync(cssText);
-  shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
+  if (cssText !== null) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(cssText);
+    shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
+  }
 
   render(
     () =>
@@ -74,10 +94,11 @@ function mount(
 
 async function main(): Promise<void> {
   const params = new URLSearchParams(location.search);
+  const widgetName = params.get("widget") ?? "light";
   const exIndex = Number(params.get("ex") ?? "0");
   const dark = params.get("theme") === "dark";
 
-  const def = widget as unknown as WidgetDefinition;
+  const { def, css } = await loadWidget(widgetName);
   const examples = def.manifest.examples ?? [];
   // Publish the shot-list so the capture driver can enumerate without importing
   // the widget's TSX source under a non-Solid JSX runtime.
@@ -108,7 +129,7 @@ async function main(): Promise<void> {
     dimensions: () => ({ width, height }),
   };
 
-  mount(stage, def, example.config as Record<string, unknown>, ctx, dark);
+  mount(stage, def, example.config as Record<string, unknown>, ctx, dark, css);
 
   await document.fonts.ready;
   // Signal to the capture driver that mount + fonts settled.

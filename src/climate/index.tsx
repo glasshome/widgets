@@ -151,6 +151,13 @@ export default defineWidget<ClimateConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Thermostat",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["climate.living_room_thermostat"], title: "Thermostat" },
+      },
+    ],
   },
   configSchema,
   component: ClimateWidget,

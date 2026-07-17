@@ -122,6 +122,13 @@ export default defineWidget<SceneConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Scenes",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["scene.movie_night", "scene.good_morning"], title: "Scenes" },
+      },
+    ],
   },
   configSchema,
   component: SceneWidget,

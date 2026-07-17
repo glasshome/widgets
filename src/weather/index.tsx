@@ -367,6 +367,13 @@ export default defineWidget<WeatherConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Weather",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["weather.demo_partly_cloudy"], title: "Weather", showForecast: true },
+      },
+    ],
   },
   configSchema,
   component: WeatherWidget,

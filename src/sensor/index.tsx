@@ -174,6 +174,21 @@ export default defineWidget<SensorConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Climate Sensors",
+        size: { w: 2, h: 2 },
+        config: {
+          entityIds: [
+            "sensor.temperature_living",
+            "sensor.humidity_living",
+            "sensor.temperature_outdoor",
+          ],
+          title: "Climate Sensors",
+          aggregationType: "mean",
+        },
+      },
+    ],
   },
   configSchema,
   component: SensorWidget,
