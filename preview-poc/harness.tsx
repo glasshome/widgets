@@ -10,6 +10,12 @@ import { render } from "solid-js/web";
 // (custom properties cross the boundary; class rules don't). Without them,
 // shadow-side calc(var(--radius)+…) collapses — sharp corners, no border.
 import "@glasshome/ui/styles";
+// Fonts must load at the document (an @font-face in an adopted/shadow sheet
+// won't); the family name then inherits into the widget shadow. Same set dash's
+// styles.css loads.
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "@fontsource-variable/caveat";
 import widget from "../dist/light.js";
 import cssText from "../dist/light.css?raw";
 
@@ -66,9 +72,6 @@ function mount(
   );
 }
 
-// Breathing room (theme bg) around the tile in the captured frame.
-const PAD = 24;
-
 async function main(): Promise<void> {
   const params = new URLSearchParams(location.search);
   const exIndex = Number(params.get("ex") ?? "0");
@@ -91,14 +94,11 @@ async function main(): Promise<void> {
 
   await loadDemoData();
 
-  document.body.style.background = "var(--background)";
-
+  // Background and padding are the renderer's job: the preview is the widget
+  // alone, tight and transparent (omitBackground on capture).
   const { width, height } = tilePx(example.size);
   const stage = document.getElementById("stage");
-  const frame = document.getElementById("frame");
-  if (!stage || !frame) return;
-  frame.style.padding = `${PAD}px`;
-  frame.style.background = "var(--background)";
+  if (!stage) return;
   stage.style.width = `${width}px`;
   stage.style.height = `${height}px`;
 

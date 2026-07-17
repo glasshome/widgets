@@ -11,21 +11,18 @@
         padding: 0;
         background: transparent;
       }
-      /* The capture target: a padded frame (theme background) wrapping the tile,
-         so the widget reads with breathing room instead of flush to the crop. */
-      #frame {
+      /* The capture target: the widget tile alone. Background and padding are
+         the renderer's job, so the screenshot is tight and transparent. */
+      #stage {
         position: fixed;
         top: 0;
         left: 0;
-        display: inline-block;
-      }
-      #stage {
         display: block;
       }
     </style>
   </head>
   <body>
-    <div id="frame"><div id="stage"></div></div>
+    <div id="stage"></div>
     <script type="module" src="./harness.tsx"></script>
   </body>
 </html>

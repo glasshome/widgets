@@ -56,9 +56,9 @@ async function main(): Promise<void> {
     for (const theme of THEMES) {
       await page.goto(`${base}?ex=${i}&theme=${theme}`, { waitUntil: "networkidle" });
       await page.waitForSelector("html[data-harness-ready='1']", { state: "attached", timeout: 30_000 });
-      const frame = page.locator("#frame");
+      const stage = page.locator("#stage");
       const file = resolve(outDir, `light-${label}-${theme}.png`);
-      await frame.screenshot({ path: file });
+      await stage.screenshot({ path: file, omitBackground: true });
       console.log(`captured ${file}`);
     }
   }

@@ -204,7 +204,7 @@ export default defineWidget<LightConfig>({
     examples: [
       {
         label: "Single light",
-        size: { w: 1, h: 1 },
+        size: { w: 2, h: 2 },
         config: { title: "Reading Lamp", entityIds: ["light.bedroom_ceiling"] },
       },
       {
@@ -214,6 +214,24 @@ export default defineWidget<LightConfig>({
           title: "Living Room",
           entityIds: ["light.living_room_main", "light.kitchen_counter", "light.hallway"],
         },
+      },
+      {
+        label: "Color",
+        size: { w: 2, h: 2 },
+        config: { title: "Studio", entityIds: ["light.studio_rgb"] },
+      },
+      {
+        label: "Colorful group",
+        size: { w: 3, h: 2 },
+        config: {
+          title: "Party Mode",
+          entityIds: ["light.studio_rgb", "light.desk_rgb", "light.hallway"],
+        },
+      },
+      {
+        label: "Off",
+        size: { w: 2, h: 2 },
+        config: { title: "Kitchen", entityIds: ["light.kitchen_counter"] },
       },
     ],
   },
