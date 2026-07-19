@@ -66,7 +66,7 @@ function BalanceBody(props: BodyProps): JSX.Element {
   const compact = () => ctx.dimensions().height < COMPACT_HEIGHT;
   return (
     <div class="relative flex h-full min-h-0 flex-col gap-2">
-      <Badge variant="secondary" class="absolute top-0 right-0 z-10">
+      <Badge tone="var(--muted-foreground)" class="absolute top-0 right-0 z-10">
         {props.modeLabel}
       </Badge>
       <div class="flex min-w-0 shrink-0 items-center gap-3">
