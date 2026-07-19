@@ -47,6 +47,18 @@ function BatchToggleButton(props: { label: string; onAction: () => void }) {
   );
 }
 
+function CoverButton(props: { icon: string; onAction: () => void }) {
+  return (
+    <button
+      type="button"
+      class="flex cursor-pointer items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      onClick={props.onAction}
+    >
+      <Icon icon={props.icon} width={16} />
+    </button>
+  );
+}
+
 export function AreaControls(props: AreaControlsProps) {
   const { callService, turnOn, turnOff } = useService();
 
@@ -149,7 +161,26 @@ export function AreaControls(props: AreaControlsProps) {
                 <div class="flex items-center gap-3 rounded-lg px-3 py-2">
                   <Icon icon="mdi:blinds" width={18} class="text-muted-foreground" />
                   <span class="flex-1 truncate text-sm">{entity.friendlyName}</span>
-                  <span class="text-muted-foreground text-xs">{entity.state}</span>
+                  <div class="flex items-center gap-1">
+                    <CoverButton
+                      icon="mdi:arrow-up"
+                      onAction={() =>
+                        callService("cover" as any, "open_cover" as any, {}, { entity_id: entity.id })
+                      }
+                    />
+                    <CoverButton
+                      icon="mdi:stop"
+                      onAction={() =>
+                        callService("cover" as any, "stop_cover" as any, {}, { entity_id: entity.id })
+                      }
+                    />
+                    <CoverButton
+                      icon="mdi:arrow-down"
+                      onAction={() =>
+                        callService("cover" as any, "close_cover" as any, {}, { entity_id: entity.id })
+                      }
+                    />
+                  </div>
                 </div>
               )}
             </For>
