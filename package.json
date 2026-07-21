@@ -17,7 +17,7 @@
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123"
   },
   "devDependencies": {
-    "@glasshome/widget-cli": "0.8.2",
+    "@glasshome/widget-cli": "0.8.3",
     "@types/bun": "latest",
     "@types/json-schema": "^7.0.15",
     "typescript": "^5.0.0",
@@ -30,7 +30,7 @@
   },
   "peerDependencies": {
     "solid-js": "^1.9.0",
-    "@glasshome/widget-sdk": "1.5.0",
+    "@glasshome/widget-sdk": "1.6.0",
     "@glasshome/ui": "0.5.4"
   }
 }
