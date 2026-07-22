@@ -1,6 +1,7 @@
-import { useEntities, useEntity } from "@glasshome/widget-sdk";
 import {
   defineWidget,
+  useEntities,
+  useEntity,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -8,15 +9,17 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { createMemo, onCleanup, Show } from "solid-js";
-import {
-  describeFlow,
-  energyColors,
-  EnergyEmptyState,
-} from "../_energy-shared";
+import { describeFlow, EnergyEmptyState, energyColors } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { configSchema, type EnergyFlowConfig } from "./config";
 import { EnergyContent } from "./energy-content";
-import { ACTIVE_THRESHOLD, deriveFlow, type EnergyFlow, isUnconfigured, type PowerLookup } from "./flow";
+import {
+  ACTIVE_THRESHOLD,
+  deriveFlow,
+  type EnergyFlow,
+  isUnconfigured,
+  type PowerLookup,
+} from "./flow";
 import { EnergyHeader } from "./header";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
@@ -112,11 +115,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        color={channelColor()}
-      >
+      <Widget gestures={gestures} variant="classic-glass" color={channelColor()}>
         <Widget.Content>
           <Show
             when={!unconfigured()}

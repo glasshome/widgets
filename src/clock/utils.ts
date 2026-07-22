@@ -9,8 +9,7 @@ export const CLOCK_GRADIENTS: Record<ClockPreset, string> = {
     "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 70) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 40) 12%, transparent))",
   minimal:
     "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.02 250) 22%, transparent), color-mix(in oklch, oklch(0.7 0.02 250) 12%, transparent))",
-  bold:
-    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 20) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 330) 12%, transparent))",
+  bold: "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 20) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 330) 12%, transparent))",
 };
 
 export function getTimeParts(

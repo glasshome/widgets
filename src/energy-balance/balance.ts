@@ -34,11 +34,7 @@ export interface BalanceState {
 export function deriveConsumption(i: BalanceInputs): number {
   if (i.homeKWh !== null) return Math.max(0, i.homeKWh);
   const c =
-    i.producedKWh +
-    i.gridImportKWh -
-    i.gridExportKWh +
-    i.batteryDischargeKWh -
-    i.batteryChargeKWh;
+    i.producedKWh + i.gridImportKWh - i.gridExportKWh + i.batteryDischargeKWh - i.batteryChargeKWh;
   return Math.max(0, c);
 }
 

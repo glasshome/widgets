@@ -6,7 +6,7 @@
  * unit-tested, mirroring flow.ts.
  */
 
-import { formatMoney, type FlowState } from "../_energy-shared/formatting";
+import { type FlowState, formatMoney } from "../_energy-shared/formatting";
 
 export interface Tariff {
   currency?: string;

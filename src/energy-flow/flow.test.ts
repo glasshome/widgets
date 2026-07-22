@@ -133,11 +133,7 @@ describe("deriveFlow", () => {
       batterySignedEntity: ["sensor.bat"],
       batterySocEntity: ["sensor.soc"],
     });
-    const flow = deriveFlow(
-      config,
-      lookupFrom({ "sensor.bat": -300, "sensor.soc": 72 }),
-      false,
-    );
+    const flow = deriveFlow(config, lookupFrom({ "sensor.bat": -300, "sensor.soc": 72 }), false);
     expect(flow.battery.soc).toBe(72);
   });
 
@@ -146,11 +142,7 @@ describe("deriveFlow", () => {
       homeStrategy: "sum_consumers",
       consumerEntities: ["sensor.a", "sensor.b"],
     });
-    const flow = deriveFlow(
-      config,
-      lookupFrom({ "sensor.a": 300, "sensor.b": 200 }),
-      false,
-    );
+    const flow = deriveFlow(config, lookupFrom({ "sensor.a": 300, "sensor.b": 200 }), false);
     expect(flow.home.watts).toBe(500);
     expect(flow.home.configured).toBe(true);
   });

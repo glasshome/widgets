@@ -78,7 +78,7 @@ export function ClimateControls(props: ClimateControlsProps) {
     const data = isRange()
       ? { target_temp_low: values[0], target_temp_high: values[1] }
       : { temperature: values[0] };
-    callService("climate" as any, "set_temperature" as any, data, { entity_id: id });
+    callService("climate", "set_temperature", data, { entity_id: id });
     if (pendingGrace) clearTimeout(pendingGrace);
     pendingGrace = setTimeout(() => setPendingTemps(null), 1500);
   };
@@ -114,24 +114,19 @@ export function ClimateControls(props: ClimateControlsProps) {
   const setHvacMode = (mode: string) => {
     const id = entityId();
     if (!id) return;
-    callService("climate" as any, "set_hvac_mode" as any, { hvac_mode: mode }, { entity_id: id });
+    callService("climate", "set_hvac_mode", { hvac_mode: mode }, { entity_id: id });
   };
 
   const setFanMode = (mode: string) => {
     const id = entityId();
     if (!id) return;
-    callService("climate" as any, "set_fan_mode" as any, { fan_mode: mode }, { entity_id: id });
+    callService("climate", "set_fan_mode", { fan_mode: mode }, { entity_id: id });
   };
 
   const setPresetMode = (mode: string) => {
     const id = entityId();
     if (!id) return;
-    callService(
-      "climate" as any,
-      "set_preset_mode" as any,
-      { preset_mode: mode },
-      { entity_id: id },
-    );
+    callService("climate", "set_preset_mode", { preset_mode: mode }, { entity_id: id });
   };
 
   return (
@@ -231,7 +226,7 @@ export function ClimateControls(props: ClimateControlsProps) {
         <div class="space-y-2">
           <span class="font-medium text-sm">Fan</span>
           <div class="flex flex-wrap gap-2">
-            <For each={fanModes()!}>
+            <For each={fanModes() ?? []}>
               {(mode) => {
                 const info = () => FAN_MODES[mode] ?? { icon: "mdi:fan", label: mode };
                 return (
@@ -260,7 +255,7 @@ export function ClimateControls(props: ClimateControlsProps) {
         <div class="space-y-2">
           <span class="font-medium text-sm">Preset</span>
           <div class="flex flex-wrap gap-2">
-            <For each={presetModes()!}>
+            <For each={presetModes() ?? []}>
               {(mode) => (
                 <button
                   type="button"

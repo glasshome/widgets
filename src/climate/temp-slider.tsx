@@ -104,16 +104,17 @@ export function TempSlider(props: TempSliderProps) {
       />
       <Show when={marker() !== null}>
         <div
-          class="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 h-3.5 w-0.5 rounded bg-foreground/60"
+          class="absolute top-1/2 h-3.5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded bg-foreground/60"
           style={{ left: `${marker()}%` }}
         />
       </Show>
       <For each={props.values}>
         {(v, i) => (
           <div
-            class="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 h-7 w-7 rounded-full border-2 bg-background shadow-md"
+            class="absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-background shadow-md"
             style={{ left: `${pct(v)}%`, "border-color": props.colors[i()] ?? "var(--primary)" }}
             role="slider"
+            tabIndex={0}
             aria-valuemin={props.min}
             aria-valuemax={props.max}
             aria-valuenow={v}

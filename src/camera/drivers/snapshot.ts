@@ -18,7 +18,11 @@ export function createSnapshotDriver(refreshMs: number): MediaDriver {
     onError = null;
   };
 
-  const start = (element: HTMLVideoElement | HTMLImageElement, source: CameraSource, cb: DriverCallbacks) => {
+  const start = (
+    element: HTMLVideoElement | HTMLImageElement,
+    source: CameraSource,
+    cb: DriverCallbacks,
+  ) => {
     el = element as HTMLImageElement;
     const base = source.url ? hassMediaUrl(source.url) : null;
     if (!base) {

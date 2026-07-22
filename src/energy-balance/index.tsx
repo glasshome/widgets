@@ -1,16 +1,16 @@
+import { Badge } from "@glasshome/ui/solid";
 import {
   defineWidget,
+  svgColors,
   useEntities,
   useEntityStatistics,
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
-  svgColors,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Badge } from "@glasshome/ui/solid";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
@@ -28,7 +28,12 @@ const BLUE = svgColors.grid.solid;
 
 type Mode = "live" | "today" | "week" | "month";
 const MODES: Mode[] = ["today", "live", "week", "month"];
-const MODE_LABEL: Record<Mode, string> = { live: "Now", today: "Today", week: "Week", month: "Month" };
+const MODE_LABEL: Record<Mode, string> = {
+  live: "Now",
+  today: "Today",
+  week: "Week",
+  month: "Month",
+};
 const MODE_WHEN: Record<Mode, string> = {
   live: "now",
   today: "today",
@@ -222,8 +227,18 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       const diff = p - c;
       if (Math.abs(diff) < 50) return { value: "Balanced", unit: "", caption: when, color: "" };
       if (diff > 0)
-        return { value: `+${formatPower(diff)}`, unit: "", caption: `solar surplus ${when}`, color: AMBER };
-      return { value: `−${formatPower(-diff)}`, unit: "", caption: `grid top-up ${when}`, color: BLUE };
+        return {
+          value: `+${formatPower(diff)}`,
+          unit: "",
+          caption: `solar surplus ${when}`,
+          color: AMBER,
+        };
+      return {
+        value: `−${formatPower(-diff)}`,
+        unit: "",
+        caption: `grid top-up ${when}`,
+        color: BLUE,
+      };
     }
     // Difference of the rounded values the bars display, so the header adds up.
     const pr = Math.round(p * 10) / 10;
@@ -231,8 +246,18 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     const diff = Math.round((pr - cr) * 10) / 10;
     if (Math.abs(diff) < 0.05) return { value: "Balanced", unit: "", caption: when, color: "" };
     if (diff > 0)
-      return { value: `+${diff.toFixed(1)}`, unit: "kWh", caption: `solar surplus ${when}`, color: AMBER };
-    return { value: `−${Math.abs(diff).toFixed(1)}`, unit: "kWh", caption: `grid top-up ${when}`, color: BLUE };
+      return {
+        value: `+${diff.toFixed(1)}`,
+        unit: "kWh",
+        caption: `solar surplus ${when}`,
+        color: AMBER,
+      };
+    return {
+      value: `−${Math.abs(diff).toFixed(1)}`,
+      unit: "kWh",
+      caption: `grid top-up ${when}`,
+      color: BLUE,
+    };
   });
 
   const cycleMode = () => setMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length]);

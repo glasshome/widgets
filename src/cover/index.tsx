@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useEntities,
   useService,
   useWidgetContext,
@@ -8,9 +11,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
@@ -213,7 +213,10 @@ export default defineWidget<CoverConfig>({
       {
         label: "Blinds",
         size: { w: 3, h: 2 },
-        config: { entityIds: ["cover.living_room_blinds", "cover.bedroom_curtains"], title: "Blinds" },
+        config: {
+          entityIds: ["cover.living_room_blinds", "cover.bedroom_curtains"],
+          title: "Blinds",
+        },
       },
     ],
   },

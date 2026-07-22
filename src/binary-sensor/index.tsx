@@ -1,7 +1,10 @@
 import {
   countActiveEntities,
+  defineConfig,
   defineWidget,
+  field,
   getEntityAttribute,
+  type Infer,
   isEntityActive,
   useEntities,
   useWidgetContext,
@@ -10,9 +13,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -69,11 +69,9 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     return `${active} of ${total} active`;
   });
 
-  const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -92,10 +90,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
       >
         <Show when={hasEntities()}>
           <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={iconName()} />}
-              entityCount={entities().length}
-            />
+            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
@@ -120,7 +115,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

@@ -20,7 +20,7 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
-import { configSchema, type ClockConfig } from "./types";
+import { type ClockConfig, configSchema } from "./types";
 import {
   formatDate,
   getClockGradient,
@@ -113,9 +113,7 @@ function ClockWidget(props: { config: ClockConfig }) {
     return { "text-shadow": `0 0 20px ${glow}, 0 0 40px ${glow}, 0 0 60px ${glow}` };
   });
 
-  const gestures = useWidgetGestures(
-    () => ({ hold: { action: openDialog } }),
-  );
+  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
   const digital = () => presetTheme().digital;
@@ -177,16 +175,16 @@ function ClockWidget(props: { config: ClockConfig }) {
                   {timeParts().seconds}
                 </div>
                 <span
-                  class={`font-medium @[200px]:text-xs text-[10px] uppercase opacity-50 text-foreground`}
+                  class={
+                    "font-medium @[200px]:text-xs text-[10px] text-foreground uppercase opacity-50"
+                  }
                 >
                   sec
                 </span>
               </div>
             </Show>
             <Show when={timeParts().period && !cfg().showSeconds}>
-              <span
-                class={`mt-1 font-medium @[200px]:text-sm text-xs opacity-50 text-foreground`}
-              >
+              <span class={"mt-1 font-medium @[200px]:text-sm text-foreground text-xs opacity-50"}>
                 {timeParts().period}
               </span>
             </Show>
@@ -224,7 +222,9 @@ function ClockWidget(props: { config: ClockConfig }) {
 
           <Show when={timeParts().period}>
             <span
-              class={`mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-xs opacity-50 text-foreground`}
+              class={
+                "mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-foreground text-xs opacity-50"
+              }
             >
               {timeParts().period}
             </span>
@@ -241,7 +241,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   // Day + date. Uniform foreground palette across all three faces.
   const DateBlock = () => (
-    <div class="@[200px]:gap-1 flex flex-col items-center gap-0.5">
+    <div class="flex flex-col items-center @[200px]:gap-1 gap-0.5">
       <span class={`font-medium text-foreground/60 ${dayClasses()}`}>{dayOfWeek()}</span>
       <span class={`text-foreground opacity-50 ${dateClasses()}`}>{formattedDate()}</span>
     </div>
@@ -307,7 +307,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={cfg().clockStyle === "digital"}>
             <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
               <div
-                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? " snap" : ""}`}
+                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? "snap" : ""}`}
                 style={{
                   transform: `scaleX(${secondsProgress() / 100})`,
                   background: `linear-gradient(90deg, transparent, ${barColor()})`,
@@ -521,7 +521,6 @@ function ClockWidget(props: { config: ClockConfig }) {
                   <SelectContent />
                 </Select>
               </div>
-
             </Show>
 
             {/* Show Date — shared between digital and analogue */}
@@ -544,9 +543,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                   }}
                   options={["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]}
                   itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>
-                      {String(itemProps.item.rawValue)}
-                    </SelectItem>
+                    <SelectItem item={itemProps.item}>{String(itemProps.item.rawValue)}</SelectItem>
                   )}
                 >
                   <SelectTrigger class="w-full">
@@ -561,38 +558,38 @@ function ClockWidget(props: { config: ClockConfig }) {
             <Show when={draftConfig().clockStyle !== "digital"}>
               {/* Clock Size — only the round analog face has a fixed size */}
               <Show when={draftConfig().clockStyle === "analog"}>
-              <div class="flex flex-col gap-1.5">
-                <Label>Clock Size</Label>
-                <Select
-                  value={draftConfig().clockSize}
-                  onChange={(val) => {
-                    if (val) updateDraft("clockSize", val as ClockConfig["clockSize"]);
-                  }}
-                  options={["small", "medium", "large"]}
-                  itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>
-                      {{
-                        small: "Small",
-                        medium: "Medium",
-                        large: "Large",
-                      }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                    </SelectItem>
-                  )}
-                >
-                  <SelectTrigger class="w-full">
-                    <SelectValue<string>>
-                      {(state) =>
-                        ({
+                <div class="flex flex-col gap-1.5">
+                  <Label>Clock Size</Label>
+                  <Select
+                    value={draftConfig().clockSize}
+                    onChange={(val) => {
+                      if (val) updateDraft("clockSize", val as ClockConfig["clockSize"]);
+                    }}
+                    options={["small", "medium", "large"]}
+                    itemComponent={(itemProps) => (
+                      <SelectItem item={itemProps.item}>
+                        {{
                           small: "Small",
                           medium: "Medium",
                           large: "Large",
-                        })[state.selectedOption() as string] ?? state.selectedOption()
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent />
-                </Select>
-              </div>
+                        }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
+                      </SelectItem>
+                    )}
+                  >
+                    <SelectTrigger class="w-full">
+                      <SelectValue<string>>
+                        {(state) =>
+                          ({
+                            small: "Small",
+                            medium: "Medium",
+                            large: "Large",
+                          })[state.selectedOption() as string] ?? state.selectedOption()
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent />
+                  </Select>
+                </div>
               </Show>
 
               {/* Border */}

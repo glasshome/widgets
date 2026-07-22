@@ -1,5 +1,5 @@
 import { monotoneCubicPath } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { formatTemp } from "./utils";
 
 interface ForecastChartProps {
@@ -125,107 +125,112 @@ export function ForecastChart(props: ForecastChartProps) {
         height={svgHeight()}
         viewBox={`0 0 ${width()} ${svgHeight()}`}
         class="block"
+        aria-hidden="true"
       >
-        {chartData() && (
-          <>
-            <defs>
-              <linearGradient id="fc-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="currentColor" stop-opacity="0.35" />
-                <stop offset="70%" stop-color="currentColor" stop-opacity="0.08" />
-                <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
-              </linearGradient>
-            </defs>
+        <Show when={chartData()}>
+          {(cd) => (
+            <>
+              <defs>
+                <linearGradient id="fc-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="currentColor" stop-opacity="0.35" />
+                  <stop offset="70%" stop-color="currentColor" stop-opacity="0.08" />
+                  <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+                </linearGradient>
+              </defs>
 
-            {/* Area fill */}
-            <path
-              d={chartData()!.areaPath}
-              fill="url(#fc-area)"
-              opacity={mounted() ? 1 : 0}
-              style={{ transition: "opacity 0.6s ease-out" }}
-            />
+              {/* Area fill */}
+              <path
+                d={cd().areaPath}
+                fill="url(#fc-area)"
+                opacity={mounted() ? 1 : 0}
+                style={{ transition: "opacity 0.6s ease-out" }}
+              />
 
-            {/* Line */}
-            <path
-              d={chartData()!.linePath}
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              opacity="0.9"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-dasharray={`${pathLength()}`}
-              stroke-dashoffset={mounted() ? 0 : pathLength()}
-              style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
-            />
+              {/* Line */}
+              <path
+                d={cd().linePath}
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                opacity="0.9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-dasharray={`${pathLength()}`}
+                stroke-dashoffset={mounted() ? 0 : pathLength()}
+                style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
+              />
 
-            {/* "Now" dot with glow */}
-            <circle
-              cx={chartData()!.points[0].x}
-              cy={chartData()!.points[0].y}
-              r="6"
-              fill="currentColor"
-              opacity={mounted() ? 0.15 : 0}
-              style={{ transition: "opacity 0.3s ease-out 0.6s" }}
-            />
-            <circle
-              cx={chartData()!.points[0].x}
-              cy={chartData()!.points[0].y}
-              r="3"
-              fill="currentColor"
-              opacity={mounted() ? 1 : 0}
-              style={{ transition: "opacity 0.3s ease-out 0.6s" }}
-            />
+              {/* "Now" dot with glow */}
+              <circle
+                cx={cd().points[0].x}
+                cy={cd().points[0].y}
+                r="6"
+                fill="currentColor"
+                opacity={mounted() ? 0.15 : 0}
+                style={{ transition: "opacity 0.3s ease-out 0.6s" }}
+              />
+              <circle
+                cx={cd().points[0].x}
+                cy={cd().points[0].y}
+                r="3"
+                fill="currentColor"
+                opacity={mounted() ? 1 : 0}
+                style={{ transition: "opacity 0.3s ease-out 0.6s" }}
+              />
 
-            {/* Temp labels above curve at time-marker positions */}
-            <For each={chartData()!.tempMarkers}>
-              {(tm) => (
-                <text
-                  x={labelPos(tm.idx).x}
-                  y={labelPos(tm.idx).y - 6}
-                  text-anchor={tm.anchor}
-                  fill="currentColor"
-                  font-size="11"
-                  font-weight="600"
-                  opacity={mounted() ? 0.9 : 0}
-                  style={{ transition: "opacity 0.3s ease-out 0.7s" }}
-                >
-                  {formatTemp(chartData()!.points[tm.idx].temp)}
-                </text>
-              )}
-            </For>
-          </>
-        )}
+              {/* Temp labels above curve at time-marker positions */}
+              <For each={cd().tempMarkers}>
+                {(tm) => (
+                  <text
+                    x={labelPos(tm.idx).x}
+                    y={labelPos(tm.idx).y - 6}
+                    text-anchor={tm.anchor}
+                    fill="currentColor"
+                    font-size="11"
+                    font-weight="600"
+                    opacity={mounted() ? 0.9 : 0}
+                    style={{ transition: "opacity 0.3s ease-out 0.7s" }}
+                  >
+                    {formatTemp(cd().points[tm.idx].temp)}
+                  </text>
+                )}
+              </For>
+            </>
+          )}
+        </Show>
       </svg>
 
       {/* Time labels — HTML for crisp rendering, no SVG clamping issues */}
-      {chartData() && (
-        <div
-          class="relative w-full"
-          style={{
-            height: `${timeRowHeight}px`,
-            opacity: mounted() ? 0.7 : 0,
-            transition: "opacity 0.4s ease-out 0.8s",
-          }}
-        >
-          <For each={chartData()!.timeMarkers}>
-            {(marker) => {
-              const translate =
-                marker.anchor === "start" ? "0%" : marker.anchor === "end" ? "-100%" : "-50%";
-              return (
-                <span
-                  class="absolute text-[10px] leading-none whitespace-nowrap"
-                  style={{
-                    left: `${marker.x}px`,
-                    transform: `translateX(${translate})`,
-                  }}
-                >
-                  {marker.label}
-                </span>
-              );
+      <Show when={chartData()}>
+        {(cd) => (
+          <div
+            class="relative w-full"
+            style={{
+              height: `${timeRowHeight}px`,
+              opacity: mounted() ? 0.7 : 0,
+              transition: "opacity 0.4s ease-out 0.8s",
             }}
-          </For>
-        </div>
-      )}
+          >
+            <For each={cd().timeMarkers}>
+              {(marker) => {
+                const translate =
+                  marker.anchor === "start" ? "0%" : marker.anchor === "end" ? "-100%" : "-50%";
+                return (
+                  <span
+                    class="absolute whitespace-nowrap text-[10px] leading-none"
+                    style={{
+                      left: `${marker.x}px`,
+                      transform: `translateX(${translate})`,
+                    }}
+                  >
+                    {marker.label}
+                  </span>
+                );
+              }}
+            </For>
+          </div>
+        )}
+      </Show>
     </div>
   );
 }

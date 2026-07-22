@@ -1,6 +1,9 @@
 import {
   countActiveEntities,
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   isEntityActive,
   useEntities,
   useToggle,
@@ -10,9 +13,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -33,7 +33,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
   const entities = useEntities(() => props.config.entityIds);
 
-  const { emptyState, hasEntities, count, aggregatedData } = useWidgetEntityGroup({
+  const { emptyState, hasEntities, count } = useWidgetEntityGroup({
     entities,
     aggregationMode: () => "switch",
     emptyStateConfig: {
@@ -76,12 +76,10 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     }
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -129,7 +127,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>
@@ -148,7 +146,10 @@ export default defineWidget<SwitchConfig>({
       {
         label: "Switches",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["switch.coffee_machine", "switch.fan_living_room"], title: "Switches" },
+        config: {
+          entityIds: ["switch.coffee_machine", "switch.fan_living_room"],
+          title: "Switches",
+        },
       },
     ],
   },

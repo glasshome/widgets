@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   isEntityActive,
   useEntities,
   useService,
@@ -11,9 +14,6 @@ import {
   Widget,
   WidgetDialog,
   WidgetSliderFill,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -51,13 +51,16 @@ function LightWidget(props: { config: LightConfig }) {
     return ents.length > 0 && ents.some((e) => isEntityActive(e));
   });
 
-  const lightData = createMemo(() => aggregatedData() as any);
+  const lightData = createMemo(() => {
+    const data = aggregatedData();
+    return data && "brightnessPercent" in data ? data : undefined;
+  });
 
   const serverBrightness = createMemo(() => {
     const data = lightData();
-    if (data?.brightnessPercent != null) return data.brightnessPercent as number;
+    if (data) return data.brightnessPercent;
     const first = entities()[0];
-    if (!first || first.state !== "on") return 0;
+    if (first?.state !== "on") return 0;
     const bri = first.attributes?.brightness as number | undefined;
     return bri ? brightnessToPercent(bri) : 100;
   });
@@ -81,7 +84,7 @@ function LightWidget(props: { config: LightConfig }) {
       setIsDragging(false);
       const ids = entities().map((e) => e.id);
       for (const id of ids) {
-        callService("light" as any, "turn_on" as any, { brightness_pct: value }, { entity_id: id });
+        callService("light", "turn_on", { brightness_pct: value }, { entity_id: id });
       }
     }, 300);
   };
@@ -92,26 +95,24 @@ function LightWidget(props: { config: LightConfig }) {
     await toggle(ids);
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      slide: {
-        value: uiBrightness(),
-        onChange: handleBrightnessSlide,
-        min: 0,
-        max: 100,
-        orientation: "auto" as const,
-        activationDelay: 0,
-      },
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    slide: {
+      value: uiBrightness(),
+      onChange: handleBrightnessSlide,
+      min: 0,
+      max: 100,
+      orientation: "auto" as const,
+      activationDelay: 0,
+    },
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   // Display color derived from current HS or color temp (only meaningful when on)
   const displayColor = createMemo(() => {
     const data = lightData();
-    if (data?.color) return data.color as string;
+    if (data?.color) return data.color;
     const first = entities()[0];
     if (!first) return "rgb(255, 200, 100)";
     const hs = first.attributes?.hs_color as [number, number] | undefined;
@@ -186,7 +187,7 @@ function LightWidget(props: { config: LightConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<LightControls entities={entities} brightness={() => uiBrightness()} />}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

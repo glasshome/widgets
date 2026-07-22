@@ -27,7 +27,11 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
     }
   };
 
-  const start = (element: HTMLVideoElement | HTMLImageElement, _source: CameraSource, cb: DriverCallbacks) => {
+  const start = (
+    element: HTMLVideoElement | HTMLImageElement,
+    _source: CameraSource,
+    cb: DriverCallbacks,
+  ) => {
     el = element as HTMLVideoElement;
     onPlaying = () => cb.onLive();
     el.addEventListener("playing", onPlaying);
@@ -60,7 +64,10 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
         peer.addTransceiver("audio", { direction: "recvonly" });
         peer.addTransceiver("video", { direction: "recvonly" });
 
-        const offer = await peer.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+        const offer = await peer.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
         await peer.setLocalDescription(offer);
         if (stopped) return;
 
@@ -70,13 +77,17 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
           if (!event.candidate) return;
           const init = event.candidate.toJSON();
           if (sessionId) {
-            sendWebRtcCandidate(entityId, sessionId, init as Record<string, unknown>).catch(() => {});
+            sendWebRtcCandidate(entityId, sessionId, init as Record<string, unknown>).catch(
+              () => {},
+            );
           } else {
             pending.push(init);
           }
         };
 
-        const { answer, session } = await startWebRtcSession(entityId, offer.sdp!, (candidate) => {
+        const offerSdp = offer.sdp;
+        if (!offerSdp) throw new Error("offer has no sdp");
+        const { answer, session } = await startWebRtcSession(entityId, offerSdp, (candidate) => {
           const init = { ...candidate } as RTCIceCandidateInit;
           if (!init.sdpMid && init.sdpMLineIndex == null) init.sdpMid = "0";
           peer.addIceCandidate(new RTCIceCandidate(init)).catch(() => {});

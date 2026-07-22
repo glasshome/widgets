@@ -15,12 +15,31 @@ function WaveTop(props: { color: string; speed: number }): JSX.Element {
   const wave = "M0,12 Q25,6 50,12 T100,12 T150,12 T200,12 V20 H0 Z";
   return (
     <div class="pointer-events-none absolute inset-x-0 top-0 h-3 -translate-y-2 overflow-hidden">
-      <svg class="absolute left-0 h-3 w-[200%]" viewBox="0 0 200 20" preserveAspectRatio="none">
+      <svg
+        class="absolute left-0 h-3 w-[200%]"
+        viewBox="0 0 200 20"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <path d={wave} fill={props.color} opacity="0.5">
-          <animateTransform attributeName="transform" type="translate" from="0 0" to="-100 0" dur={`${props.speed * 2.6}s`} repeatCount="indefinite" />
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            from="0 0"
+            to="-100 0"
+            dur={`${props.speed * 2.6}s`}
+            repeatCount="indefinite"
+          />
         </path>
         <path d={wave} fill={props.color}>
-          <animateTransform attributeName="transform" type="translate" from="0 0" to="-100 0" dur={`${props.speed * 1.8}s`} repeatCount="indefinite" />
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            from="0 0"
+            to="-100 0"
+            dur={`${props.speed * 1.8}s`}
+            repeatCount="indefinite"
+          />
         </path>
       </svg>
     </div>
@@ -59,7 +78,9 @@ export function BalanceBar(props: BarProps): JSX.Element {
   const mag = () => Math.abs(b()) * 50;
   const color = () => (surplus() ? AMBER : BLUE);
   const move = () =>
-    props.reducedMotion ? "none" : "left 500ms cubic-bezier(0.22, 1, 0.36, 1), width 500ms cubic-bezier(0.22, 1, 0.36, 1)";
+    props.reducedMotion
+      ? "none"
+      : "left 500ms cubic-bezier(0.22, 1, 0.36, 1), width 500ms cubic-bezier(0.22, 1, 0.36, 1)";
 
   return (
     <div class="w-full">
@@ -78,7 +99,7 @@ export function BalanceBar(props: BarProps): JSX.Element {
         style={{ background: "color-mix(in oklch, currentColor 10%, transparent)" }}
       >
         <div
-          class="-translate-x-1/2 absolute inset-y-[-3px] left-1/2 w-px rounded-full"
+          class="absolute inset-y-[-3px] left-1/2 w-px -translate-x-1/2 rounded-full"
           style={{ background: "color-mix(in oklch, currentColor 38%, transparent)" }}
         />
         <div
@@ -137,7 +158,9 @@ export function EnergyColumns(props: ColumnsProps): JSX.Element {
                     height: `${frac() * 100}%`,
                     background: c.color,
                     "box-shadow": `0 0 14px color-mix(in oklch, ${c.color} 45%, transparent)`,
-                    transition: props.reducedMotion ? "none" : "height 600ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    transition: props.reducedMotion
+                      ? "none"
+                      : "height 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
                   <Show when={!props.reducedMotion}>
@@ -153,14 +176,14 @@ export function EnergyColumns(props: ColumnsProps): JSX.Element {
                 {/* Icon + label centered in the bar; neutral white + a soft
                     shadow so they stay legible over the fill and the dark track. */}
                 <div
-                  class="-translate-x-1/2 -translate-y-1/2 pointer-events-none absolute top-1/2 left-1/2 z-10 flex flex-col items-center gap-1 text-foreground"
+                  class="pointer-events-none absolute top-1/2 left-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 text-foreground"
                   style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.35))" }}
                 >
                   <Icon icon={c.icon} style={{ "font-size": "26px" }} />
                   <span class="font-medium text-xs">{c.label}</span>
                 </div>
                 <span
-                  class="absolute inset-x-0 bottom-3 px-0.5 text-center font-semibold text-[13px] text-white leading-none tabular-nums"
+                  class="absolute inset-x-0 bottom-3 px-0.5 text-center font-semibold text-[13px] text-white tabular-nums leading-none"
                   style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
                 >
                   <Show

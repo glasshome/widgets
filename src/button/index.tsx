@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useEntities,
   useService,
   useWidgetContext,
@@ -8,9 +11,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -49,7 +49,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     const timeout = setTimeout(() => setIsLoading(false), 5000);
     try {
       for (const e of entities()) {
-        await callService("button" as any, "press" as any, {}, { entity_id: e.id });
+        await callService("button", "press", {}, { entity_id: e.id });
       }
     } finally {
       clearTimeout(timeout);
@@ -57,12 +57,10 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     }
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -110,7 +108,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

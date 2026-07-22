@@ -22,7 +22,11 @@ export function createHlsDriver(): MediaDriver {
     }
   };
 
-  const start = (element: HTMLVideoElement | HTMLImageElement, source: CameraSource, cb: DriverCallbacks) => {
+  const start = (
+    element: HTMLVideoElement | HTMLImageElement,
+    source: CameraSource,
+    cb: DriverCallbacks,
+  ) => {
     el = element as HTMLVideoElement;
     const url = source.url;
     if (!url) {

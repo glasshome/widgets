@@ -103,9 +103,8 @@ export function LightControls(props: LightControlsProps) {
     return Math.abs(preset[0] - current[0]) < 10 && Math.abs(preset[1] - current[1]) < 15;
   };
 
-  // ha-types generated LightTurnOnFields is incomplete (missing hs_color, wrong color_temp_kelvin type)
   const lightTurnOn = (data: Record<string, unknown>, entityId: string) =>
-    callService("light" as any, "turn_on" as any, data as any, { entity_id: entityId });
+    callService("light", "turn_on", data, { entity_id: entityId });
 
   const setColor = (hs: [number, number]) => {
     for (const id of props.entities().map((e) => e.id)) {
@@ -178,7 +177,7 @@ export function LightControls(props: LightControlsProps) {
     brightnessDebounce = setTimeout(() => {
       const ids = props.entities().map((e) => e.id);
       for (const id of ids) {
-        callService("light" as any, "turn_on" as any, { brightness_pct: value }, { entity_id: id });
+        callService("light", "turn_on", { brightness_pct: value }, { entity_id: id });
       }
     }, 300);
   };

@@ -42,7 +42,6 @@ function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): J
             "flex-row-reverse text-right": props.align === "right",
           }}
           style={{ gap: "clamp(8px, 1.3cqi, 12px)", padding: "0 clamp(9px, 1.5cqi, 14px)" }}
-          aria-label={`${v().label}, ${v().value}`}
         >
           <Icon
             icon={v().icon}
@@ -53,18 +52,21 @@ function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): J
             }}
           />
           <span class="flex min-w-0 flex-col leading-tight">
-            <span class="truncate text-foreground/55" style={{ "font-size": "clamp(11px, 1.7cqi, 14px)" }}>
+            <span
+              class="truncate text-foreground/55"
+              style={{ "font-size": "clamp(11px, 1.7cqi, 14px)" }}
+            >
               {v().label}
             </span>
             <span
-              class="truncate font-semibold tabular-nums text-foreground"
+              class="truncate font-semibold text-foreground tabular-nums"
               style={{ "font-size": "clamp(15px, 2.7cqi, 23px)" }}
             >
               {v().value}
             </span>
             <Show when={v().sub}>
               <span
-                class="truncate tabular-nums text-foreground/45"
+                class="truncate text-foreground/45 tabular-nums"
                 style={{ "font-size": "clamp(10px, 1.5cqi, 12px)" }}
               >
                 {v().sub}
@@ -94,15 +96,14 @@ const HOUSE_PATH = "M52 8 L96 42 V84 H8 V42 Z";
 function Hub(props: { view: NodeView | undefined }): JSX.Element {
   const sheenId = `house-sheen-${createUniqueId()}`;
   return (
-    <div class="relative h-full w-full" aria-label={`Home, ${props.view?.value ?? ""}`}>
+    <div class="relative h-full w-full" role="img" aria-label={`Home, ${props.view?.value ?? ""}`}>
       <svg
         class="absolute inset-0 h-full w-full"
         viewBox="0 0 104 92"
         preserveAspectRatio="none"
         aria-hidden="true"
         style={{
-          filter:
-            "drop-shadow(0 0 14px color-mix(in oklch, var(--widget-color) 40%, transparent))",
+          filter: "drop-shadow(0 0 14px color-mix(in oklch, var(--widget-color) 40%, transparent))",
         }}
       >
         <defs>
@@ -134,10 +135,7 @@ function Hub(props: { view: NodeView | undefined }): JSX.Element {
         class="absolute inset-x-0 top-[42%] bottom-0 z-[1] flex items-center justify-center"
         style={{ color: HOUSE_TEXT }}
       >
-        <span
-          class="font-bold tabular-nums"
-          style={{ "font-size": "clamp(19px, 3.8cqi, 30px)" }}
-        >
+        <span class="font-bold tabular-nums" style={{ "font-size": "clamp(19px, 3.8cqi, 30px)" }}>
           {props.view?.value ?? ""}
         </span>
       </div>

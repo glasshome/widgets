@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useEntities,
   useTurnOn,
   useWidgetContext,
@@ -8,9 +11,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -57,12 +57,10 @@ function SceneWidget(props: { config: SceneConfig }) {
     }
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -107,7 +105,7 @@ function SceneWidget(props: { config: SceneConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

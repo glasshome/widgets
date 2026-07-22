@@ -83,7 +83,15 @@ describe("stackLanes", () => {
   });
 
   test("all-zero stack does not divide by zero (every lane floored)", () => {
-    const bands = stackLanes([{ id: "a", weight: 0 }, { id: "b", weight: 0 }], 50, 100, opts);
+    const bands = stackLanes(
+      [
+        { id: "a", weight: 0 },
+        { id: "b", weight: 0 },
+      ],
+      50,
+      100,
+      opts,
+    );
     // total = 2 * minWidth = 8, centered on 50 -> [46,50],[50,54].
     expect(bands.get("a")).toEqual({ top: 46, bottom: 50 });
     expect(bands.get("b")).toEqual({ top: 50, bottom: 54 });

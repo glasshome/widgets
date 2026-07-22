@@ -1,7 +1,10 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
   getEntityAttribute,
   hassMediaUrl,
+  type Infer,
   useEntity,
   useService,
   useWidgetContext,
@@ -9,9 +12,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -54,7 +54,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const handleTap = () => {
     const id = entityId();
     if (id) {
-      callService("media_player" as any, "media_play_pause" as any, {}, { entity_id: id });
+      callService("media_player", "media_play_pause", {}, { entity_id: id });
     }
   };
 
@@ -68,6 +68,10 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     const e = entity();
     if (!e) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, [e]);
+  });
+  const debugView = createMemo(() => {
+    const dbg = debugData();
+    return dbg ? <WidgetDebugView data={dbg} /> : undefined;
   });
 
   return (
@@ -109,7 +113,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<MediaPlayerControls entity={entity} />}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={debugView()}
         debugData={debugData()}
       />
     </>

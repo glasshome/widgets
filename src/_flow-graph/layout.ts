@@ -5,7 +5,15 @@
  */
 
 import { type Lane, type Span, stackLanes } from "./geometry";
-import type { Band, FlowEdge, FlowGraph, PlacedEdge, PlacedNode, PositionedGraph, Rect } from "./types";
+import type {
+  Band,
+  FlowEdge,
+  FlowGraph,
+  PlacedEdge,
+  PlacedNode,
+  PositionedGraph,
+  Rect,
+} from "./types";
 
 export interface ColumnsLayoutOpts {
   padding: number;

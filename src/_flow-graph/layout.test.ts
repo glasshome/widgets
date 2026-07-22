@@ -64,12 +64,7 @@ describe("columnsLayout placement", () => {
 describe("columnsLayout stacking", () => {
   test("multiple source lanes stack without crossing", () => {
     const g: FlowGraph = {
-      nodes: [
-        node("a", "source"),
-        node("b", "source"),
-        node("c", "source"),
-        node("hub", "hub"),
-      ],
+      nodes: [node("a", "source"), node("b", "source"), node("c", "source"), node("hub", "hub")],
       edges: [
         edge("ea", "a", "hub", 300),
         edge("eb", "b", "hub", 300),

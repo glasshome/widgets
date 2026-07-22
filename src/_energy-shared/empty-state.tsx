@@ -34,9 +34,7 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
 
       <Match when={props.kind === "unavailable"}>
         <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
-          <span class="font-medium text-foreground text-sm opacity-60">
-            {props.lastKnownValue}
-          </span>
+          <span class="font-medium text-foreground text-sm opacity-60">{props.lastKnownValue}</span>
           <span class="rounded-full bg-muted px-2 py-0.5 text-muted-foreground text-xs">
             Reconnecting...
           </span>

@@ -18,6 +18,10 @@ function readAnalogTime(date: Date, timeZone?: string) {
   return { hours: get("hour") % 12, minutes: get("minute"), seconds: get("second") };
 }
 
+function readoutLabel(t: { hours: number; minutes: number }): string {
+  return `Analog clock showing ${((t.hours + 11) % 12) + 1}:${String(t.minutes).padStart(2, "0")}`;
+}
+
 /** Per-preset character shared by the round + square faces: ticks, hands, numerals, font. */
 interface FaceStyle {
   minuteTicks: boolean;
@@ -245,7 +249,10 @@ export function AnalogClock(props: AnalogClockProps) {
     const shape = () => (p.forceLine ? "line" : style().hand);
     const paint = () => (p.gradient ? `url(#${gid()}-hand)` : p.color);
     return (
-      <g style={handStyle(p.angle, p.animate ?? false)} filter={p.glow ? `url(#${gid()}-glow)` : undefined}>
+      <g
+        style={handStyle(p.angle, p.animate ?? false)}
+        filter={p.glow ? `url(#${gid()}-glow)` : undefined}
+      >
         <Show
           when={shape() === "taper"}
           fallback={
@@ -270,14 +277,23 @@ export function AnalogClock(props: AnalogClockProps) {
             points={`${cx()},${tipY() + handLen() * 0.16} ${cx() + p.width * 1.6},${tipY() + handLen() * 0.08} ${cx()},${tipY()} ${cx() - p.width * 1.6},${tipY() + handLen() * 0.08}`}
             fill={paint()}
           />
-          <circle cx={cx()} cy={baseY()} r={p.width * 1.3} fill="none" stroke={paint()} stroke-width={1.5} />
+          <circle
+            cx={cx()}
+            cy={baseY()}
+            r={p.width * 1.3}
+            fill="none"
+            stroke={paint()}
+            stroke-width={1.5}
+          />
         </Show>
       </g>
     );
   };
 
-  const hourW = () => (style().hand === "bar" ? 10 : style().hand === "line" ? 3.5 : 8) * Math.max(0.7, k());
-  const minuteW = () => (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6) * Math.max(0.7, k());
+  const hourW = () =>
+    (style().hand === "bar" ? 10 : style().hand === "line" ? 3.5 : 8) * Math.max(0.7, k());
+  const minuteW = () =>
+    (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6) * Math.max(0.7, k());
   const ornate = () => props.preset === "classic";
   const glowHands = () => props.preset === "modern";
   const gradHands = () => props.preset !== "classic";
@@ -288,6 +304,8 @@ export function AnalogClock(props: AnalogClockProps) {
       height={size()}
       viewBox={`0 0 ${size()} ${size()}`}
       class="overflow-visible"
+      role="img"
+      aria-label={readoutLabel(time())}
     >
       <defs>
         <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">
@@ -336,18 +354,50 @@ export function AnalogClock(props: AnalogClockProps) {
           stroke-dasharray="2 5"
           opacity={0.35}
         />
-        <circle cx={cx()} cy={cy()} r={11} fill="none" stroke={theme.accentColor} stroke-width={1} opacity={0.5} />
+        <circle
+          cx={cx()}
+          cy={cy()}
+          r={11}
+          fill="none"
+          stroke={theme.accentColor}
+          stroke-width={1}
+          opacity={0.5}
+        />
       </Show>
 
       {/* ── CLASSIC: double ring frame ── */}
       <Show when={props.preset === "classic"}>
-        <circle cx={cx()} cy={cy()} r={radius()} fill="none" stroke={theme.tickColor} stroke-width={2} opacity={0.35} />
-        <circle cx={cx()} cy={cy()} r={radius() - 6} fill="none" stroke={theme.tickColor} stroke-width={1} opacity={0.25} />
+        <circle
+          cx={cx()}
+          cy={cy()}
+          r={radius()}
+          fill="none"
+          stroke={theme.tickColor}
+          stroke-width={2}
+          opacity={0.35}
+        />
+        <circle
+          cx={cx()}
+          cy={cy()}
+          r={radius() - 6}
+          fill="none"
+          stroke={theme.tickColor}
+          stroke-width={1}
+          opacity={0.25}
+        />
       </Show>
 
       {/* User-toggled outline (kept for non-classic) */}
       <Show when={border() && props.preset !== "classic"}>
-        <circle cx={cx()} cy={cy()} r={radius()} fill="none" stroke={theme.tickColor} stroke-width={2} opacity={0.4} />
+        <circle
+          cx={cx()}
+          cy={cy()}
+          r={radius()}
+          fill="none"
+          stroke={theme.tickColor}
+          stroke-width={2}
+          opacity={0.4}
+        />
       </Show>
 
       {/* Seconds progress ring */}
@@ -426,14 +476,31 @@ export function AnalogClock(props: AnalogClockProps) {
 
       {/* Second hand (thin line, glowing accent) */}
       <Show when={props.showSeconds}>
-        <Hand angle={secondAngle()} lenFrac={0.9} tailFrac={0.22} color={theme.accentColor} width={1.5} animate forceLine glow />
+        <Hand
+          angle={secondAngle()}
+          lenFrac={0.9}
+          tailFrac={0.22}
+          color={theme.accentColor}
+          width={1.5}
+          animate
+          forceLine
+          glow
+        />
       </Show>
 
       {/* Center cap — layered for a jeweled look */}
       <circle cx={cx()} cy={cy()} r={7} fill={theme.faceColor} />
       <circle cx={cx()} cy={cy()} r={5} fill={theme.handColor} />
       <Show when={props.preset === "classic"}>
-        <circle cx={cx()} cy={cy()} r={9} fill="none" stroke={theme.handColor} stroke-width={1} opacity={0.6} />
+        <circle
+          cx={cx()}
+          cy={cy()}
+          r={9}
+          fill="none"
+          stroke={theme.handColor}
+          stroke-width={1}
+          opacity={0.6}
+        />
       </Show>
       <circle cx={cx()} cy={cy()} r={1.6} fill={theme.accentColor} />
     </svg>
@@ -682,7 +749,14 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
             points={`${cx()},${tipY() + handLen() * 0.16} ${cx() + p.width * 1.6},${tipY() + handLen() * 0.08} ${cx()},${tipY()} ${cx() - p.width * 1.6},${tipY() + handLen() * 0.08}`}
             fill={paint()}
           />
-          <circle cx={cx()} cy={baseY()} r={p.width * 1.3} fill="none" stroke={paint()} stroke-width={1.5} />
+          <circle
+            cx={cx()}
+            cy={baseY()}
+            r={p.width * 1.3}
+            fill="none"
+            stroke={paint()}
+            stroke-width={1.5}
+          />
         </Show>
       </g>
     );
@@ -700,6 +774,8 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
         viewBox={`0 0 ${dims().w} ${dims().h}`}
         preserveAspectRatio="none"
         class="absolute inset-0 h-full w-full"
+        role="img"
+        aria-label={readoutLabel(time())}
       >
         <defs>
           <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">
@@ -767,13 +843,31 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
 
         {/* ── CLASSIC: double frame ── */}
         <Show when={props.preset === "classic"}>
-          <path d={roundedRect(dims().pad, 14)} fill="none" stroke={theme().tickColor} stroke-width={2} opacity={0.35} />
-          <path d={roundedRect(dims().pad + 6, 11)} fill="none" stroke={theme().tickColor} stroke-width={1} opacity={0.25} />
+          <path
+            d={roundedRect(dims().pad, 14)}
+            fill="none"
+            stroke={theme().tickColor}
+            stroke-width={2}
+            opacity={0.35}
+          />
+          <path
+            d={roundedRect(dims().pad + 6, 11)}
+            fill="none"
+            stroke={theme().tickColor}
+            stroke-width={1}
+            opacity={0.25}
+          />
         </Show>
 
         {/* User-toggled outline (kept for non-classic) */}
         <Show when={border() && props.preset !== "classic"}>
-          <path d={perimeter()} fill="none" stroke={theme().tickColor} stroke-width={2} opacity={0.4} />
+          <path
+            d={perimeter()}
+            fill="none"
+            stroke={theme().tickColor}
+            stroke-width={2}
+            opacity={0.4}
+          />
         </Show>
 
         {/* Seconds perimeter trace */}
@@ -866,7 +960,15 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
         <circle cx={dims().cx} cy={dims().cy} r={7} fill={theme().faceColor} />
         <circle cx={dims().cx} cy={dims().cy} r={5} fill={theme().handColor} />
         <Show when={props.preset === "classic"}>
-          <circle cx={dims().cx} cy={dims().cy} r={9} fill="none" stroke={theme().handColor} stroke-width={1} opacity={0.6} />
+          <circle
+            cx={dims().cx}
+            cy={dims().cy}
+            r={9}
+            fill="none"
+            stroke={theme().handColor}
+            stroke-width={1}
+            opacity={0.6}
+          />
         </Show>
         <circle cx={dims().cx} cy={dims().cy} r={1.6} fill={theme().accentColor} />
       </svg>

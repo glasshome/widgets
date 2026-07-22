@@ -60,19 +60,19 @@ function CoverButton(props: { icon: string; onAction: () => void }) {
 }
 
 export function AreaControls(props: AreaControlsProps) {
-  const { callService, turnOn, turnOff } = useService();
+  const { callService } = useService();
 
   const batchToggle = (entities: { id: string; state: string }[], domain: string) => {
     const onCount = entities.filter((e) => e.state === "on").length;
     const shouldTurnOff = onCount > entities.length / 2;
     const service = shouldTurnOff ? "turn_off" : "turn_on";
     for (const entity of entities) {
-      callService(domain as any, service as any, {}, { entity_id: entity.id });
+      callService(domain, service, {}, { entity_id: entity.id });
     }
   };
 
   const toggleEntity = (entityId: string, domain: string) => {
-    callService(domain as any, "toggle" as any, {}, { entity_id: entityId });
+    callService(domain, "toggle", {}, { entity_id: entityId });
   };
 
   return (
@@ -135,7 +135,7 @@ export function AreaControls(props: AreaControlsProps) {
               class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
               onClick={() => {
                 for (const entity of props.groups.covers) {
-                  callService("cover" as any, "open_cover" as any, {}, { entity_id: entity.id });
+                  callService("cover", "open_cover", {}, { entity_id: entity.id });
                 }
               }}
             >
@@ -147,7 +147,7 @@ export function AreaControls(props: AreaControlsProps) {
               class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
               onClick={() => {
                 for (const entity of props.groups.covers) {
-                  callService("cover" as any, "close_cover" as any, {}, { entity_id: entity.id });
+                  callService("cover", "close_cover", {}, { entity_id: entity.id });
                 }
               }}
             >
@@ -165,19 +165,19 @@ export function AreaControls(props: AreaControlsProps) {
                     <CoverButton
                       icon="mdi:arrow-up"
                       onAction={() =>
-                        callService("cover" as any, "open_cover" as any, {}, { entity_id: entity.id })
+                        callService("cover", "open_cover", {}, { entity_id: entity.id })
                       }
                     />
                     <CoverButton
                       icon="mdi:stop"
                       onAction={() =>
-                        callService("cover" as any, "stop_cover" as any, {}, { entity_id: entity.id })
+                        callService("cover", "stop_cover", {}, { entity_id: entity.id })
                       }
                     />
                     <CoverButton
                       icon="mdi:arrow-down"
                       onAction={() =>
-                        callService("cover" as any, "close_cover" as any, {}, { entity_id: entity.id })
+                        callService("cover", "close_cover", {}, { entity_id: entity.id })
                       }
                     />
                   </div>

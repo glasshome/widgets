@@ -50,7 +50,11 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   const sources = createMemo(() =>
     resolveSources(
-      { entityId: entityId(), entityPicture: attr("entity_picture"), accessToken: attr("access_token") },
+      {
+        entityId: entityId(),
+        entityPicture: attr("entity_picture"),
+        accessToken: attr("access_token"),
+      },
       engine(),
     ),
   );
@@ -131,7 +135,7 @@ function CameraWidget(props: { config: CameraConfig }) {
             </div>
           </div>
         }
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(d) => <WidgetDebugView data={d()} />}</Show>}
         debugData={debugData()}
       />
     </>
@@ -150,7 +154,12 @@ export default defineWidget<CameraConfig>({
       {
         label: "Front Door",
         size: { w: 3, h: 2 },
-        config: { entityIds: ["camera.front_door_camera"], title: "Front Door" },
+        config: {
+          entityIds: ["camera.front_door_camera"],
+          title: "Front Door",
+          streamEngine: "auto",
+          refreshInterval: 10,
+        },
       },
     ],
   },

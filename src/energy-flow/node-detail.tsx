@@ -101,11 +101,11 @@ export function NodeDetail(props: NodeDetailProps) {
               </ResponsiveDialogHeader>
 
               <div class="flex items-baseline gap-3">
-                <span class="text-3xl font-bold tabular-nums text-foreground">
+                <span class="font-bold text-3xl text-foreground tabular-nums">
                   {formatPower(d().watts)}
                 </span>
                 <Show when={d().soc !== undefined}>
-                  <span class="text-sm tabular-nums text-foreground/50">
+                  <span class="text-foreground/50 text-sm tabular-nums">
                     {Math.round(d().soc ?? 0)}% charged
                   </span>
                 </Show>
@@ -117,13 +117,13 @@ export function NodeDetail(props: NodeDetailProps) {
                     <Show when={c().label}>
                       <span class="text-foreground/50">{c().label}</span>
                     </Show>
-                    <span class="font-medium tabular-nums text-foreground/80">{c().value}</span>
+                    <span class="font-medium text-foreground/80 tabular-nums">{c().value}</span>
                   </div>
                 )}
               </Show>
 
               {/* Today's energy + sparkline are wired in a later plan. */}
-              <div class="mt-6 flex items-center justify-between text-xs text-foreground/40">
+              <div class="mt-6 flex items-center justify-between text-foreground/40 text-xs">
                 <span>Today: {formatEnergy(0)}</span>
                 <span class="italic">history coming soon</span>
               </div>

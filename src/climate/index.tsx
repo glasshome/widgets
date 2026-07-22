@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   isDark,
   useEntities,
   useTemperatureUnit,
@@ -9,9 +12,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -34,7 +34,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 
   const entities = useEntities(() => props.config.entityIds);
 
-  const { emptyState, hasEntities, count } = useWidgetEntityGroup({
+  const { emptyState, hasEntities } = useWidgetEntityGroup({
     entities,
     aggregationMode: () => "none",
     emptyStateConfig: {
@@ -82,11 +82,9 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     return `${mode} - ${formatTemperature(ct, tempUnit())}`;
   });
 
-  const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -111,10 +109,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       >
         <Show when={hasEntities()}>
           <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={iconName()} />}
-              entityCount={entities().length}
-            />
+            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title || entity()?.friendlyName || "Climate"}

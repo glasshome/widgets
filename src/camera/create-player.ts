@@ -1,10 +1,17 @@
 import { getStream } from "@glasshome/widget-sdk";
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from "solid-js";
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+} from "solid-js";
 import { createHlsDriver } from "./drivers/hls";
 import { createMjpegDriver } from "./drivers/mjpeg";
 import { createSnapshotDriver } from "./drivers/snapshot";
-import { createWebRtcDriver } from "./drivers/webrtc";
 import type { DriverCallbacks, MediaDriver } from "./drivers/types";
+import { createWebRtcDriver } from "./drivers/webrtc";
 import { initialState, type PlayerEvent, type PlayerStatus, transition } from "./player";
 import type { CameraSource, SourceKind } from "./sources";
 

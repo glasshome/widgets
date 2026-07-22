@@ -3,7 +3,7 @@ import { For } from "solid-js";
 
 export interface WidgetDebugData {
   widgetConfig: Record<string, unknown>;
-  entities: Record<string, unknown>[];
+  entities: ({ entity_id: string } & Record<string, unknown>)[];
   [key: string]: unknown;
 }
 
@@ -47,7 +47,7 @@ export function WidgetDebugView(props: { data: WidgetDebugData }) {
       <For each={props.data.entities}>
         {(entity, i) => (
           <DebugSection
-            title={`Entity ${props.data.entities.length > 1 ? i() + 1 : ""} — ${(entity as any).entity_id}`}
+            title={`Entity ${props.data.entities.length > 1 ? i() + 1 : ""} — ${entity.entity_id}`}
             data={entity}
           />
         )}

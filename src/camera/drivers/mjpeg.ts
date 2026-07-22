@@ -16,7 +16,11 @@ export function createMjpegDriver(): MediaDriver {
     onError = null;
   };
 
-  const start = (element: HTMLVideoElement | HTMLImageElement, source: CameraSource, cb: DriverCallbacks) => {
+  const start = (
+    element: HTMLVideoElement | HTMLImageElement,
+    source: CameraSource,
+    cb: DriverCallbacks,
+  ) => {
     el = element as HTMLImageElement;
     const url = source.url ? hassMediaUrl(source.url) : null;
     if (!url) {

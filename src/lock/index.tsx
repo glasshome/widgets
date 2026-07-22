@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useEntities,
   useService,
   useWidgetContext,
@@ -8,9 +11,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -66,7 +66,7 @@ function LockWidget(props: { config: LockConfig }) {
     try {
       const service = isLocked() ? "unlock" : "lock";
       for (const e of entities()) {
-        await callService("lock" as any, service as any, {}, { entity_id: e.id });
+        await callService("lock", service, {}, { entity_id: e.id });
       }
     } finally {
       clearTimeout(timeout);
@@ -74,12 +74,10 @@ function LockWidget(props: { config: LockConfig }) {
     }
   };
 
-  const gestures = useWidgetGestures(
-    () => ({
-      tap: handleTap,
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    tap: handleTap,
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -127,7 +125,7 @@ function LockWidget(props: { config: LockConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

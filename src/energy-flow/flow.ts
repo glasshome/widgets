@@ -192,8 +192,7 @@ export function deriveFlow(
       configured: grid.configured,
       stale: grid.stale,
       watts: grid.flow.positive > 0 ? grid.flow.positive : grid.flow.negative,
-      direction:
-        grid.flow.positive > 0 ? "import" : grid.flow.negative > 0 ? "export" : "idle",
+      direction: grid.flow.positive > 0 ? "import" : grid.flow.negative > 0 ? "export" : "idle",
     },
     battery: {
       configured: battery.configured,

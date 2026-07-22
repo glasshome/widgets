@@ -1,8 +1,6 @@
 export type ConsumptionStrategy = "entity" | "grid_plus_solar" | "sum_consumers";
 
-export type BidirectionalInput =
-  | { importValue: number; exportValue: number }
-  | { signed: number };
+export type BidirectionalInput = { importValue: number; exportValue: number } | { signed: number };
 
 export interface NormalizedFlow {
   import: number;
@@ -45,8 +43,7 @@ export function calculateHomeConsumption(
         ? normalizeBidirectional(inputs.battery)
         : { import: 0, export: 0 };
       const solar = inputs.solarW ?? 0;
-      const consumption =
-        grid.import + solar - grid.export - battery.import + battery.export;
+      const consumption = grid.import + solar - grid.export - battery.import + battery.export;
       // Sensor jitter can push this slightly negative; consumption can't be.
       return Math.max(0, consumption);
     }

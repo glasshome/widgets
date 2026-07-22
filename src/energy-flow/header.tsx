@@ -21,7 +21,7 @@ export function EnergyHeader(props: {
       <div class="flex min-w-0 flex-col overflow-hidden">
         <Widget.Title>{props.headline}</Widget.Title>
         <Show when={props.detail}>
-          <span class="truncate text-xs text-foreground/50">{props.detail}</span>
+          <span class="truncate text-foreground/50 text-xs">{props.detail}</span>
         </Show>
       </div>
     </div>

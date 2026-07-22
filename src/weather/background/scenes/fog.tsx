@@ -45,7 +45,7 @@ export function FogScene() {
         }}
       />
       <div
-        class="absolute inset-x-0 bottom-0 h-1/4 hidden dark:block"
+        class="absolute inset-x-0 bottom-0 hidden h-1/4 dark:block"
         style={{
           background: "linear-gradient(180deg, transparent 0%, rgba(40,44,38,0.6) 100%)",
         }}

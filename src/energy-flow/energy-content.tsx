@@ -43,7 +43,7 @@ export function EnergyContent(props: EnergyContentProps) {
   });
 
   return (
-    <div class="relative h-full w-full" aria-label={props.description.headline}>
+    <div class="relative h-full w-full">
       <Switch>
         {/* --- Glance: header row only, like any 2x1 widget --- */}
         <Match when={tier() === "glance"}>
@@ -71,7 +71,7 @@ export function EnergyContent(props: EnergyContentProps) {
                 <Widget.Status class="tabular-nums">
                   {formatPower(props.flow.home.watts)}
                 </Widget.Status>
-                <span class="text-xs text-foreground/50">home</span>
+                <span class="text-foreground/50 text-xs">home</span>
               </div>
               <SourceMix flow={props.flow} tariff={props.tariff} />
             </div>

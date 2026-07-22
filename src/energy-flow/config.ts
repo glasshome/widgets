@@ -73,12 +73,27 @@ export const configSchema = defineConfig({
     "Home power",
     "Total home consumption sensor (W). Used when consumption is set to 'entity'.",
   ),
-  consumerEntities: field.entities("sensor", { title: "Consumers", description: "Individual consumer power sensors (W). Summed when consumption is 'sum_consumers'.", deviceClass: "power" }),
+  consumerEntities: field.entities("sensor", {
+    title: "Consumers",
+    description:
+      "Individual consumer power sensors (W). Summed when consumption is 'sum_consumers'.",
+    deviceClass: "power",
+  }),
   evEntity: powerEntity("EV charging power", "Electric-vehicle charging power sensor (W)."),
   evSocEntity: socEntity("EV charge level"),
-  sunEntity: field.entity("sun", { title: "Sun entity", description: "Optional. Your sun.sun entity, used to rest the solar node after sunset." }),
-  tariffCurrency: field.text({ title: "Currency", description: "Optional. Currency symbol for cost estimates (e.g. €). Set together with the rate." }),
-  tariffRate: field.number({ title: "Rate per kWh", description: "Optional. Price per kWh. Set together with the currency." }),
+  sunEntity: field.entity("sun", {
+    title: "Sun entity",
+    description: "Optional. Your sun.sun entity, used to rest the solar node after sunset.",
+  }),
+  tariffCurrency: field.text({
+    title: "Currency",
+    description:
+      "Optional. Currency symbol for cost estimates (e.g. €). Set together with the rate.",
+  }),
+  tariffRate: field.number({
+    title: "Rate per kWh",
+    description: "Optional. Price per kWh. Set together with the currency.",
+  }),
 });
 
 export type EnergyFlowConfig = Infer<typeof configSchema>;

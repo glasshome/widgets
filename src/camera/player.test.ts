@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { activeSource, initialState, type PlayerEvent, type PlayerState, transition } from "./player";
+import {
+  activeSource,
+  initialState,
+  type PlayerEvent,
+  type PlayerState,
+  transition,
+} from "./player";
 import type { CameraSource } from "./sources";
 
 const SOURCES: CameraSource[] = [
@@ -84,7 +90,13 @@ describe("player reducer", () => {
   });
 
   test("retry restarts from the top and bumps the frame nonce", () => {
-    const exhausted = run([{ t: "start" }, { t: "error" }, { t: "error" }, { t: "error" }, { t: "error" }]);
+    const exhausted = run([
+      { t: "start" },
+      { t: "error" },
+      { t: "error" },
+      { t: "error" },
+      { t: "error" },
+    ]);
     const retried = transition(exhausted, { t: "retry" }, SOURCES);
     expect(retried.status).toBe("connecting");
     expect(retried.index).toBe(0);

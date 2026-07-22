@@ -1,7 +1,10 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
   getEntityAttribute,
   getForecasts,
+  type Infer,
   useEntity,
   useForecast,
   useWidgetContext,
@@ -9,17 +12,14 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { WeatherBackground } from "./background";
 import { ForecastChart } from "./forecast-chart";
 import { formatTemp, formatWindSpeed, getWeatherIcon, getWeatherIconColor } from "./utils";
-import { WeatherBackground } from "./background";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -189,7 +189,10 @@ function WeatherWidget(props: { config: WeatherConfig }) {
             </div>
           </div>
         }
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={(() => {
+          const data = debugData();
+          return data ? <WidgetDebugView data={data} /> : undefined;
+        })()}
         debugData={debugData()}
       />
     </>
@@ -378,4 +381,3 @@ export default defineWidget<WeatherConfig>({
   configSchema,
   component: WeatherWidget,
 });
- 

@@ -29,7 +29,9 @@ describe("resolveSources", () => {
 
   test("falls back to access_token when no entity_picture", () => {
     const input = { entityId: "camera.cam", entityPicture: null, accessToken: "TOK" };
-    expect(resolveSources(input, "snapshot")[0]?.url).toBe("/api/camera_proxy/camera.cam?token=TOK");
+    expect(resolveSources(input, "snapshot")[0]?.url).toBe(
+      "/api/camera_proxy/camera.cam?token=TOK",
+    );
     expect(resolveSources(input, "mjpeg")[0]?.url).toBe(
       "/api/camera_proxy_stream/camera.cam?token=TOK",
     );

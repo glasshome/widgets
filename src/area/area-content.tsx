@@ -76,7 +76,13 @@ function buildChips(m: AreaMetrics): ChipDef[] {
     const label = c >= 1000 ? "CO₂ high" : c >= 800 ? "CO₂ ok" : "CO₂ fresh";
     const color =
       c >= 1000 ? "oklch(0.7 0.18 25)" : c >= 800 ? "oklch(0.8 0.13 70)" : "oklch(0.78 0.12 150)";
-    chips.push({ key: "co2", icon: "mdi:molecule-co2", label, color, title: `CO₂ ${c.toFixed(0)} ppm` });
+    chips.push({
+      key: "co2",
+      icon: "mdi:molecule-co2",
+      label,
+      color,
+      title: `CO₂ ${c.toFixed(0)} ppm`,
+    });
   }
   if (m.hasMotion) {
     chips.push({
@@ -124,7 +130,10 @@ function StatusBadge(props: { status: AreaStatus; compact?: boolean }) {
     >
       <span
         class="inline-block size-1.5 rounded-full"
-        style={{ "background-color": props.status.color, "box-shadow": `0 0 6px ${props.status.color}` }}
+        style={{
+          "background-color": props.status.color,
+          "box-shadow": `0 0 6px ${props.status.color}`,
+        }}
       />
       {props.status.label}
     </span>
@@ -156,7 +165,10 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
     const f = props.fill ?? 0;
     const grad = `color-mix(in oklch, ${accent()} 42%, transparent), color-mix(in oklch, ${accent()} 14%, transparent)`;
     return props.horizontal
-      ? { background: `linear-gradient(to right, ${grad})`, "clip-path": `inset(0 ${100 - f}% 0 0)` }
+      ? {
+          background: `linear-gradient(to right, ${grad})`,
+          "clip-path": `inset(0 ${100 - f}% 0 0)`,
+        }
       : { background: `linear-gradient(to top, ${grad})`, "clip-path": `inset(${100 - f}% 0 0 0)` };
   };
 
@@ -168,7 +180,7 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
         props.horizontal ? "items-center gap-3" : "flex-col justify-end gap-1"
       } ${props.compact ? "p-2.5" : "p-3"} ${
         props.active ? "border-transparent" : "border-foreground/10 bg-foreground/[0.05]"
-      } ${interactive() ? "active:scale-[0.97] cursor-pointer" : ""}`}
+      } ${interactive() ? "cursor-pointer active:scale-[0.97]" : ""}`}
       style={
         props.active
           ? { "background-color": `color-mix(in oklch, ${accent()} 16%, transparent)` }
@@ -198,7 +210,11 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
         }`}
         style={
           props.active
-            ? { "background-color": accent(), color: "oklch(0.18 0.02 80)", "--tw-shadow-color": accent() }
+            ? {
+                "background-color": accent(),
+                color: "oklch(0.18 0.02 80)",
+                "--tw-shadow-color": accent(),
+              }
             : undefined
         }
       >
@@ -207,11 +223,13 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
 
       {/* label + value */}
       <div class={`relative min-w-0 ${props.horizontal ? "flex-1" : ""}`}>
-        <div class={`truncate font-medium text-foreground/45 ${props.compact ? "text-[10px]" : "text-xs"}`}>
+        <div
+          class={`truncate font-medium text-foreground/45 ${props.compact ? "text-[10px]" : "text-xs"}`}
+        >
           {props.label}
         </div>
         <div
-          class={`truncate font-bold tabular-nums leading-tight text-foreground ${
+          class={`truncate font-bold text-foreground tabular-nums leading-tight ${
             props.compact ? "text-base" : "text-xl"
           }`}
         >

@@ -76,11 +76,7 @@ describe("statusFromNet", () => {
 
 describe("deriveBalance", () => {
   test("amber arc share equals the center KPI", () => {
-    const b = deriveBalance(
-      inputs({ producedKWh: 7, gridImportKWh: 3, homeKWh: 10 }),
-      -400,
-      true,
-    );
+    const b = deriveBalance(inputs({ producedKWh: 7, gridImportKWh: 3, homeKWh: 10 }), -400, true);
     // consumed 10, import 3 -> 70% self-sufficient, exporting live.
     expect(b.consumedKWh).toBe(10);
     expect(b.selfSufficiency).toBeCloseTo(0.7);

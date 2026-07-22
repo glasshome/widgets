@@ -19,7 +19,7 @@ export function LightningScene(props: LightningProps) {
       />
 
       <div
-        class="absolute -top-8 -inset-x-8 h-2/3 opacity-90"
+        class="absolute -inset-x-8 -top-8 h-2/3 opacity-90"
         style={{
           background:
             "radial-gradient(ellipse 60% 80% at 30% 70%, oklch(0.15 0.03 270) 0%, transparent 70%), radial-gradient(ellipse 50% 70% at 75% 60%, oklch(0.10 0.02 280) 0%, transparent 65%)",

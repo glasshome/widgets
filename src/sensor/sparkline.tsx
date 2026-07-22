@@ -1,5 +1,5 @@
 import { monotoneCubicPath } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, type JSX, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
 
 export interface SparklinePoint {
   value: number;
@@ -102,67 +102,75 @@ export function Sparkline(props: SparklineProps): JSX.Element {
 
   return (
     <div ref={containerRef} class="h-full w-full">
-      <svg width={width()} height={height()} viewBox={`0 0 ${width()} ${height()}`} class="block">
-        {chartData() && (
-          <>
-            <defs>
-              <linearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color={color()} stop-opacity="0.3" />
-                <stop offset="100%" stop-color={color()} stop-opacity="0" />
-              </linearGradient>
-            </defs>
+      <svg
+        width={width()}
+        height={height()}
+        viewBox={`0 0 ${width()} ${height()}`}
+        class="block"
+        aria-hidden="true"
+      >
+        <Show when={chartData()}>
+          {(cd) => (
+            <>
+              <defs>
+                <linearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color={color()} stop-opacity="0.3" />
+                  <stop offset="100%" stop-color={color()} stop-opacity="0" />
+                </linearGradient>
+              </defs>
 
-            <path
-              d={chartData()!.areaPath}
-              fill="url(#spark-area)"
-              opacity={mounted() ? 1 : 0}
-              style={{ transition: "opacity 0.5s ease-out" }}
-            />
+              <path
+                d={cd().areaPath}
+                fill="url(#spark-area)"
+                opacity={mounted() ? 1 : 0}
+                style={{ transition: "opacity 0.5s ease-out" }}
+              />
 
-            <path
-              d={chartData()!.linePath}
-              fill="none"
-              stroke={color()}
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              opacity="0.8"
-              stroke-dasharray={`${pathLength()}`}
-              stroke-dashoffset={mounted() ? 0 : pathLength()}
-              style={{ transition: "stroke-dashoffset 0.7s ease-out" }}
-            />
+              <path
+                d={cd().linePath}
+                fill="none"
+                stroke={color()}
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.8"
+                stroke-dasharray={`${pathLength()}`}
+                stroke-dashoffset={mounted() ? 0 : pathLength()}
+                style={{ transition: "stroke-dashoffset 0.7s ease-out" }}
+              />
 
-            {/* High label */}
-            <text
-              x={chartData()!.clampX(chartData()!.points[chartData()!.maxIdx].x)}
-              y={chartData()!.points[chartData()!.maxIdx].y - 4}
-              text-anchor={chartData()!.anchor(chartData()!.points[chartData()!.maxIdx].x)}
-              fill={color()}
-              font-size="10"
-              font-weight="600"
-              opacity={mounted() ? 0.9 : 0}
-              style={{ transition: "opacity 0.3s ease-out 0.6s" }}
-            >
-              {fmt(chartData()!.points[chartData()!.maxIdx].value)}{" "}
-            </text>
-
-            {/* Low label */}
-            {chartData()!.showLow && (
+              {/* High label */}
               <text
-                x={chartData()!.clampX(chartData()!.points[chartData()!.minIdx].x)}
-                y={chartData()!.points[chartData()!.minIdx].y + 12}
-                text-anchor={chartData()!.anchor(chartData()!.points[chartData()!.minIdx].x)}
+                x={cd().clampX(cd().points[cd().maxIdx].x)}
+                y={cd().points[cd().maxIdx].y - 4}
+                text-anchor={cd().anchor(cd().points[cd().maxIdx].x)}
                 fill={color()}
                 font-size="10"
                 font-weight="600"
                 opacity={mounted() ? 0.9 : 0}
                 style={{ transition: "opacity 0.3s ease-out 0.6s" }}
               >
-                {fmt(chartData()!.points[chartData()!.minIdx].value)}{" "}
+                {fmt(cd().points[cd().maxIdx].value)}{" "}
               </text>
-            )}
-          </>
-        )}
+
+              {/* Low label */}
+              {cd().showLow && (
+                <text
+                  x={cd().clampX(cd().points[cd().minIdx].x)}
+                  y={cd().points[cd().minIdx].y + 12}
+                  text-anchor={cd().anchor(cd().points[cd().minIdx].x)}
+                  fill={color()}
+                  font-size="10"
+                  font-weight="600"
+                  opacity={mounted() ? 0.9 : 0}
+                  style={{ transition: "opacity 0.3s ease-out 0.6s" }}
+                >
+                  {fmt(cd().points[cd().minIdx].value)}{" "}
+                </text>
+              )}
+            </>
+          )}
+        </Show>
       </svg>
     </div>
   );

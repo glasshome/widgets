@@ -107,8 +107,8 @@ export function SourceMix(props: { flow: EnergyFlow; tariff: Tariff }): JSX.Elem
             <span
               class="flex min-w-0 items-start gap-1 text-xs tabular-nums transition-opacity"
               classList={{ "opacity-50": !item.active }}
-              aria-label={`${item.role}: ${item.value}${item.sub ? `, ${item.sub}` : ""}`}
             >
+              <span class="sr-only">{item.role}</span>
               <Icon
                 icon={item.icon}
                 width={14}

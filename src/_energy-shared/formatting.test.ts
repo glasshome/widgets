@@ -1,11 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  describeFlow,
-  describePower,
-  formatEnergy,
-  formatMoney,
-  formatPower,
-} from "./formatting";
+import { describeFlow, describePower, formatEnergy, formatMoney, formatPower } from "./formatting";
 
 describe("formatPower", () => {
   test("roadmap fixtures", () => {

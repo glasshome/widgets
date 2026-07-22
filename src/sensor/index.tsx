@@ -1,6 +1,9 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
   getEntityAttribute,
+  type Infer,
   type SensorGroupResult,
   trackEntityHistory,
   untrackEntityHistory,
@@ -12,9 +15,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
@@ -26,7 +26,10 @@ import { formatSensorValue } from "./utils";
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("sensor"),
-  aggregationType: field.choice(["mean", "min", "max", "sum", "median"], { title: "Aggregation", default: "mean" }),
+  aggregationType: field.choice(["mean", "min", "max", "sum", "median"], {
+    title: "Aggregation",
+    default: "mean",
+  }),
 });
 type SensorConfig = Infer<typeof configSchema>;
 
@@ -98,11 +101,9 @@ function SensorWidget(props: { config: SensorConfig }) {
     return data?.description ?? `${total} sensors`;
   });
 
-  const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -115,18 +116,10 @@ function SensorWidget(props: { config: SensorConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        tone="info"
-        emptyState={emptyState()}
-      >
+      <Widget gestures={gestures} variant="classic-glass" tone="info" emptyState={emptyState()}>
         <Show when={hasEntities()}>
           <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={iconName()} />}
-              entityCount={entities().length}
-            />
+            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
                 {props.config.title ||
@@ -159,7 +152,10 @@ function SensorWidget(props: { config: SensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={(() => {
+          const data = debugData();
+          return data ? <WidgetDebugView data={data} /> : undefined;
+        })()}
         debugData={debugData()}
       />
     </>

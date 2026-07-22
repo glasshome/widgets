@@ -1,5 +1,8 @@
 import {
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useArea,
   useService,
   useWidgetContext,
@@ -7,9 +10,6 @@ import {
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
@@ -55,9 +55,7 @@ function AreaWidget(props: { config: AreaConfig }) {
     Promise.allSettled(lights.map((l) => action(l.id)));
   };
 
-  const gestures = useWidgetGestures(
-    () => ({ hold: { action: openDialog } }),
-  );
+  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -121,7 +119,7 @@ function AreaWidget(props: { config: AreaConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<AreaControls groups={groups()} />}
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(d) => <WidgetDebugView data={d()} />}</Show>}
         debugData={debugData()}
       />
     </>

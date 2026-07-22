@@ -3,5 +3,7 @@
    mode changes (heat → cool, off → heat, etc.). Climate-scoped per research
    recommendation Option A to avoid speculative animation across every widget. */
 .climate-widget-shell {
-  transition: --widget-color 300ms ease, --widget-color-to 300ms ease;
+  transition:
+    --widget-color 300ms ease,
+    --widget-color-to 300ms ease;
 }

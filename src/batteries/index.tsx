@@ -1,15 +1,15 @@
 import {
   byDomain,
+  defineConfig,
   defineWidget,
+  field,
+  type Infer,
   useEntities,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
   Widget,
   WidgetDialog,
-  field,
-  defineConfig,
-  type Infer,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
@@ -38,11 +38,9 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   const totalCount = createMemo(() => batteries().length);
   const hasLow = createMemo(() => lowCount() > 0);
 
-  const gestures = useWidgetGestures(
-    () => ({
-      hold: { action: openDialog },
-    }),
-  );
+  const gestures = useWidgetGestures(() => ({
+    hold: { action: openDialog },
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -56,11 +54,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        tone={hasLow() ? "warning" : "success"}
-      >
+      <Widget gestures={gestures} variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
         <Widget.Content>
           <Widget.Icon icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />} />
           <div class="flex flex-col gap-1 overflow-hidden">
@@ -127,7 +121,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             </Show>
           </div>
         }
-        debugContent={debugData() ? <WidgetDebugView data={debugData()!} /> : undefined}
+        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

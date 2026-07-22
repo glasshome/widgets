@@ -8,6 +8,10 @@ export interface DriverCallbacks {
 
 export interface MediaDriver {
   kind: SourceKind;
-  start: (el: HTMLVideoElement | HTMLImageElement, source: CameraSource, cb: DriverCallbacks) => void;
+  start: (
+    el: HTMLVideoElement | HTMLImageElement,
+    source: CameraSource,
+    cb: DriverCallbacks,
+  ) => void;
   stop: () => void;
 }
