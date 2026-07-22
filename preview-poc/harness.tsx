@@ -1,6 +1,19 @@
 import type { ReactiveWidgetContext, WidgetDefinition } from "@glasshome/widget-sdk";
 import { injectTokens, WidgetCtx } from "@glasshome/widget-sdk";
 import { loadDemoData } from "@glasshome/sync-layer";
+import { getEntityView } from "@glasshome/sync-layer";
+import { byDomain, useAreas, useEntities } from "@glasshome/sync-layer/solid";
+import type { EntityDataAdapter } from "@glasshome/ui/solid";
+import { provideEntityData } from "@glasshome/ui/solid";
+import type { IconifyJSON } from "@iconify/types";
+// `?url` + runtime fetch, NOT a JSON import. Vite turns an imported JSON file
+// into an ES module — a multi-megabyte object literal the JS engine has to
+// evaluate on every page load, which cost ~200s per render. Fetching the same
+// file and letting the browser JSON.parse it natively is orders of magnitude
+// faster, and the request is local so the egress lock still holds.
+import lucideUrl from "@iconify-json/lucide/icons.json?url";
+import mdiUrl from "@iconify-json/mdi/icons.json?url";
+import { addAPIProvider, addCollection } from "iconify-icon";
 import { createComponent, ErrorBoundary } from "solid-js";
 import { render } from "solid-js/web";
 // The real built bundle + its separate CSS asset — the same artifacts the hub
@@ -16,6 +29,41 @@ import "@glasshome/ui/styles";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/caveat";
+
+// Preload every collection into iconify's shared icon storage before any widget
+// mounts. `iconify-icon` is a declared singleton host-provided module, so one
+// registration serves every widget. Full collections rather than a scanned
+// subset, because icon names are built at runtime (weather picks by condition,
+// light by on/off) and a static scan misses exactly those. All three prefixes
+// are needed: widgets use mdi, but @glasshome/ui components pull lucide.
+// (simple-icons is deliberately absent — nothing references it, and at 4.6MB it
+// was the single largest cost per page load.)
+async function preloadIcons(): Promise<void> {
+  const [mdi, lucide] = await Promise.all([
+    fetch(mdiUrl).then((r) => r.json() as Promise<IconifyJSON>),
+    fetch(lucideUrl).then((r) => r.json() as Promise<IconifyJSON>),
+  ]);
+  addCollection(mdi);
+  addCollection(lucide);
+}
+
+// No network fallback. Dash repoints this provider at its own /iconify/ proxy;
+// the render worker has no egress at all, so an unresolved icon must fail
+// visibly (blank) rather than reach out to api.iconify.design.
+addAPIProvider("", { resources: [] });
+
+// @glasshome/ui's smart-home components (pickers, entity rows) resolve data
+// through an injected adapter; dash binds the same four sync-layer functions in
+// main.tsx. Without it those components throw and the widget renders empty.
+// Host setup like this is duplicated per host today — see the mount
+// consolidation memo.
+const entityDataAdapter: EntityDataAdapter = {
+  entityIdsByDomain: byDomain,
+  useEntities,
+  getEntityView,
+  useAreas,
+};
+provideEntityData(entityDataAdapter);
 
 // Every built widget bundle + its CSS, selected by the `?widget=` param. Glob
 // keeps the imports static-analyzable while staying widget-agnostic — the same
@@ -112,6 +160,10 @@ async function main(): Promise<void> {
   }
 
   document.documentElement.classList.toggle("dark", dark);
+
+  // Icons must be registered before the widget mounts, or its first paint
+  // triggers the (now dead) network lookup and renders blank.
+  await preloadIcons();
 
   await loadDemoData();
 

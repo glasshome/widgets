@@ -1,10 +1,14 @@
 import { mkdirSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { buildWidgets } from "@glasshome/widget-sdk/vite";
-import { chromium } from "playwright";
 import { createServer } from "vite";
 import solid from "vite-plugin-solid";
-import { nixLdLibraryPath } from "./nix-ld";
+import {
+  watchEgress,
+  withFreshBrowser,
+  withRenderTimeout,
+  withSharedBrowser,
+} from "./worker-constraints";
 
 const here = resolve(import.meta.dirname);
 const widgetsRoot = resolve(here, "..");
@@ -18,13 +22,28 @@ interface ShotListEntry {
   size: { w: number; h: number };
 }
 
+interface Failure {
+  widget: string;
+  kind: "network" | "hang";
+  detail: string;
+}
+
 function slug(s: string): string {
   return s.toLowerCase().replace(/\s+/g, "-");
 }
 
 async function main(): Promise<void> {
-  // Optional CLI filter: `bun capture.ts light weather` builds/shoots a subset.
-  const only = process.argv.slice(2);
+  // Optional CLI filter: `bun capture.ts camera media-player` shoots a subset.
+  // Camera and media-player are the widgets most likely to reach the network or
+  // hang, so they are the useful first targets.
+  //
+  // `--isolate` gives every render its own browser PROCESS, matching the
+  // worker's cross-render contamination rule. It costs a launch per shot, and
+  // it is orthogonal to the egress question — a fresh context already gives the
+  // lock everything it needs — so it is opt-in rather than the default.
+  const argv = process.argv.slice(2);
+  const isolate = argv.includes("--isolate");
+  const only = argv.filter((a) => !a.startsWith("--"));
 
   // 1. Build the widget bundles so authored examples land in dist/<name>.js.
   process.chdir(widgetsRoot);
@@ -46,57 +65,115 @@ async function main(): Promise<void> {
   await server.listen();
   const base = server.resolvedUrls?.local[0];
   if (!base) throw new Error("vite dev server has no local url");
+  const origin = new URL(base).origin;
 
-  // 3. Drive Chromium: one shot per widget x example x theme, clipped to the tile.
   mkdirSync(outDir, { recursive: true });
-  // On NixOS the Playwright-downloaded Chromium can't find its system libs;
-  // point nix-ld at them so the bundled browser launches unmodified.
-  const nixLd = nixLdLibraryPath();
-  if (nixLd) process.env.NIX_LD_LIBRARY_PATH = nixLd;
-  const browser = await chromium.launch();
-  const context = await browser.newContext({ deviceScaleFactor: 2 });
-  const page = await context.newPage();
 
-  let shot = 0;
+  // 3. Enumerate each widget's shot list (one locked browser for the whole pass).
+  const shotLists = new Map<string, ShotListEntry[]>();
   const skipped: string[] = [];
-  for (const widget of widgetNames) {
-    // Enumerate the widget's shot-list from the harness DOM.
-    await page.goto(`${base}?widget=${widget}&ex=0&theme=light`, { waitUntil: "networkidle" });
-    await page.waitForSelector("html[data-harness-examples]", {
-      state: "attached",
-      timeout: 30_000,
-    });
-    const examples: ShotListEntry[] = JSON.parse(
-      (await page.getAttribute("html", "data-harness-examples")) ?? "[]",
-    );
-    if (examples.length === 0) {
-      skipped.push(widget);
-      continue;
+  await withFreshBrowser(async (page) => {
+    watchEgress(page, origin);
+    for (const widget of widgetNames) {
+      await page.goto(`${base}?widget=${widget}&ex=0&theme=light`, { waitUntil: "domcontentloaded" });
+      await page.waitForSelector("html[data-harness-examples]", {
+        state: "attached",
+        timeout: 30_000,
+      });
+      const examples: ShotListEntry[] = JSON.parse(
+        (await page.getAttribute("html", "data-harness-examples")) ?? "[]",
+      );
+      if (examples.length === 0) skipped.push(widget);
+      else shotLists.set(widget, examples);
     }
+  });
 
-    for (let i = 0; i < examples.length; i++) {
-      const label = slug(examples[i].label ?? `example-${i}`);
-      for (const theme of THEMES) {
-        await page.goto(`${base}?widget=${widget}&ex=${i}&theme=${theme}`, {
-          waitUntil: "networkidle",
-        });
-        await page.waitForSelector("html[data-harness-ready='1']", {
-          state: "attached",
-          timeout: 30_000,
-        });
-        const file = resolve(outDir, `${widget}-${label}-${theme}.png`);
-        await page.locator("#stage").screenshot({ path: file, omitBackground: true });
-        shot++;
+  // 4. Render every shot under the worker's constraints.
+  let shot = 0;
+  const failures: Failure[] = [];
+
+  const runAll = async (newPage: (() => Promise<import("playwright").Page>) | null) => {
+    for (const [widget, examples] of shotLists) {
+      const widgetAttempts = new Set<string>();
+
+      for (let i = 0; i < examples.length; i++) {
+        const label = slug(examples[i].label ?? `example-${i}`);
+        for (const theme of THEMES) {
+          const url = `${base}?widget=${widget}&ex=${i}&theme=${theme}`;
+          const file = resolve(outDir, `${widget}-${label}-${theme}.png`);
+
+          const shoot = async (page: import("playwright").Page) => {
+            const lock = watchEgress(page, origin);
+            await page.goto(url, { waitUntil: "domcontentloaded" });
+            await page.waitForSelector("html[data-harness-ready='1']", {
+              state: "attached",
+              timeout: 20_000,
+            });
+            await page.locator("#stage").screenshot({ path: file, omitBackground: true });
+            for (const a of lock.attempts) widgetAttempts.add(a);
+          };
+
+          try {
+            await withRenderTimeout(`${widget} / ${label} / ${theme}`, async () => {
+              if (newPage) {
+                const page = await newPage();
+                try {
+                  await shoot(page);
+                } finally {
+                  await page.context().close();
+                }
+              } else {
+                await withFreshBrowser(shoot);
+              }
+            });
+            shot++;
+          } catch (err) {
+            failures.push({
+              widget,
+              kind: "hang",
+              detail: `${label}/${theme}: ${err instanceof Error ? err.message : String(err)}`,
+            });
+          }
+        }
       }
-    }
-    console.log(`${widget}: ${examples.length} example(s)`);
-  }
 
-  await browser.close();
+      for (const a of widgetAttempts) {
+        failures.push({ widget, kind: "network", detail: a });
+      }
+      const flag = widgetAttempts.size ? `  ⚠ needs network (${widgetAttempts.size})` : "";
+      console.log(`${widget}: ${examples.length} example(s)${flag}`);
+    }
+  };
+
+  if (isolate) await runAll(null);
+  else await withSharedBrowser((newPage) => runAll(newPage));
+
   await server.close();
 
-  console.log(`\n${shot} shot(s) across ${widgetNames.length - skipped.length} widget(s).`);
+  // 5. Verdict.
+  console.log(`\n${shot} shot(s) across ${shotLists.size} widget(s).`);
   if (skipped.length) console.log(`no examples (skipped): ${skipped.join(", ")}`);
+
+  const network = failures.filter((f) => f.kind === "network");
+  const hangs = failures.filter((f) => f.kind === "hang");
+
+  // Nothing can actually leave — DNS is blackholed. These are blocked attempts,
+  // i.e. what each widget wanted from the network and must degrade without.
+  if (network.length) {
+    console.log(`\n⚠ NETWORK: ${network.length} blocked request(s) — all denied, none left the machine`);
+    for (const f of network) console.log(`   ${f.widget}  ${f.detail}`);
+  } else {
+    console.log("\n✓ NETWORK: no widget attempted to reach the network");
+  }
+
+  if (hangs.length) {
+    console.log(`\n✗ RENDER: ${hangs.length} render(s) failed or timed out`);
+    for (const f of hangs) console.log(`   ${f.widget}  ${f.detail}`);
+  } else {
+    console.log("✓ RENDER: every render settled inside the timeout");
+  }
+
+  if (hangs.length) process.exitCode = 1;
 }
 
 main().catch((err) => {

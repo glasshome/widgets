@@ -18,6 +18,10 @@
   },
   "devDependencies": {
     "@glasshome/widget-cli": "0.8.4",
+    "@iconify-json/lucide": "^1.2.0",
+    "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/simple-icons": "^1.2.0",
+    "@iconify/types": "^2.0.0",
     "@types/bun": "latest",
     "@types/json-schema": "^7.0.15",
     "typescript": "^5.0.0",

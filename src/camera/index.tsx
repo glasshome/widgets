@@ -146,6 +146,13 @@ export default defineWidget<CameraConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 4, h: 6 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Front Door",
+        size: { w: 3, h: 2 },
+        config: { entityIds: ["camera.front_door_camera"], title: "Front Door" },
+      },
+    ],
   },
   configSchema,
   component: CameraWidget,
