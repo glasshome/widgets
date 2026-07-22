@@ -123,6 +123,21 @@ export default defineWidget<ButtonConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Single button",
+        size: { w: 1, h: 1 },
+        config: { title: "Restart", entityIds: ["button.restart_home_assistant"] },
+      },
+      {
+        label: "Button group",
+        size: { w: 2, h: 1 },
+        config: {
+          title: "Maintenance",
+          entityIds: ["button.restart_home_assistant", "button.update_firmware"],
+        },
+      },
+    ],
   },
   configSchema,
   component: ButtonWidget,
