@@ -4,6 +4,9 @@ import { buildWidgets } from "@glasshome/widget-sdk/vite";
 import { createServer } from "vite";
 import solid from "vite-plugin-solid";
 import {
+  freezeClock,
+  hashWidgetArtifacts,
+  settleAnimations,
   watchEgress,
   withFreshBrowser,
   withRenderTimeout,
@@ -24,7 +27,7 @@ interface ShotListEntry {
 
 interface Failure {
   widget: string;
-  kind: "network" | "hang";
+  kind: "network" | "hang" | "integrity";
   detail: string;
 }
 
@@ -71,6 +74,7 @@ async function main(): Promise<void> {
 
   // 3. Enumerate each widget's shot list (one locked browser for the whole pass).
   const shotLists = new Map<string, ShotListEntry[]>();
+  const pinnedHashes = new Map<string, string>();
   const skipped: string[] = [];
   await withFreshBrowser(async (page) => {
     watchEgress(page, origin);
@@ -84,7 +88,11 @@ async function main(): Promise<void> {
         (await page.getAttribute("html", "data-harness-examples")) ?? "[]",
       );
       if (examples.length === 0) skipped.push(widget);
-      else shotLists.set(widget, examples);
+      else {
+        shotLists.set(widget, examples);
+        // Pin the bytes now; every later render must match this.
+        pinnedHashes.set(widget, hashWidgetArtifacts(distDir, widget));
+      }
     }
   });
 
@@ -96,6 +104,19 @@ async function main(): Promise<void> {
     for (const [widget, examples] of shotLists) {
       const widgetAttempts = new Set<string>();
 
+      // Verify-before-execute: refuse to render bytes that changed since the
+      // shot list was built.
+      const current = hashWidgetArtifacts(distDir, widget);
+      if (current !== pinnedHashes.get(widget)) {
+        failures.push({
+          widget,
+          kind: "integrity",
+          detail: `bundle changed after pinning (${pinnedHashes.get(widget)?.slice(0, 12)} -> ${current.slice(0, 12)})`,
+        });
+        console.log(`${widget}: SKIPPED — bundle hash mismatch`);
+        continue;
+      }
+
       for (let i = 0; i < examples.length; i++) {
         const label = slug(examples[i].label ?? `example-${i}`);
         for (const theme of THEMES) {
@@ -104,11 +125,14 @@ async function main(): Promise<void> {
 
           const shoot = async (page: import("playwright").Page) => {
             const lock = watchEgress(page, origin);
+            await freezeClock(page);
             await page.goto(url, { waitUntil: "domcontentloaded" });
             await page.waitForSelector("html[data-harness-ready='1']", {
               state: "attached",
               timeout: 20_000,
             });
+            // Fire rAF-gated mount animations before capturing.
+            await settleAnimations(page);
             await page.locator("#stage").screenshot({ path: file, omitBackground: true });
             for (const a of lock.attempts) widgetAttempts.add(a);
           };
@@ -156,6 +180,7 @@ async function main(): Promise<void> {
 
   const network = failures.filter((f) => f.kind === "network");
   const hangs = failures.filter((f) => f.kind === "hang");
+  const integrity = failures.filter((f) => f.kind === "integrity");
 
   // Nothing can actually leave — DNS is blackholed. These are blocked attempts,
   // i.e. what each widget wanted from the network and must degrade without.
@@ -173,7 +198,14 @@ async function main(): Promise<void> {
     console.log("✓ RENDER: every render settled inside the timeout");
   }
 
-  if (hangs.length) process.exitCode = 1;
+  if (integrity.length) {
+    console.log(`\n✗ INTEGRITY: ${integrity.length} widget(s) changed after pinning`);
+    for (const f of integrity) console.log(`   ${f.widget}  ${f.detail}`);
+  } else {
+    console.log("✓ INTEGRITY: every bundle matched its pinned hash");
+  }
+
+  if (hangs.length || integrity.length) process.exitCode = 1;
 }
 
 main().catch((err) => {

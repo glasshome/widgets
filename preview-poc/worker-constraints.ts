@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import type { Browser, Page } from "playwright";
 import { chromium } from "playwright";
 import { nixLdLibraryPath } from "./nix-ld";
@@ -64,6 +66,53 @@ export function watchEgress(page: Page, allowedOrigin: string): EgressLock {
   });
 
   return { attempts };
+}
+
+/**
+ * Hash the exact bytes about to be rendered.
+ *
+ * Rehearses the worker's verify-before-execute rule (S6c). In production the
+ * hub pins a bundle's hash at publish time, but the author's presigned upload
+ * URL stays valid for another 300s — so the object in storage can be swapped
+ * after verification. The worker must therefore render the bytes the hub
+ * pinned, not whatever a re-fetch returns. Locally this proves the plumbing:
+ * hash both artifacts, and refuse to render if they don't match what was
+ * recorded when the shot list was built.
+ */
+export function hashWidgetArtifacts(distDir: string, widget: string): string {
+  const hash = createHash("sha256");
+  for (const file of [`${distDir}/${widget}.js`, `${distDir}/${widget}.css`]) {
+    // CSS is optional — a widget that ships no stylesheet is legitimate.
+    if (existsSync(file)) hash.update(readFileSync(file));
+  }
+  return hash.digest("hex");
+}
+
+/**
+ * Fixed wall-clock instant every render starts from: a bright weekday midday, so
+ * time-of-day-dependent widgets (clock, weather, sun-driven energy) land in a
+ * flattering, stable state instead of drifting with the run.
+ */
+export const FROZEN_TIME = new Date("2026-06-15T12:34:00Z");
+
+/**
+ * Freeze time, then step it forward deliberately.
+ *
+ * Widgets gate their mount animation behind `requestAnimationFrame(() =>
+ * setMounted(true))` (sensor/sparkline.tsx, weather/forecast-chart.tsx). A
+ * fully paused clock never fires that callback, so those widgets would be
+ * screenshotted in their pre-mount state — or wait forever and die to the
+ * timeout. Installing the clock and then running it forward a short, fixed
+ * amount fires the rAF callbacks and any mount transition, while keeping the
+ * result byte-identical between runs.
+ */
+export async function freezeClock(page: Page): Promise<void> {
+  await page.clock.install({ time: FROZEN_TIME });
+}
+
+/** Advance the frozen clock enough to settle rAF-gated mount animations. */
+export async function settleAnimations(page: Page, ms = 1_000): Promise<void> {
+  await page.clock.runFor(ms);
 }
 
 /** Reject if a render exceeds the cap, so a hang surfaces as a failure rather
