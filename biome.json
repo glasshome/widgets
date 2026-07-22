@@ -6,7 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!dist", "!node_modules", "!preview-poc", "!.impeccable", "!.fallow"]
+    "includes": ["**", "!dist", "!node_modules", "!preview-poc", "!**/.impeccable", "!**/.fallow"]
   },
   "formatter": {
     "enabled": true,
