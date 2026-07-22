@@ -31,8 +31,13 @@ interface Failure {
   detail: string;
 }
 
+// Filenames become CDN path segments, so keep them to [a-z0-9-]: an example
+// labelled "Solar, battery and EV" must not put a comma in a URL.
 function slug(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, "-");
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 async function main(): Promise<void> {
@@ -144,7 +149,12 @@ async function main(): Promise<void> {
                 try {
                   await shoot(page);
                 } finally {
-                  await page.context().close();
+                  // The browser may already be gone; a failed cleanup must not
+                  // mask the real outcome of the render.
+                  await page
+                    .context()
+                    .close()
+                    .catch(() => {});
                 }
               } else {
                 await withFreshBrowser(shoot);
@@ -206,6 +216,11 @@ async function main(): Promise<void> {
   }
 
   if (hangs.length || integrity.length) process.exitCode = 1;
+
+  // Vite's dev server leaves live handles behind (file watchers, keep-alive
+  // sockets from browsers that crashed mid-render), so the process sits idle
+  // forever after the verdict instead of exiting. Leave deliberately.
+  process.exit(process.exitCode ?? 0);
 }
 
 main().catch((err) => {

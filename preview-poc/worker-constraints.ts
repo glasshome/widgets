@@ -159,24 +159,38 @@ export async function withSharedBrowser<T>(
   // cascade of phantom failures.
   const PAGES_PER_BROWSER = 8;
 
-  let browser = await chromium.launch({ args: NO_EGRESS_ARGS });
+  const launch = () => chromium.launch({ args: NO_EGRESS_ARGS });
+  let browser = await launch();
   let served = 0;
 
   const newPage = async (): Promise<Page> => {
-    if (served >= PAGES_PER_BROWSER) {
-      await browser.close();
-      browser = await chromium.launch({ args: NO_EGRESS_ARGS });
+    // Recycle on the counter, but also whenever the browser died on its own —
+    // a crashed process keeps `served` below the limit, so counting alone lets
+    // every later newContext() fail and turns one crash into a run of phantom
+    // failures.
+    if (served >= PAGES_PER_BROWSER || !browser.isConnected()) {
+      if (browser.isConnected()) await browser.close();
+      browser = await launch();
       served = 0;
     }
     served++;
-    const context = await browser.newContext({ deviceScaleFactor: 2 });
-    return context.newPage();
+    try {
+      const context = await browser.newContext({ deviceScaleFactor: 2 });
+      return await context.newPage();
+    } catch {
+      // Lost between the liveness check and the context: relaunch once so the
+      // crash costs one render rather than the rest of the pass.
+      browser = await launch();
+      served = 1;
+      const context = await browser.newContext({ deviceScaleFactor: 2 });
+      return context.newPage();
+    }
   };
 
   try {
     return await fn(newPage);
   } finally {
-    await browser.close();
+    await browser.close().catch(() => {});
   }
 }
 
