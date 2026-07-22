@@ -13,11 +13,11 @@ export const configSchema = defineConfig({
   title: field.title(),
   solarEnergyEntity: energyEntity(
     "Solar produced",
-    "Daily solar production energy sensor (kWh). Required.",
+    "Daily solar production energy sensor (kWh). Optional. Leave empty if you have no solar.",
   ),
   gridImportEnergyEntity: energyEntity(
     "Grid imported",
-    "Daily energy drawn from the grid (kWh). Required to compute self-sufficiency.",
+    "Daily energy drawn from the grid (kWh). The main input, and enough on its own.",
   ),
   gridExportEnergyEntity: energyEntity(
     "Grid exported",

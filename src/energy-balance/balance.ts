@@ -17,7 +17,7 @@ export interface BalanceInputs {
 export type BalanceStatus = "import" | "export" | "balanced";
 
 export interface BalanceState {
-  /** At least solar + grid-import statistics are configured. */
+  /** Enough entities are configured to show a balance (solar is not one of them). */
   configured: boolean;
   producedKWh: number;
   consumedKWh: number;

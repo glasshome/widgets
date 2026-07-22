@@ -61,6 +61,7 @@ interface BodyProps {
   produced: number;
   consumed: number;
   balance: number;
+  showProduced: boolean;
   reducedMotion: boolean;
 }
 
@@ -95,6 +96,7 @@ function BalanceBody(props: BodyProps): JSX.Element {
               produced={props.produced}
               consumed={props.consumed}
               unit={props.dataUnit}
+              showProduced={props.showProduced}
               reducedMotion={props.reducedMotion}
             />
           }
@@ -104,6 +106,7 @@ function BalanceBody(props: BodyProps): JSX.Element {
             consumed={props.consumed}
             unit={props.dataUnit}
             balance={props.balance}
+            showProduced={props.showProduced}
             reducedMotion={props.reducedMotion}
           />
         </Show>
@@ -180,14 +183,12 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     return n.import - n.export;
   });
 
+  // Solar is optional: a grid-only home balances grid import against consumption.
   const configured = createMemo(() => {
     const hasStats =
-      firstId(props.config.solarEnergyEntity).length > 0 &&
-      (firstId(props.config.homeEnergyEntity).length > 0 ||
-        firstId(props.config.gridImportEnergyEntity).length > 0);
-    const hasLive =
-      firstId(props.config.solarPowerEntity).length > 0 &&
-      firstId(props.config.homePowerEntity).length > 0;
+      firstId(props.config.homeEnergyEntity).length > 0 ||
+      firstId(props.config.gridImportEnergyEntity).length > 0;
+    const hasLive = firstId(props.config.homePowerEntity).length > 0;
     return hasStats || hasLive;
   });
 
@@ -210,6 +211,12 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const produced = () => (isLive() ? liveSolarW() : balance().producedKWh);
   const consumed = () => (isLive() ? liveHomeW() : balance().consumedKWh);
   const dataUnit = (): ValueUnit => (isLive() ? "W" : "kWh");
+  // Without a solar sensor there is nothing to weigh consumption against, so
+  // the produced side and the balance bar stay hidden.
+  const hasSolar = () =>
+    isLive()
+      ? firstId(props.config.solarPowerEntity).length > 0
+      : firstId(props.config.solarEnergyEntity).length > 0;
 
   // -1 draws entirely from the grid, 0 matches, +1 all surplus.
   const dayBalance = createMemo(() => {
@@ -223,6 +230,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     const when = MODE_WHEN[mode()];
     const p = produced();
     const c = consumed();
+    const drawn = hasSolar() ? `grid top-up ${when}` : `from the grid ${when}`;
     if (dataUnit() === "W") {
       const diff = p - c;
       if (Math.abs(diff) < 50) return { value: "Balanced", unit: "", caption: when, color: "" };
@@ -236,7 +244,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       return {
         value: `−${formatPower(-diff)}`,
         unit: "",
-        caption: `grid top-up ${when}`,
+        caption: drawn,
         color: BLUE,
       };
     }
@@ -255,7 +263,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     return {
       value: `−${Math.abs(diff).toFixed(1)}`,
       unit: "kWh",
-      caption: `grid top-up ${when}`,
+      caption: drawn,
       color: BLUE,
     };
   });
@@ -283,6 +291,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
               produced={produced()}
               consumed={consumed()}
               balance={dayBalance()}
+              showProduced={hasSolar()}
               reducedMotion={reducedMotion()}
             />
           </Show>
@@ -312,6 +321,44 @@ export default defineWidget<EnergyBalanceConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 3, h: 3 },
     sdkVersion: "^1.0.0",
+    examples: [
+      {
+        label: "Solar and battery",
+        size: { w: 3, h: 3 },
+        config: {
+          title: "Energy Balance",
+          solarEnergyEntity: ["sensor.solar_power"],
+          gridImportEnergyEntity: ["sensor.grid_import_power"],
+          gridExportEnergyEntity: ["sensor.grid_export_power"],
+          batteryChargeEnergyEntity: ["sensor.battery_charge_power"],
+          batteryDischargeEnergyEntity: ["sensor.battery_discharge_power"],
+          homeEnergyEntity: [],
+          gridImportPowerEntity: ["sensor.grid_import_power"],
+          gridExportPowerEntity: ["sensor.grid_export_power"],
+          gridSignedPowerEntity: [],
+          solarPowerEntity: ["sensor.solar_power"],
+          homePowerEntity: ["sensor.home_power"],
+        },
+      },
+      {
+        label: "Grid only",
+        size: { w: 2, h: 2 },
+        config: {
+          title: "Electricity",
+          solarEnergyEntity: [],
+          gridImportEnergyEntity: ["sensor.grid_import_power"],
+          gridExportEnergyEntity: [],
+          batteryChargeEnergyEntity: [],
+          batteryDischargeEnergyEntity: [],
+          homeEnergyEntity: ["sensor.home_power"],
+          gridImportPowerEntity: ["sensor.grid_import_power"],
+          gridExportPowerEntity: [],
+          gridSignedPowerEntity: [],
+          solarPowerEntity: [],
+          homePowerEntity: ["sensor.home_power"],
+        },
+      },
+    ],
   },
   configSchema,
   component: EnergyBalanceWidget,

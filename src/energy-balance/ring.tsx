@@ -54,6 +54,8 @@ interface BarProps {
   unit: ValueUnit;
   /** -1 (home outweighs) … 0 (balanced) … +1 (solar surplus). */
   balance: number;
+  /** False on a grid-only home: the solar side and the balance bar are dropped. */
+  showProduced: boolean;
   reducedMotion: boolean;
 }
 
@@ -84,35 +86,43 @@ export function BalanceBar(props: BarProps): JSX.Element {
 
   return (
     <div class="w-full">
-      <div class="mb-2 flex items-center justify-between text-xs tabular-nums">
+      <div
+        class={`flex items-center justify-between text-xs tabular-nums ${
+          props.showProduced ? "mb-2" : ""
+        }`}
+      >
         <span class="flex items-center gap-1.5" style={{ color: BLUE }}>
           <Icon icon={energyIcons.home} style={{ "font-size": "14px" }} />
           {fmtEnd(props.consumed, props.unit)}
         </span>
-        <span class="flex items-center gap-1.5" style={{ color: AMBER }}>
-          {fmtEnd(props.produced, props.unit)}
-          <Icon icon={energyIcons.solar} style={{ "font-size": "14px" }} />
-        </span>
+        <Show when={props.showProduced}>
+          <span class="flex items-center gap-1.5" style={{ color: AMBER }}>
+            {fmtEnd(props.produced, props.unit)}
+            <Icon icon={energyIcons.solar} style={{ "font-size": "14px" }} />
+          </span>
+        </Show>
       </div>
-      <div
-        class="relative h-3.5 w-full rounded-full"
-        style={{ background: "color-mix(in oklch, currentColor 10%, transparent)" }}
-      >
+      <Show when={props.showProduced}>
         <div
-          class="absolute inset-y-[-3px] left-1/2 w-px -translate-x-1/2 rounded-full"
-          style={{ background: "color-mix(in oklch, currentColor 38%, transparent)" }}
-        />
-        <div
-          class={`absolute inset-y-0 ${surplus() ? "rounded-r-full" : "rounded-l-full"}`}
-          style={{
-            left: surplus() ? "50%" : `${50 - mag()}%`,
-            width: `${mag()}%`,
-            background: color(),
-            "box-shadow": `0 0 10px color-mix(in oklch, ${color()} 55%, transparent)`,
-            transition: move(),
-          }}
-        />
-      </div>
+          class="relative h-3.5 w-full rounded-full"
+          style={{ background: "color-mix(in oklch, currentColor 10%, transparent)" }}
+        >
+          <div
+            class="absolute inset-y-[-3px] left-1/2 w-px -translate-x-1/2 rounded-full"
+            style={{ background: "color-mix(in oklch, currentColor 38%, transparent)" }}
+          />
+          <div
+            class={`absolute inset-y-0 ${surplus() ? "rounded-r-full" : "rounded-l-full"}`}
+            style={{
+              left: surplus() ? "50%" : `${50 - mag()}%`,
+              width: `${mag()}%`,
+              background: color(),
+              "box-shadow": `0 0 10px color-mix(in oklch, ${color()} 55%, transparent)`,
+              transition: move(),
+            }}
+          />
+        </div>
+      </Show>
     </div>
   );
 }
@@ -123,6 +133,8 @@ interface ColumnsProps {
   produced: number;
   consumed: number;
   unit: ValueUnit;
+  /** False on a grid-only home: only the home column is drawn. */
+  showProduced: boolean;
   reducedMotion: boolean;
 }
 
@@ -130,14 +142,16 @@ interface ColumnsProps {
  * Two thick columns risen to the day's kWh on a shared scale, so the taller
  * bar is the bigger side and the height gap between them is the surplus (or,
  * when home is taller, the shortfall). A light rises inside each to read as
- * energy; suppressed under reduced motion.
+ * energy; suppressed under reduced motion. A grid-only home gets the home
+ * column alone.
  */
 export function EnergyColumns(props: ColumnsProps): JSX.Element {
-  const max = () => Math.max(props.produced, props.consumed, 0.1);
-  const cols = () => [
-    { label: "Solar", value: props.produced, color: AMBER, icon: energyIcons.solar },
-    { label: "Home", value: props.consumed, color: BLUE, icon: energyIcons.home },
-  ];
+  const max = () => Math.max(props.showProduced ? props.produced : 0, props.consumed, 0.1);
+  const cols = () => {
+    const home = { label: "Home", value: props.consumed, color: BLUE, icon: energyIcons.home };
+    if (!props.showProduced) return [home];
+    return [{ label: "Solar", value: props.produced, color: AMBER, icon: energyIcons.solar }, home];
+  };
   return (
     <div class="flex h-full w-full items-stretch justify-center gap-4">
       <For each={cols()}>
