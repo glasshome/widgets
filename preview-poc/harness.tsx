@@ -1,5 +1,5 @@
 import type { ReactiveWidgetContext, WidgetDefinition } from "@glasshome/widget-sdk";
-import { injectTokens, WidgetCtx } from "@glasshome/widget-sdk";
+import { instantiateWidget } from "@glasshome/widget-sdk/host";
 import { loadDemoData } from "@glasshome/sync-layer";
 import { getEntityView } from "@glasshome/sync-layer";
 import { byDomain, useAreas, useEntities } from "@glasshome/sync-layer/solid";
@@ -14,8 +14,6 @@ import type { IconifyJSON } from "@iconify/types";
 import lucideUrl from "@iconify-json/lucide/icons.json?url";
 import mdiUrl from "@iconify-json/mdi/icons.json?url";
 import { addAPIProvider, addCollection } from "iconify-icon";
-import { createComponent, ErrorBoundary } from "solid-js";
-import { render } from "solid-js/web";
 // The real built bundle + its separate CSS asset — the same artifacts the hub
 // serves. Rendering these (not the source) keeps previews honest.
 // App theme tokens (--radius, --border, --background, …), the same import dash's
@@ -100,44 +98,25 @@ function tilePx(size: { w: number; h: number }): { width: number; height: number
   };
 }
 
-/** Minimal copy of the dash mount recipe (instantiate-widget.ts): closed
-    shadow root, adopted widget CSS, WidgetCtx provider, dark mirrored onto the
-    host. No perf-blur/a11y override sheet — not needed for a static shot. */
+/** Mount via the shared SDK recipe (`@glasshome/widget-sdk/host`): closed shadow
+    root, injected tokens, adopted widget CSS, WidgetCtx provider, `dark`
+    mirrored onto the host. No perf-blur/a11y override sheet — not needed for a
+    static shot, so no `extraSheets`; `dark` is the default `mirrorClasses`. The
+    `dark` document class is toggled by the caller before this runs. */
 function mount(
   host: HTMLElement,
   def: WidgetDefinition,
   config: Record<string, unknown>,
   ctx: ReactiveWidgetContext,
-  dark: boolean,
   cssText: string | null,
 ): void {
-  const shadow = host.attachShadow({ mode: "closed" });
-  host.classList.toggle("dark", dark);
-  injectTokens(shadow);
-  if (cssText !== null) {
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(cssText);
-    shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
-  }
-
-  render(
-    () =>
-      createComponent(WidgetCtx.Provider, {
-        value: ctx,
-        get children() {
-          return createComponent(ErrorBoundary, {
-            fallback: (err: unknown) => {
-              console.error("[harness] widget threw:", err);
-              return null;
-            },
-            get children() {
-              return createComponent(def.component, { config });
-            },
-          });
-        },
-      }),
-    shadow,
-  );
+  instantiateWidget(host, {
+    definition: def,
+    config: () => config,
+    ctx,
+    cssText,
+    onCrash: (err) => console.error("[harness] widget threw:", err),
+  });
 }
 
 async function main(): Promise<void> {
@@ -181,7 +160,7 @@ async function main(): Promise<void> {
     dimensions: () => ({ width, height }),
   };
 
-  mount(stage, def, example.config as Record<string, unknown>, ctx, dark, css);
+  mount(stage, def, example.config as Record<string, unknown>, ctx, css);
 
   await document.fonts.ready;
   // Signal to the capture driver that mount + fonts settled.
