@@ -1,5 +1,7 @@
 node_modules/
 dist/
+preview/
+.glasshome-preview/
 *.tsbuildinfo
 .turbo/
 .env
