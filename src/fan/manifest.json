@@ -1,0 +1,25 @@
+{
+  "name": "Fan",
+  "description": "Fan control with speed, presets, oscillation, and direction",
+  "icon": "mdi:fan",
+  "minSize": {
+    "w": 1,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 4,
+    "h": 4
+  },
+  "sdkVersion": "^1.4.0",
+  "version": "0.1.0",
+  "defaultSize": {
+    "w": 2,
+    "h": 2
+  },
+  "capabilities": [
+    {
+      "domain": "fan",
+      "access": "control"
+    }
+  ]
+}
