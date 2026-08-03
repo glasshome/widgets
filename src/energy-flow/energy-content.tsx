@@ -1,4 +1,4 @@
-import { useWidgetContext, Widget } from "@glasshome/widget-sdk";
+import { useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Match, Switch } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
@@ -20,12 +20,12 @@ interface EnergyContentProps {
 }
 
 export function EnergyContent(props: EnergyContentProps) {
-  const ctx = useWidgetContext();
+  const dimensions = useWidgetDimensions();
 
   const [openNode, setOpenNode] = createSignal<string | null>(null);
 
   const tier = createMemo(() => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return selectTier(d.width, d.height);
   });
 

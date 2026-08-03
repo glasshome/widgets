@@ -1,5 +1,4 @@
-import { Slider } from "@glasshome/ui/solid";
-import { type EntityView, useService, useTemperatureUnit } from "@glasshome/widget-sdk";
+import { type EntityView, Slider, useService, useTemperatureUnit } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
 import { formatTemperature, ModeChips, useSetpoints } from "../common";

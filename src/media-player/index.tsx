@@ -9,6 +9,7 @@ import {
   useService,
   useWidgetContext,
   useWidgetDialog,
+  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
@@ -128,14 +129,14 @@ interface MediaPlayerContentProps {
   isPlaying: boolean;
 }
 
-// Must render inside <Widget>: the top-level widget scope only sees the stub
-// context whose dimensions() is always (0,0), so size checks there never react.
+// Must render inside <Widget>: useWidgetDimensions throws in the top-level
+// widget scope, which never sees real measurements.
 function MediaPlayerContent(props: MediaPlayerContentProps) {
-  const ctx = useWidgetContext();
+  const dimensions = useWidgetDimensions();
   // Compact layout when widget is ≤ 2 cells wide (≈ 300 px) OR ≤ 2 cells tall.
   // Equivalent to the old `xs`/`sm` tiers (area ≤ 4).
   const isSmall = () => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.width <= 300 || d.height <= 150;
   };
 

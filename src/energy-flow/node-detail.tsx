@@ -3,7 +3,7 @@ import {
   ResponsiveDialogContent,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
-} from "@glasshome/ui/solid";
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import { energyIcons, formatEnergy, formatMoney, formatPower } from "../_energy-shared";

@@ -1,5 +1,4 @@
-import { Slider, Switch } from "@glasshome/ui/solid";
-import { type EntityView, useService } from "@glasshome/widget-sdk";
+import { type EntityView, Slider, Switch, useService } from "@glasshome/widget-sdk";
 import { createSignal, onCleanup, Show } from "solid-js";
 import { ModeChips } from "../common";
 

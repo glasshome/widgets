@@ -9,6 +9,7 @@ import {
   useForecast,
   useWidgetContext,
   useWidgetDialog,
+  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
@@ -210,17 +211,17 @@ interface WeatherBodyProps {
   hourlyData: Array<{ temp: number; time: string }>;
 }
 
-// Must render inside <Widget>: the top-level widget scope only sees the stub
-// context (fixed 300x156), so size checks there never react to resizes.
+// Must render inside <Widget>: useWidgetDimensions throws in the top-level
+// widget scope, which never sees real measurements.
 function WeatherBody(props: WeatherBodyProps) {
-  const ctx = useWidgetContext();
+  const dimensions = useWidgetDimensions();
   // Direct pixel thresholds. xs ≈ area ≤ 2 (≈ 1x1, 1x2): one tiny axis. lg/xl ≈ area ≥ 12 (4x2 / 4x4).
   const isSmall = () => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.width <= 150 || d.height <= 75;
   };
   const isLarge = () => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.width >= 600 || d.height >= 300;
   };
 

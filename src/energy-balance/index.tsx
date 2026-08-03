@@ -1,5 +1,5 @@
-import { Badge } from "@glasshome/ui/solid";
 import {
+  Badge,
   defineWidget,
   svgColors,
   useEntities,
@@ -7,6 +7,7 @@ import {
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
+  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
@@ -65,11 +66,11 @@ interface BodyProps {
   reducedMotion: boolean;
 }
 
-// Rendered inside <Widget>, so useWidgetContext here sees real measured
-// dimensions (the top-level scope only has the sm stub).
+// Rendered inside <Widget>: useWidgetDimensions throws in the top-level
+// widget scope, which never sees real measurements.
 function BalanceBody(props: BodyProps): JSX.Element {
-  const ctx = useWidgetContext();
-  const compact = () => ctx.dimensions().height < COMPACT_HEIGHT;
+  const dimensions = useWidgetDimensions();
+  const compact = () => dimensions().height < COMPACT_HEIGHT;
   return (
     <div class="relative flex h-full min-h-0 flex-col gap-2">
       <Badge tone="var(--muted-foreground)" class="absolute top-0 right-0 z-10">

@@ -1,4 +1,4 @@
-import { Badge } from "@glasshome/ui/solid";
+import { Badge } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { type Accessor, createMemo, Match, onMount, Show, Switch } from "solid-js";
 import type { CameraPlayer } from "./create-player";

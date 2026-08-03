@@ -1,4 +1,4 @@
-import { useWidgetContext, Widget } from "@glasshome/widget-sdk";
+import { useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, type JSX, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
@@ -294,22 +294,22 @@ function buildTiles(props: AreaContentProps): TileDef[] {
 // --- Main content ---
 
 export function AreaContent(props: AreaContentProps) {
-  const ctx = useWidgetContext();
+  const dimensions = useWidgetDimensions();
   const chips = createMemo(() => buildChips(props.metrics));
   const tiles = createMemo(() => buildTiles(props));
   const status = createMemo(() => buildStatus(props.metrics));
 
   const isSmall = createMemo(() => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.width <= 300 || d.height <= 150;
   });
   const isLarge = createMemo(() => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.width >= 560 || d.height >= 320;
   });
   // Stack tiles in a column when the box has more vertical room than horizontal.
   const stacked = createMemo(() => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     return d.height > d.width;
   });
 

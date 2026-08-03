@@ -1,4 +1,5 @@
 import {
+  defineWidget,
   Input,
   Label,
   Select,
@@ -7,11 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
   Switch,
-} from "@glasshome/ui/solid";
-import {
-  defineWidget,
   useWidgetContext,
   useWidgetDialog,
+  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
@@ -118,15 +117,15 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   const digital = () => presetTheme().digital;
 
-  // Closure component: renders inside <Widget>, so it sees the real measured
-  // context. The top-level widget scope only gets the stub whose dimensions()
-  // is always (0,0), which froze "auto" layout on horizontal.
+  // Closure component: renders inside <Widget>, where useWidgetDimensions
+  // sees real measurements (it throws in the top-level widget scope, which
+  // once froze "auto" layout on horizontal via the (0,0) stub).
   const DigitalTime = () => {
-    const innerCtx = useWidgetContext();
+    const dimensions = useWidgetDimensions();
     const effectiveLayout = createMemo(() => {
       const layout = cfg().layout;
       if (layout === "auto") {
-        const d = innerCtx.dimensions();
+        const d = dimensions();
         return d.height > d.width ? "stacked" : "horizontal";
       }
       return layout;

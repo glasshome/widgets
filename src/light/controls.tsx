@@ -2,6 +2,7 @@ import {
   type Color,
   ColorSlider,
   ColorWheel,
+  type EntityView,
   parseColor,
   Select,
   SelectContent,
@@ -9,8 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
   Slider,
-} from "@glasshome/ui/solid";
-import { type EntityView, useService } from "@glasshome/widget-sdk";
+  useService,
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createSignal, For, Show } from "solid-js";
 import { COLOR_PRESETS, formatBrightness, getTempPresets, hsToCSS } from "./utils";

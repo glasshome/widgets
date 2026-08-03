@@ -1,4 +1,4 @@
-import { useWidgetContext } from "@glasshome/widget-sdk";
+import { useWidgetDimensions } from "@glasshome/widget-sdk";
 import { createMemo, For, Show } from "solid-js";
 import type { AnalogOptions, AnalogPresetTheme, ClockPreset, ClockSize } from "./types";
 
@@ -522,7 +522,7 @@ interface SquareAnalogClockProps {
  * Reads the live measured box, so it must render inside <Widget>.
  */
 export function SquareAnalogClock(props: SquareAnalogClockProps) {
-  const ctx = useWidgetContext();
+  const dimensions = useWidgetDimensions();
   // Colors come from the theme (adapt to light/dark); the preset drives shape only.
   const theme = () => ({
     tickColor: "var(--color-foreground)",
@@ -537,7 +537,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const wrap = () => time().seconds === 0;
 
   const dims = createMemo(() => {
-    const d = ctx.dimensions();
+    const d = dimensions();
     // Ticks sit flush on the widget edge; tiny inset only clears the shell border.
     const pad = 3;
     const w = Math.max(d.width, 1);
@@ -769,7 +769,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const gradHands = () => props.preset !== "classic";
 
   return (
-    <Show when={ctx.dimensions().width > 0}>
+    <Show when={dimensions().width > 0}>
       <svg
         viewBox={`0 0 ${dims().w} ${dims().h}`}
         preserveAspectRatio="none"
