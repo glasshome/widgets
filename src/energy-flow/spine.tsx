@@ -13,9 +13,8 @@ import {
 import { FlowCanvas } from "../_flow-graph/FlowCanvas";
 import type { FlowNode as FlowNodeData, Rect } from "../_flow-graph/types";
 import type { Tariff } from "./cost";
-import type { EnergyFlow } from "./flow";
-import { buildEnergyGraph, type NodeView, toDetailId } from "./graph-adapter";
-import type { NodeDetailId } from "./node-detail";
+import type { ResolvedFlow } from "./flow";
+import { buildEnergyGraph, type NodeView } from "./graph-adapter";
 
 /** True while the document is hidden (tab switched, app backgrounded). Covers the
  *  Capacitor WebView, which fires visibilitychange on app-state changes, without
@@ -144,9 +143,9 @@ function Hub(props: { view: NodeView | undefined }): JSX.Element {
 }
 
 export function Spine(props: {
-  flow: EnergyFlow;
+  flow: ResolvedFlow;
   tariff: Tariff;
-  onTap: (id: NodeDetailId) => void;
+  onTap: (id: string) => void;
 }): JSX.Element {
   const energy = createMemo(() => buildEnergyGraph(props.flow, props.tariff));
 
@@ -199,10 +198,7 @@ export function Spine(props: {
           // stroke bulge).
           layoutOpts={{ hubInset: 18, hubAttachTop: 40 }}
           renderNode={renderNode}
-          onNodeTap={(id) => {
-            const detail = toDetailId(id);
-            if (detail) props.onTap(detail);
-          }}
+          onNodeTap={(id) => props.onTap(id)}
         />
       </div>
     </div>

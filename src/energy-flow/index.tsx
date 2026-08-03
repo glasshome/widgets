@@ -9,18 +9,14 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { createMemo, onCleanup, Show } from "solid-js";
-import { describeFlow, EnergyEmptyState, energyColors } from "../_energy-shared";
+import { describeFlow, EnergyEmptyState } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { configSchema, type EnergyFlowConfig } from "./config";
 import { EnergyContent } from "./energy-content";
-import {
-  ACTIVE_THRESHOLD,
-  deriveFlow,
-  type EnergyFlow,
-  isUnconfigured,
-  type PowerLookup,
-} from "./flow";
+import { allStale, isUnconfigured } from "./flow";
+import { configEntityIds, dominantColor, type PowerLookup, resolveFlow } from "./graph-adapter";
 import { EnergyHeader } from "./header";
+import { migrateConfig } from "./migrate";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
  *  HA power sensors commonly report kW. "MW" and "mW" collide under a
@@ -40,47 +36,14 @@ function toWatts(value: number, unit: string | null | undefined): number {
   }
 }
 
-/** Dominant source color tints the widget shell channel. Picks the source
- *  (solar / battery discharge / grid import) carrying the most power; falls
- *  back to the neutral home color when nothing is meaningfully flowing. */
-function dominantColor(flow: EnergyFlow): string {
-  const candidates: { watts: number; color: string }[] = [];
-  if (flow.solar.watts > ACTIVE_THRESHOLD)
-    candidates.push({ watts: flow.solar.watts, color: energyColors.solar });
-  if (flow.battery.direction === "discharge" && flow.battery.watts > ACTIVE_THRESHOLD)
-    candidates.push({ watts: flow.battery.watts, color: energyColors.battery });
-  if (flow.grid.direction === "import" && flow.grid.watts > ACTIVE_THRESHOLD)
-    candidates.push({ watts: flow.grid.watts, color: energyColors.grid });
-  const top = candidates.sort((a, b) => b.watts - a.watts)[0];
-  return top ? top.color : energyColors.home;
-}
-
-/** Collect every entity ID referenced by the config (single-select + arrays). */
-function configEntityIds(config: EnergyFlowConfig): string[] {
-  const single = [
-    config.solarEntity,
-    config.gridImportEntity,
-    config.gridExportEntity,
-    config.gridSignedEntity,
-    config.batteryChargeEntity,
-    config.batteryDischargeEntity,
-    config.batterySignedEntity,
-    config.batterySocEntity,
-    config.homeEntity,
-    config.evEntity,
-    config.evSocEntity,
-  ].flat();
-  return [...single, ...config.consumerEntities].filter((id) => id.length > 0);
-}
-
 function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
-  const ids = createMemo(() => configEntityIds(props.config));
+  const ids = createMemo(() => configEntityIds(props.config.nodes));
   const entities = useEntities(ids);
 
-  // Sun entity drives the night-resting solar state.
+  // Sun entity drives the night-resting state of input nodes.
   const sunId = createMemo(() => props.config.sunEntity[0] ?? "");
   const sun = useEntity(sunId);
   const sunBelowHorizon = createMemo(() => sun()?.state === "below_horizon");
@@ -98,17 +61,13 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
     return (id: string) => (map.has(id) ? (map.get(id) ?? null) : null);
   });
 
-  const flow = createMemo(() => deriveFlow(props.config, lookup(), sunBelowHorizon()));
+  const flow = createMemo(() => resolveFlow(props.config.nodes, lookup(), sunBelowHorizon()));
   const description = createMemo(() => describeFlow(flow().flowState));
   const channelColor = createMemo(() => dominantColor(flow()));
   const unconfigured = createMemo(() => isUnconfigured(flow()));
 
-  // Every configured node has a null reading → whole widget is unavailable.
-  const allStale = createMemo(() => {
-    const f = flow();
-    const nodes = [f.solar, f.grid, f.battery, f.home, f.ev].filter((n) => n.configured);
-    return nodes.length > 0 && nodes.every((n) => n.stale);
-  });
+  // Every sensor-backed node has a null reading → whole widget is unavailable.
+  const stale = createMemo(() => allStale(flow()));
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -129,7 +88,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
             }
           >
             <Show
-              when={!allStale()}
+              when={!stale()}
               fallback={
                 <div class="flex h-full min-h-0 flex-col gap-2">
                   <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
@@ -173,29 +132,62 @@ export default defineWidget<EnergyFlowConfig>({
     minSize: { w: 2, h: 3 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
-    // v2: solarEntity went single-select -> multi (sum several arrays/inverters).
-    // Single-select already stored as string[], so v1 configs (["sensor.x"]) are
-    // valid as-is; Zod re-validates on load and no transform function is needed.
-    configVersion: 2,
+    // v3: the fixed five-role fields became a user-defined node list
+    // (field.list + field.variants); migrate.ts maps v1/v2 configs onto it.
+    configVersion: 3,
     examples: [
       {
         label: "Solar, battery and EV",
         size: { w: 4, h: 4 },
         config: {
           title: "Energy",
-          solarEntity: ["sensor.solar_power"],
-          gridImportEntity: ["sensor.grid_import_power"],
-          gridExportEntity: ["sensor.grid_export_power"],
-          gridSignedEntity: [],
-          batteryChargeEntity: ["sensor.battery_charge_power"],
-          batteryDischargeEntity: ["sensor.battery_discharge_power"],
-          batterySignedEntity: [],
-          batterySocEntity: ["sensor.battery_soc"],
-          homeStrategy: "entity",
-          homeEntity: ["sensor.home_power"],
-          consumerEntities: [],
-          evEntity: ["sensor.ev_charger_power"],
-          evSocEntity: [],
+          nodes: [
+            {
+              kind: "input",
+              entities: ["sensor.solar_power"],
+              label: "Solar",
+              icon: "mdi:solar-power-variant",
+              level: [],
+            },
+            {
+              kind: "bidirectional",
+              positive: ["sensor.battery_discharge_power"],
+              negative: ["sensor.battery_charge_power"],
+              signed: [],
+              signedOutbound: false,
+              priced: false,
+              label: "Battery",
+              icon: "mdi:battery-high",
+              level: ["sensor.battery_soc"],
+            },
+            {
+              kind: "bidirectional",
+              positive: ["sensor.grid_import_power"],
+              negative: ["sensor.grid_export_power"],
+              signed: [],
+              signedOutbound: false,
+              priced: true,
+              label: "Grid",
+              icon: "mdi:transmission-tower",
+              level: [],
+            },
+            {
+              kind: "output",
+              entities: [],
+              remainder: true,
+              label: "Home",
+              icon: "mdi:home-lightning-bolt",
+              level: [],
+            },
+            {
+              kind: "output",
+              entities: ["sensor.ev_charger_power"],
+              remainder: false,
+              label: "EV charging",
+              icon: "mdi:car-electric",
+              level: ["sensor.ev_soc"],
+            },
+          ],
           sunEntity: ["sun.sun"],
         },
       },
@@ -204,19 +196,34 @@ export default defineWidget<EnergyFlowConfig>({
         size: { w: 3, h: 3 },
         config: {
           title: "Solar",
-          solarEntity: ["sensor.solar_power"],
-          gridImportEntity: ["sensor.grid_import_power"],
-          gridExportEntity: ["sensor.grid_export_power"],
-          gridSignedEntity: [],
-          batteryChargeEntity: [],
-          batteryDischargeEntity: [],
-          batterySignedEntity: [],
-          batterySocEntity: [],
-          homeStrategy: "grid_plus_solar",
-          homeEntity: [],
-          consumerEntities: [],
-          evEntity: [],
-          evSocEntity: [],
+          nodes: [
+            {
+              kind: "input",
+              entities: ["sensor.solar_power"],
+              label: "Solar",
+              icon: "mdi:solar-power-variant",
+              level: [],
+            },
+            {
+              kind: "bidirectional",
+              positive: ["sensor.grid_import_power"],
+              negative: ["sensor.grid_export_power"],
+              signed: [],
+              signedOutbound: false,
+              priced: true,
+              label: "Grid",
+              icon: "mdi:transmission-tower",
+              level: [],
+            },
+            {
+              kind: "output",
+              entities: [],
+              remainder: true,
+              label: "Home",
+              icon: "mdi:home-lightning-bolt",
+              level: [],
+            },
+          ],
           sunEntity: ["sun.sun"],
         },
       },
@@ -225,24 +232,40 @@ export default defineWidget<EnergyFlowConfig>({
         size: { w: 2, h: 3 },
         config: {
           title: "Power",
-          solarEntity: ["sensor.solar_power"],
-          gridImportEntity: ["sensor.grid_import_power"],
-          gridExportEntity: ["sensor.grid_export_power"],
-          gridSignedEntity: [],
-          batteryChargeEntity: ["sensor.battery_charge_power"],
-          batteryDischargeEntity: ["sensor.battery_discharge_power"],
-          batterySignedEntity: [],
-          batterySocEntity: ["sensor.battery_soc"],
-          homeStrategy: "grid_plus_solar",
-          homeEntity: [],
-          consumerEntities: [],
-          evEntity: [],
-          evSocEntity: [],
+          nodes: [
+            {
+              kind: "input",
+              entities: ["sensor.solar_power"],
+              label: "Solar",
+              icon: "mdi:solar-power-variant",
+              level: [],
+            },
+            {
+              kind: "bidirectional",
+              positive: ["sensor.battery_discharge_power"],
+              negative: ["sensor.battery_charge_power"],
+              signed: [],
+              signedOutbound: false,
+              priced: false,
+              label: "Battery",
+              icon: "mdi:battery-high",
+              level: ["sensor.battery_soc"],
+            },
+            {
+              kind: "output",
+              entities: [],
+              remainder: true,
+              label: "Home",
+              icon: "mdi:home-lightning-bolt",
+              level: [],
+            },
+          ],
           sunEntity: ["sun.sun"],
         },
       },
     ],
   },
   configSchema,
+  migrate: migrateConfig,
   component: EnergyFlowWidget,
 });

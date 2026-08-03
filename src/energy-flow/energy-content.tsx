@@ -5,15 +5,15 @@ import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
 import type { Tariff } from "./cost";
-import { ACTIVE_THRESHOLD, type EnergyFlow, netPower } from "./flow";
+import { isIdle, type ResolvedFlow } from "./flow";
 import { EnergyHeader } from "./header";
 import { selectTier } from "./layout";
 import { SourceMix } from "./mix-bar";
-import { NodeDetail, type NodeDetailId } from "./node-detail";
+import { NodeDetail } from "./node-detail";
 import { Spine } from "./spine";
 
 interface EnergyContentProps {
-  flow: EnergyFlow;
+  flow: ResolvedFlow;
   description: FlowDescription;
   tariff: Tariff;
   title: string;
@@ -22,7 +22,7 @@ interface EnergyContentProps {
 export function EnergyContent(props: EnergyContentProps) {
   const ctx = useWidgetContext();
 
-  const [openNode, setOpenNode] = createSignal<NodeDetailId | null>(null);
+  const [openNode, setOpenNode] = createSignal<string | null>(null);
 
   const tier = createMemo(() => {
     const d = ctx.dimensions();
@@ -31,16 +31,7 @@ export function EnergyContent(props: EnergyContentProps) {
 
   // Nothing meaningfully flowing → the header tile dims like other widgets'
   // off states.
-  const idle = createMemo(() => {
-    const f = props.flow;
-    return (
-      f.solar.watts <= ACTIVE_THRESHOLD &&
-      f.battery.direction === "idle" &&
-      f.grid.direction === "idle" &&
-      Math.abs(netPower(f)) <= ACTIVE_THRESHOLD &&
-      f.home.watts <= ACTIVE_THRESHOLD
-    );
-  });
+  const idle = createMemo(() => isIdle(props.flow));
 
   return (
     <div class="relative h-full w-full">
@@ -51,9 +42,7 @@ export function EnergyContent(props: EnergyContentProps) {
             <Widget.Icon icon={<Icon icon={energyIcons.home} />} dimmed={idle()} />
             <div class="flex min-w-0 flex-col overflow-hidden">
               <Widget.Title>{props.description.headline}</Widget.Title>
-              <Widget.Status class="tabular-nums">
-                {formatPower(props.flow.home.watts)}
-              </Widget.Status>
+              <Widget.Status class="tabular-nums">{formatPower(props.flow.hubW)}</Widget.Status>
             </div>
           </div>
         </Match>
@@ -68,9 +57,7 @@ export function EnergyContent(props: EnergyContentProps) {
             />
             <div class="flex min-w-0 flex-col gap-2">
               <div class="flex items-baseline gap-1.5">
-                <Widget.Status class="tabular-nums">
-                  {formatPower(props.flow.home.watts)}
-                </Widget.Status>
+                <Widget.Status class="tabular-nums">{formatPower(props.flow.hubW)}</Widget.Status>
                 <span class="text-foreground/50 text-xs">home</span>
               </div>
               <SourceMix flow={props.flow} tariff={props.tariff} />

@@ -1,89 +1,103 @@
 /**
- * Energy Flow config schema (SDK-E05 decision: FLAT schema).
+ * Energy Flow config schema (v3): a user-defined node list instead of the old
+ * fixed five-role fields. Each node is a `field.variants` union — input,
+ * output, or two-way — inside a `field.list`; `graph-adapter.ts` is the only
+ * runtime consumer of the node field names, and `migrate.ts` maps v1/v2 flat
+ * configs onto this shape.
  *
- * SchemaForm (packages/public/ui/src/solid/schema-form.tsx) can only render a
- * flat object of: entity arrays (domain → EntitySelector), enums (→ Select),
- * booleans (→ Switch), numbers, and strings. It has NO support for
- * discriminated unions or conditional field visibility.
- *
- * So every field here is optional and top-level. Mode selectors are plain
- * enums, not discriminated unions. The guidance that would normally live in a
- * "show this field only when…" rule is instead carried in each field's
- * `description` meta ("Leave empty if your grid sensor reports signed values").
- *
- * Conditional config UI is a future SDK feature; when it lands, grid/battery
- * dual-vs-signed and tariff both-or-neither can become real unions.
+ * Cross-item rules (one remainder, a conservable shape) live in
+ * `node-model.ts` and are wired in via `.check()` on the list; issues land at
+ * the list path, so hosts surface them as form-level messages (v1 decision:
+ * no per-item error mapping).
  */
 
 import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
+import { type FlowNodeConfig, validateNodes } from "./node-model";
 
-const consumptionStrategy = field.choice(["entity", "grid_plus_solar", "sum_consumers"], {
-  title: "Home consumption",
-  description:
-    "How to compute home usage: a dedicated sensor (entity), grid + solar math, or the sum of individual consumers.",
-  default: "grid_plus_solar",
-});
+const powerEntities = (description: string) =>
+  field.entities("sensor", { title: "Power sensors", description, deviceClass: "power" });
 
-const powerEntity = (label: string, description: string) =>
-  field.entity("sensor", { title: label, description, deviceClass: "power" });
+const powerEntity = (title: string, description: string) =>
+  field.entity("sensor", { title, description, deviceClass: "power" });
 
-const powerEntities = (label: string, description: string) =>
-  field.entities("sensor", { title: label, description, deviceClass: "power" });
+const nodeItem = field.variants(
+  "kind",
+  {
+    input: {
+      entities: powerEntities("Power feeding the home (W). Several sensors are summed."),
+    },
+    output: {
+      entities: powerEntities("Power drawn from the home (W). Several sensors are summed."),
+      remainder: field.toggle({
+        title: "Remainder",
+        description:
+          "Compute this node as inputs minus the other outputs, so the flow always balances. At most one node.",
+      }),
+    },
+    bidirectional: {
+      positive: powerEntity(
+        "Incoming power",
+        "Power flowing into the home (W), e.g. grid import or battery discharge.",
+      ),
+      negative: powerEntity(
+        "Outgoing power",
+        "Power flowing out of the home (W), e.g. grid export or battery charging.",
+      ),
+      signed: powerEntity(
+        "Signed sensor",
+        "Single sensor carrying both directions (positive = into the home). Wins over the two separate sensors.",
+      ),
+      signedOutbound: field.toggle({
+        title: "Positive means outgoing",
+        description:
+          "Flip if the signed sensor reports positive while power flows out of the home (e.g. battery charging).",
+      }),
+      priced: field.toggle({
+        title: "Utility tariff applies",
+        description: "Price this connection's import and export with the configured tariff.",
+      }),
+    },
+  },
+  {
+    title: "Type",
+    labels: { input: "Input", output: "Output", bidirectional: "Two-way" },
+    shared: {
+      label: field.text({ title: "Label", description: "Name shown on the node." }),
+      icon: field.icon(),
+      level: field.entity("sensor", {
+        title: "Charge level",
+        description: "Optional. Level sensor (%) shown on the node.",
+        deviceClass: "battery",
+      }),
+    },
+  },
+);
 
-const socEntity = (label: string) =>
-  field.entity("sensor", {
-    title: label,
-    description: "Optional. State-of-charge sensor (%) shown on the node.",
-    deviceClass: "battery",
+const nodesField = field
+  .list(nodeItem, {
+    title: "Flow nodes",
+    description:
+      "Inputs feed the home, outputs draw from it, two-way nodes switch sides per reading.",
+    max: 12,
+    addLabel: "Add node",
+    labelField: "label",
+  })
+  .check((ctx) => {
+    // Typed assignment doubles as the compile gate keeping node-model.ts in
+    // sync with the schema shape.
+    const nodes: readonly FlowNodeConfig[] = ctx.value;
+    for (const message of validateNodes(nodes)) {
+      ctx.issues.push({ code: "custom", message, input: ctx.value });
+    }
   });
 
 export const configSchema = defineConfig({
   title: field.title(),
-  solarEntity: powerEntities(
-    "Solar power",
-    "Solar production power sensors (W). Add one per array or inverter; they are summed.",
-  ),
-  gridImportEntity: powerEntity(
-    "Grid import",
-    "Power drawn from the grid (W). Leave empty if your grid sensor reports signed values.",
-  ),
-  gridExportEntity: powerEntity(
-    "Grid export",
-    "Power sent to the grid (W). Leave empty if you use a single signed grid sensor.",
-  ),
-  gridSignedEntity: powerEntity(
-    "Grid (signed)",
-    "Single grid sensor where positive = import, negative = export. Use instead of separate import/export.",
-  ),
-  batteryChargeEntity: powerEntity(
-    "Battery charging",
-    "Power flowing into the battery (W). Leave empty if your battery sensor reports signed values.",
-  ),
-  batteryDischargeEntity: powerEntity(
-    "Battery discharging",
-    "Power flowing out of the battery (W). Leave empty if you use a single signed battery sensor.",
-  ),
-  batterySignedEntity: powerEntity(
-    "Battery (signed)",
-    "Single battery sensor where positive = charging, negative = discharging.",
-  ),
-  batterySocEntity: socEntity("Battery charge level"),
-  homeStrategy: consumptionStrategy,
-  homeEntity: powerEntity(
-    "Home power",
-    "Total home consumption sensor (W). Used when consumption is set to 'entity'.",
-  ),
-  consumerEntities: field.entities("sensor", {
-    title: "Consumers",
-    description:
-      "Individual consumer power sensors (W). Summed when consumption is 'sum_consumers'.",
-    deviceClass: "power",
-  }),
-  evEntity: powerEntity("EV charging power", "Electric-vehicle charging power sensor (W)."),
-  evSocEntity: socEntity("EV charge level"),
+  nodes: nodesField,
   sunEntity: field.entity("sun", {
     title: "Sun entity",
-    description: "Optional. Your sun.sun entity, used to rest the solar node after sunset.",
+    description:
+      "Optional. Your sun.sun entity; input nodes rest after sunset when producing nothing.",
   }),
   tariffCurrency: field.text({
     title: "Currency",

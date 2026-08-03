@@ -2,13 +2,13 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, type JSX, Show } from "solid-js";
 import { energyColors } from "../_energy-shared/colors";
 import { formatPower } from "../_energy-shared/formatting";
-import { energyIcons } from "../_energy-shared/icons";
 import { computeCost, gridCostSub, solarSavingSub, type Tariff } from "./cost";
-import { ACTIVE_THRESHOLD, type EnergyFlow } from "./flow";
-import { type MixRole, sourceMix } from "./mix";
+import { ACTIVE_THRESHOLD, type ResolvedFlow, type ResolvedNode } from "./flow";
+import { type MixShare, sourceMix } from "./mix";
 
 interface LegendItem {
-  role: MixRole;
+  id: string;
+  label: string;
   icon: string;
   color: string;
   value: string;
@@ -16,84 +16,81 @@ interface LegendItem {
   sub?: string;
 }
 
-/** One legend entry per configured source; idle sources stay listed but dim,
- *  so the row teaches what the widget tracks even when nothing flows. The
- *  cost/saving sub-line mirrors the full-tier chips. */
-function legendItems(flow: EnergyFlow, tariff: Tariff): LegendItem[] {
-  const cost = computeCost(flow.flowState, tariff);
-  const items: LegendItem[] = [];
-  if (flow.solar.configured) {
-    const active = flow.solar.watts > ACTIVE_THRESHOLD;
-    items.push({
-      role: "solar",
-      icon: energyIcons.solar,
-      color: energyColors.solar,
-      value: flow.solarSleeping ? "resting" : active ? formatPower(flow.solar.watts) : "idle",
-      active,
-      sub: solarSavingSub(cost),
-    });
-  }
-  if (flow.battery.configured) {
-    const charging = flow.battery.direction === "charge";
-    const active = flow.battery.watts > ACTIVE_THRESHOLD && flow.battery.direction !== "idle";
-    items.push({
-      role: "battery",
-      icon: energyIcons.battery,
-      color: energyColors.battery,
-      value: !active ? "idle" : charging ? "charging" : formatPower(flow.battery.watts),
-      active,
-    });
-  }
-  if (flow.grid.configured) {
-    const exporting = flow.grid.direction === "export";
-    const active = flow.grid.watts > ACTIVE_THRESHOLD && flow.grid.direction !== "idle";
-    items.push({
-      role: "grid",
-      icon: exporting ? energyIcons.export : energyIcons.grid,
-      color: exporting ? energyColors.export : energyColors.grid,
-      value: active ? formatPower(flow.grid.watts) : "idle",
-      active,
-      sub: active ? gridCostSub(cost) : undefined,
-    });
-  }
-  return items;
+/** In-capable nodes (inputs and two-way) supply the home; outputs don't sit
+ *  in the mix. */
+function suppliers(flow: ResolvedFlow): ResolvedNode[] {
+  return flow.nodes.filter((n) => n.configured && n.kind !== "output");
 }
 
-/** Segmented supply-mix bar + per-source legend (the mid-tier body). */
-export function SourceMix(props: { flow: EnergyFlow; tariff: Tariff }): JSX.Element {
-  const shares = createMemo(() =>
-    sourceMix({
-      solarW: props.flow.solar.watts,
-      batteryW: props.flow.battery.direction === "discharge" ? props.flow.battery.watts : 0,
-      gridW: props.flow.grid.direction === "import" ? props.flow.grid.watts : 0,
-    }),
+/** One legend entry per configured supplier; idle suppliers stay listed but
+ *  dim, so the row teaches what the widget tracks even when nothing flows. The
+ *  cost/saving sub-line mirrors the full-tier chips. */
+function legendItems(flow: ResolvedFlow, tariff: Tariff): LegendItem[] {
+  const cost = computeCost(flow.flowState, tariff);
+  const inputs = flow.nodes.filter((n) => n.kind === "input" && n.configured);
+  const soleInput = inputs.length === 1 ? inputs[0] : undefined;
+  return suppliers(flow).map((node) => {
+    const active = node.watts > ACTIVE_THRESHOLD && node.direction !== "idle";
+    const exporting = node.priced && node.direction === "out";
+    return {
+      id: node.id,
+      label: node.label,
+      icon: node.icon,
+      color: exporting ? energyColors.export : node.color,
+      value: node.resting ? "resting" : active ? formatPower(node.watts) : "idle",
+      active,
+      sub:
+        node.priced && active
+          ? gridCostSub(cost)
+          : node === soleInput
+            ? solarSavingSub(cost)
+            : undefined,
+    };
+  });
+}
+
+/** Segmented supply-mix bar + per-supplier legend (the mid-tier body). */
+export function SourceMix(props: { flow: ResolvedFlow; tariff: Tariff }): JSX.Element {
+  const shares = createMemo<MixShare[]>(() =>
+    sourceMix(
+      suppliers(props.flow).map((n) => ({
+        id: n.id,
+        watts: n.direction === "in" ? n.watts : 0,
+      })),
+    ),
   );
-  const fraction = (role: MixRole) => shares().find((s) => s.role === role)?.fraction ?? 0;
-  // For over role strings keeps DOM nodes stable across data ticks, so the
+  const fraction = (id: string) => shares().find((s) => s.id === id)?.fraction ?? 0;
+  // For over node ids keeps DOM nodes stable across data ticks, so the
   // flex-grow transition animates share changes instead of recreating pills.
-  const activeRoles = createMemo(() => shares().map((s) => s.role));
+  const activeIds = createMemo(() => shares().map((s) => s.id));
   const legend = createMemo(() => legendItems(props.flow, props.tariff));
+  const colorOf = (id: string) =>
+    legend().find((item) => item.id === id)?.color ?? energyColors.home;
   const barLabel = createMemo(() => {
     const s = shares();
     if (s.length === 0) return "No power flowing";
-    return `Supply mix: ${s.map((x) => `${x.role} ${Math.round(x.fraction * 100)}%`).join(", ")}`;
+    const named = s.map((x) => {
+      const label = legend().find((item) => item.id === x.id)?.label ?? x.id;
+      return `${label} ${Math.round(x.fraction * 100)}%`;
+    });
+    return `Supply mix: ${named.join(", ")}`;
   });
 
   return (
     <div class="flex flex-col gap-2">
       <div class="flex h-2 w-full items-stretch gap-[3px]" role="img" aria-label={barLabel()}>
         <Show
-          when={activeRoles().length > 0}
+          when={activeIds().length > 0}
           fallback={<div class="h-full w-full rounded-full bg-foreground/10" />}
         >
-          <For each={activeRoles()}>
-            {(role) => (
+          <For each={activeIds()}>
+            {(id) => (
               <div
                 class="h-full min-w-[6px] rounded-full transition-[flex-grow] duration-200 ease-out motion-reduce:transition-none"
                 style={{
-                  "flex-grow": fraction(role),
+                  "flex-grow": fraction(id),
                   "flex-basis": "0",
-                  "background-color": energyColors[role],
+                  "background-color": colorOf(id),
                   "box-shadow": "inset 0 1px 0 color-mix(in oklch, white 35%, transparent)",
                 }}
               />
@@ -108,7 +105,7 @@ export function SourceMix(props: { flow: EnergyFlow; tariff: Tariff }): JSX.Elem
               class="flex min-w-0 items-start gap-1 text-xs tabular-nums transition-opacity"
               classList={{ "opacity-50": !item.active }}
             >
-              <span class="sr-only">{item.role}</span>
+              <span class="sr-only">{item.label}</span>
               <Icon
                 icon={item.icon}
                 width={14}

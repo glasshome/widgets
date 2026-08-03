@@ -8,14 +8,13 @@ import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import { energyIcons, formatEnergy, formatMoney, formatPower } from "../_energy-shared";
 import { computeCost, type EnergyCost, type Tariff } from "./cost";
-import type { EnergyFlow } from "./flow";
-
-export type NodeDetailId = "solar" | "grid" | "battery" | "home" | "ev";
+import type { ResolvedFlow, ResolvedNode } from "./flow";
 
 interface NodeDetailProps {
-  flow: EnergyFlow;
+  flow: ResolvedFlow;
   tariff: Tariff;
-  node: NodeDetailId | null;
+  /** Graph node id ("hub" opens the home detail); null = closed. */
+  node: string | null;
   onClose: () => void;
 }
 
@@ -24,52 +23,36 @@ const COST_THRESHOLD = 0.005;
 
 interface CostLine {
   /** Only when the value would otherwise read as a plain cost: export earnings
-   *  and solar savings. Grid import cost is obvious under the node title. */
+   *  and self-consumption savings. Import cost is obvious under the node title. */
   label?: string;
   value: string;
 }
 
 /** A running cost/saving for the node, or null when the tariff is unset or the
  *  flow is too small to price. */
-function costLine(node: NodeDetailId, cost: EnergyCost | null): CostLine | null {
-  if (!cost) return null;
+function costLine(
+  node: ResolvedNode | undefined,
+  soleInput: ResolvedNode | undefined,
+  cost: EnergyCost | null,
+): CostLine | null {
+  if (!cost || !node) return null;
   const money = (amount: number) => `${formatMoney(amount, cost.currency)}/h`;
-  if (node === "grid") {
+  if (node.priced) {
     if (cost.gridPerHour > COST_THRESHOLD) return { value: money(cost.gridPerHour) };
     if (cost.gridPerHour < -COST_THRESHOLD)
       return { label: "Earning", value: money(cost.gridPerHour) };
     return null;
   }
-  if (node === "solar" && cost.solarSavingPerHour > COST_THRESHOLD) {
+  if (node === soleInput && cost.solarSavingPerHour > COST_THRESHOLD) {
     return { label: "Saving", value: money(cost.solarSavingPerHour) };
   }
   return null;
 }
 
-function nodeData(flow: EnergyFlow, node: NodeDetailId) {
-  switch (node) {
-    case "solar":
-      return { label: "Solar", icon: energyIcons.solar, watts: flow.solar.watts, soc: undefined };
-    case "grid":
-      return { label: "Grid", icon: energyIcons.grid, watts: flow.grid.watts, soc: undefined };
-    case "battery":
-      return {
-        label: "Battery",
-        icon: energyIcons.battery,
-        watts: flow.battery.watts,
-        soc: flow.battery.soc,
-      };
-    case "home":
-      return { label: "Home", icon: energyIcons.home, watts: flow.home.watts, soc: undefined };
-    case "ev":
-      return { label: "EV", icon: energyIcons.ev, watts: flow.ev.watts, soc: flow.ev.soc };
-  }
-}
-
 export function NodeDetail(props: NodeDetailProps) {
   // Retain the last node through the close animation so the panel stays
   // populated while the dialog fades out (props.node clears immediately).
-  const [shown, setShown] = createSignal<NodeDetailId | null>(props.node);
+  const [shown, setShown] = createSignal<string | null>(props.node);
   createEffect(() => {
     if (props.node) setShown(props.node);
   });
@@ -77,9 +60,28 @@ export function NodeDetail(props: NodeDetailProps) {
   const cost = createMemo(() => computeCost(props.flow.flowState, props.tariff));
 
   const data = createMemo(() => {
-    const node = props.node ?? shown();
+    const id = props.node ?? shown();
+    if (!id) return null;
+    if (id === "hub") {
+      return {
+        label: "Home",
+        icon: energyIcons.home,
+        watts: props.flow.hubW,
+        level: undefined,
+        cost: null,
+      };
+    }
+    const node = props.flow.nodes.find((n) => n.id === id);
     if (!node) return null;
-    return { ...nodeData(props.flow, node), cost: costLine(node, cost()) };
+    const inputs = props.flow.nodes.filter((n) => n.kind === "input" && n.configured);
+    const soleInput = inputs.length === 1 ? inputs[0] : undefined;
+    return {
+      label: node.label,
+      icon: node.icon,
+      watts: node.watts,
+      level: node.level,
+      cost: costLine(node, soleInput, cost()),
+    };
   });
 
   return (
@@ -104,9 +106,9 @@ export function NodeDetail(props: NodeDetailProps) {
                 <span class="font-bold text-3xl text-foreground tabular-nums">
                   {formatPower(d().watts)}
                 </span>
-                <Show when={d().soc !== undefined}>
+                <Show when={d().level !== undefined}>
                   <span class="text-foreground/50 text-sm tabular-nums">
-                    {Math.round(d().soc ?? 0)}% charged
+                    {Math.round(d().level ?? 0)}% charged
                   </span>
                 </Show>
               </div>

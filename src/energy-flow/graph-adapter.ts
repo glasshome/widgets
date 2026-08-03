@@ -1,20 +1,33 @@
 /**
- * Maps an EnergyFlow onto the domain-agnostic flow-graph model: source/spend
- * nodes around a central hub, one ribbon per flow. The display text/icon/color
- * for each node lives in `views`, keyed by node id, so the renderer stays a
- * thin lookup. Pure — no SolidJS, no DOM.
+ * The seam between config and rendering: resolves the user-defined node list
+ * into a `ResolvedFlow` (per-node power, direction, remainder math) and maps
+ * that onto the domain-agnostic flow-graph model — source/spend nodes around a
+ * central hub, one ribbon per flow. This is the ONLY runtime module that knows
+ * the config's node field names. Pure — no SolidJS, no DOM.
  */
 
 // Leaf imports (not the _energy-shared barrel): the barrel pulls JSX modules
-// (icons/empty-state), which break bun's server-side test transpile. These three
-// are pure data/functions, keeping this adapter unit-testable without DOM.
+// (icons/empty-state), which break bun's server-side test transpile.
+import { type BidirectionalInput, normalizeBidirectional } from "../_energy-shared/calculations";
 import { energyColors } from "../_energy-shared/colors";
 import { formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import type { FlowEdge, FlowGraph, FlowNode } from "../_flow-graph/types";
 import { computeCost, gridCostSub, solarSavingSub, type Tariff } from "./cost";
-import { ACTIVE_THRESHOLD, type EnergyFlow } from "./flow";
-import type { NodeDetailId } from "./node-detail";
+import {
+  ACTIVE_THRESHOLD,
+  type FlowDirection,
+  type ResolvedFlow,
+  type ResolvedNode,
+  toFlowState,
+} from "./flow";
+import type { BidirectionalNodeConfig, FlowNodeConfig } from "./node-model";
+
+export type PowerLookup = (entityId: string) => number | null;
+
+// Inverters report a few watts of standby draw at night, so an exact <= 0 test
+// almost never fires. Treat anything at or below this as "resting".
+const SLEEP_THRESHOLD_W = 20;
 
 /** Hub-end fade for a ribbon: its own color receding toward the theme
  *  background, so the flow quiets down as it reaches the house in either
@@ -23,6 +36,204 @@ import type { NodeDetailId } from "./node-detail";
  *  passes near gray and reads muddy. */
 function hubFade(color: string): string {
   return `color-mix(in oklch, ${color} 55%, var(--background, transparent))`;
+}
+
+const FALLBACK_LABELS: Record<FlowNodeConfig["kind"], string> = {
+  input: "Input",
+  output: "Output",
+  bidirectional: "Two-way",
+};
+
+const FALLBACK_ICONS: Record<FlowNodeConfig["kind"], string> = {
+  input: "mdi:lightning-bolt",
+  output: "mdi:power-plug",
+  bidirectional: "mdi:swap-horizontal",
+};
+
+// Deterministic per-kind palettes so migrated configs keep their old role
+// colors (solar amber first input, home purple first output, battery green
+// unpriced two-way, grid blue priced two-way).
+const INPUT_COLORS = [energyColors.solar, energyColors.ev, energyColors.export, energyColors.home];
+const OUTPUT_COLORS = [energyColors.home, energyColors.ev, energyColors.export, energyColors.solar];
+const STORAGE_COLORS = [energyColors.battery, energyColors.grid, energyColors.export];
+
+function cycle(palette: readonly string[], index: number): string {
+  return palette[index % palette.length] ?? energyColors.home;
+}
+
+function first(ids: readonly string[]): string | undefined {
+  return ids.length > 0 ? ids[0] : undefined;
+}
+
+/** Every entity ID a node list references (level sensors included). */
+export function configEntityIds(nodes: readonly FlowNodeConfig[]): string[] {
+  const ids: string[] = [];
+  for (const node of nodes) {
+    if (node.kind === "bidirectional") {
+      ids.push(...node.positive, ...node.negative, ...node.signed);
+    } else {
+      ids.push(...node.entities);
+    }
+    ids.push(...node.level);
+  }
+  return ids.filter((id) => id.length > 0);
+}
+
+interface Resolved {
+  watts: number;
+  stale: boolean;
+  configured: boolean;
+}
+
+// Sum several sensors into one node (e.g. multiple solar arrays/inverters).
+// Any unavailable member marks the node stale; its share reads as 0.
+function resolveSum(ids: readonly string[], lookup: PowerLookup): Resolved {
+  if (ids.length === 0) return { watts: 0, stale: false, configured: false };
+  let watts = 0;
+  let stale = false;
+  for (const id of ids) {
+    const v = lookup(id);
+    if (v === null) stale = true;
+    else watts += v;
+  }
+  return { watts: Math.max(0, watts), stale, configured: true };
+}
+
+// Avoids re-warning on every reactive tick when both signed and dual are set.
+const warnedBothModes = new Set<string>();
+
+/**
+ * Resolve a two-way node (dual sensors OR a single signed sensor).
+ * Precedence is intentional: a configured signed sensor wins and the dual
+ * sensors are ignored. Configuring both is a user mistake, so warn once.
+ */
+function resolveBidirectional(
+  node: BidirectionalNodeConfig,
+  lookup: PowerLookup,
+): { inW: number; outW: number; stale: boolean; configured: boolean } {
+  const posId = first(node.positive);
+  const negId = first(node.negative);
+  const signedId = first(node.signed);
+  if (signedId && (posId || negId) && !warnedBothModes.has(signedId)) {
+    warnedBothModes.add(signedId);
+    console.warn(
+      `energy-flow: both a signed sensor (${signedId}) and directional sensors are configured for the same node; the signed sensor wins and the directional sensors are ignored.`,
+    );
+  }
+  if (signedId) {
+    const v = lookup(signedId);
+    if (v === null) return { inW: 0, outW: 0, stale: true, configured: true };
+    const input: BidirectionalInput = { signed: node.signedOutbound ? -v : v };
+    const n = normalizeBidirectional(input);
+    return { inW: n.import, outW: n.export, stale: false, configured: true };
+  }
+  if (posId || negId) {
+    const pos = posId ? lookup(posId) : 0;
+    const neg = negId ? lookup(negId) : 0;
+    const stale = pos === null || neg === null;
+    const input: BidirectionalInput = { importValue: pos ?? 0, exportValue: neg ?? 0 };
+    const n = normalizeBidirectional(input);
+    return { inW: n.import, outW: n.export, stale, configured: true };
+  }
+  return { inW: 0, outW: 0, stale: false, configured: false };
+}
+
+function resolveLevel(node: FlowNodeConfig, lookup: PowerLookup): number | undefined {
+  const id = first(node.level);
+  const v = id ? lookup(id) : null;
+  return v ?? undefined;
+}
+
+/** Resolve the configured node list against live sensor readings. */
+export function resolveFlow(
+  nodes: readonly FlowNodeConfig[],
+  lookup: PowerLookup,
+  sunBelowHorizon: boolean,
+): ResolvedFlow {
+  const resolved: ResolvedNode[] = [];
+  const counters = { input: 0, output: 0, storage: 0 };
+  let inW = 0;
+  let measuredOutW = 0;
+  let anyInCapableConfigured = false;
+
+  for (const [index, node] of nodes.entries()) {
+    const base = {
+      id: `node-${index}`,
+      kind: node.kind,
+      label: node.label || FALLBACK_LABELS[node.kind],
+      icon: node.icon || FALLBACK_ICONS[node.kind],
+      remainder: node.kind === "output" && node.remainder,
+      priced: node.kind === "bidirectional" && node.priced,
+      level: resolveLevel(node, lookup),
+      resting: false,
+    };
+    if (node.kind === "input") {
+      const r = resolveSum(node.entities, lookup);
+      anyInCapableConfigured ||= r.configured;
+      inW += r.watts;
+      resolved.push({
+        ...base,
+        color: cycle(INPUT_COLORS, counters.input++),
+        configured: r.configured,
+        stale: r.stale,
+        watts: r.watts,
+        direction: r.watts > 0 ? "in" : "idle",
+        resting: r.configured && sunBelowHorizon && r.watts <= SLEEP_THRESHOLD_W,
+      });
+    } else if (node.kind === "output") {
+      const r = node.remainder
+        ? { watts: 0, stale: false, configured: false }
+        : resolveSum(node.entities, lookup);
+      if (!node.remainder) measuredOutW += r.watts;
+      resolved.push({
+        ...base,
+        color: cycle(OUTPUT_COLORS, counters.output++),
+        configured: r.configured,
+        stale: r.stale,
+        watts: r.watts,
+        direction: r.watts > 0 ? "out" : "idle",
+      });
+    } else {
+      const r = resolveBidirectional(node, lookup);
+      anyInCapableConfigured ||= r.configured;
+      inW += r.inW;
+      measuredOutW += r.outW;
+      const direction: FlowDirection = r.inW > 0 ? "in" : r.outW > 0 ? "out" : "idle";
+      resolved.push({
+        ...base,
+        color: node.priced ? energyColors.grid : cycle(STORAGE_COLORS, counters.storage++),
+        configured: r.configured,
+        stale: r.stale,
+        watts: r.inW > 0 ? r.inW : r.outW,
+        direction,
+      });
+    }
+  }
+
+  // Second pass: the remainder output soaks up whatever the measured outputs
+  // don't account for, so the graph conserves.
+  const remainderW = Math.max(0, inW - measuredOutW);
+  for (const node of resolved) {
+    if (!node.remainder) continue;
+    node.watts = remainderW;
+    node.direction = remainderW > 0 ? "out" : "idle";
+    node.configured = anyInCapableConfigured;
+  }
+
+  const hubW = resolved.filter((n) => n.kind === "output").reduce((sum, n) => sum + n.watts, 0);
+
+  return { nodes: resolved, hubW, flowState: toFlowState(resolved) };
+}
+
+/** Dominant supplying node's color tints the widget shell channel; falls back
+ *  to the neutral home color when nothing meaningfully flows in. */
+export function dominantColor(flow: ResolvedFlow): string {
+  let top: ResolvedNode | undefined;
+  for (const node of flow.nodes) {
+    if (node.direction !== "in" || node.watts <= ACTIVE_THRESHOLD) continue;
+    if (!top || node.watts > top.watts) top = node;
+  }
+  return top ? top.color : energyColors.home;
 }
 
 export interface NodeView {
@@ -43,172 +254,92 @@ export interface EnergyGraph {
   views: Map<string, NodeView>;
 }
 
-function socSuffix(soc: number | undefined): string {
-  return soc === undefined ? "" : ` · ${Math.round(soc)}%`;
+function levelSuffix(level: number | undefined): string {
+  return level === undefined ? "" : ` · ${Math.round(level)}%`;
 }
 
-export function buildEnergyGraph(flow: EnergyFlow, tariff?: Tariff): EnergyGraph {
-  const nodes: FlowNode[] = [];
+export function buildEnergyGraph(flow: ResolvedFlow, tariff?: Tariff): EnergyGraph {
+  const graphNodes: FlowNode[] = [];
   const edges: FlowEdge[] = [];
   const views = new Map<string, NodeView>();
 
   const cost = tariff ? computeCost(flow.flowState, tariff) : null;
+  const configuredInputs = flow.nodes.filter((n) => n.kind === "input" && n.configured);
+  // Savings are an aggregate over all production, so the sub-line only reads
+  // truthfully when a single input carries it.
+  const soleInput = configuredInputs.length === 1 ? configuredInputs[0] : undefined;
 
-  // --- Sources (solar, battery, grid) feed the hub on the left. ---
-  if (flow.solar.configured) {
-    const idle = flow.solar.watts <= ACTIVE_THRESHOLD;
-    const watts = idle ? 0 : flow.solar.watts;
-    views.set("solar", {
-      icon: energyIcons.solar,
-      label: "Solar",
-      value: flow.solarSleeping ? "Back at sunrise" : idle ? "idle" : formatPower(flow.solar.watts),
-      color: energyColors.solar,
-      idle,
-      sub: solarSavingSub(cost),
-    });
-    nodes.push({ id: "solar", kind: "source" });
-    edges.push({
-      id: "solar",
-      from: { node: "solar" },
-      to: { node: "hub" },
-      magnitude: watts,
-      color: energyColors.solar,
-      colorTo: hubFade(energyColors.solar),
-      direction: "forward",
-      idle,
-    });
-  }
+  for (const node of flow.nodes) {
+    if (!node.configured) continue;
+    const active = node.watts > ACTIVE_THRESHOLD && node.direction !== "idle";
+    const label = `${node.label}${levelSuffix(node.level)}`;
 
-  if (flow.battery.configured) {
-    const charging = flow.battery.direction === "charge";
-    const active = flow.battery.watts > ACTIVE_THRESHOLD && flow.battery.direction !== "idle";
-    const watts = active ? flow.battery.watts : 0;
-    views.set("battery", {
-      icon: energyIcons.battery,
-      label: `Battery${socSuffix(flow.battery.soc)}`,
-      value: active ? formatPower(flow.battery.watts) : "idle",
-      color: energyColors.battery,
-      idle: !active,
-    });
-    nodes.push({ id: "battery", kind: "source" });
-    edges.push({
-      id: "battery",
-      from: { node: "battery" },
-      to: { node: "hub" },
-      magnitude: watts,
-      // Charging flows hub -> battery (reverse); discharging powers the home.
-      color: energyColors.battery,
-      colorTo: hubFade(energyColors.battery),
-      direction: charging ? "reverse" : "forward",
-      idle: !active,
-    });
-  }
+    if (node.kind === "output") {
+      const idle = !active;
+      views.set(node.id, {
+        icon: node.icon,
+        label,
+        value: idle ? "idle" : formatPower(node.watts),
+        color: node.color,
+        idle,
+      });
+      graphNodes.push({ id: node.id, kind: "spend" });
+      edges.push({
+        id: node.id,
+        from: { node: "hub" },
+        to: { node: node.id },
+        magnitude: idle ? 0 : node.watts,
+        // Soft at the hub end, full node color at the node end.
+        color: hubFade(node.color),
+        colorTo: node.color,
+        direction: "forward",
+        idle,
+      });
+      continue;
+    }
 
-  if (flow.grid.configured) {
-    const importing = flow.grid.direction === "import";
-    const exporting = flow.grid.direction === "export";
-    const active = flow.grid.watts > ACTIVE_THRESHOLD && flow.grid.direction !== "idle";
-    const watts = active ? flow.grid.watts : 0;
-    // Export reads visually distinct (teal) from import (grid blue).
-    const color = exporting ? energyColors.export : energyColors.grid;
-    views.set("grid", {
-      icon: exporting ? energyIcons.export : energyIcons.grid,
-      label: importing ? "From grid" : exporting ? "To grid" : "Grid",
-      value: active ? formatPower(flow.grid.watts) : "idle",
+    // Inputs and two-way nodes feed the hub from the source column; a two-way
+    // node flowing out reverses its ribbon (e.g. charging, exporting).
+    const outbound = node.kind === "bidirectional" && node.direction === "out";
+    // A priced node pushing outward reads visually distinct (export teal).
+    const color = node.priced && outbound ? energyColors.export : node.color;
+    const idle = !active;
+    views.set(node.id, {
+      icon: node.icon,
+      label,
+      value: node.resting ? "Back at sunrise" : idle ? "idle" : formatPower(node.watts),
       color,
-      idle: !active,
-      sub: active ? gridCostSub(cost) : undefined,
+      idle,
+      sub:
+        node.priced && active
+          ? gridCostSub(cost)
+          : node === soleInput
+            ? solarSavingSub(cost)
+            : undefined,
     });
-    nodes.push({ id: "grid", kind: "source" });
+    graphNodes.push({ id: node.id, kind: "source" });
     edges.push({
-      id: "grid",
-      from: { node: "grid" },
+      id: node.id,
+      from: { node: node.id },
       to: { node: "hub" },
-      magnitude: watts,
+      magnitude: idle ? 0 : node.watts,
       color,
       colorTo: hubFade(color),
-      // Export flows home -> grid (reverse).
-      direction: exporting ? "reverse" : "forward",
-      idle: !active,
+      direction: outbound ? "reverse" : "forward",
+      idle,
     });
   }
 
-  // --- Hub: the house, carrying total home consumption. ---
-  nodes.push({ id: "hub", kind: "hub" });
+  // --- Hub: the house, carrying total consumption. ---
+  graphNodes.push({ id: "hub", kind: "hub" });
   views.set("hub", {
     icon: energyIcons.home,
     label: "Home",
-    value: formatPower(flow.home.watts),
+    value: formatPower(flow.hubW),
     color: energyColors.home,
     idle: false,
     hub: true,
   });
 
-  // --- Spend (EV, rest of home) draws from the hub on the right. ---
-  const evConfigured = flow.ev.configured;
-  if (evConfigured) {
-    const idle = flow.ev.watts <= ACTIVE_THRESHOLD;
-    const watts = idle ? 0 : flow.ev.watts;
-    views.set("ev", {
-      icon: energyIcons.ev,
-      label: `EV charging${socSuffix(flow.ev.soc)}`,
-      value: idle ? "idle" : formatPower(flow.ev.watts),
-      color: energyColors.ev,
-      idle,
-    });
-    nodes.push({ id: "ev", kind: "spend" });
-    edges.push({
-      id: "ev",
-      from: { node: "hub" },
-      to: { node: "ev" },
-      magnitude: watts,
-      // Soft at the hub end, full EV color at the node end.
-      color: hubFade(energyColors.ev),
-      colorTo: energyColors.ev,
-      direction: "forward",
-      idle,
-    });
-  }
-
-  // "Rest of home" is a separate spend node only when an EV splits part of the
-  // load off; without an EV it equals the whole home, which the hub already shows,
-  // so we don't duplicate it (the hub IS the home).
-  if (evConfigured && flow.home.configured) {
-    const rest = Math.max(0, flow.home.watts - flow.ev.watts);
-    const idle = rest <= ACTIVE_THRESHOLD;
-    views.set("home", {
-      icon: energyIcons.home,
-      label: "Rest of home",
-      value: formatPower(rest),
-      color: energyColors.home,
-      idle,
-    });
-    nodes.push({ id: "home", kind: "spend" });
-    edges.push({
-      id: "home",
-      from: { node: "hub" },
-      to: { node: "home" },
-      magnitude: rest,
-      color: hubFade(energyColors.home),
-      colorTo: energyColors.home,
-      direction: "forward",
-      idle,
-    });
-  }
-
-  return { graph: { nodes, edges }, views };
-}
-
-const DETAIL_IDS: Record<string, NodeDetailId> = {
-  solar: "solar",
-  grid: "grid",
-  battery: "battery",
-  ev: "ev",
-  home: "home",
-  hub: "home",
-};
-
-/** Map a graph node id to its detail panel (the hub opens the home detail). */
-export function toDetailId(nodeId: string): NodeDetailId | null {
-  return DETAIL_IDS[nodeId] ?? null;
+  return { graph: { nodes: graphNodes, edges }, views };
 }
