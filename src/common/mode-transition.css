@@ -1,0 +1,8 @@
+/* Mode channel transition — animates --widget-color/--widget-color-to swaps
+   when a mode-colored widget changes state (heat → cool, off → eco, etc.).
+   Opt-in per widget shell; imported by each consumer so it bundles per widget. */
+.widget-mode-transition {
+  transition:
+    --widget-color 300ms ease,
+    --widget-color-to 300ms ease;
+}

@@ -16,11 +16,10 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { buildDebugData, formatTemperature, WidgetDebugView, widgetDialogProps } from "../common";
+import "../common/mode-transition.css";
 import { ClimateControls } from "./controls";
-// Climate-scoped channel transition (--widget-color 300ms ease) — see transition.css
-import "./transition.css";
-import { formatTemperature, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
+import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -105,7 +104,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
         color={mode().color}
         colorTo={mode().colorTo}
         emptyState={emptyState()}
-        class="climate-widget-shell"
+        class="widget-mode-transition"
       >
         <Show when={hasEntities()}>
           <Widget.Content>

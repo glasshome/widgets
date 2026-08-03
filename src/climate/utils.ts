@@ -23,7 +23,7 @@ export const FAN_MODES: Record<string, { icon: string; label: string }> = {
  * Dark variants lift L by +0.02..+0.04 vs light (chroma parity within pair),
  * matching the SDK tone-token light/dark delta convention (29-01 D-10).
  */
-export const MODE_COLORS_LIGHT: Record<string, { color: string; colorTo: string }> = {
+const MODE_COLORS_LIGHT: Record<string, { color: string; colorTo: string }> = {
   heat: {
     color:
       "oklch(0.66 0.20 30)" /* red-orange anchored below midline so 22% alpha stays warm on light bg */,
@@ -65,7 +65,7 @@ export const MODE_COLORS_LIGHT: Record<string, { color: string; colorTo: string 
   },
 };
 
-export const MODE_COLORS_DARK: Record<string, { color: string; colorTo: string }> = {
+const MODE_COLORS_DARK: Record<string, { color: string; colorTo: string }> = {
   heat: {
     color:
       "oklch(0.70 0.20 30)" /* +0.04 L over light so red-orange stays vibrant at 22% alpha on #0c0a09 */,
@@ -116,10 +116,4 @@ export function getModeColors(mode: string, dark: boolean): { color: string; col
 
 export function getHvacModeIcon(mode: string): string {
   return HVAC_MODES[mode]?.icon ?? "mdi:thermostat";
-}
-
-export function formatTemperature(value: number | undefined, unit?: string): string {
-  if (value === undefined || value === null) return "--";
-  const u = unit ?? "C";
-  return `${Number.isInteger(value) ? value : value.toFixed(1)}°${u}`;
 }

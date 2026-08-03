@@ -1,8 +1,9 @@
+import { Slider } from "@glasshome/ui/solid";
 import { type EntityView, useService, useTemperatureUnit } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createSignal, For, onCleanup, Show } from "solid-js";
-import { TempSlider } from "./temp-slider";
-import { FAN_MODES, formatTemperature, HVAC_MODES } from "./utils";
+import { For, Show } from "solid-js";
+import { formatTemperature, ModeChips, useSetpoints } from "../common";
+import { FAN_MODES, HVAC_MODES } from "./utils";
 
 interface ClimateControlsProps {
   entities: () => EntityView[];
@@ -14,12 +15,6 @@ const HEAT = "oklch(0.66 0.19 40)";
 
 export function ClimateControls(props: ClimateControlsProps) {
   const { callService } = useService();
-  let commitDebounce: ReturnType<typeof setTimeout> | undefined;
-  let pendingGrace: ReturnType<typeof setTimeout> | undefined;
-  // Optimistic setpoints held while editing plus a grace window after commit, so
-  // the slider and readout never snap back to the stale HA attribute mid
-  // round-trip. [low, high] in range mode, [target] otherwise.
-  const [pendingTemps, setPendingTemps] = createSignal<number[] | null>(null);
 
   const entity = () => props.entities()[0];
   const entityId = () => entity()?.id;
@@ -56,7 +51,22 @@ export function ClimateControls(props: ClimateControlsProps) {
     const t = a?.temperature as number | undefined;
     return t == null ? [] : [t];
   };
-  const temps = () => pendingTemps() ?? stateTemps();
+
+  const setpointState = useSetpoints({
+    stateValues: stateTemps,
+    min: minTemp,
+    max: maxTemp,
+    step: tempStep,
+    commit: (values) => {
+      const id = entityId();
+      if (!id || values.length === 0) return;
+      const data = isRange()
+        ? { target_temp_low: values[0], target_temp_high: values[1] }
+        : { temperature: values[0] };
+      callService("climate", "set_temperature", data, { entity_id: id });
+    },
+  });
+  const temps = setpointState.values;
 
   const setpoints = () => {
     const t = temps();
@@ -69,41 +79,6 @@ export function ClimateControls(props: ClimateControlsProps) {
     return [{ index: 0, label: "Target", color: "var(--primary)", value: t[0] }];
   };
 
-  const round1 = (v: number) => Math.round(v * 10) / 10;
-  const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
-
-  const commit = (values: number[]) => {
-    const id = entityId();
-    if (!id || values.length === 0) return;
-    const data = isRange()
-      ? { target_temp_low: values[0], target_temp_high: values[1] }
-      : { temperature: values[0] };
-    callService("climate", "set_temperature", data, { entity_id: id });
-    if (pendingGrace) clearTimeout(pendingGrace);
-    pendingGrace = setTimeout(() => setPendingTemps(null), 1500);
-  };
-
-  // Fine +/- on one setpoint; keeps low below high by at least one step in range.
-  const stepSetpoint = (index: number, delta: number) => {
-    const base = temps();
-    if (base.length === 0) return;
-    const next = base.slice();
-    let v = clamp(round1(base[index] + delta), minTemp(), maxTemp());
-    if (isRange()) {
-      if (index === 0) v = Math.min(v, next[1] - tempStep());
-      else v = Math.max(v, next[0] + tempStep());
-    }
-    next[index] = v;
-    setPendingTemps(next);
-    if (commitDebounce) clearTimeout(commitDebounce);
-    commitDebounce = setTimeout(() => commit(next), 400);
-  };
-
-  onCleanup(() => {
-    if (commitDebounce) clearTimeout(commitDebounce);
-    if (pendingGrace) clearTimeout(pendingGrace);
-  });
-
   const hvacMode = () => (entity()?.state ?? "off") as string;
   const hvacModes = () => (entity()?.attributes?.hvac_modes as string[] | undefined) ?? [];
   const fanModes = () => (entity()?.attributes?.fan_modes as string[] | undefined) ?? null;
@@ -111,22 +86,15 @@ export function ClimateControls(props: ClimateControlsProps) {
   const presetModes = () => (entity()?.attributes?.preset_modes as string[] | undefined) ?? null;
   const presetMode = () => entity()?.attributes?.preset_mode as string | undefined;
 
-  const setHvacMode = (mode: string) => {
+  const callModeService = (service: string, field: string) => (mode: string) => {
     const id = entityId();
     if (!id) return;
-    callService("climate", "set_hvac_mode", { hvac_mode: mode }, { entity_id: id });
+    callService("climate", service, { [field]: mode }, { entity_id: id });
   };
 
-  const setFanMode = (mode: string) => {
-    const id = entityId();
-    if (!id) return;
-    callService("climate", "set_fan_mode", { fan_mode: mode }, { entity_id: id });
-  };
-
-  const setPresetMode = (mode: string) => {
-    const id = entityId();
-    if (!id) return;
-    callService("climate", "set_preset_mode", { preset_mode: mode }, { entity_id: id });
+  const markers = () => {
+    const ct = currentTemp();
+    return ct == null ? [] : [ct];
   };
 
   return (
@@ -147,16 +115,18 @@ export function ClimateControls(props: ClimateControlsProps) {
             </div>
           </Show>
 
-          <TempSlider
-            values={temps()}
+          <Slider
+            value={temps()}
             min={minTemp()}
             max={maxTemp()}
             step={tempStep()}
-            colors={isRange() ? [COOL, HEAT] : ["var(--primary)"]}
-            fill={isRange() ? `linear-gradient(90deg, ${COOL}, ${HEAT})` : "var(--primary)"}
-            currentTemp={currentTemp()}
-            onInput={(v) => setPendingTemps(v)}
-            onCommit={(v) => commit(v)}
+            minStepsBetweenThumbs={isRange() ? 1 : undefined}
+            thumbColors={isRange() ? [COOL, HEAT] : undefined}
+            fillTone={isRange() ? ([COOL, HEAT] as [string, string]) : undefined}
+            markers={markers()}
+            onChange={setpointState.setPending}
+            onChangeEnd={setpointState.commitValues}
+            aria-label="Target temperature"
           />
 
           <div class="flex justify-center gap-8">
@@ -169,7 +139,7 @@ export function ClimateControls(props: ClimateControlsProps) {
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => stepSetpoint(sp.index, -tempStep())}
+                      onClick={() => setpointState.stepValue(sp.index, -tempStep())}
                       class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                     >
                       <Icon icon="mdi:minus" width={20} />
@@ -179,7 +149,7 @@ export function ClimateControls(props: ClimateControlsProps) {
                     </span>
                     <button
                       type="button"
-                      onClick={() => stepSetpoint(sp.index, tempStep())}
+                      onClick={() => setpointState.stepValue(sp.index, tempStep())}
                       class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                     >
                       <Icon icon="mdi:plus" width={20} />
@@ -197,27 +167,13 @@ export function ClimateControls(props: ClimateControlsProps) {
       {/* HVAC mode selector */}
       <div class="space-y-2">
         <span class="font-medium text-sm">Mode</span>
-        <div class="flex flex-wrap gap-2">
-          <For each={hvacModes()}>
-            {(mode) => {
-              const info = () => HVAC_MODES[mode] ?? { icon: "mdi:help", label: mode };
-              return (
-                <button
-                  type="button"
-                  onClick={() => setHvacMode(mode)}
-                  class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-xs transition-colors"
-                  classList={{
-                    "bg-primary text-primary-foreground": hvacMode() === mode,
-                    "bg-muted hover:bg-muted/80": hvacMode() !== mode,
-                  }}
-                >
-                  <Icon icon={info().icon} width={16} />
-                  {info().label}
-                </button>
-              );
-            }}
-          </For>
-        </div>
+        <ModeChips
+          modes={hvacModes()}
+          active={hvacMode()}
+          info={HVAC_MODES}
+          fallbackIcon="mdi:help"
+          onSelect={callModeService("set_hvac_mode", "hvac_mode")}
+        />
       </div>
 
       {/* Fan mode selector */}
@@ -225,27 +181,13 @@ export function ClimateControls(props: ClimateControlsProps) {
         <div class="h-px bg-border" />
         <div class="space-y-2">
           <span class="font-medium text-sm">Fan</span>
-          <div class="flex flex-wrap gap-2">
-            <For each={fanModes() ?? []}>
-              {(mode) => {
-                const info = () => FAN_MODES[mode] ?? { icon: "mdi:fan", label: mode };
-                return (
-                  <button
-                    type="button"
-                    onClick={() => setFanMode(mode)}
-                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-xs transition-colors"
-                    classList={{
-                      "bg-primary text-primary-foreground": fanMode() === mode,
-                      "bg-muted hover:bg-muted/80": fanMode() !== mode,
-                    }}
-                  >
-                    <Icon icon={info().icon} width={16} />
-                    {info().label}
-                  </button>
-                );
-              }}
-            </For>
-          </div>
+          <ModeChips
+            modes={fanModes() ?? []}
+            active={fanMode()}
+            info={FAN_MODES}
+            fallbackIcon="mdi:fan"
+            onSelect={callModeService("set_fan_mode", "fan_mode")}
+          />
         </div>
       </Show>
 
@@ -254,23 +196,12 @@ export function ClimateControls(props: ClimateControlsProps) {
         <div class="h-px bg-border" />
         <div class="space-y-2">
           <span class="font-medium text-sm">Preset</span>
-          <div class="flex flex-wrap gap-2">
-            <For each={presetModes() ?? []}>
-              {(mode) => (
-                <button
-                  type="button"
-                  onClick={() => setPresetMode(mode)}
-                  class="rounded-lg px-3 py-1.5 font-medium text-xs capitalize transition-colors"
-                  classList={{
-                    "bg-primary text-primary-foreground": presetMode() === mode,
-                    "bg-muted hover:bg-muted/80": presetMode() !== mode,
-                  }}
-                >
-                  {mode}
-                </button>
-              )}
-            </For>
-          </div>
+          <ModeChips
+            modes={presetModes() ?? []}
+            active={presetMode()}
+            capitalize
+            onSelect={callModeService("set_preset_mode", "preset_mode")}
+          />
         </div>
       </Show>
     </div>
