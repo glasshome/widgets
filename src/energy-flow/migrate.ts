@@ -1,6 +1,6 @@
 /**
  * configVersion 1/2 → 3 transform: maps the old fixed five-role flat fields
- * onto the node list mechanically (dynamic-flow-nodes memo, Migration section).
+ * onto the node list mechanically.
  * Runs in the host's `resolveConfig` before the zod parse, so the output only
  * needs the discriminators and values — the schema fills variant defaults.
  * Pure and SDK-free so it unit-tests server-side.
