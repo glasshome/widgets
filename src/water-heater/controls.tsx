@@ -1,4 +1,5 @@
 import {
+  Button,
   type EntityView,
   Slider,
   Switch,
@@ -110,23 +111,25 @@ export function WaterHeaterControls(props: WaterHeaterControlsProps) {
                 Target
               </span>
               <div class="flex items-center gap-2">
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Lower target temperature"
                   onClick={() => setpointState.stepValue(0, -tempStep())}
-                  class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                 >
                   <Icon icon="mdi:minus" width={20} />
-                </button>
+                </Button>
                 <span class="min-w-[3.5rem] text-center font-bold text-2xl">
                   {formatTemperature(temps()[0], tempUnit())}
                 </span>
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Raise target temperature"
                   onClick={() => setpointState.stepValue(0, tempStep())}
-                  class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                 >
                   <Icon icon="mdi:plus" width={20} />
-                </button>
+                </Button>
               </div>
             </div>
           </div>

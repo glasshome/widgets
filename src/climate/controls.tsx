@@ -1,4 +1,10 @@
-import { type EntityView, Slider, useService, useTemperatureUnit } from "@glasshome/widget-sdk";
+import {
+  Button,
+  type EntityView,
+  Slider,
+  useService,
+  useTemperatureUnit,
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
 import { formatTemperature, ModeChips, useSetpoints } from "../common";
@@ -136,23 +142,25 @@ export function ClimateControls(props: ClimateControlsProps) {
                     {sp.label}
                   </span>
                   <div class="flex items-center gap-2">
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={`Lower ${sp.label} setpoint`}
                       onClick={() => setpointState.stepValue(sp.index, -tempStep())}
-                      class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                     >
                       <Icon icon="mdi:minus" width={20} />
-                    </button>
+                    </Button>
                     <span class="min-w-[3.5rem] text-center font-bold text-2xl">
                       {formatTemperature(sp.value, tempUnit())}
                     </span>
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={`Raise ${sp.label} setpoint`}
                       onClick={() => setpointState.stepValue(sp.index, tempStep())}
-                      class="flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                     >
                       <Icon icon="mdi:plus" width={20} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

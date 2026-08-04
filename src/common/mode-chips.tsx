@@ -1,6 +1,6 @@
+import { Button } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
-import "./controls.css";
 
 interface ModeChipsProps {
   modes: string[];
@@ -21,19 +21,15 @@ export function ModeChips(props: ModeChipsProps) {
     <div class="flex flex-wrap gap-2">
       <For each={props.modes}>
         {(mode) => (
-          <button
-            type="button"
+          <Button
+            variant={props.active === mode ? "default" : "outline"}
+            size="sm"
+            class={props.capitalize ? "text-xs capitalize" : "text-xs"}
             onClick={() => props.onSelect(mode)}
-            class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-xs transition-colors"
-            classList={{
-              "bg-primary text-primary-foreground": props.active === mode,
-              "mode-chip bg-muted": props.active !== mode,
-              capitalize: props.capitalize,
-            }}
           >
             <Show when={iconFor(mode)}>{(icon) => <Icon icon={icon()} width={16} />}</Show>
             {labelFor(mode)}
-          </button>
+          </Button>
         )}
       </For>
     </div>

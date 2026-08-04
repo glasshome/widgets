@@ -1,4 +1,4 @@
-import { type EntityView, Slider, useService } from "@glasshome/widget-sdk";
+import { Button, type EntityView, Slider, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import {
@@ -191,20 +191,15 @@ function ActionButton(props: {
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      class="flex h-14 flex-1 items-center justify-center gap-2.5 rounded-2xl font-medium text-base transition-colors active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
-      classList={{
-        "bg-primary/10 text-primary hover:bg-primary/20 disabled:hover:bg-primary/10":
-          props.primary === true,
-        "bg-muted text-muted-foreground hover:bg-muted/80 disabled:hover:bg-muted":
-          props.primary !== true,
-      }}
+    <Button
+      variant={props.primary ? "default" : "outline"}
+      size="none"
+      class="h-14 flex-1 gap-2.5 rounded-2xl text-base active:scale-[0.97] disabled:active:scale-100"
       disabled={props.disabled}
       onClick={() => props.onClick()}
     >
       <Icon icon={props.icon} width={22} />
       {props.label}
-    </button>
+    </Button>
   );
 }

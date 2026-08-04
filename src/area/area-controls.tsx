@@ -1,4 +1,4 @@
-import { useService } from "@glasshome/widget-sdk";
+import { Button, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
 import type { EntityGroups } from "./utils";
@@ -37,25 +37,23 @@ function EntityToggleRow(props: {
 
 function BatchToggleButton(props: { label: string; onAction: () => void }) {
   return (
-    <button
-      type="button"
-      class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
-      onClick={props.onAction}
-    >
+    <Button variant="outline" class="w-full" onClick={props.onAction}>
       {props.label}
-    </button>
+    </Button>
   );
 }
 
-function CoverButton(props: { icon: string; onAction: () => void }) {
+function CoverButton(props: { icon: string; label: string; onAction: () => void }) {
   return (
-    <button
-      type="button"
-      class="flex cursor-pointer items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    <Button
+      variant="ghost"
+      size="none"
+      class="p-1.5 text-muted-foreground hover:text-foreground"
+      aria-label={props.label}
       onClick={props.onAction}
     >
       <Icon icon={props.icon} width={16} />
-    </button>
+    </Button>
   );
 }
 
@@ -130,9 +128,9 @@ export function AreaControls(props: AreaControlsProps) {
         <div class="flex flex-col gap-2">
           <h3 class="font-semibold text-muted-foreground text-xs uppercase">Covers</h3>
           <div class="flex gap-2">
-            <button
-              type="button"
-              class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+            <Button
+              variant="outline"
+              class="flex-1"
               onClick={() => {
                 for (const entity of props.groups.covers) {
                   callService("cover", "open_cover", {}, { entity_id: entity.id });
@@ -141,10 +139,10 @@ export function AreaControls(props: AreaControlsProps) {
             >
               <Icon icon="mdi:arrow-up" width={16} />
               Open all
-            </button>
-            <button
-              type="button"
-              class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+            </Button>
+            <Button
+              variant="outline"
+              class="flex-1"
               onClick={() => {
                 for (const entity of props.groups.covers) {
                   callService("cover", "close_cover", {}, { entity_id: entity.id });
@@ -153,7 +151,7 @@ export function AreaControls(props: AreaControlsProps) {
             >
               <Icon icon="mdi:arrow-down" width={16} />
               Close all
-            </button>
+            </Button>
           </div>
           <div class="flex flex-col gap-0.5">
             <For each={props.groups.covers}>
@@ -164,18 +162,21 @@ export function AreaControls(props: AreaControlsProps) {
                   <div class="flex items-center gap-1">
                     <CoverButton
                       icon="mdi:arrow-up"
+                      label={`Open ${entity.friendlyName}`}
                       onAction={() =>
                         callService("cover", "open_cover", {}, { entity_id: entity.id })
                       }
                     />
                     <CoverButton
                       icon="mdi:stop"
+                      label={`Stop ${entity.friendlyName}`}
                       onAction={() =>
                         callService("cover", "stop_cover", {}, { entity_id: entity.id })
                       }
                     />
                     <CoverButton
                       icon="mdi:arrow-down"
+                      label={`Close ${entity.friendlyName}`}
                       onAction={() =>
                         callService("cover", "close_cover", {}, { entity_id: entity.id })
                       }

@@ -1,4 +1,15 @@
-import { type EntityView, getEntityAttribute, useService } from "@glasshome/widget-sdk";
+import {
+  Button,
+  type EntityView,
+  getEntityAttribute,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Slider,
+  useService,
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import type { Accessor } from "solid-js";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
@@ -47,20 +58,36 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
     callService("media_player", "media_previous_track", {}, { entity_id: entityId() });
   };
 
-  const handleVolumeChange = (value: number) => {
-    callService(
-      "media_player",
-      "volume_set",
-      { volume_level: value / 100 },
-      { entity_id: entityId() },
-    );
-  };
-
   const volumeLevel = createMemo(() => {
     const e = props.entity();
     const vol = e ? getEntityAttribute<number>(e, "volume_level") : undefined;
     return vol != null ? Math.round(vol * 100) : 50;
   });
+
+  // Local echo while dragging so the thumb doesn't fight the lagging entity.
+  const [localVolume, setLocalVolume] = createSignal(volumeLevel());
+  const [editingVolume, setEditingVolume] = createSignal(false);
+  let volumeDebounce: ReturnType<typeof setTimeout> | undefined;
+  onCleanup(() => {
+    if (volumeDebounce) clearTimeout(volumeDebounce);
+  });
+  const shownVolume = () => (editingVolume() ? localVolume() : volumeLevel());
+
+  const handleVolumeChange = (values: number[]) => {
+    const value = values[0];
+    setEditingVolume(true);
+    setLocalVolume(value);
+    if (volumeDebounce) clearTimeout(volumeDebounce);
+    volumeDebounce = setTimeout(() => {
+      setEditingVolume(false);
+      callService(
+        "media_player",
+        "volume_set",
+        { volume_level: value / 100 },
+        { entity_id: entityId() },
+      );
+    }, 300);
+  };
 
   const sourceList = createMemo(() => {
     const e = props.entity();
@@ -71,7 +98,8 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
     return e ? (getEntityAttribute<string>(e, "source") ?? "") : "";
   });
 
-  const handleSourceChange = (source: string) => {
+  const handleSourceChange = (source: string | null) => {
+    if (!source) return;
     callService("media_player", "select_source", { source }, { entity_id: entityId() });
   };
 
@@ -81,21 +109,27 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
       <Show when={features()?.supportsPlayPause}>
         <div class="flex items-center justify-center gap-4">
           <Show when={features()?.supportsPrevious}>
-            <button type="button" onClick={handlePrevious} class="rounded-full p-2 hover:bg-accent">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Previous track"
+              onClick={handlePrevious}
+            >
               <Icon icon="mdi:skip-previous" width={24} />
-            </button>
+            </Button>
           </Show>
-          <button
-            type="button"
+          <Button
+            size="icon"
+            class="size-14"
+            aria-label={isPlaying() ? "Pause" : "Play"}
             onClick={handlePlayPause}
-            class="rounded-full bg-primary p-3 text-primary-foreground hover:bg-primary/90"
           >
             <Icon icon={isPlaying() ? "mdi:pause" : "mdi:play"} width={28} />
-          </button>
+          </Button>
           <Show when={features()?.supportsNext}>
-            <button type="button" onClick={handleNext} class="rounded-full p-2 hover:bg-accent">
+            <Button variant="ghost" size="icon" aria-label="Next track" onClick={handleNext}>
               <Icon icon="mdi:skip-next" width={24} />
-            </button>
+            </Button>
           </Show>
         </div>
       </Show>
@@ -120,16 +154,16 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
       <Show when={features()?.supportsVolume}>
         <div class="flex items-center gap-3">
           <Icon icon="mdi:volume-medium" width={18} class="text-muted-foreground" />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={volumeLevel()}
-            onInput={(e) => handleVolumeChange(Number.parseInt(e.currentTarget.value, 10))}
-            class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+          <Slider
+            value={[shownVolume()]}
+            min={0}
+            max={100}
+            onChange={handleVolumeChange}
+            aria-label="Volume"
+            class="flex-1"
           />
           <span class="w-8 text-right text-muted-foreground text-xs tabular-nums">
-            {volumeLevel()}
+            {Math.round(shownVolume())}
           </span>
         </div>
       </Show>
@@ -137,19 +171,20 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
       {/* Source selector */}
       <Show when={features()?.supportsSource && sourceList().length > 0}>
         <div class="flex flex-col gap-1.5">
-          <label for="media-player-source" class="font-medium text-sm">
-            Source
-          </label>
-          <select
-            id="media-player-source"
+          <span class="font-medium text-sm">Source</span>
+          <Select
+            options={sourceList()}
             value={currentSource()}
-            onChange={(e) => handleSourceChange(e.currentTarget.value)}
-            class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            onChange={handleSourceChange}
+            itemComponent={(itemProps) => (
+              <SelectItem item={itemProps.item}>{itemProps.item.rawValue}</SelectItem>
+            )}
           >
-            {sourceList().map((src: string) => (
-              <option value={src}>{src}</option>
-            ))}
-          </select>
+            <SelectTrigger class="w-full" aria-label="Source">
+              <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+            </SelectTrigger>
+            <SelectContent style={{ "max-height": "min(50vh, 20rem)", "overflow-y": "auto" }} />
+          </Select>
         </div>
       </Show>
     </div>

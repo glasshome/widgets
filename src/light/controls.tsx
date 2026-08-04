@@ -1,4 +1,5 @@
 import {
+  Button,
   type Color,
   ColorSlider,
   ColorWheel,
@@ -302,17 +303,14 @@ export function LightControls(props: LightControlsProps) {
                   return ct !== undefined && Math.abs(ct - preset.kelvin) < 200;
                 };
                 return (
-                  <button
-                    type="button"
+                  <Button
+                    variant={isActive() ? "default" : "outline"}
+                    size="sm"
+                    class="flex-1 text-xs active:scale-[0.97]"
                     onClick={() => setTemp(preset.kelvin)}
-                    class="flex-1 rounded-lg px-2 py-2 font-medium text-xs transition-colors active:scale-[0.97]"
-                    classList={{
-                      "bg-primary text-primary-foreground": isActive(),
-                      "bg-muted hover:bg-muted/80": !isActive(),
-                    }}
                   >
                     {preset.name}
-                  </button>
+                  </Button>
                 );
               }}
             </For>
