@@ -14,6 +14,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && vite build",
+    "test": "bun test",
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123"
   },
   "devDependencies": {
