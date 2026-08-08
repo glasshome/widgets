@@ -21,5 +21,55 @@
       "domain": "weather",
       "access": "read"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "entityIds": {
+        "default": [],
+        "domain": "weather",
+        "title": "Entities",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "showForecast": {
+        "default": true,
+        "title": "Show Forecast",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "entityIds",
+      "showForecast"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "entityIds": [],
+    "showForecast": true
+  },
+  "examples": [
+    {
+      "label": "Weather",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "weather.demo_partly_cloudy"
+        ],
+        "title": "Weather",
+        "showForecast": true
+      }
+    }
   ]
 }

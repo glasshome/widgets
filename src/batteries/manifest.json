@@ -21,5 +21,65 @@
       "domain": "sensor",
       "access": "read"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "threshold": {
+        "default": 20,
+        "title": "Low Battery Threshold (%)",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "whitelist": {
+        "default": [],
+        "title": "Whitelist (include only these)",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "blacklist": {
+        "default": [],
+        "title": "Blacklist (exclude these)",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "threshold",
+      "whitelist",
+      "blacklist"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "threshold": 20,
+    "whitelist": [],
+    "blacklist": []
+  },
+  "examples": [
+    {
+      "label": "Batteries",
+      "size": {
+        "w": 2,
+        "h": 3
+      },
+      "config": {
+        "title": "Batteries",
+        "threshold": 20,
+        "whitelist": [],
+        "blacklist": []
+      }
+    }
   ]
 }

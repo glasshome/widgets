@@ -41,5 +41,36 @@
       "domain": "binary_sensor",
       "access": "read"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "areaId": {
+        "formType": "area-picker",
+        "title": "Area",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "defaultConfig": {},
+  "examples": [
+    {
+      "label": "Living Room",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "areaId": "living_room",
+        "title": "Living Room"
+      }
+    }
   ]
 }

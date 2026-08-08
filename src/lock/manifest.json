@@ -21,5 +21,48 @@
       "domain": "lock",
       "access": "control"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "entityIds": {
+        "default": [],
+        "domain": "lock",
+        "title": "Entities",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "entityIds"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "entityIds": []
+  },
+  "examples": [
+    {
+      "label": "Locks",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "lock.front_door_lock",
+          "lock.back_door_lock"
+        ],
+        "title": "Locks"
+      }
+    }
   ]
 }

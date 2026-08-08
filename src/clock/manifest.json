@@ -16,5 +16,222 @@
     "w": 2,
     "h": 2
   },
-  "capabilities": []
+  "capabilities": [],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "clockStyle": {
+        "default": "digital",
+        "title": "Clock Style",
+        "type": "string",
+        "enum": [
+          "digital",
+          "analog",
+          "square"
+        ]
+      },
+      "clockSize": {
+        "default": "small",
+        "title": "Clock Size",
+        "type": "string",
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ]
+      },
+      "showSeconds": {
+        "default": false,
+        "title": "Show Seconds",
+        "type": "boolean"
+      },
+      "timeFormat": {
+        "default": "24",
+        "title": "Time Format",
+        "type": "string",
+        "enum": [
+          "12",
+          "24"
+        ]
+      },
+      "timeZone": {
+        "title": "Timezone",
+        "type": "string"
+      },
+      "preset": {
+        "default": "modern",
+        "title": "Theme Preset",
+        "type": "string",
+        "enum": [
+          "modern",
+          "classic",
+          "minimal",
+          "bold"
+        ]
+      },
+      "showDate": {
+        "default": false,
+        "title": "Show Date",
+        "type": "boolean"
+      },
+      "dateFormat": {
+        "default": "MM/DD/YYYY",
+        "title": "Date Format",
+        "type": "string",
+        "enum": [
+          "MM/DD/YYYY",
+          "DD/MM/YYYY",
+          "YYYY-MM-DD"
+        ]
+      },
+      "fontSize": {
+        "default": "medium",
+        "title": "Font Size",
+        "type": "string",
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ]
+      },
+      "layout": {
+        "default": "auto",
+        "title": "Layout",
+        "type": "string",
+        "enum": [
+          "auto",
+          "horizontal",
+          "stacked"
+        ]
+      },
+      "analogOptions": {
+        "default": {
+          "border": false,
+          "ticks": "hour"
+        },
+        "title": "Analog Options",
+        "type": "object",
+        "properties": {
+          "border": {
+            "default": false,
+            "title": "Show Border",
+            "type": "boolean"
+          },
+          "ticks": {
+            "default": "hour",
+            "title": "Tick Marks",
+            "type": "string",
+            "enum": [
+              "none",
+              "quarter",
+              "hour",
+              "minute"
+            ]
+          }
+        },
+        "required": [
+          "border",
+          "ticks"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "clockStyle",
+      "clockSize",
+      "showSeconds",
+      "timeFormat",
+      "preset",
+      "showDate",
+      "dateFormat",
+      "fontSize",
+      "layout",
+      "analogOptions"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "clockStyle": "digital",
+    "clockSize": "small",
+    "showSeconds": false,
+    "timeFormat": "24",
+    "preset": "modern",
+    "showDate": false,
+    "dateFormat": "MM/DD/YYYY",
+    "fontSize": "medium",
+    "layout": "auto",
+    "analogOptions": {
+      "border": false,
+      "ticks": "hour"
+    }
+  },
+  "examples": [
+    {
+      "label": "Digital",
+      "size": {
+        "w": 2,
+        "h": 1
+      },
+      "config": {
+        "clockStyle": "digital",
+        "clockSize": "medium",
+        "showSeconds": false,
+        "timeFormat": "24",
+        "preset": "modern",
+        "showDate": true,
+        "dateFormat": "DD/MM/YYYY",
+        "fontSize": "medium",
+        "layout": "auto",
+        "analogOptions": {
+          "border": false,
+          "ticks": "hour"
+        }
+      }
+    },
+    {
+      "label": "Analog",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "clockStyle": "analog",
+        "clockSize": "large",
+        "showSeconds": true,
+        "timeFormat": "24",
+        "preset": "classic",
+        "showDate": false,
+        "dateFormat": "DD/MM/YYYY",
+        "fontSize": "medium",
+        "layout": "auto",
+        "analogOptions": {
+          "border": true,
+          "ticks": "hour"
+        }
+      }
+    },
+    {
+      "label": "Square",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "clockStyle": "square",
+        "clockSize": "large",
+        "showSeconds": false,
+        "timeFormat": "24",
+        "preset": "bold",
+        "showDate": true,
+        "dateFormat": "DD/MM/YYYY",
+        "fontSize": "large",
+        "layout": "stacked",
+        "analogOptions": {
+          "border": false,
+          "ticks": "hour"
+        }
+      }
+    }
+  ]
 }

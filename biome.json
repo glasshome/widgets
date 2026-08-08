@@ -6,7 +6,15 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!dist", "!node_modules", "!preview-poc", "!**/.impeccable", "!**/.fallow"]
+    "includes": [
+      "**",
+      "!dist",
+      "!node_modules",
+      "!preview-poc",
+      "!**/.impeccable",
+      "!**/.fallow",
+      "!src/*/manifest.json"
+    ]
   },
   "formatter": {
     "enabled": true,

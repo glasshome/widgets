@@ -21,5 +21,71 @@
       "domain": "camera",
       "access": "read"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "entityIds": {
+        "default": [],
+        "domain": "camera",
+        "title": "Entity",
+        "singleSelect": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "streamEngine": {
+        "default": "auto",
+        "title": "Stream Engine",
+        "type": "string",
+        "enum": [
+          "auto",
+          "webrtc",
+          "hls",
+          "mjpeg",
+          "snapshot"
+        ]
+      },
+      "refreshInterval": {
+        "default": 10,
+        "title": "Snapshot Refresh (seconds)",
+        "type": "number"
+      }
+    },
+    "required": [
+      "entityIds",
+      "streamEngine",
+      "refreshInterval"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "entityIds": [],
+    "streamEngine": "auto",
+    "refreshInterval": 10
+  },
+  "examples": [
+    {
+      "label": "Front Door",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "camera.front_door_camera"
+        ],
+        "title": "Front Door",
+        "streamEngine": "auto",
+        "refreshInterval": 10
+      }
+    }
   ]
 }

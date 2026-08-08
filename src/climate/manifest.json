@@ -21,5 +21,47 @@
       "domain": "climate",
       "access": "control"
     }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "entityIds": {
+        "default": [],
+        "domain": "climate",
+        "title": "Entities",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "entityIds"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "entityIds": []
+  },
+  "examples": [
+    {
+      "label": "Thermostat",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "climate.living_room_thermostat"
+        ],
+        "title": "Thermostat"
+      }
+    }
   ]
 }

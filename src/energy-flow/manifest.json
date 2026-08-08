@@ -21,5 +21,440 @@
       "domain": "sensor",
       "access": "read"
     }
-  ]
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Optional display name override",
+        "type": "string"
+      },
+      "nodes": {
+        "default": [],
+        "formType": "list",
+        "title": "Flow nodes",
+        "description": "Inputs feed the home, outputs draw from it, two-way nodes switch sides per reading.",
+        "addLabel": "Add node",
+        "labelField": "label",
+        "maxItems": 12,
+        "type": "array",
+        "items": {
+          "default": {
+            "level": [],
+            "entities": [],
+            "kind": "input"
+          },
+          "formType": "variants",
+          "discriminator": "kind",
+          "title": "Type",
+          "labels": {
+            "input": "Input",
+            "output": "Output",
+            "bidirectional": "Two-way"
+          },
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name shown on the node.",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "level": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Charge level",
+                  "description": "Optional. Level sensor (%) shown on the node.",
+                  "deviceClass": "battery",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "entities": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Power sensors",
+                  "description": "Power feeding the home (W). Several sensors are summed.",
+                  "deviceClass": "power",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "input"
+                }
+              },
+              "required": [
+                "level",
+                "entities",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name shown on the node.",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "level": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Charge level",
+                  "description": "Optional. Level sensor (%) shown on the node.",
+                  "deviceClass": "battery",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "entities": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Power sensors",
+                  "description": "Power drawn from the home (W). Several sensors are summed.",
+                  "deviceClass": "power",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "remainder": {
+                  "default": false,
+                  "title": "Remainder",
+                  "description": "Compute this node as inputs minus the other outputs, so the flow always balances. At most one node.",
+                  "type": "boolean"
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "output"
+                }
+              },
+              "required": [
+                "level",
+                "entities",
+                "remainder",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name shown on the node.",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "level": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Charge level",
+                  "description": "Optional. Level sensor (%) shown on the node.",
+                  "deviceClass": "battery",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "positive": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Incoming power",
+                  "description": "Power flowing into the home (W), e.g. grid import or battery discharge.",
+                  "deviceClass": "power",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "negative": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Outgoing power",
+                  "description": "Power flowing out of the home (W), e.g. grid export or battery charging.",
+                  "deviceClass": "power",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signed": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Signed sensor",
+                  "description": "Single sensor carrying both directions (positive = into the home). Wins over the two separate sensors.",
+                  "deviceClass": "power",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signedOutbound": {
+                  "default": false,
+                  "title": "Positive means outgoing",
+                  "description": "Flip if the signed sensor reports positive while power flows out of the home (e.g. battery charging).",
+                  "type": "boolean"
+                },
+                "priced": {
+                  "default": false,
+                  "title": "Utility tariff applies",
+                  "description": "Price this connection's import and export with the configured tariff.",
+                  "type": "boolean"
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "bidirectional"
+                }
+              },
+              "required": [
+                "level",
+                "positive",
+                "negative",
+                "signed",
+                "signedOutbound",
+                "priced",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "sunEntity": {
+        "default": [],
+        "domain": "sun",
+        "title": "Sun entity",
+        "description": "Optional. Your sun.sun entity; input nodes rest after sunset when producing nothing.",
+        "singleSelect": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tariffCurrency": {
+        "title": "Currency",
+        "description": "Optional. Currency symbol for cost estimates (e.g. €). Set together with the rate.",
+        "type": "string"
+      },
+      "tariffRate": {
+        "title": "Rate per kWh",
+        "description": "Optional. Price per kWh. Set together with the currency.",
+        "type": "number"
+      }
+    },
+    "required": [
+      "nodes",
+      "sunEntity"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "nodes": [],
+    "sunEntity": []
+  },
+  "examples": [
+    {
+      "label": "Solar, battery and EV",
+      "size": {
+        "w": 4,
+        "h": 4
+      },
+      "config": {
+        "title": "Energy",
+        "nodes": [
+          {
+            "kind": "input",
+            "entities": [
+              "sensor.solar_power"
+            ],
+            "label": "Solar",
+            "icon": "mdi:solar-power-variant",
+            "level": []
+          },
+          {
+            "kind": "bidirectional",
+            "positive": [
+              "sensor.battery_discharge_power"
+            ],
+            "negative": [
+              "sensor.battery_charge_power"
+            ],
+            "signed": [],
+            "signedOutbound": false,
+            "priced": false,
+            "label": "Battery",
+            "icon": "mdi:battery-high",
+            "level": [
+              "sensor.battery_soc"
+            ]
+          },
+          {
+            "kind": "bidirectional",
+            "positive": [
+              "sensor.grid_import_power"
+            ],
+            "negative": [
+              "sensor.grid_export_power"
+            ],
+            "signed": [],
+            "signedOutbound": false,
+            "priced": true,
+            "label": "Grid",
+            "icon": "mdi:transmission-tower",
+            "level": []
+          },
+          {
+            "kind": "output",
+            "entities": [],
+            "remainder": true,
+            "label": "Home",
+            "icon": "mdi:home-lightning-bolt",
+            "level": []
+          },
+          {
+            "kind": "output",
+            "entities": [
+              "sensor.ev_charger_power"
+            ],
+            "remainder": false,
+            "label": "EV charging",
+            "icon": "mdi:car-electric",
+            "level": [
+              "sensor.ev_soc"
+            ]
+          }
+        ],
+        "sunEntity": [
+          "sun.sun"
+        ]
+      }
+    },
+    {
+      "label": "Solar and grid",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "title": "Solar",
+        "nodes": [
+          {
+            "kind": "input",
+            "entities": [
+              "sensor.solar_power"
+            ],
+            "label": "Solar",
+            "icon": "mdi:solar-power-variant",
+            "level": []
+          },
+          {
+            "kind": "bidirectional",
+            "positive": [
+              "sensor.grid_import_power"
+            ],
+            "negative": [
+              "sensor.grid_export_power"
+            ],
+            "signed": [],
+            "signedOutbound": false,
+            "priced": true,
+            "label": "Grid",
+            "icon": "mdi:transmission-tower",
+            "level": []
+          },
+          {
+            "kind": "output",
+            "entities": [],
+            "remainder": true,
+            "label": "Home",
+            "icon": "mdi:home-lightning-bolt",
+            "level": []
+          }
+        ],
+        "sunEntity": [
+          "sun.sun"
+        ]
+      }
+    },
+    {
+      "label": "Solar and battery",
+      "size": {
+        "w": 2,
+        "h": 3
+      },
+      "config": {
+        "title": "Power",
+        "nodes": [
+          {
+            "kind": "input",
+            "entities": [
+              "sensor.solar_power"
+            ],
+            "label": "Solar",
+            "icon": "mdi:solar-power-variant",
+            "level": []
+          },
+          {
+            "kind": "bidirectional",
+            "positive": [
+              "sensor.battery_discharge_power"
+            ],
+            "negative": [
+              "sensor.battery_charge_power"
+            ],
+            "signed": [],
+            "signedOutbound": false,
+            "priced": false,
+            "label": "Battery",
+            "icon": "mdi:battery-high",
+            "level": [
+              "sensor.battery_soc"
+            ]
+          },
+          {
+            "kind": "output",
+            "entities": [],
+            "remainder": true,
+            "label": "Home",
+            "icon": "mdi:home-lightning-bolt",
+            "level": []
+          }
+        ],
+        "sunEntity": [
+          "sun.sun"
+        ]
+      }
+    }
+  ],
+  "configVersion": 3
 }
