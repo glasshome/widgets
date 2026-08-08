@@ -18,7 +18,7 @@
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123"
   },
   "devDependencies": {
-    "@glasshome/widget-cli": "0.9.0",
+    "@glasshome/widget-cli": "0.10.0",
     "@iconify-json/lucide": "^1.2.0",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/simple-icons": "^1.2.0",
