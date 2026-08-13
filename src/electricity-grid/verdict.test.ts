@@ -37,7 +37,7 @@ describe("phrase matrix", () => {
   const pricey = { price: 0.4, cheapBelow: 0.2 };
 
   test("carbon-only phrases", () => {
-    expect(deriveVerdict(inputs(clean))?.phrase).toBe("Good time to run heavy loads");
+    expect(deriveVerdict(inputs(clean))?.phrase).toBe("Good time");
     expect(deriveVerdict(inputs(mixed))?.phrase).toBe("Okay time");
     expect(deriveVerdict(inputs(dirty))?.phrase).toBe("Wait if you can");
   });
@@ -45,24 +45,24 @@ describe("phrase matrix", () => {
     expect(deriveVerdict(inputs(clean))?.priceNote).toBe("");
   });
   test("cheap notes", () => {
-    expect(deriveVerdict(inputs({ ...clean, ...cheap }))?.priceNote).toBe("power is cheap");
-    expect(deriveVerdict(inputs({ ...mixed, ...cheap }))?.priceNote).toBe("power is cheap");
+    expect(deriveVerdict(inputs({ ...clean, ...cheap }))?.priceNote).toBe("cheap now");
+    expect(deriveVerdict(inputs({ ...mixed, ...cheap }))?.priceNote).toBe("cheap now");
     expect(deriveVerdict(inputs({ ...dirty, ...cheap }))?.priceNote).toBe(
       "cheap, if it can't wait",
     );
   });
   test("pricey notes", () => {
-    expect(deriveVerdict(inputs({ ...clean, ...pricey }))?.priceNote).toBe("but pricey");
-    expect(deriveVerdict(inputs({ ...mixed, ...pricey }))?.priceNote).toBe("but pricey");
+    expect(deriveVerdict(inputs({ ...clean, ...pricey }))?.priceNote).toBe("pricey now");
+    expect(deriveVerdict(inputs({ ...mixed, ...pricey }))?.priceNote).toBe("pricey now");
     expect(deriveVerdict(inputs({ ...dirty, ...pricey }))?.priceNote).toBe("");
   });
   test("price at or below zero reads as free in every band", () => {
     for (const band of [clean, mixed, dirty]) {
       expect(deriveVerdict(inputs({ ...band, price: -0.01, cheapBelow: 0.2 }))?.priceNote).toBe(
-        "power is free right now",
+        "free right now",
       );
       expect(deriveVerdict(inputs({ ...band, price: 0, cheapBelow: 0.2 }))?.priceNote).toBe(
-        "power is free right now",
+        "free right now",
       );
     }
   });
@@ -75,7 +75,7 @@ describe("phrase matrix", () => {
   });
   test("exact threshold is not cheap", () => {
     expect(deriveVerdict(inputs({ ...clean, price: 0.2, cheapBelow: 0.2 }))?.priceNote).toBe(
-      "but pricey",
+      "pricey now",
     );
   });
 });

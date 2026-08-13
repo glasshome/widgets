@@ -1,3 +1,4 @@
+import { Icon } from "@iconify-icon/solid";
 import type { JSX } from "solid-js";
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -10,11 +11,9 @@ export function BandMeter(props: {
 }): JSX.Element {
   const x = () => Math.min(100, Math.max(0, props.lowCarbonPct));
   return (
-    <div class="w-full">
-      <div
-        class="relative h-2 w-full rounded-full"
-        style={{ background: "color-mix(in oklch, currentColor 10%, transparent)" }}
-      >
+    <div class="flex w-full items-center gap-2 text-muted-foreground">
+      <Icon icon="mdi:leaf" style={{ "font-size": "14px" }} aria-label="clean" />
+      <div class="relative h-2 min-w-0 flex-1 rounded-full bg-muted">
         <div
           class="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
           style={{
@@ -25,10 +24,7 @@ export function BandMeter(props: {
           }}
         />
       </div>
-      <div class="mt-1 flex justify-between text-[10px] text-muted-foreground">
-        <span>clean</span>
-        <span>dirty</span>
-      </div>
+      <Icon icon="mdi:factory" style={{ "font-size": "14px" }} aria-label="dirty" />
     </div>
   );
 }
@@ -54,7 +50,7 @@ export function ArcGauge(props: {
           cy="50"
           r={R}
           fill="none"
-          stroke="color-mix(in oklch, currentColor 12%, transparent)"
+          stroke="var(--muted)"
           stroke-width="7"
           stroke-linecap="round"
           stroke-dasharray={`${arcLen} ${circumference}`}
@@ -71,11 +67,11 @@ export function ArcGauge(props: {
           style={{ transition: props.reducedMotion ? "none" : `stroke-dasharray 600ms ${EASE}` }}
         />
       </svg>
-      <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <span class="font-semibold text-2xl tabular-nums" style={{ color: props.tint }}>
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-1">
+        <span class="font-semibold text-2xl leading-none tabular-nums" style={{ color: props.tint }}>
           {Math.round(props.lowCarbonPct)}%
         </span>
-        <span class="text-muted-foreground text-xs">{props.label}</span>
+        <span class="text-[10px] text-muted-foreground leading-none">{props.label}</span>
       </div>
     </div>
   );

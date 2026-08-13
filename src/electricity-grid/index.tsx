@@ -18,8 +18,12 @@ import { ArcGauge, BandMeter } from "./meters";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
 
 // Below these measured heights the gauge, then the meter and numbers, drop out.
+// LARGE at 205 lets a 2x2 tile carry the arc gauge instead of dead space.
+// The width floor keeps the instrument row off 1-wide tiles, where it can only
+// shred into overlapping wraps; those tiles get the verdict line alone.
 const MEDIUM_HEIGHT = 130;
-const LARGE_HEIGHT = 240;
+const LARGE_HEIGHT = 205;
+const INSTRUMENT_MIN_WIDTH = 160;
 
 const TINT: Record<Band, string> = {
   clean: "var(--success)",
@@ -42,6 +46,7 @@ interface BodyProps {
   co2: number | null;
   fossilPct: number | null;
   price: number | null;
+  priceUnit: string;
   showPrice: boolean;
   reducedMotion: boolean;
 }
@@ -55,21 +60,22 @@ function fmt(value: number): string {
 function GridBody(props: BodyProps): JSX.Element {
   const dimensions = useWidgetDimensions();
   const tint = () => TINT[props.verdict.band];
-  const showMeter = () => dimensions().height >= MEDIUM_HEIGHT;
-  const showGauge = () => dimensions().height >= LARGE_HEIGHT;
+  const wideEnough = () => dimensions().width >= INSTRUMENT_MIN_WIDTH;
+  const showMeter = () => wideEnough() && dimensions().height >= MEDIUM_HEIGHT;
+  const showGauge = () => wideEnough() && dimensions().height >= LARGE_HEIGHT;
   return (
     <div class="flex h-full min-h-0 flex-col gap-2">
       <div class="flex min-w-0 shrink-0 items-center gap-3">
         <Widget.Icon icon={<Icon icon="mdi:transmission-tower" />} />
         <div class="flex min-w-0 flex-col overflow-hidden">
           <Widget.Title>{props.title}</Widget.Title>
-          <span class="truncate text-sm leading-snug">
+          <span class="line-clamp-2 text-sm leading-snug">
             <span class="inline-flex items-center gap-1 font-medium" style={{ color: tint() }}>
               <Icon icon={GLYPH[props.verdict.band]} style={{ "font-size": "14px" }} />
               {props.verdict.phrase}
             </span>
             <Show when={props.verdict.priceNote}>
-              <span class="text-foreground/50"> · {props.verdict.priceNote}</span>
+              <span class="whitespace-nowrap text-foreground/50"> · {props.verdict.priceNote}</span>
             </Show>
           </span>
         </div>
@@ -85,7 +91,7 @@ function GridBody(props: BodyProps): JSX.Element {
         </div>
       </Show>
       <Show when={showMeter()}>
-        <div class="flex shrink-0 flex-col gap-1.5 px-1">
+        <div class="mt-auto flex shrink-0 flex-col gap-1.5 px-1">
           <BandMeter
             lowCarbonPct={props.verdict.lowCarbonPct}
             tint={tint()}
@@ -99,7 +105,10 @@ function GridBody(props: BodyProps): JSX.Element {
               <span>{fmt(props.fossilPct ?? 0)}% fossil</span>
             </Show>
             <Show when={props.showPrice && props.price !== null}>
-              <span>{fmt(props.price ?? 0)}</span>
+              <span>
+                {fmt(props.price ?? 0)}
+                {props.priceUnit ? ` ${props.priceUnit}` : ""}
+              </span>
             </Show>
           </div>
         </div>
@@ -129,6 +138,8 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   const co2 = () => numeric(co2Id());
   const fossilPct = () => numeric(fossilId());
   const price = () => numeric(priceId());
+  const priceUnit = () =>
+    entities().find((e) => e.id === priceId())?.unitOfMeasurement ?? "";
 
   const verdict = createMemo<Verdict | null>(() =>
     deriveVerdict({
@@ -145,7 +156,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" color="var(--tone-accent)">
+      <Widget gestures={gestures} variant="classic-glass" color="var(--tone-info)">
         <Widget.Content>
           <Show
             when={configured()}
@@ -162,6 +173,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
                   co2={co2()}
                   fossilPct={fossilPct()}
                   price={price()}
+                  priceUnit={priceUnit()}
                   showPrice={priceId().length > 0}
                   reducedMotion={reducedMotion()}
                 />
@@ -191,12 +203,23 @@ export default defineWidget<ElectricityGridConfig>({
     name: "Electricity Grid",
     description: "Is now a good time to use power? Grid carbon intensity and price at a glance",
     icon: "mdi:transmission-tower",
-    minSize: { w: 1, h: 1 },
+    minSize: { w: 2, h: 1 },
     maxSize: { w: 3, h: 3 },
     defaultSize: { w: 2, h: 2 },
     capabilities: [{ domain: "sensor", access: "read" }],
     sdkVersion: "^1.0.0",
     examples: [
+      {
+        label: "Full view",
+        size: { w: 3, h: 3 },
+        config: {
+          title: "Electricity Grid",
+          co2IntensityEntity: ["sensor.electricity_maps_co2_intensity"],
+          fossilFuelEntity: ["sensor.electricity_maps_fossil_fuel_percentage"],
+          priceEntity: ["sensor.nordpool_current_price"],
+          cheapBelow: 0.2,
+        },
+      },
       {
         label: "Carbon and price",
         size: { w: 2, h: 2 },

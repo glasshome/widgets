@@ -3,7 +3,7 @@
   "description": "Is now a good time to use power? Grid carbon intensity and price at a glance",
   "icon": "mdi:transmission-tower",
   "minSize": {
-    "w": 1,
+    "w": 2,
     "h": 1
   },
   "maxSize": {
@@ -73,6 +73,26 @@
     "priceEntity": []
   },
   "examples": [
+    {
+      "label": "Full view",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "title": "Electricity Grid",
+        "co2IntensityEntity": [
+          "sensor.electricity_maps_co2_intensity"
+        ],
+        "fossilFuelEntity": [
+          "sensor.electricity_maps_fossil_fuel_percentage"
+        ],
+        "priceEntity": [
+          "sensor.nordpool_current_price"
+        ],
+        "cheapBelow": 0.2
+      }
+    },
     {
       "label": "Carbon and price",
       "size": {

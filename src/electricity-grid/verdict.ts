@@ -13,8 +13,9 @@ export interface Verdict {
   priceNote: string;
 }
 
+// Short on purpose: the verdict line must survive a 2x1 tile untruncated.
 const PHRASES: Record<Band, string> = {
-  clean: "Good time to run heavy loads",
+  clean: "Good time",
   mixed: "Okay time",
   dirty: "Wait if you can",
 };
@@ -31,9 +32,9 @@ function band(lowCarbonPct: number): Band {
 function priceNote(b: Band, price: number | null, cheapBelow: number | null): string {
   if (price === null || cheapBelow === null) return "";
   if (!Number.isFinite(price) || !Number.isFinite(cheapBelow)) return "";
-  if (price <= 0) return "power is free right now";
-  if (price < cheapBelow) return b === "dirty" ? "cheap, if it can't wait" : "power is cheap";
-  return b === "dirty" ? "" : "but pricey";
+  if (price <= 0) return "free right now";
+  if (price < cheapBelow) return b === "dirty" ? "cheap, if it can't wait" : "cheap now";
+  return b === "dirty" ? "" : "pricey now";
 }
 
 export function deriveVerdict(i: VerdictInputs): Verdict | null {
