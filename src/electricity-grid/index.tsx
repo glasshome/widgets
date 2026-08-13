@@ -138,8 +138,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   const co2 = () => numeric(co2Id());
   const fossilPct = () => numeric(fossilId());
   const price = () => numeric(priceId());
-  const priceUnit = () =>
-    entities().find((e) => e.id === priceId())?.unitOfMeasurement ?? "";
+  const priceUnit = () => entities().find((e) => e.id === priceId())?.unitOfMeasurement ?? "";
 
   const verdict = createMemo<Verdict | null>(() =>
     deriveVerdict({

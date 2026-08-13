@@ -68,7 +68,10 @@ export function ArcGauge(props: {
         />
       </svg>
       <div class="absolute inset-0 flex flex-col items-center justify-center gap-1">
-        <span class="font-semibold text-2xl leading-none tabular-nums" style={{ color: props.tint }}>
+        <span
+          class="font-semibold text-2xl tabular-nums leading-none"
+          style={{ color: props.tint }}
+        >
           {Math.round(props.lowCarbonPct)}%
         </span>
         <span class="text-[10px] text-muted-foreground leading-none">{props.label}</span>
