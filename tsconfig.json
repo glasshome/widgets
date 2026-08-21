@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["bun", "vite/client"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
