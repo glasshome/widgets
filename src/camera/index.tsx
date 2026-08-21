@@ -148,7 +148,7 @@ export default defineWidget<CameraConfig>({
     description: "Live camera stream with multi-protocol support",
     icon: "mdi:cctv",
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 4, h: 6 },
+    maxSize: { w: 12, h: 10 },
     sdkVersion: "^1.0.0",
     examples: [
       {
