@@ -83,6 +83,18 @@ function CameraWidget(props: { config: CameraConfig }) {
   }));
   onCleanup(gestures.dispose);
 
+  // Only the unconfigured case is empty; a configured camera that cannot be
+  // reached keeps its frame and says so over the placeholder art.
+  const emptyState = createMemo(() =>
+    entity()
+      ? undefined
+      : {
+          icon: <Icon icon="mdi:cctv" width={32} />,
+          title: "No camera entity",
+          message: "Hold to configure",
+        },
+  );
+
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const e = entity();
     if (!e) return undefined;
@@ -95,19 +107,7 @@ function CameraWidget(props: { config: CameraConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        emptyState={
-          !entity()
-            ? {
-                icon: <Icon icon="mdi:cctv" width={32} />,
-                title: "No camera entity",
-                message: "Hold to configure",
-              }
-            : undefined
-        }
-      >
+      <Widget gestures={gestures} variant="classic-glass" emptyState={emptyState()}>
         <Show when={entity()}>
           <CameraView player={player} poster={poster} name={name} active={() => !showDialog()} />
         </Show>
