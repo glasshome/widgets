@@ -1,4 +1,11 @@
 import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+} from "@glasshome/ui/solid";
+import {
   defineWidget,
   imageUrl,
   useWidgetContext,
@@ -8,32 +15,53 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { FrameContent } from "./frame-content";
-import { resolvePicture } from "./picture";
+import { resolveSlideshow } from "./slideshow";
 import { configSchema, type PictureFrameConfig } from "./types";
 
 function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
-  const src = createMemo(() => imageUrl(props.config.image));
+  const sources = createMemo(() =>
+    props.config.pictures.map((p) => ({ src: imageUrl(p.image), caption: p.caption })),
+  );
 
-  const [failed, setFailed] = createSignal(false);
+  const [failed, setFailed] = createSignal<ReadonlySet<string>>(new Set());
+  const chosenIds = createMemo(() => props.config.pictures.map((p) => p.image ?? "").join("|"));
   createEffect(() => {
-    src();
-    setFailed(false);
+    chosenIds();
+    setFailed(new Set<string>());
   });
 
   const view = createMemo(() =>
-    resolvePicture({ src: src(), fit: props.config.fit, failed: failed() }),
+    resolveSlideshow({
+      pictures: sources(),
+      fit: props.config.fit,
+      interval: props.config.interval,
+      failed: failed(),
+    }),
   );
 
-  const picture = createMemo(() => {
+  const slideshow = createMemo(() => {
     const v = view();
-    return v.kind === "picture" ? v : undefined;
+    return v.kind === "slideshow" ? v : undefined;
   });
+
+  const [api, setApi] = createSignal<CarouselApi>();
+  createEffect(() => {
+    const count = slideshow()?.slides.length ?? 0;
+    if (count > 0) api()?.reInit();
+  });
+
+  const markFailed = (src: string) =>
+    setFailed((prev) => {
+      const next = new Set(prev);
+      next.add(src);
+      return next;
+    });
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -51,14 +79,50 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" emptyState={emptyState()}>
-        <Show when={picture()}>
-          {(p) => (
-            <FrameContent
-              src={p().src}
-              objectFit={p().objectFit}
-              caption={props.config.caption}
-              onFailed={() => setFailed(true)}
-            />
+        <Show when={slideshow()}>
+          {(show) => (
+            <Show
+              when={show().slides.length > 1}
+              fallback={
+                <Show when={show().slides[0]}>
+                  {(slide) => (
+                    <FrameContent
+                      src={slide().src}
+                      objectFit={show().objectFit}
+                      caption={slide().caption}
+                      onFailed={() => markFailed(slide().src)}
+                    />
+                  )}
+                </Show>
+              }
+            >
+              <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
+                <Carousel
+                  class="h-full"
+                  transition="fade"
+                  autoplay={show().autoplay}
+                  opts={{ loop: true }}
+                  setApi={setApi}
+                >
+                  <CarouselContent class="h-full">
+                    <For each={show().slides}>
+                      {(slide) => (
+                        <CarouselItem class="relative h-full">
+                          <FrameContent
+                            src={slide.src}
+                            objectFit={show().objectFit}
+                            caption={slide.caption}
+                            dotsBelow
+                            onFailed={() => markFailed(slide.src)}
+                          />
+                        </CarouselItem>
+                      )}
+                    </For>
+                  </CarouselContent>
+                  <CarouselDots class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/70 to-transparent pt-6 pb-2" />
+                </Carousel>
+              </div>
+            </Show>
           )}
         </Show>
       </Widget>
@@ -81,17 +145,18 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
 export default defineWidget<PictureFrameConfig>({
   manifest: {
     name: "Picture Frame",
-    description: "Show one of your own photos on the dashboard",
+    description: "Show your own photos on the dashboard, one at a time",
     icon: "mdi:image-frame",
+    configVersion: 2,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 6 },
     defaultSize: { w: 2, h: 2 },
     sdkVersion: "^1.11.2",
     examples: [
       {
-        label: "Family photo",
+        label: "Family photos",
         size: { w: 3, h: 2 },
-        config: { fit: "cover", caption: "Summer at the lake" },
+        config: { pictures: [], fit: "cover", interval: "30s" },
       },
     ],
   },
