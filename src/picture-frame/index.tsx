@@ -23,9 +23,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
-  const sources = createMemo(() =>
-    props.config.pictures.map((p) => ({ src: imageUrl(p.image), caption: p.caption })),
-  );
+  const sources = createMemo(() => props.config.pictures.map((p) => ({ src: imageUrl(p.image) })));
 
   const [failed, setFailed] = createSignal<ReadonlySet<string>>(new Set());
   const chosenIds = createMemo(() => props.config.pictures.map((p) => p.image ?? "").join("|"));
@@ -87,7 +85,6 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
                     <FrameContent
                       src={slide().src}
                       objectFit={show().objectFit}
-                      caption={slide().caption}
                       onFailed={() => markFailed(slide().src)}
                     />
                   )}
@@ -109,8 +106,6 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
                           <FrameContent
                             src={slide.src}
                             objectFit={show().objectFit}
-                            caption={slide.caption}
-                            dotsBelow
                             onFailed={() => markFailed(slide.src)}
                           />
                         </CarouselItem>

@@ -25,7 +25,6 @@
         "formType": "list",
         "title": "Pictures",
         "addLabel": "Add picture",
-        "labelField": "caption",
         "maxItems": 24,
         "type": "array",
         "items": {
@@ -37,10 +36,6 @@
               "type": "string",
               "formType": "image-picker",
               "title": "Picture"
-            },
-            "caption": {
-              "title": "Caption",
-              "type": "string"
             }
           },
           "additionalProperties": false

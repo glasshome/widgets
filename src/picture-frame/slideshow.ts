@@ -1,6 +1,6 @@
 import type { ChangeInterval, PictureFit } from "./types";
 
-export type Slide = { key: string; src: string; caption?: string };
+export type Slide = { key: string; src: string };
 
 export type SlideshowView =
   | { kind: "empty"; title: string; message: string }
@@ -15,7 +15,7 @@ const INTERVAL_MS: Record<ChangeInterval, number | undefined> = {
 };
 
 export function resolveSlideshow(input: {
-  pictures: ReadonlyArray<{ src: string | undefined; caption?: string }>;
+  pictures: ReadonlyArray<{ src: string | undefined }>;
   fit: PictureFit | undefined;
   interval: ChangeInterval | undefined;
   failed: ReadonlySet<string>;
@@ -24,7 +24,7 @@ export function resolveSlideshow(input: {
   const slides = chosen.flatMap<Slide>((p, index) =>
     p.src === undefined || input.failed.has(p.src)
       ? []
-      : [{ key: `${index}:${p.src}`, src: p.src, caption: p.caption }],
+      : [{ key: `${index}:${p.src}`, src: p.src }],
   );
 
   if (slides.length === 0) {

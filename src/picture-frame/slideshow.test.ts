@@ -11,7 +11,7 @@ describe("resolveSlideshow", () => {
 
   test("ignores items whose picture was never picked", () => {
     const view = resolveSlideshow({
-      pictures: [{ src: undefined, caption: "Empty slot" }],
+      pictures: [{ src: undefined }],
       fit: "cover",
       interval: "30s",
       failed: none,
@@ -21,14 +21,14 @@ describe("resolveSlideshow", () => {
 
   test("a single picture is a still frame: one slide, no autoplay", () => {
     const view = resolveSlideshow({
-      pictures: [{ src: "a", caption: "Lake" }],
+      pictures: [{ src: "a" }],
       fit: "contain",
       interval: "10s",
       failed: none,
     });
     expect(view).toEqual({
       kind: "slideshow",
-      slides: [{ key: "0:a", src: "a", caption: "Lake" }],
+      slides: [{ key: "0:a", src: "a" }],
       objectFit: "contain",
     });
   });
