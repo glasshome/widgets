@@ -4,8 +4,6 @@ import {
   CarouselContent,
   CarouselDots,
   CarouselItem,
-} from "@glasshome/ui/solid";
-import {
   defineWidget,
   imageUrl,
   useWidgetContext,
@@ -147,7 +145,7 @@ export default defineWidget<PictureFrameConfig>({
     name: "Picture Frame",
     description: "Show your own photos on the dashboard, one at a time",
     icon: "mdi:image-frame",
-    configVersion: 2,
+    configVersion: 1,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 6 },
     defaultSize: { w: 2, h: 2 },
