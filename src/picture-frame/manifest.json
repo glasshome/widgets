@@ -76,20 +76,6 @@
     "fit": "cover",
     "interval": "30s"
   },
-  "examples": [
-    {
-      "label": "Family photos",
-      "size": {
-        "w": 3,
-        "h": 2
-      },
-      "config": {
-        "pictures": [],
-        "fit": "cover",
-        "interval": "30s"
-      }
-    }
-  ],
   "icon": "mdi:image-frame",
   "configVersion": 1
 }

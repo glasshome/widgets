@@ -141,13 +141,6 @@ export default defineWidget<PictureFrameConfig>({
     maxSize: { w: 8, h: 6 },
     defaultSize: { w: 2, h: 2 },
     sdkVersion: "^1.11.2",
-    examples: [
-      {
-        label: "Family photos",
-        size: { w: 3, h: 2 },
-        config: { pictures: [], fit: "cover", interval: "30s" },
-      },
-    ],
   },
   configSchema,
   component: PictureFrameWidget,
