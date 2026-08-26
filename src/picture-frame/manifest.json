@@ -1,6 +1,6 @@
 {
   "name": "Picture Frame",
-  "description": "Show your own photos on the dashboard, one at a time",
+  "description": "Your own photos on the dashboard, one at a time or as a slideshow",
   "minSize": {
     "w": 1,
     "h": 1

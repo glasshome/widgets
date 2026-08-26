@@ -12,10 +12,10 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { FrameContent } from "./frame-content";
+import { FrameEmpty } from "./frame-empty";
 import { resolveSlideshow } from "./slideshow";
 import { configSchema, type PictureFrameConfig } from "./types";
 
@@ -62,19 +62,15 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
-  const emptyState = createMemo(() => {
+  const empty = createMemo(() => {
     const v = view();
-    if (v.kind !== "empty") return undefined;
-    return {
-      icon: <Icon icon="mdi:image-outline" width={32} />,
-      title: v.title,
-      message: v.message,
-    };
+    return v.kind === "empty" ? v : undefined;
   });
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" emptyState={emptyState()}>
+      <Widget gestures={gestures} variant="classic-glass">
+        <Show when={empty()}>{(e) => <FrameEmpty title={e().title} message={e().message} />}</Show>
         <Show when={slideshow()}>
           {(show) => (
             <Show
@@ -138,7 +134,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
 export default defineWidget<PictureFrameConfig>({
   manifest: {
     name: "Picture Frame",
-    description: "Show your own photos on the dashboard, one at a time",
+    description: "Your own photos on the dashboard, one at a time or as a slideshow",
     icon: "mdi:image-frame",
     configVersion: 1,
     minSize: { w: 1, h: 1 },
