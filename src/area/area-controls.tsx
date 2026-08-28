@@ -78,7 +78,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Lights */}
       <Show when={props.groups.lights.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Lights</h3>
+          <h3 class="font-medium text-muted-foreground text-xs">Lights</h3>
           <BatchToggleButton
             label="Toggle all lights"
             onAction={() => batchToggle(props.groups.lights, "light")}
@@ -102,7 +102,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Switches */}
       <Show when={props.groups.switches.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Switches</h3>
+          <h3 class="font-medium text-muted-foreground text-xs">Switches</h3>
           <BatchToggleButton
             label="Toggle all switches"
             onAction={() => batchToggle(props.groups.switches, "switch")}
@@ -126,7 +126,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Covers */}
       <Show when={props.groups.covers.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Covers</h3>
+          <h3 class="font-medium text-muted-foreground text-xs">Covers</h3>
           <div class="flex gap-2">
             <Button
               variant="outline"
@@ -192,7 +192,7 @@ export function AreaControls(props: AreaControlsProps) {
       {/* Climate */}
       <Show when={props.groups.climate.length > 0}>
         <div class="flex flex-col gap-2">
-          <h3 class="font-semibold text-muted-foreground text-xs uppercase">Climate</h3>
+          <h3 class="font-medium text-muted-foreground text-xs">Climate</h3>
           <div class="flex flex-col gap-0.5">
             <For each={props.groups.climate}>
               {(entity) => (

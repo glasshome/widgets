@@ -173,11 +173,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 >
                   {timeParts().seconds}
                 </div>
-                <span
-                  class={
-                    "font-medium @[200px]:text-xs text-[10px] text-foreground uppercase opacity-50"
-                  }
-                >
+                <span class="font-medium @[200px]:text-xs text-[10px] text-foreground opacity-50">
                   sec
                 </span>
               </div>
