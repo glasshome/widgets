@@ -1,6 +1,9 @@
 import {
   ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogClose,
   ResponsiveDialogContent,
+  ResponsiveDialogFooter,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@glasshome/widget-sdk";
@@ -91,47 +94,55 @@ export function NodeDetail(props: NodeDetailProps) {
         if (!open) props.onClose();
       }}
     >
-      <ResponsiveDialogContent class="max-w-sm">
-        <Show when={data()}>
-          {(d) => (
-            <>
-              <ResponsiveDialogHeader>
-                <ResponsiveDialogTitle class="flex items-center gap-2">
-                  <Icon icon={d().icon} width={22} class="text-foreground/70" />
-                  {d().label}
-                </ResponsiveDialogTitle>
-              </ResponsiveDialogHeader>
+      <ResponsiveDialogContent size="sm">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle class="flex items-center gap-2">
+            <Show when={data()}>
+              {(d) => <Icon icon={d().icon} width={22} class="text-foreground/70" />}
+            </Show>
+            {data()?.label ?? "Energy flow"}
+          </ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
-              <div class="flex items-baseline gap-3">
-                <span class="font-bold text-3xl text-foreground tabular-nums">
-                  {formatPower(d().watts)}
-                </span>
-                <Show when={d().level !== undefined}>
-                  <span class="text-foreground/50 text-sm tabular-nums">
-                    {Math.round(d().level ?? 0)}% charged
+        <ResponsiveDialogBody>
+          <Show when={data()}>
+            {(d) => (
+              <>
+                <div class="flex items-baseline gap-3">
+                  <span class="font-bold text-3xl text-foreground tabular-nums">
+                    {formatPower(d().watts)}
                   </span>
+                  <Show when={d().level !== undefined}>
+                    <span class="text-foreground/50 text-sm tabular-nums">
+                      {Math.round(d().level ?? 0)}% charged
+                    </span>
+                  </Show>
+                </div>
+
+                <Show when={d().cost}>
+                  {(c) => (
+                    <div class="flex items-baseline gap-2 text-sm">
+                      <Show when={c().label}>
+                        <span class="text-foreground/50">{c().label}</span>
+                      </Show>
+                      <span class="font-medium text-foreground/80 tabular-nums">{c().value}</span>
+                    </div>
+                  )}
                 </Show>
-              </div>
 
-              <Show when={d().cost}>
-                {(c) => (
-                  <div class="mt-2 flex items-baseline gap-2 text-sm">
-                    <Show when={c().label}>
-                      <span class="text-foreground/50">{c().label}</span>
-                    </Show>
-                    <span class="font-medium text-foreground/80 tabular-nums">{c().value}</span>
-                  </div>
-                )}
-              </Show>
+                {/* Today's energy + sparkline are wired in a later plan. */}
+                <div class="flex items-center justify-between text-foreground/40 text-xs">
+                  <span>Today: {formatEnergy(0)}</span>
+                  <span class="italic">history coming soon</span>
+                </div>
+              </>
+            )}
+          </Show>
+        </ResponsiveDialogBody>
 
-              {/* Today's energy + sparkline are wired in a later plan. */}
-              <div class="mt-6 flex items-center justify-between text-foreground/40 text-xs">
-                <span>Today: {formatEnergy(0)}</span>
-                <span class="italic">history coming soon</span>
-              </div>
-            </>
-          )}
-        </Show>
+        <ResponsiveDialogFooter>
+          <ResponsiveDialogClose />
+        </ResponsiveDialogFooter>
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   );
