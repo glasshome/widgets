@@ -1,11 +1,17 @@
 import {
   Button,
   ResponsiveDialog,
+  ResponsiveDialogBody,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   SchemaForm,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@glasshome/widget-sdk";
 
 export const widgetDialogProps = {
@@ -14,6 +20,12 @@ export const widgetDialogProps = {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   ResponsiveDialogDescription,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
   Button,
   SchemaForm,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } as const;
