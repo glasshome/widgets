@@ -176,7 +176,7 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
     <Dynamic
       component={tag}
       type={interactive() ? "button" : undefined}
-      class={`group relative flex min-w-0 flex-1 overflow-hidden rounded-lg border text-left transition-all ${
+      class={`group relative flex min-w-0 flex-1 overflow-hidden rounded-lg border text-left transition-all @container ${
         props.horizontal ? "items-center gap-3" : "flex-col justify-end gap-1"
       } ${props.compact ? "p-2.5" : "p-3"} ${
         props.active ? "border-transparent" : "border-foreground/10 bg-foreground/[0.05]"
@@ -230,12 +230,16 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
         </div>
         <div
           class={`truncate font-bold text-foreground tabular-nums leading-tight ${
-            props.compact ? "text-base" : "text-xl"
+            props.compact
+              ? "text-[clamp(0.8rem,14cqi,1rem)]"
+              : "text-[clamp(0.95rem,16cqi,1.35rem)]"
           }`}
         >
           {props.value}
           <Show when={props.sub}>
-            <span class="ml-1 font-medium text-foreground/40 text-xs">{props.sub}</span>
+            <span class="ml-1 font-medium text-foreground/40 text-xs @max-[9rem]:hidden">
+              {props.sub}
+            </span>
           </Show>
         </div>
       </div>
@@ -346,7 +350,7 @@ export function AreaContent(props: AreaContentProps) {
       {/* --- Medium+: glyph + (status over name) beside it, chips top-right, then tiles --- */}
       <div class="flex h-full flex-col gap-3">
         <div class="flex items-start justify-between gap-2">
-          <div class="flex min-w-0 items-center gap-3">
+          <div class="flex min-w-0 flex-1 items-center gap-3">
             <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
             <div class="flex min-w-0 flex-col gap-0.5">
               <StatusBadge status={status()} />
@@ -360,7 +364,7 @@ export function AreaContent(props: AreaContentProps) {
             </div>
           </div>
           <Show when={chips().length > 0}>
-            <div class="flex max-w-[45%] shrink-0 flex-wrap justify-end gap-1">
+            <div class="flex min-w-0 flex-wrap justify-end gap-1">
               <For each={chips().slice(0, isLarge() ? 5 : 3)}>{(c) => <StatusChip {...c} />}</For>
             </div>
           </Show>
