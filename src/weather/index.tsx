@@ -20,7 +20,14 @@ import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { WeatherBackground } from "./background";
 import { ForecastChart } from "./forecast-chart";
-import { formatTemp, formatWindSpeed, getWeatherIcon, getWeatherIconColor } from "./utils";
+import {
+  formatTemp,
+  formatWindSpeed,
+  getSceneGlyphShadowClass,
+  getSceneInkClass,
+  getWeatherIcon,
+  getWeatherIconColor,
+} from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -250,11 +257,7 @@ function WeatherBody(props: WeatherBodyProps) {
       {/* Forecast chart bleeds to widget edges so it sits below content */}
       <Show when={!isSmall() && props.hasForecast}>
         <div
-          class="absolute right-0 bottom-0 left-0 z-10 text-white"
-          style={{
-            "text-shadow": "0 1px 2px rgba(0,0,0,0.5)",
-            filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))",
-          }}
+          class={`absolute right-0 bottom-0 left-0 z-10 ${getSceneInkClass(props.condition)} ${getSceneGlyphShadowClass(props.condition)}`}
         >
           <ForecastChart data={props.hourlyData} height={90} />
         </div>
@@ -289,9 +292,8 @@ function HeroLayout(props: HeroLayoutProps) {
 
   return (
     <div
-      class="relative z-10 flex h-full flex-col gap-1.5 text-white"
+      class={`relative z-10 flex h-full flex-col gap-1.5 ${getSceneInkClass(props.condition)}`}
       style={{
-        "text-shadow": "0 1px 3px rgba(0,0,0,0.5)",
         "padding-bottom": props.hasForecast ? "96px" : undefined,
       }}
     >
@@ -352,8 +354,7 @@ interface CompactLayoutProps {
 function CompactLayout(props: CompactLayoutProps) {
   return (
     <div
-      class="relative z-10 flex h-full items-center gap-3 text-white"
-      style={{ "text-shadow": "0 1px 3px rgba(0,0,0,0.5)" }}
+      class={`relative z-10 flex h-full items-center gap-3 ${getSceneInkClass(props.condition)}`}
     >
       <Icon icon={getWeatherIcon(props.condition)} width={32} />
       <span class="font-bold leading-none" style={{ "font-size": "2.25rem" }}>

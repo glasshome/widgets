@@ -55,3 +55,51 @@ export function formatWindSpeed(value: number | string, unit = "km/h"): string {
   if (Number.isNaN(num)) return "--";
   return `${Math.round(num)} ${unit}`;
 }
+
+/* Scene skies, not the theme, decide readable ink: sunny stays pale in dark
+ * mode, clear-night stays dark in light mode, the rest follow the theme. */
+type SceneInk = "pale" | "dark" | "theme";
+
+const SCENE_INK: Record<string, SceneInk> = {
+  sunny: "pale",
+  "clear-night": "dark",
+  rainy: "dark",
+  pouring: "dark",
+  lightning: "dark",
+  "lightning-rainy": "dark",
+  hail: "dark",
+  exceptional: "dark",
+  cloudy: "theme",
+  partlycloudy: "theme",
+  snowy: "theme",
+  "snowy-rainy": "theme",
+  fog: "theme",
+  windy: "theme",
+  "windy-variant": "theme",
+};
+
+const INK_CLASS: Record<SceneInk, string> = {
+  dark: "text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]",
+  pale: "text-neutral-900 [text-shadow:0_1px_2px_rgba(255,255,255,0.65)]",
+  theme:
+    "text-neutral-900 [text-shadow:0_1px_2px_rgba(255,255,255,0.65)] dark:text-white dark:[text-shadow:0_1px_3px_rgba(0,0,0,0.5)]",
+};
+
+const INK_GLYPH_CLASS: Record<SceneInk, string> = {
+  dark: "[filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.35))]",
+  pale: "[filter:drop-shadow(0_1px_1px_rgba(255,255,255,0.5))]",
+  theme:
+    "[filter:drop-shadow(0_1px_1px_rgba(255,255,255,0.5))] dark:[filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.35))]",
+};
+
+const sceneInk = (condition: string): SceneInk => SCENE_INK[condition] ?? "theme";
+
+/** Text colour plus matching text-shadow for content painted over the scene. */
+export function getSceneInkClass(condition: string): string {
+  return INK_CLASS[sceneInk(condition)];
+}
+
+/** Drop-shadow for drawn marks (chart curve, labels) over the scene. */
+export function getSceneGlyphShadowClass(condition: string): string {
+  return INK_GLYPH_CLASS[sceneInk(condition)];
+}
