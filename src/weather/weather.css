@@ -1,0 +1,23 @@
+/* One value drives the chart band and the reservation the hero leaves for it,
+   so the curve can never cross the text. */
+.glasshome-widget {
+  --weather-forecast-band: clamp(56px, 28cqb, 92px);
+}
+
+.weather-forecast-band {
+  height: var(--weather-forecast-band);
+}
+
+.weather-hero-reserve {
+  padding-bottom: var(--weather-forecast-band);
+}
+
+/* Below this the reading and the chart cannot both fit; the reading wins. */
+@container widget (max-height: 219px) {
+  .weather-forecast-band {
+    display: none;
+  }
+  .weather-hero-reserve {
+    padding-bottom: 0;
+  }
+}

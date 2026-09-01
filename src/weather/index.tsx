@@ -20,6 +20,7 @@ import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
 import { WeatherBackground } from "./background";
 import { ForecastChart } from "./forecast-chart";
+import "./weather.css";
 import {
   formatTemp,
   formatWindSpeed,
@@ -257,9 +258,9 @@ function WeatherBody(props: WeatherBodyProps) {
       {/* Forecast chart bleeds to widget edges so it sits below content */}
       <Show when={!isSmall() && props.hasForecast}>
         <div
-          class={`absolute right-0 bottom-0 left-0 z-10 ${getSceneInkClass(props.condition)} ${getSceneGlyphShadowClass(props.condition)}`}
+          class={`weather-forecast-band absolute right-0 bottom-0 left-0 z-10 ${getSceneInkClass(props.condition)} ${getSceneGlyphShadowClass(props.condition)}`}
         >
-          <ForecastChart data={props.hourlyData} height={90} />
+          <ForecastChart data={props.hourlyData} />
         </div>
       </Show>
     </>
@@ -292,10 +293,7 @@ function HeroLayout(props: HeroLayoutProps) {
 
   return (
     <div
-      class={`relative z-10 flex h-full flex-col gap-1.5 ${getSceneInkClass(props.condition)}`}
-      style={{
-        "padding-bottom": props.hasForecast ? "96px" : undefined,
-      }}
+      class={`relative z-10 flex h-full flex-col gap-1.5 ${props.hasForecast ? "weather-hero-reserve" : ""} ${getSceneInkClass(props.condition)}`}
     >
       {/* Hero pair: icon + temp */}
       <div class="flex items-center gap-4">

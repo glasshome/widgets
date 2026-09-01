@@ -4,7 +4,8 @@ import { formatTemp } from "./utils";
 
 interface ForecastChartProps {
   data: { temp: number; time: string }[];
-  height?: number;
+  /** CSS length for the whole band, curve plus time row. */
+  height?: string;
 }
 
 function formatHour(datetime: string): string {
@@ -18,22 +19,24 @@ function formatHour(datetime: string): string {
 }
 
 export function ForecastChart(props: ForecastChartProps) {
-  const totalHeight = () => props.height ?? 90;
   const timeRowHeight = 18;
-  const svgHeight = () => totalHeight() - timeRowHeight;
-  const topPad = 16;
   const sidePad = 0;
   const labelMargin = 14;
 
   let containerRef!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
+  const [bandHeight, setBandHeight] = createSignal(0);
   const [mounted, setMounted] = createSignal(false);
+  const svgHeight = () => Math.max(0, bandHeight() - timeRowHeight);
 
   onMount(() => {
     setWidth(containerRef.clientWidth);
+    setBandHeight(containerRef.clientHeight);
     const ro = new ResizeObserver((entries) => {
-      const w = entries[0]?.contentRect.width ?? 0;
-      if (Math.abs(w - width()) > 1) setWidth(w);
+      const rect = entries[0]?.contentRect;
+      if (!rect) return;
+      if (Math.abs(rect.width - width()) > 1) setWidth(rect.width);
+      if (Math.abs(rect.height - bandHeight()) > 1) setBandHeight(rect.height);
     });
     ro.observe(containerRef);
     onCleanup(() => ro.disconnect());
@@ -43,10 +46,12 @@ export function ForecastChart(props: ForecastChartProps) {
   const chartData = createMemo(() => {
     const data = props.data;
     const w = width();
-    if (data.length < 2 || w === 0) return null;
-
     const h = svgHeight();
+    if (data.length < 2 || w === 0 || h <= 0) return null;
+
+    const topPad = Math.min(16, Math.round(h * 0.32));
     const drawHeight = h - topPad - 4;
+    if (drawHeight <= 0) return null;
     const drawWidth = w - sidePad * 2;
 
     const temps = data.map((d) => d.temp);
@@ -119,7 +124,7 @@ export function ForecastChart(props: ForecastChartProps) {
   };
 
   return (
-    <div ref={containerRef} class="relative w-full" style={{ height: `${totalHeight()}px` }}>
+    <div ref={containerRef} class="relative w-full" style={{ height: props.height ?? "100%" }}>
       <svg
         width={width()}
         height={svgHeight()}
