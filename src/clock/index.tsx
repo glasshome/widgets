@@ -198,7 +198,7 @@ function ClockWidget(props: { config: ClockConfig }) {
             }}
           >
             {timeParts().hours}
-            <span class="mx-0.5 opacity-60">:</span>
+            <span class="mx-0.5">:</span>
             {timeParts().minutes}
           </div>
 
