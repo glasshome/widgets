@@ -24,6 +24,7 @@ import "./weather.css";
 import {
   formatTemp,
   formatWindSpeed,
+  getConditionLabel,
   getSceneGlyphShadowClass,
   getSceneInkClass,
   getWeatherIcon,
@@ -314,10 +315,11 @@ function HeroLayout(props: HeroLayoutProps) {
 
       {/* Subtitle line */}
       <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
-        <span class="font-semibold capitalize">{props.condition.replace(/-/g, " ")}</span>
+        <span class="font-semibold">{getConditionLabel(props.condition)}</span>
         <Show when={props.feelsLike}>
-          <span class="opacity-30">·</span>
-          <span class="opacity-75">Feels like {props.feelsLike}</span>
+          <span class="opacity-75">
+            <span class="mr-2 opacity-40">·</span>Feels like {props.feelsLike}
+          </span>
         </Show>
       </div>
 

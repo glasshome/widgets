@@ -44,6 +44,32 @@ export function getWeatherIconColor(condition: string): string {
   return WEATHER_ICON_COLORS[condition] ?? "oklch(0.70 0.04 250)";
 }
 
+const CONDITION_LABELS: Record<string, string> = {
+  sunny: "Sunny",
+  "clear-night": "Clear",
+  cloudy: "Cloudy",
+  partlycloudy: "Partly cloudy",
+  rainy: "Rainy",
+  pouring: "Heavy rain",
+  snowy: "Snowy",
+  "snowy-rainy": "Sleet",
+  lightning: "Thunderstorms",
+  "lightning-rainy": "Thunderstorms",
+  fog: "Foggy",
+  hail: "Hail",
+  windy: "Windy",
+  "windy-variant": "Windy",
+  exceptional: "Severe weather",
+};
+
+/** Homeowner-facing copy for a Home Assistant weather state. */
+export function getConditionLabel(condition: string): string {
+  const known = CONDITION_LABELS[condition];
+  if (known) return known;
+  const words = condition.replace(/[-_]/g, " ").trim();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : "";
+}
+
 export function formatTemp(value: number | string, unit = "\u00B0"): string {
   const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(num)) return "--";
