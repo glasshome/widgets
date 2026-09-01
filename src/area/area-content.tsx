@@ -23,11 +23,16 @@ interface ChipDef {
   title: string;
 }
 
+/** Mixing the tone into the theme's own ink keeps a badge readable on both grounds. */
+function toneInk(color: string): string {
+  return `color-mix(in oklch, ${color} 55%, var(--color-foreground))`;
+}
+
 function StatusChip(props: ChipDef) {
   return (
     <span
       class="inline-flex items-center gap-1 rounded-full bg-foreground/[0.07] px-2 py-0.5 font-medium text-[11px] tabular-nums leading-none"
-      style={{ color: props.color }}
+      style={{ color: toneInk(props.color) }}
       title={props.title}
     >
       <Icon icon={props.icon} width={12} />
@@ -44,7 +49,7 @@ function buildChips(m: AreaMetrics): ChipDef[] {
       key: "alert",
       icon: "mdi:alert-circle",
       label: `${m.alertCount} alert${m.alertCount > 1 ? "s" : ""}`,
-      color: "oklch(0.7 0.18 25)",
+      color: "var(--tone-danger)",
       title: "Safety alert active",
     });
   }
@@ -54,33 +59,29 @@ function buildChips(m: AreaMetrics): ChipDef[] {
       key: "cover",
       icon: open > 0 ? "mdi:window-open-variant" : "mdi:window-closed-variant",
       label: open > 0 ? `${open} open` : "Closed",
-      color: open > 0 ? "oklch(0.78 0.13 220)" : "var(--color-muted-foreground, #9ca3af)",
+      color: "var(--widget-color)",
       title: open > 0 ? `${open} window/blind open` : "Windows closed",
     });
   }
   if (m.humidity !== null) {
     const h = m.humidity;
     const label = h < 30 ? "Dry" : h > 60 ? "Humid" : "Ideal";
-    const color =
-      h < 30 ? "oklch(0.8 0.13 70)" : h > 60 ? "oklch(0.78 0.13 230)" : "oklch(0.78 0.1 200)";
     chips.push({
       key: "hum",
       icon: "mdi:water-percent",
       label,
-      color,
+      color: "var(--widget-color)",
       title: `Humidity ${h.toFixed(0)}%`,
     });
   }
   if (m.co2 !== null) {
     const c = m.co2;
     const label = c >= 1000 ? "CO₂ high" : c >= 800 ? "CO₂ ok" : "CO₂ fresh";
-    const color =
-      c >= 1000 ? "oklch(0.7 0.18 25)" : c >= 800 ? "oklch(0.8 0.13 70)" : "oklch(0.78 0.12 150)";
     chips.push({
       key: "co2",
       icon: "mdi:molecule-co2",
       label,
-      color,
+      color: c >= 1000 ? "var(--tone-danger)" : "var(--widget-color)",
       title: `CO₂ ${c.toFixed(0)} ppm`,
     });
   }
@@ -89,7 +90,7 @@ function buildChips(m: AreaMetrics): ChipDef[] {
       key: "motion",
       icon: "mdi:motion-sensor",
       label: "Motion",
-      color: "oklch(0.8 0.13 70)",
+      color: "var(--widget-color)",
       title: "Motion detected",
     });
   } else if (m.hasPresence) {
@@ -97,7 +98,7 @@ function buildChips(m: AreaMetrics): ChipDef[] {
       key: "presence",
       icon: "mdi:account",
       label: "Occupied",
-      color: "oklch(0.75 0.13 300)",
+      color: "var(--widget-color)",
       title: "Presence detected",
     });
   }
@@ -126,12 +127,12 @@ function StatusBadge(props: { status: AreaStatus; compact?: boolean }) {
       class={`inline-flex shrink-0 items-center gap-1.5 font-medium tabular-nums leading-none ${
         props.compact ? "text-[10px]" : "text-xs"
       }`}
-      style={{ color: props.status.color }}
+      style={{ color: toneInk(props.status.color) }}
     >
       <span
         class="inline-block size-1.5 rounded-full"
         style={{
-          "background-color": props.status.color,
+          "background-color": toneInk(props.status.color),
           "box-shadow": `0 0 6px ${props.status.color}`,
         }}
       />
@@ -349,7 +350,7 @@ export function AreaContent(props: AreaContentProps) {
     >
       {/* --- Medium+: glyph + (status over name) beside it, chips top-right, then tiles --- */}
       <div class="flex h-full flex-col gap-3">
-        <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center justify-between gap-2">
           <div class="flex min-w-0 flex-1 items-center gap-3">
             <Widget.Icon icon={<Icon icon={props.areaIcon} />} />
             <div class="flex min-w-0 flex-col gap-0.5">
@@ -364,7 +365,7 @@ export function AreaContent(props: AreaContentProps) {
             </div>
           </div>
           <Show when={chips().length > 0}>
-            <div class="flex min-w-0 flex-wrap justify-end gap-1">
+            <div class="flex min-w-0 flex-wrap content-center justify-end gap-1">
               <For each={chips().slice(0, isLarge() ? 5 : 3)}>{(c) => <StatusChip {...c} />}</For>
             </div>
           </Show>
