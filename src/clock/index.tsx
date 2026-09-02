@@ -542,7 +542,6 @@ function ClockWidget(props: { config: ClockConfig }) {
               />
             </div>
 
-            {/* Greeting — shared between digital and analogue */}
             <div class="flex items-center justify-between">
               <Label>Greeting</Label>
               <Switch
