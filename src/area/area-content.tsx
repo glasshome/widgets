@@ -177,7 +177,7 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
     <Dynamic
       component={tag}
       type={interactive() ? "button" : undefined}
-      class={`group relative flex min-w-0 flex-1 overflow-hidden rounded-lg border text-left transition-all @container ${
+      class={`group @container relative flex min-w-0 flex-1 overflow-hidden rounded-lg border text-left transition-all ${
         props.horizontal ? "items-center gap-3" : "flex-col justify-end gap-1"
       } ${props.compact ? "p-2.5" : "p-3"} ${
         props.active ? "border-transparent" : "border-foreground/10 bg-foreground/[0.05]"
@@ -238,7 +238,7 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
         >
           {props.value}
           <Show when={props.sub}>
-            <span class="ml-1 font-medium text-foreground/40 text-xs @max-[9rem]:hidden">
+            <span class="ml-1 @max-[9rem]:hidden font-medium text-foreground/40 text-xs">
               {props.sub}
             </span>
           </Show>
