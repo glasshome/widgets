@@ -1,0 +1,97 @@
+{
+  "name": "Home Status",
+  "description": "Lights on and doors unlocked, with one tap to fix each",
+  "icon": "mdi:home-alert-outline",
+  "minSize": {
+    "w": 2,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 6,
+    "h": 2
+  },
+  "defaultSize": {
+    "w": 4,
+    "h": 1
+  },
+  "sdkVersion": "^1.14.1",
+  "version": "0.1.0",
+  "capabilities": [
+    {
+      "domain": "light",
+      "access": "control"
+    },
+    {
+      "domain": "lock",
+      "access": "control"
+    }
+  ],
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "scope": {
+        "default": "dashboard",
+        "title": "Scope",
+        "type": "string",
+        "enum": [
+          "dashboard",
+          "home",
+          "area"
+        ]
+      },
+      "areaId": {
+        "formType": "area-picker",
+        "title": "Area",
+        "type": "string"
+      },
+      "chips": {
+        "default": [
+          "lights",
+          "locks"
+        ],
+        "title": "Show",
+        "labels": {
+          "lights": "Lights",
+          "locks": "Locks"
+        },
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "lights",
+            "locks"
+          ]
+        }
+      }
+    },
+    "required": [
+      "scope",
+      "chips"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "scope": "dashboard",
+    "chips": [
+      "lights",
+      "locks"
+    ]
+  },
+  "examples": [
+    {
+      "label": "Whole home",
+      "size": {
+        "w": 4,
+        "h": 1
+      },
+      "config": {
+        "scope": "home",
+        "chips": [
+          "lights",
+          "locks"
+        ]
+      }
+    }
+  ]
+}
