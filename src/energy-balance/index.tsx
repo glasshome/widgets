@@ -73,12 +73,9 @@ function BalanceBody(props: BodyProps): JSX.Element {
   const compact = () => dimensions().height < COMPACT_HEIGHT;
   return (
     <div class="relative flex h-full min-h-0 flex-col gap-2">
-      <Badge tone="var(--muted-foreground)" class="absolute top-0 right-0 z-10">
-        {props.modeLabel}
-      </Badge>
       <div class="flex min-w-0 shrink-0 items-center gap-3">
         <Widget.Icon icon={<Icon icon="mdi:scale-balance" />} />
-        <div class="flex min-w-0 flex-col overflow-hidden">
+        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Widget.Title>{props.title}</Widget.Title>
           <span class="truncate text-sm leading-snug">
             <span class="font-semibold tabular-nums" style={{ color: props.color || undefined }}>
@@ -88,6 +85,9 @@ function BalanceBody(props: BodyProps): JSX.Element {
             <span class="text-foreground/50">{props.caption}</span>
           </span>
         </div>
+        <Badge tone="var(--muted-foreground)" class="ml-auto shrink-0 self-start">
+          {props.modeLabel}
+        </Badge>
       </div>
       <div class="flex min-h-0 flex-1 flex-col justify-center px-1">
         <Show

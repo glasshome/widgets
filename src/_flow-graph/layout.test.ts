@@ -19,14 +19,21 @@ const basic: FlowGraph = {
 };
 
 describe("columnsLayout placement", () => {
-  // 700px wide: the 180px default columns fit without the narrow-canvas clamp.
+  // 700px wide: the columns fit without the narrow-canvas clamp.
   const g = columnsLayout(basic, 700, 300);
+  const rectOf = (id: string) => g.nodes.find((n) => n.node.id === id)?.rect;
 
   test("places source left, spend right, hub centered", () => {
-    const rectOf = (id: string) => g.nodes.find((n) => n.node.id === id)?.rect;
     expect(rectOf("solar")?.x).toBe(D.padding);
-    expect(rectOf("load")?.x).toBe(700 - D.padding - D.columnWidth);
+    expect(rectOf("load")?.x).toBe(700 - D.padding - (rectOf("load")?.w ?? 0));
     expect(rectOf("home")?.x).toBe((700 - D.hubWidth) / 2);
+  });
+
+  test("columns take a share of a wide canvas instead of a fixed box", () => {
+    const wide = columnsLayout(basic, 900, 300);
+    const wideW = wide.nodes.find((n) => n.node.id === "solar")?.rect.w ?? 0;
+    expect(rectOf("solar")?.w ?? 0).toBeGreaterThan(D.columnWidth);
+    expect(wideW).toBeGreaterThan(rectOf("solar")?.w ?? 0);
   });
 
   test("resolves both edges to ribbons", () => {

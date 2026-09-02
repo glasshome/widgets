@@ -38,6 +38,9 @@ export interface ColumnsLayoutOpts {
   minCorridor: number;
   /** Floor the clamped column width never drops below. */
   minColumnWidth: number;
+  /** Share of the canvas width a column may take before the corridor clamp;
+   *  keeps chip labels off a permanent ellipsis on wide canvases. */
+  columnWidthShare: number;
   /** Vertical space reserved at the top (e.g. for a headline overlay); nodes
    *  center in the region below it. */
   topReserve: number;
@@ -60,6 +63,7 @@ export const DEFAULT_COLUMNS_OPTS: ColumnsLayoutOpts = {
   activeFraction: 0.8,
   minCorridor: 24,
   minColumnWidth: 80,
+  columnWidthShare: 0.26,
   topReserve: 0,
   hubAttachTop: 0,
 };
@@ -104,9 +108,10 @@ export function columnsLayout(
   // Clamp column width so neither column overlaps the centered hub: each column
   // gets at most half of (width - hub - paddings - both corridors).
   const maxColumnWidth = (width - base.hubWidth - 2 * base.padding - 2 * base.minCorridor) / 2;
+  const wanted = Math.max(base.columnWidth, width * base.columnWidthShare);
   const o: ColumnsLayoutOpts = {
     ...base,
-    columnWidth: Math.max(base.minColumnWidth, Math.min(base.columnWidth, maxColumnWidth)),
+    columnWidth: Math.max(base.minColumnWidth, Math.min(wanted, maxColumnWidth)),
   };
   const nodeOf = new Map(graph.nodes.map((n) => [n.id, n] as const));
   const placedNodes: PlacedNode[] = [];

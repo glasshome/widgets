@@ -1,0 +1,22 @@
+/* One value drives the sparkline band and the room the content leaves for it. */
+.glasshome-widget {
+  --sensor-spark-band: clamp(32px, 24cqb, 60px);
+}
+
+.sensor-spark-band {
+  height: var(--sensor-spark-band);
+}
+
+.glasshome-widget-content.sensor-spark-reserve {
+  padding-bottom: calc(var(--widget-pad) + var(--sensor-spark-band));
+}
+
+/* Too short for a reading and a curve; the reading wins. */
+@container widget (max-height: 129px) {
+  .sensor-spark-band {
+    display: none;
+  }
+  .glasshome-widget-content.sensor-spark-reserve {
+    padding-bottom: var(--widget-pad);
+  }
+}

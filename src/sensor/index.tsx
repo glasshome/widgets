@@ -21,6 +21,7 @@ import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, getSensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
 import { Sparkline, type SparklinePoint } from "./sparkline";
+import "./sensor.css";
 import { formatSensorValue } from "./utils";
 
 const configSchema = defineConfig({
@@ -118,7 +119,7 @@ function SensorWidget(props: { config: SensorConfig }) {
     <>
       <Widget gestures={gestures} variant="classic-glass" tone="info" emptyState={emptyState()}>
         <Show when={hasEntities()}>
-          <Widget.Content>
+          <Widget.Content class={dataPoints().length >= 2 ? "sensor-spark-reserve" : undefined}>
             <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
             <div class="flex flex-col gap-1 overflow-hidden">
               <Widget.Title>
@@ -135,7 +136,7 @@ function SensorWidget(props: { config: SensorConfig }) {
             </div>
           </Widget.Content>
           <Show when={dataPoints().length >= 2}>
-            <div class="absolute right-0 bottom-0 left-0 h-16 opacity-50">
+            <div class="sensor-spark-band absolute right-0 bottom-0 left-0 opacity-50">
               <Sparkline data={dataPoints()} />
             </div>
           </Show>
