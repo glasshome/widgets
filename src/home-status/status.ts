@@ -31,3 +31,7 @@ export function activeIds(chip: ChipSpec, entities: { id: string; state: string 
     .filter((e) => e.id.startsWith(`${chip.domain}.`) && e.state === chip.activeState)
     .map((e) => e.id);
 }
+
+export function needsArea(config: { scope: string; areaId?: string }): boolean {
+  return config.scope === "area" && !config.areaId;
+}

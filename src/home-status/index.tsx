@@ -14,7 +14,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, Show } from "solid-js";
-import { activeIds, CHIPS, type ChipSpec } from "./status";
+import { activeIds, CHIPS, needsArea, type ChipSpec } from "./status";
 
 const configSchema = defineConfig({
   scope: field.choice(["dashboard", "home", "area"], { title: "Scope", default: "dashboard" }),
@@ -40,6 +40,7 @@ function HomeStatusWidget(props: { config: HomeStatusConfig }) {
   const entities = useStore((s) => s.entities);
 
   const inScope = createMemo(() => {
+    if (needsArea(props.config)) return [];
     const all = entities();
     const view = area();
     const ids = areaId()
@@ -65,22 +66,27 @@ function HomeStatusWidget(props: { config: HomeStatusConfig }) {
   return (
     <Widget variant="classic-glass">
       <div class="flex h-full items-center gap-2 px-3">
-        <Show when={chips().length > 0} fallback={<span class="text-muted-foreground text-sm">All quiet</span>}>
-          <For each={chips()}>
-            {(c) => (
-              <Button
-                variant="secondary"
-                size="none"
-                type="button"
-                class="h-10 gap-1.5 px-3"
-                aria-label={c.chip.actionLabel}
-                onClick={() => void act(c.chip, c.ids)}
-              >
-                <Icon icon={c.chip.icon} width={14} height={14} />
-                <CountPill>{c.ids.length}</CountPill>
-              </Button>
-            )}
-          </For>
+        <Show
+          when={!needsArea(props.config)}
+          fallback={<span class="text-muted-foreground text-sm">Pick an area</span>}
+        >
+          <Show when={chips().length > 0} fallback={<span class="text-muted-foreground text-sm">All quiet</span>}>
+            <For each={chips()}>
+              {(c) => (
+                <Button
+                  variant="secondary"
+                  size="none"
+                  type="button"
+                  class="h-10 gap-1.5 px-3"
+                  aria-label={c.chip.actionLabel}
+                  onClick={() => void act(c.chip, c.ids)}
+                >
+                  <Icon icon={c.chip.icon} width={14} height={14} />
+                  <CountPill>{c.ids.length}</CountPill>
+                </Button>
+              )}
+            </For>
+          </Show>
         </Show>
       </div>
     </Widget>
