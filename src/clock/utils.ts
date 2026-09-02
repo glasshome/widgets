@@ -87,6 +87,13 @@ export function getClockGradient(preset?: ClockPreset): string {
   return CLOCK_GRADIENTS[preset ?? "modern"];
 }
 
+export function greetingForHour(hour: number): string {
+  if (hour < 5) return "Good night";
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 export function getDefaultConfig(): ClockConfig {
   return {
     clockStyle: "digital",
@@ -95,6 +102,7 @@ export function getDefaultConfig(): ClockConfig {
     timeFormat: "24",
     preset: "modern",
     showDate: false,
+    greeting: false,
     dateFormat: "MM/DD/YYYY",
     fontSize: "medium",
     layout: "auto",

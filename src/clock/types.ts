@@ -22,6 +22,7 @@ export const configSchema = defineConfig({
     default: "modern",
   }),
   showDate: field.toggle({ title: "Show Date", default: false }),
+  greeting: field.toggle({ title: "Greeting", default: false }),
   dateFormat: field.choice(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], {
     title: "Date Format",
     default: "MM/DD/YYYY",
