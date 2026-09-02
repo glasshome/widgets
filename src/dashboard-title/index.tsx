@@ -1,5 +1,11 @@
-import { SectionIcon, SectionTitle } from "@glasshome/ui/solid";
-import { defineConfig, defineWidget, useWidgetDashboard, Widget } from "@glasshome/widget-sdk";
+import {
+  defineConfig,
+  defineWidget,
+  SectionIcon,
+  SectionTitle,
+  useWidgetDashboard,
+  Widget,
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { Show } from "solid-js";
 
