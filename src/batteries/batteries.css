@@ -1,0 +1,30 @@
+/* The content column is space-between: an ungrouped summary pins its two parts
+   to the card's top and bottom with a dead middle. */
+.glasshome-widget-content.batteries-content {
+  justify-content: center;
+}
+
+@container widget (min-aspect-ratio: 1) and (max-height: 149px) {
+  .glasshome-widget-content.batteries-content {
+    justify-content: flex-start;
+  }
+}
+
+.batteries-list {
+  display: none;
+}
+
+/* Room for the roll call: summary on top, the list takes the rest. */
+@container widget (min-width: 260px) and (min-height: 250px) {
+  .glasshome-widget-content.batteries-content {
+    justify-content: flex-start;
+  }
+  .batteries-list {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: clamp(2px, 1cqb, 8px);
+    overflow: hidden;
+  }
+}

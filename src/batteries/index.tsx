@@ -15,6 +15,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
 import type { WidgetDebugData } from "../common";
 import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import "./batteries.css";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
 const configSchema = defineConfig({
@@ -55,12 +56,34 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
-        <Widget.Content>
+        <Widget.Content class="batteries-content">
           <Widget.Icon icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />} />
           <div class="flex flex-col gap-1 overflow-hidden">
             <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
             <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />
             <Widget.Status>{totalCount()} batteries</Widget.Status>
+          </div>
+          <div class="batteries-list">
+            <For each={batteries().slice(0, 5)}>
+              {(battery) => (
+                <div class="flex min-w-0 items-center gap-2">
+                  <Icon
+                    icon={getBatteryIcon(battery.level)}
+                    width={16}
+                    style={{ color: getBatteryColor(battery.level) }}
+                  />
+                  <span class="min-w-0 flex-1 truncate text-foreground/60 text-xs">
+                    {battery.entity.friendlyName || battery.entity.id}
+                  </span>
+                  <span
+                    class="shrink-0 font-medium text-xs tabular-nums"
+                    style={{ color: getBatteryColor(battery.level) }}
+                  >
+                    {battery.level}%
+                  </span>
+                </div>
+              )}
+            </For>
           </div>
         </Widget.Content>
       </Widget>
