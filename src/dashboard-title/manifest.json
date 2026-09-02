@@ -1,0 +1,37 @@
+{
+  "name": "Dashboard Title",
+  "description": "Your dashboard's name and icon",
+  "icon": "mdi:format-title",
+  "minSize": {
+    "w": 2,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 6,
+    "h": 1
+  },
+  "defaultSize": {
+    "w": 3,
+    "h": 1
+  },
+  "sdkVersion": "^1.14.1",
+  "capabilities": [],
+  "version": "0.1.0",
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "defaultConfig": {},
+  "examples": [
+    {
+      "label": "Title",
+      "size": {
+        "w": 3,
+        "h": 1
+      },
+      "config": {}
+    }
+  ]
+}
