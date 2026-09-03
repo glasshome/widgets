@@ -11,8 +11,8 @@ export const configSchema = defineConfig({
       area: { areaId: field.area({ title: "Which area" }) },
     },
     {
-      title: "Where the chips look",
-      description: "Which entities a chip counts",
+      title: "Where",
+      description: "Which entities the chips count",
       labels: {
         dashboard: "This dashboard's area",
         home: "The whole home",
@@ -27,13 +27,14 @@ export const configSchema = defineConfig({
         watch: {
           domain: field.choice(["light", "lock", "cover", "switch", "fan"], {
             title: "What to count",
+            description: "Counts the ones that are on or open, and taps to put them back",
             default: "light",
             labels: {
-              light: "Lights that are on",
-              lock: "Doors unlocked",
-              cover: "Covers open",
-              switch: "Switches on",
-              fan: "Fans running",
+              light: "Lights",
+              lock: "Locks",
+              cover: "Covers",
+              switch: "Switches",
+              fan: "Fans",
             },
           }),
         },
@@ -42,11 +43,9 @@ export const configSchema = defineConfig({
       },
       {
         title: "Shows",
-        labels: {
-          watch: "How many are on, tap to turn them off",
-          entity: "One entity's value",
-          action: "A scene or script to run",
-        },
+        description:
+          "Counts what is on and taps to turn it off, shows one entity's value, or runs a scene",
+        labels: { watch: "What is on", entity: "Entity", action: "Action" },
       },
     ),
     {

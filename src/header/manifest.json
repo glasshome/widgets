@@ -70,8 +70,8 @@
         },
         "formType": "variants",
         "discriminator": "scope",
-        "title": "Where the chips look",
-        "description": "Which entities a chip counts",
+        "title": "Where",
+        "description": "Which entities the chips count",
         "labels": {
           "dashboard": "This dashboard's area",
           "home": "The whole home",
@@ -139,10 +139,11 @@
           "formType": "variants",
           "discriminator": "shows",
           "title": "Shows",
+          "description": "Counts what is on and taps to turn it off, shows one entity's value, or runs a scene",
           "labels": {
-            "watch": "How many are on, tap to turn them off",
-            "entity": "One entity's value",
-            "action": "A scene or script to run"
+            "watch": "What is on",
+            "entity": "Entity",
+            "action": "Action"
           },
           "oneOf": [
             {
@@ -151,6 +152,7 @@
                 "domain": {
                   "default": "light",
                   "title": "What to count",
+                  "description": "Counts the ones that are on or open, and taps to put them back",
                   "type": "string",
                   "enum": [
                     "light",
