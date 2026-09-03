@@ -128,7 +128,7 @@
         "default": [],
         "formType": "list",
         "title": "Chips",
-        "description": "Right to left. A chip with nothing to report stays hidden, and the last ones drop on a narrow screen.",
+        "description": "Right to left. A chip with nothing to report hides itself.",
         "maxItems": 6,
         "type": "array",
         "items": {
@@ -138,11 +138,10 @@
           },
           "formType": "variants",
           "discriminator": "shows",
-          "title": "Shows",
-          "description": "Counts what is on and taps to turn it off, shows one entity's value, or runs a scene",
+          "title": "Kind",
           "labels": {
-            "watch": "What is on",
-            "entity": "Entity",
+            "watch": "Count",
+            "entity": "Value",
             "action": "Action"
           },
           "oneOf": [
@@ -152,7 +151,6 @@
                 "domain": {
                   "default": "light",
                   "title": "What to count",
-                  "description": "Counts the ones that are on or open, and taps to put them back",
                   "type": "string",
                   "enum": [
                     "light",
