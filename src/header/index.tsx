@@ -19,7 +19,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
-import { type EntitySnapshot, needsArea, resolveChip, visibleCount } from "./items";
+import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 
 function HeaderWidget(props: { config: HeaderConfig }) {
   const ctx = useWidgetContext();
@@ -38,15 +38,19 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   const area = useArea(areaId);
   const entities = useStore((s) => s.entities);
 
+  // A chip that names its own entities means those, wherever they are; the
+  // widget's Where only narrows a chip that counts a whole domain.
+  const idsFor = (chip: HeaderChip): string[] => {
+    const domain = WATCH_DOMAIN[chip.shows];
+    if (!domain) return "entityId" in chip ? chip.entityId : [];
+    const only = "only" in chip ? chip.only : [];
+    if (only.length > 0) return only;
+    return areaId() ? (area()?.entityIds ?? []) : (byDomain()[domain] ?? []);
+  };
+
   const snapshot = (chip: HeaderChip): EntitySnapshot[] => {
     const all = entities();
-    const ids =
-      chip.shows === "watch"
-        ? areaId()
-          ? (area()?.entityIds ?? [])
-          : (byDomain()[chip.domain] ?? [])
-        : chip.entityId;
-    return ids.flatMap((id) => {
+    return idsFor(chip).flatMap((id) => {
       const e = all[id];
       if (!e) return [];
       return [
@@ -128,8 +132,8 @@ function HeaderWidget(props: { config: HeaderConfig }) {
 }
 
 const DEFAULT_CHIPS: HeaderChip[] = [
-  { shows: "watch", domain: "light" },
-  { shows: "watch", domain: "lock" },
+  { shows: "lights", only: [] },
+  { shows: "locks", only: [] },
 ];
 
 export default defineWidget<HeaderConfig>({

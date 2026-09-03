@@ -24,25 +24,17 @@ export const configSchema = defineConfig({
     field.variants(
       "shows",
       {
-        watch: {
-          domain: field.choice(["light", "lock", "cover", "switch", "fan"], {
-            title: "What to count",
-            default: "light",
-            labels: {
-              light: "Lights",
-              lock: "Locks",
-              cover: "Covers",
-              switch: "Switches",
-              fan: "Fans",
-            },
-          }),
-        },
-        entity: { entityId: field.entity("sensor", { title: "Which entity" }) },
+        lights: { only: field.entities("light", { title: "Only these" }) },
+        locks: { only: field.entities("lock", { title: "Only these" }) },
+        covers: { only: field.entities("cover", { title: "Only these" }) },
+        switches: { only: field.entities("switch", { title: "Only these" }) },
+        fans: { only: field.entities("fan", { title: "Only these" }) },
+        value: { entityId: field.entity("sensor", { title: "Which entity" }) },
         action: { entityId: field.entity("scene", { title: "What to run" }) },
       },
       {
         title: "Kind",
-        labels: { watch: "Count", entity: "Value", action: "Action" },
+        labels: { lights: "Lights", locks: "Locks", covers: "Covers", switches: "Switches", fans: "Fans", value: "Value", action: "Action" },
       },
     ),
     {
