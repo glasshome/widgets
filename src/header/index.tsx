@@ -11,6 +11,7 @@ import {
   useWidgetDashboard,
   useWidgetDialog,
   useWidgetDimensions,
+  useWidgetViewer,
   useWidgetGestures,
   Widget,
   WidgetDialog,
@@ -25,6 +26,7 @@ import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN
 function HeaderWidget(props: { config: HeaderConfig }) {
   const ctx = useWidgetContext();
   const dashboard = useWidgetDashboard();
+  const viewer = useWidgetViewer();
   const { callService } = useService();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
@@ -35,7 +37,11 @@ function HeaderWidget(props: { config: HeaderConfig }) {
     const t = setInterval(() => setNow(new Date()), 60_000);
     onCleanup(() => clearInterval(t));
   });
-  const greeting = createMemo(() => greetingForHour(hourIn(now())));
+  const greeting = createMemo(() => {
+    const hello = greetingForHour(hourIn(now()));
+    const name = viewer().name;
+    return name ? `${hello}, ${name}` : hello;
+  });
 
   const areaId = createMemo(() => {
     const where = props.config.where;
