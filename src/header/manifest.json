@@ -133,40 +133,133 @@
         "type": "array",
         "items": {
           "default": {
-            "domain": "light",
-            "shows": "watch"
+            "only": [],
+            "shows": "lights"
           },
           "formType": "variants",
           "discriminator": "shows",
           "title": "Kind",
           "labels": {
-            "watch": "Count",
-            "entity": "Value",
+            "lights": "Lights",
+            "locks": "Locks",
+            "covers": "Covers",
+            "switches": "Switches",
+            "fans": "Fans",
+            "value": "Value",
             "action": "Action"
           },
           "oneOf": [
             {
               "type": "object",
               "properties": {
-                "domain": {
-                  "default": "light",
-                  "title": "What to count",
-                  "type": "string",
-                  "enum": [
-                    "light",
-                    "lock",
-                    "cover",
-                    "switch",
-                    "fan"
-                  ]
+                "only": {
+                  "default": [],
+                  "domain": "light",
+                  "title": "Only these",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "shows": {
                   "type": "string",
-                  "const": "watch"
+                  "const": "lights"
                 }
               },
               "required": [
-                "domain",
+                "only",
+                "shows"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "only": {
+                  "default": [],
+                  "domain": "lock",
+                  "title": "Only these",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "shows": {
+                  "type": "string",
+                  "const": "locks"
+                }
+              },
+              "required": [
+                "only",
+                "shows"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "only": {
+                  "default": [],
+                  "domain": "cover",
+                  "title": "Only these",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "shows": {
+                  "type": "string",
+                  "const": "covers"
+                }
+              },
+              "required": [
+                "only",
+                "shows"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "only": {
+                  "default": [],
+                  "domain": "switch",
+                  "title": "Only these",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "shows": {
+                  "type": "string",
+                  "const": "switches"
+                }
+              },
+              "required": [
+                "only",
+                "shows"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "only": {
+                  "default": [],
+                  "domain": "fan",
+                  "title": "Only these",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "shows": {
+                  "type": "string",
+                  "const": "fans"
+                }
+              },
+              "required": [
+                "only",
                 "shows"
               ],
               "additionalProperties": false
@@ -186,7 +279,7 @@
                 },
                 "shows": {
                   "type": "string",
-                  "const": "entity"
+                  "const": "value"
                 }
               },
               "required": [
@@ -248,12 +341,12 @@
         },
         "chips": [
           {
-            "shows": "watch",
-            "domain": "light"
+            "shows": "lights",
+            "only": []
           },
           {
-            "shows": "watch",
-            "domain": "lock"
+            "shows": "locks",
+            "only": []
           }
         ]
       }

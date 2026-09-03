@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DOMAIN_SPECS, needsArea, resolveChip, visibleCount } from "./items";
+import { DOMAIN_SPECS, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 
 const entities = [
   { id: "light.kitchen", state: "on", name: "Kitchen light" },
@@ -9,28 +9,47 @@ const entities = [
 ];
 
 describe("resolveChip", () => {
-  test("a watch chip counts what is on and taps to fix it", () => {
-    expect(resolveChip({ shows: "watch", domain: "light" }, entities)).toMatchObject({
+  test("a counting chip counts what is on and taps to fix it", () => {
+    expect(resolveChip({ shows: "lights" }, entities)).toMatchObject({
       value: "1",
       ids: ["light.kitchen"],
       service: { domain: "light", name: "turn_off" },
     });
   });
 
-  test("a watch chip with nothing on shows nothing at all", () => {
-    expect(resolveChip({ shows: "watch", domain: "light" }, [entities[1]!])).toBeNull();
+  test("a counting chip with nothing on shows nothing at all", () => {
+    expect(resolveChip({ shows: "lights" }, [entities[1]!])).toBeNull();
   });
 
-  test("an entity chip shows its value with the unit", () => {
-    expect(resolveChip({ shows: "entity", entityId: ["sensor.power"] }, entities)).toMatchObject({
+  test("only these counts just the entities named, ignoring the rest", () => {
+    const two = [
+      { id: "light.kitchen", state: "on" },
+      { id: "light.hall", state: "on" },
+    ];
+    expect(resolveChip({ shows: "lights", only: ["light.kitchen"] }, two)).toMatchObject({
+      value: "1",
+      ids: ["light.kitchen"],
+    });
+    expect(resolveChip({ shows: "lights", only: [] }, two)).toMatchObject({ value: "2" });
+    expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [two[0]!])).toBeNull();
+  });
+
+  test("every counting kind names a real domain", () => {
+    for (const domain of Object.values(WATCH_DOMAIN)) {
+      expect(DOMAIN_SPECS[domain]).toBeDefined();
+    }
+  });
+
+  test("a value chip shows its value with the unit", () => {
+    expect(resolveChip({ shows: "value", entityId: ["sensor.power"] }, entities)).toMatchObject({
       value: "412 W",
       icon: "mdi:flash",
     });
   });
 
-  test("an entity chip without its entity shows nothing", () => {
-    expect(resolveChip({ shows: "entity", entityId: ["sensor.gone"] }, entities)).toBeNull();
-    expect(resolveChip({ shows: "entity", entityId: [] }, entities)).toBeNull();
+  test("a value chip without its entity shows nothing", () => {
+    expect(resolveChip({ shows: "value", entityId: ["sensor.gone"] }, entities)).toBeNull();
+    expect(resolveChip({ shows: "value", entityId: [] }, entities)).toBeNull();
   });
 
   test("an action chip is icon only and runs its entity", () => {

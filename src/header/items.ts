@@ -15,6 +15,15 @@ export interface DomainSpec {
   service: { domain: string; name: string };
 }
 
+/** A counting chip is named after what it counts. */
+export const WATCH_DOMAIN: Record<string, string> = {
+  lights: "light",
+  locks: "lock",
+  covers: "cover",
+  switches: "switch",
+  fans: "fan",
+};
+
 export const DOMAIN_SPECS: Record<string, DomainSpec> = {
   light: {
     activeState: "on",
@@ -54,8 +63,8 @@ export const DOMAIN_SPECS: Record<string, DomainSpec> = {
 };
 
 export type ChipConfig =
-  | { shows: "watch"; domain: string }
-  | { shows: "entity"; entityId: string[] }
+  | { shows: string; only?: string[] }
+  | { shows: "value"; entityId: string[] }
   | { shows: "action"; entityId: string[] };
 
 export interface ResolvedChip {
@@ -82,11 +91,14 @@ function domainOf(entityId: string): string {
 
 /** One chip against the entities in scope, or null when it has nothing to say. */
 export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): ResolvedChip | null {
-  if (chip.shows === "watch") {
-    const spec = DOMAIN_SPECS[chip.domain];
+  const domain = WATCH_DOMAIN[chip.shows];
+  if (domain) {
+    const spec = DOMAIN_SPECS[domain];
     if (!spec) return null;
+    const only = "only" in chip ? (chip.only ?? []) : [];
     const ids = entities
-      .filter((e) => domainOf(e.id) === chip.domain && e.state === spec.activeState)
+      .filter((e) => domainOf(e.id) === domain && e.state === spec.activeState)
+      .filter((e) => only.length === 0 || only.includes(e.id))
       .map((e) => e.id);
     if (ids.length === 0) return null;
     return {
@@ -99,7 +111,7 @@ export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): Resol
     };
   }
 
-  const id = chip.entityId[0];
+  const id = "entityId" in chip ? chip.entityId[0] : undefined;
   if (!id) return null;
 
   if (chip.shows === "action") {
