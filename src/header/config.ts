@@ -3,48 +3,29 @@ import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
 export const configSchema = defineConfig({
   title: field.text({ title: "Title", description: "Empty shows the dashboard's name" }),
   icon: field.icon({ title: "Icon" }),
-  items: field.list(
+  scope: field.choice(["dashboard", "home", "area"], { title: "Where", default: "dashboard" }),
+  areaId: field.area({ title: "Area" }),
+  chips: field.list(
     field.variants(
-      "kind",
+      "shows",
       {
-        status: {
+        watch: {
           domain: field.choice(["light", "lock", "cover", "switch", "fan"], {
-            title: "What to watch",
+            title: "What",
             default: "light",
           }),
-          scope: field.choice(["dashboard", "home", "area"], {
-            title: "Where",
-            default: "dashboard",
-          }),
-          areaId: field.area({ title: "Area" }),
         },
         entity: { entityId: field.entity("sensor", { title: "Entity" }) },
-        action: {
-          entityId: field.entity("scene", { title: "Scene, script or button" }),
-        },
-        clock: {
-          timeFormat: field.choice(["24", "12"], { title: "Time format", default: "24" }),
-        },
+        action: { entityId: field.entity("scene", { title: "Scene or script" }) },
       },
       {
-        title: "Kind",
-        labels: {
-          status: "What is on",
-          entity: "An entity",
-          action: "Quick action",
-          clock: "Time",
-        },
-        shared: {
-          label: field.text({ title: "Label" }),
-          icon: field.icon({ title: "Icon" }),
-        },
+        title: "Shows",
+        labels: { watch: "What is on", entity: "An entity", action: "Runs something" },
       },
     ),
-    { title: "Items", description: "Shown right to left; the last ones drop on a narrow screen", max: 6, labelField: "label" },
+    { title: "Chips", description: "Right to left; the last ones drop on a narrow screen", max: 6 },
   ),
-  sunEntity: field.entity("sun", { title: "Sun entity" }),
-  weatherEntity: field.entity("weather", { title: "Weather entity" }),
 });
 
 export type HeaderConfig = Infer<typeof configSchema>;
-export type HeaderItem = HeaderConfig["items"][number];
+export type HeaderChip = HeaderConfig["chips"][number];
