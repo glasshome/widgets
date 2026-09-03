@@ -1,6 +1,6 @@
 {
   "name": "Header",
-  "description": "Your dashboard's name over the daylight arc, with the items you choose: what is on, an entity, a quick action, the time",
+  "description": "Your dashboard's name, with chips for what is on, an entity to watch, or a scene to run",
   "icon": "mdi:format-header-1",
   "minSize": {
     "w": 2,
@@ -47,14 +47,6 @@
     {
       "domain": "sensor",
       "access": "read"
-    },
-    {
-      "domain": "weather",
-      "access": "read"
-    },
-    {
-      "domain": "sun",
-      "access": "read"
     }
   ],
   "version": "0.1.0",
@@ -72,45 +64,48 @@
         "formType": "icon-picker",
         "title": "Icon"
       },
-      "items": {
+      "scope": {
+        "default": "dashboard",
+        "title": "Where",
+        "type": "string",
+        "enum": [
+          "dashboard",
+          "home",
+          "area"
+        ]
+      },
+      "areaId": {
+        "formType": "area-picker",
+        "title": "Area",
+        "type": "string"
+      },
+      "chips": {
         "default": [],
         "formType": "list",
-        "title": "Items",
-        "description": "Shown right to left; the last ones drop on a narrow screen",
-        "labelField": "label",
+        "title": "Chips",
+        "description": "Right to left; the last ones drop on a narrow screen",
         "maxItems": 6,
         "type": "array",
         "items": {
           "default": {
             "domain": "light",
-            "scope": "dashboard",
-            "kind": "status"
+            "shows": "watch"
           },
           "formType": "variants",
-          "discriminator": "kind",
-          "title": "Kind",
+          "discriminator": "shows",
+          "title": "Shows",
           "labels": {
-            "status": "What is on",
+            "watch": "What is on",
             "entity": "An entity",
-            "action": "Quick action",
-            "clock": "Time"
+            "action": "Runs something"
           },
           "oneOf": [
             {
               "type": "object",
               "properties": {
-                "label": {
-                  "title": "Label",
-                  "type": "string"
-                },
-                "icon": {
-                  "type": "string",
-                  "formType": "icon-picker",
-                  "title": "Icon"
-                },
                 "domain": {
                   "default": "light",
-                  "title": "What to watch",
+                  "title": "What",
                   "type": "string",
                   "enum": [
                     "light",
@@ -120,45 +115,20 @@
                     "fan"
                   ]
                 },
-                "scope": {
-                  "default": "dashboard",
-                  "title": "Where",
+                "shows": {
                   "type": "string",
-                  "enum": [
-                    "dashboard",
-                    "home",
-                    "area"
-                  ]
-                },
-                "areaId": {
-                  "formType": "area-picker",
-                  "title": "Area",
-                  "type": "string"
-                },
-                "kind": {
-                  "type": "string",
-                  "const": "status"
+                  "const": "watch"
                 }
               },
               "required": [
                 "domain",
-                "scope",
-                "kind"
+                "shows"
               ],
               "additionalProperties": false
             },
             {
               "type": "object",
               "properties": {
-                "label": {
-                  "title": "Label",
-                  "type": "string"
-                },
-                "icon": {
-                  "type": "string",
-                  "formType": "icon-picker",
-                  "title": "Icon"
-                },
                 "entityId": {
                   "default": [],
                   "domain": "sensor",
@@ -169,117 +139,54 @@
                     "type": "string"
                   }
                 },
-                "kind": {
+                "shows": {
                   "type": "string",
                   "const": "entity"
                 }
               },
               "required": [
                 "entityId",
-                "kind"
+                "shows"
               ],
               "additionalProperties": false
             },
             {
               "type": "object",
               "properties": {
-                "label": {
-                  "title": "Label",
-                  "type": "string"
-                },
-                "icon": {
-                  "type": "string",
-                  "formType": "icon-picker",
-                  "title": "Icon"
-                },
                 "entityId": {
                   "default": [],
                   "domain": "scene",
-                  "title": "Scene, script or button",
+                  "title": "Scene or script",
                   "singleSelect": true,
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "kind": {
+                "shows": {
                   "type": "string",
                   "const": "action"
                 }
               },
               "required": [
                 "entityId",
-                "kind"
-              ],
-              "additionalProperties": false
-            },
-            {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "title": "Label",
-                  "type": "string"
-                },
-                "icon": {
-                  "type": "string",
-                  "formType": "icon-picker",
-                  "title": "Icon"
-                },
-                "timeFormat": {
-                  "default": "24",
-                  "title": "Time format",
-                  "type": "string",
-                  "enum": [
-                    "12",
-                    "24"
-                  ]
-                },
-                "kind": {
-                  "type": "string",
-                  "const": "clock"
-                }
-              },
-              "required": [
-                "timeFormat",
-                "kind"
+                "shows"
               ],
               "additionalProperties": false
             }
           ]
         }
-      },
-      "sunEntity": {
-        "default": [],
-        "domain": "sun",
-        "title": "Sun entity",
-        "singleSelect": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "weatherEntity": {
-        "default": [],
-        "domain": "weather",
-        "title": "Weather entity",
-        "singleSelect": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
       }
     },
     "required": [
-      "items",
-      "sunEntity",
-      "weatherEntity"
+      "scope",
+      "chips"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "items": [],
-    "sunEntity": [],
-    "weatherEntity": []
+    "scope": "dashboard",
+    "chips": []
   },
   "examples": [
     {
@@ -289,30 +196,17 @@
         "h": 1
       },
       "config": {
-        "items": [
+        "scope": "dashboard",
+        "chips": [
           {
-            "kind": "status",
-            "domain": "light",
-            "scope": "dashboard",
-            "label": "",
-            "icon": ""
+            "shows": "watch",
+            "domain": "light"
           },
           {
-            "kind": "status",
-            "domain": "lock",
-            "scope": "dashboard",
-            "label": "",
-            "icon": ""
-          },
-          {
-            "kind": "clock",
-            "timeFormat": "24",
-            "label": "",
-            "icon": ""
+            "shows": "watch",
+            "domain": "lock"
           }
-        ],
-        "sunEntity": [],
-        "weatherEntity": []
+        ]
       }
     },
     {
@@ -324,9 +218,8 @@
       "config": {
         "title": "Upstairs",
         "icon": "mdi:stairs-up",
-        "items": [],
-        "sunEntity": [],
-        "weatherEntity": []
+        "scope": "dashboard",
+        "chips": []
       }
     }
   ]

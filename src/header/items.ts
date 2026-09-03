@@ -7,147 +7,136 @@ export interface EntitySnapshot {
 }
 
 export interface DomainSpec {
-  /** State that means "asking for attention". */
+  /** The state that is worth a chip. */
   activeState: string;
-  /** Word after the count, so a chip reads "3 on". */
-  word: string;
   icon: string;
   tone: string;
-  actionLabel: string;
+  label: string;
   service: { domain: string; name: string };
 }
 
 export const DOMAIN_SPECS: Record<string, DomainSpec> = {
   light: {
     activeState: "on",
-    word: "on",
     icon: "mdi:lightbulb-on",
     tone: "text-warning",
-    actionLabel: "Turn off lights",
+    label: "Turn off lights",
     service: { domain: "light", name: "turn_off" },
   },
   lock: {
     activeState: "unlocked",
-    word: "unlocked",
     icon: "lucide:unlock",
     tone: "text-destructive/80",
-    actionLabel: "Lock doors",
+    label: "Lock doors",
     service: { domain: "lock", name: "lock" },
   },
   cover: {
     activeState: "open",
-    word: "open",
     icon: "mdi:window-shutter-open",
     tone: "text-primary",
-    actionLabel: "Close covers",
+    label: "Close covers",
     service: { domain: "cover", name: "close_cover" },
   },
   switch: {
     activeState: "on",
-    word: "on",
     icon: "mdi:power-plug",
     tone: "text-primary",
-    actionLabel: "Turn off switches",
+    label: "Turn off switches",
     service: { domain: "switch", name: "turn_off" },
   },
   fan: {
     activeState: "on",
-    word: "on",
     icon: "mdi:fan",
     tone: "text-primary",
-    actionLabel: "Turn off fans",
+    label: "Turn off fans",
     service: { domain: "fan", name: "turn_off" },
   },
 };
 
-export type ItemConfig =
-  | { kind: "status"; domain: string; scope?: string; areaId?: string }
-  | { kind: "entity"; entityId: string[]; label?: string; icon?: string }
-  | { kind: "action"; entityId: string[]; label?: string; icon?: string }
-  | { kind: "clock" };
+export type ChipConfig =
+  | { shows: "watch"; domain: string }
+  | { shows: "entity"; entityId: string[] }
+  | { shows: "action"; entityId: string[] };
 
-export interface ResolvedItem {
-  kind: ItemConfig["kind"];
+export interface ResolvedChip {
   label: string;
   icon: string;
   tone?: string;
-  value?: string;
-  word?: string;
+  /** Null renders an icon-only chip. */
+  value: string | null;
   ids: string[];
   service?: { domain: string; name: string };
 }
 
-const ACTION_SERVICE: Record<string, string> = {
+const RUNNABLE: Record<string, string> = {
   scene: "turn_on",
   script: "turn_on",
   button: "press",
-  automation: "trigger",
   input_button: "press",
+  automation: "trigger",
 };
 
 function domainOf(entityId: string): string {
   return entityId.split(".")[0] ?? "";
 }
 
-/** One configured item against the entities in its scope, or null when it has
- *  nothing to say (a quiet domain, a missing entity). */
-export function resolveItem(item: ItemConfig, entities: EntitySnapshot[]): ResolvedItem | null {
-  if (item.kind === "clock") {
-    return { kind: "clock", label: "Time", icon: "mdi:clock-outline", ids: [] };
-  }
-
-  if (item.kind === "status") {
-    const spec = DOMAIN_SPECS[item.domain];
+/** One chip against the entities in scope, or null when it has nothing to say. */
+export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): ResolvedChip | null {
+  if (chip.shows === "watch") {
+    const spec = DOMAIN_SPECS[chip.domain];
     if (!spec) return null;
     const ids = entities
-      .filter((e) => domainOf(e.id) === item.domain && e.state === spec.activeState)
+      .filter((e) => domainOf(e.id) === chip.domain && e.state === spec.activeState)
       .map((e) => e.id);
     if (ids.length === 0) return null;
     return {
-      kind: "status",
-      label: spec.actionLabel,
+      label: spec.label,
       icon: spec.icon,
       tone: spec.tone,
       value: String(ids.length),
-      word: spec.word,
       ids,
       service: spec.service,
     };
   }
 
-  const id = item.entityId[0];
+  const id = chip.entityId[0];
   if (!id) return null;
 
-  if (item.kind === "action") {
-    const service = ACTION_SERVICE[domainOf(id)];
-    if (!service) return null;
+  if (chip.shows === "action") {
+    const name = RUNNABLE[domainOf(id)];
+    if (!name) return null;
+    const entity = entities.find((e) => e.id === id);
     return {
-      kind: "action",
-      label: item.label || id,
-      icon: item.icon || "mdi:play",
+      label: entity?.name ?? id,
+      icon: entity?.icon ?? "mdi:play",
+      value: null,
       ids: [id],
-      service: { domain: domainOf(id), name: service },
+      service: { domain: domainOf(id), name },
     };
   }
 
   const entity = entities.find((e) => e.id === id);
   if (!entity) return null;
   return {
-    kind: "entity",
-    label: item.label || entity.name || id,
-    icon: item.icon || entity.icon || "mdi:gauge",
+    label: entity.name ?? id,
+    icon: entity.icon ?? "mdi:gauge",
     value: entity.unit ? `${entity.state} ${entity.unit}` : entity.state,
     ids: [id],
   };
 }
 
-/** Identity and the band own the left; each item needs about this much room. */
-const IDENTITY_WIDTH = 260;
-const ITEM_WIDTH = 130;
+/** The title keeps this much, each chip needs this much. */
+const TITLE_WIDTH = 240;
+const CHIP_WIDTH = 84;
 
-/** How many items fit, dropping from the end. Width 0 means unmeasured. */
+/** How many chips fit, dropping from the end. Width 0 means unmeasured. */
 export function visibleCount(width: number, total: number): number {
   if (width === 0) return total;
-  const room = Math.floor((width - IDENTITY_WIDTH) / ITEM_WIDTH);
-  return Math.max(0, Math.min(total, room));
+  return Math.max(0, Math.min(total, Math.floor((width - TITLE_WIDTH) / CHIP_WIDTH)));
+}
+
+/** "Somewhere specific" with nowhere chosen: show nothing rather than the
+ *  whole home, which is a different answer. */
+export function needsArea(config: { scope: string; areaId?: string }): boolean {
+  return config.scope === "area" && !config.areaId;
 }

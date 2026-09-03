@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DOMAIN_SPECS, resolveItem, visibleCount } from "./items";
+import { DOMAIN_SPECS, needsArea, resolveChip, visibleCount } from "./items";
 
 const entities = [
   { id: "light.kitchen", state: "on", name: "Kitchen light" },
@@ -8,48 +8,44 @@ const entities = [
   { id: "sensor.power", state: "412", name: "Power", unit: "W", icon: "mdi:flash" },
 ];
 
-describe("resolveItem", () => {
-  test("a status item counts the domain's active entities and carries its action", () => {
-    const r = resolveItem({ kind: "status", domain: "light", scope: "home" }, entities);
-    expect(r).toMatchObject({
-      kind: "status",
+describe("resolveChip", () => {
+  test("a watch chip counts what is on and taps to fix it", () => {
+    expect(resolveChip({ shows: "watch", domain: "light" }, entities)).toMatchObject({
       value: "1",
-      word: "on",
       ids: ["light.kitchen"],
       service: { domain: "light", name: "turn_off" },
     });
   });
 
-  test("a status item with nothing active resolves to nothing", () => {
-    const quiet = [{ id: "light.hall", state: "off", name: "Hall light" }];
-    expect(resolveItem({ kind: "status", domain: "light", scope: "home" }, quiet)).toBeNull();
+  test("a watch chip with nothing on shows nothing at all", () => {
+    expect(resolveChip({ shows: "watch", domain: "light" }, [entities[1]!])).toBeNull();
   });
 
-  test("an entity item shows its state and unit", () => {
-    const r = resolveItem({ kind: "entity", entityId: ["sensor.power"] }, entities);
-    expect(r).toMatchObject({ kind: "entity", value: "412 W", icon: "mdi:flash" });
-  });
-
-  test("an entity item with no entity resolves to nothing", () => {
-    expect(resolveItem({ kind: "entity", entityId: [] }, entities)).toBeNull();
-    expect(resolveItem({ kind: "entity", entityId: ["sensor.gone"] }, entities)).toBeNull();
-  });
-
-  test("an action item always resolves, and calls the right service", () => {
-    const r = resolveItem(
-      { kind: "action", entityId: ["scene.movie"], label: "Movie", icon: "mdi:movie" },
-      entities,
-    );
-    expect(r).toMatchObject({
-      kind: "action",
-      label: "Movie",
-      icon: "mdi:movie",
-      service: { domain: "scene", name: "turn_on" },
-      ids: ["scene.movie"],
+  test("an entity chip shows its value with the unit", () => {
+    expect(resolveChip({ shows: "entity", entityId: ["sensor.power"] }, entities)).toMatchObject({
+      value: "412 W",
+      icon: "mdi:flash",
     });
   });
 
-  test("every domain spec names an active state and a batch service", () => {
+  test("an entity chip without its entity shows nothing", () => {
+    expect(resolveChip({ shows: "entity", entityId: ["sensor.gone"] }, entities)).toBeNull();
+    expect(resolveChip({ shows: "entity", entityId: [] }, entities)).toBeNull();
+  });
+
+  test("an action chip is icon only and runs its entity", () => {
+    expect(resolveChip({ shows: "action", entityId: ["scene.movie"] }, entities)).toMatchObject({
+      value: null,
+      ids: ["scene.movie"],
+      service: { domain: "scene", name: "turn_on" },
+    });
+  });
+
+  test("an action chip on a domain nothing can run shows nothing", () => {
+    expect(resolveChip({ shows: "action", entityId: ["sensor.power"] }, entities)).toBeNull();
+  });
+
+  test("every watched domain names a state and a service", () => {
     for (const spec of Object.values(DOMAIN_SPECS)) {
       expect(spec.activeState.length).toBeGreaterThan(0);
       expect(spec.service.name.length).toBeGreaterThan(0);
@@ -60,11 +56,20 @@ describe("resolveItem", () => {
 describe("visibleCount", () => {
   test("keeps what fits, dropping from the end", () => {
     expect(visibleCount(900, 3)).toBe(3);
-    expect(visibleCount(560, 3)).toBe(2);
-    expect(visibleCount(300, 3)).toBe(0);
+    expect(visibleCount(430, 3)).toBe(2);
+    expect(visibleCount(260, 3)).toBe(0);
   });
 
   test("an unmeasured tile shows everything", () => {
     expect(visibleCount(0, 4)).toBe(4);
+  });
+});
+
+describe("needsArea", () => {
+  test("area scope without an area is unconfigured, every other scope is fine", () => {
+    expect(needsArea({ scope: "area" })).toBe(true);
+    expect(needsArea({ scope: "area", areaId: "kitchen" })).toBe(false);
+    expect(needsArea({ scope: "dashboard" })).toBe(false);
+    expect(needsArea({ scope: "home" })).toBe(false);
   });
 });
