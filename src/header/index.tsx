@@ -1,10 +1,7 @@
 import {
   Button,
   byDomain,
-  defineConfig,
   defineWidget,
-  field,
-  type Infer,
   SectionIcon,
   SectionTitle,
   useArea,
@@ -24,25 +21,12 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { formatTemp, getWeatherIcon } from "../weather/utils";
-import { greetingForHour, hourIn } from "./greeting";
-import { activeIds, CHIPS, type ChipSpec, needsArea } from "./status";
+import { Band } from "./band";
+import { configSchema, type HeaderConfig, type HeaderItem } from "./config";
+import { type SunTimes, sunWindow } from "./horizon";
+import { type EntitySnapshot, resolveItem, visibleCount } from "./items";
 
-const configSchema = defineConfig({
-  title: field.text({ title: "Title", description: "Empty shows the dashboard's name" }),
-  icon: field.icon({ title: "Icon" }),
-  parts: field.choices(["clock", "weather", "status"], {
-    title: "Show",
-    default: ["clock", "weather", "status"],
-    labels: { clock: "Clock", weather: "Weather", status: "Lights and locks" },
-  }),
-  timeFormat: field.choice(["24", "12"], { title: "Time format", default: "24" }),
-  weatherEntity: field.entity("weather", { title: "Weather entity" }),
-  scope: field.choice(["dashboard", "home", "area"], { title: "Status scope", default: "dashboard" }),
-  areaId: field.area({ title: "Area" }),
-});
-type HeaderConfig = Infer<typeof configSchema>;
-
-const MIN_WIDTH = { status: 300, clock: 460, weather: 620 } as const;
+const DEFAULT_SUN = "sun.sun";
 const DEFAULT_WEATHER = "weather.home";
 
 function HeaderWidget(props: { config: HeaderConfig }) {
@@ -58,22 +42,21 @@ function HeaderWidget(props: { config: HeaderConfig }) {
     const t = setInterval(() => setNow(new Date()), 30_000);
     onCleanup(() => clearInterval(t));
   });
-  const time = createMemo(() =>
-    now().toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: props.config.timeFormat === "12",
-    }),
-  );
-  const dateShort = createMemo(() =>
-    now().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }),
-  );
-  const greeting = createMemo(() => greetingForHour(hourIn(now())));
 
-  const weatherId = () => props.config.weatherEntity[0] ?? DEFAULT_WEATHER;
-  const weather = useEntity(weatherId);
+  const sun = useEntity(() => props.config.sunEntity[0] ?? DEFAULT_SUN);
+  const times = createMemo<SunTimes>(() => {
+    const s = sun();
+    return sunWindow(
+      s?.state,
+      s?.attributes?.next_rising as string | undefined,
+      s?.attributes?.next_setting as string | undefined,
+      now(),
+    );
+  });
+
+  const weather = useEntity(() => props.config.weatherEntity[0] ?? DEFAULT_WEATHER);
   const temperatureUnit = useTemperatureUnit();
-  const temp = createMemo(() => {
+  const temperature = createMemo(() => {
     const w = weather();
     const t = w?.attributes?.temperature;
     if (typeof t !== "number") return null;
@@ -81,75 +64,110 @@ function HeaderWidget(props: { config: HeaderConfig }) {
     return formatTemp(Math.round(t), unit.startsWith("°") ? unit : `°${unit}`);
   });
 
-  const areaId = createMemo(() => {
-    if (props.config.scope === "area") return props.config.areaId ?? "";
-    if (props.config.scope === "dashboard") return dashboard().areaId ?? "";
-    return "";
-  });
-  const area = useArea(areaId);
   const entities = useStore((s) => s.entities);
-  const inScope = createMemo(() => {
-    if (needsArea(props.config)) return [];
+  const scopeArea = (item: HeaderItem) => {
+    if (item.kind !== "status") return "";
+    if (item.scope === "area") return item.areaId ?? "";
+    if (item.scope === "dashboard") return dashboard().areaId ?? "";
+    return "";
+  };
+  const dashboardArea = useArea(() => dashboard().areaId ?? "");
+
+  const snapshot = (item: HeaderItem): EntitySnapshot[] => {
     const all = entities();
-    const ids = areaId()
-      ? (area()?.entityIds ?? [])
-      : [...(byDomain().light ?? []), ...(byDomain().lock ?? [])];
+    const areaId = scopeArea(item);
+    const ids =
+      item.kind === "status"
+        ? areaId
+          ? (dashboardArea()?.entityIds ?? [])
+          : (byDomain()[item.domain] ?? [])
+        : item.kind === "entity" || item.kind === "action"
+          ? item.entityId
+          : [];
     return ids.flatMap((id) => {
       const e = all[id];
-      return e ? [{ id, state: e.state }] : [];
+      if (!e) return [];
+      return [
+        {
+          id,
+          state: e.state,
+          name: e.attributes?.friendly_name as string | undefined,
+          unit: e.attributes?.unit_of_measurement as string | undefined,
+          icon: e.attributes?.icon as string | undefined,
+        },
+      ];
     });
-  });
-  const chips = createMemo(() =>
-    (Object.values(CHIPS) as ChipSpec[])
-      .map((chip) => ({ chip, ids: activeIds(chip, inScope()) }))
-      .filter((c) => c.ids.length > 0),
+  };
+
+  const resolved = createMemo(() =>
+    props.config.items.flatMap((item) => {
+      // A status item scoped to an area needs the area's entities, which the
+      // snapshot already narrows; an unset area means the whole home.
+      if (item.kind === "status" && item.scope === "area" && !item.areaId) return [];
+      const r = resolveItem(item as never, snapshot(item));
+      return r ? [{ item, resolved: r }] : [];
+    }),
   );
-  async function act(chip: ChipSpec, ids: string[]) {
-    await callService(chip.service.domain, chip.service.name, {}, { entity_id: ids });
+
+  async function run(service: { domain: string; name: string }, ids: string[]) {
+    await callService(service.domain, service.name, {}, { entity_id: ids });
   }
 
-  const has = (part: HeaderConfig["parts"][number]) => props.config.parts.includes(part);
-
-  const Parts = () => {
+  const Items = () => {
     const dimensions = useWidgetDimensions();
-    const fits = (part: keyof typeof MIN_WIDTH) => {
-      const w = dimensions().width;
-      return w === 0 || w >= MIN_WIDTH[part];
-    };
+    const shown = createMemo(() => resolved().slice(0, visibleCount(dimensions().width, resolved().length)));
     return (
-      <div class="flex min-w-0 items-center justify-end gap-3">
-        <Show when={has("clock") && fits("clock")}>
-          <div class="flex flex-col items-end gap-0.5 whitespace-nowrap">
-            <span class="text-[11px] text-foreground/60">
-              {greeting()} · {dateShort()}
-            </span>
-            <span class="font-mono font-semibold text-[13px] text-foreground/85 tabular-nums">{time()}</span>
-          </div>
-        </Show>
-        <Show when={has("weather") && fits("weather") && temp()}>
+      <div class="flex min-w-0 shrink-0 items-center justify-end gap-2">
+        <Show when={temperature() && dimensions().width > 520}>
           <span class="flex items-center gap-1 whitespace-nowrap text-[13px] text-foreground/85 tabular-nums">
             <Icon icon={getWeatherIcon(weather()?.state ?? "")} width={16} height={16} class="text-primary" />
-            {temp()}
+            {temperature()}
           </span>
         </Show>
-        <Show when={has("status") && fits("status") && chips().length > 0}>
-          <For each={chips()}>
-            {(c) => (
+        <For each={shown()}>
+          {(entry) => (
+            <Show
+              when={entry.resolved.kind !== "clock"}
+              fallback={
+                <span class="whitespace-nowrap font-mono font-semibold text-[15px] text-foreground tabular-nums">
+                  {now().toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: entry.item.kind === "clock" && entry.item.timeFormat === "12",
+                  })}
+                </span>
+              }
+            >
               <Button
                 variant="secondary"
                 size="none"
                 type="button"
-                class="h-9 gap-1.5 px-2.5"
-                aria-label={c.chip.actionLabel}
-                onClick={() => void act(c.chip, c.ids)}
+                class="h-9 gap-1.5 whitespace-nowrap px-2.5"
+                aria-label={entry.resolved.label}
+                disabled={!entry.resolved.service}
+                onClick={() => {
+                  const s = entry.resolved.service;
+                  if (s) void run(s, entry.resolved.ids);
+                }}
               >
-                <Icon icon={c.chip.icon} width={14} height={14} class={c.chip.tone} />
-                <span class="font-semibold text-foreground tabular-nums">{c.ids.length}</span>
-                <span class="text-muted-foreground/70 text-xs">{c.chip.stateWord}</span>
+                <Icon
+                  icon={entry.item.icon || entry.resolved.icon}
+                  width={14}
+                  height={14}
+                  class={entry.resolved.tone}
+                />
+                <Show when={entry.resolved.value}>
+                  <span class="font-semibold text-foreground tabular-nums">{entry.resolved.value}</span>
+                </Show>
+                <Show when={entry.resolved.word || entry.item.label}>
+                  <span class="text-muted-foreground/70 text-xs">
+                    {entry.item.label || entry.resolved.word}
+                  </span>
+                </Show>
               </Button>
-            )}
-          </For>
-        </Show>
+            </Show>
+          )}
+        </For>
       </div>
     );
   };
@@ -157,14 +175,15 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass">
-        <div class="flex h-full min-w-0 items-center gap-3 px-4">
-        <SectionIcon size="sm">
-          <Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />
-        </SectionIcon>
-        <SectionTitle class="min-w-0 flex-1 truncate">
-          {props.config.title || dashboard().name || "Dashboard"}
-        </SectionTitle>
-          <Parts />
+        <div class="relative flex h-full min-w-0 items-center gap-3 overflow-hidden px-4">
+          <Band now={now()} times={times()} />
+          <SectionIcon size="sm">
+            <Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />
+          </SectionIcon>
+          <SectionTitle class="min-w-0 flex-1 truncate">
+            {props.config.title || dashboard().name || "Dashboard"}
+          </SectionTitle>
+          <Items />
         </div>
       </Widget>
       <WidgetDialog
@@ -183,11 +202,17 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   );
 }
 
+const DEFAULT_ITEMS: HeaderItem[] = [
+  { kind: "status", domain: "light", scope: "dashboard", label: "", icon: "" },
+  { kind: "status", domain: "lock", scope: "dashboard", label: "", icon: "" },
+  { kind: "clock", timeFormat: "24", label: "", icon: "" },
+];
+
 export default defineWidget<HeaderConfig>({
   manifest: {
     name: "Header",
     description:
-      "Your dashboard's name with the time, the weather and what is on, or a title for a section of the grid",
+      "Your dashboard's name over the daylight arc, with the items you choose: what is on, an entity, a quick action, the time",
     icon: "mdi:format-header-1",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 12, h: 1 },
@@ -196,30 +221,25 @@ export default defineWidget<HeaderConfig>({
     capabilities: [
       { domain: "light", access: "control" },
       { domain: "lock", access: "control" },
+      { domain: "cover", access: "control" },
+      { domain: "switch", access: "control" },
+      { domain: "fan", access: "control" },
+      { domain: "scene", access: "control" },
+      { domain: "script", access: "control" },
+      { domain: "sensor", access: "read" },
       { domain: "weather", access: "read" },
+      { domain: "sun", access: "read" },
     ],
     examples: [
       {
         label: "Dashboard header",
         size: { w: 6, h: 1 },
-        config: {
-          parts: ["clock", "weather", "status"],
-          timeFormat: "24",
-          weatherEntity: [],
-          scope: "dashboard",
-        },
+        config: { items: DEFAULT_ITEMS, sunEntity: [], weatherEntity: [] },
       },
       {
         label: "Section title",
         size: { w: 3, h: 1 },
-        config: {
-          title: "Upstairs",
-          icon: "mdi:stairs-up",
-          parts: [],
-          timeFormat: "24",
-          weatherEntity: [],
-          scope: "dashboard",
-        },
+        config: { title: "Upstairs", icon: "mdi:stairs-up", items: [], sunEntity: [], weatherEntity: [] },
       },
     ],
   },

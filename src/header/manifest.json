@@ -1,6 +1,6 @@
 {
   "name": "Header",
-  "description": "Your dashboard's name with the time, the weather and what is on, or a title for a section of the grid",
+  "description": "Your dashboard's name over the daylight arc, with the items you choose: what is on, an entity, a quick action, the time",
   "icon": "mdi:format-header-1",
   "minSize": {
     "w": 2,
@@ -25,7 +25,35 @@
       "access": "control"
     },
     {
+      "domain": "cover",
+      "access": "control"
+    },
+    {
+      "domain": "switch",
+      "access": "control"
+    },
+    {
+      "domain": "fan",
+      "access": "control"
+    },
+    {
+      "domain": "scene",
+      "access": "control"
+    },
+    {
+      "domain": "script",
+      "access": "control"
+    },
+    {
+      "domain": "sensor",
+      "access": "read"
+    },
+    {
       "domain": "weather",
+      "access": "read"
+    },
+    {
+      "domain": "sun",
       "access": "read"
     }
   ],
@@ -44,36 +72,191 @@
         "formType": "icon-picker",
         "title": "Icon"
       },
-      "parts": {
-        "default": [
-          "clock",
-          "weather",
-          "status"
-        ],
-        "title": "Show",
-        "labels": {
-          "clock": "Clock",
-          "weather": "Weather",
-          "status": "Lights and locks"
-        },
+      "items": {
+        "default": [],
+        "formType": "list",
+        "title": "Items",
+        "description": "Shown right to left; the last ones drop on a narrow screen",
+        "labelField": "label",
+        "maxItems": 6,
         "type": "array",
         "items": {
-          "type": "string",
-          "enum": [
-            "clock",
-            "weather",
-            "status"
+          "default": {
+            "domain": "light",
+            "scope": "dashboard",
+            "kind": "status"
+          },
+          "formType": "variants",
+          "discriminator": "kind",
+          "title": "Kind",
+          "labels": {
+            "status": "What is on",
+            "entity": "An entity",
+            "action": "Quick action",
+            "clock": "Time"
+          },
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "domain": {
+                  "default": "light",
+                  "title": "What to watch",
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "lock",
+                    "cover",
+                    "switch",
+                    "fan"
+                  ]
+                },
+                "scope": {
+                  "default": "dashboard",
+                  "title": "Where",
+                  "type": "string",
+                  "enum": [
+                    "dashboard",
+                    "home",
+                    "area"
+                  ]
+                },
+                "areaId": {
+                  "formType": "area-picker",
+                  "title": "Area",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "status"
+                }
+              },
+              "required": [
+                "domain",
+                "scope",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "entityId": {
+                  "default": [],
+                  "domain": "sensor",
+                  "title": "Entity",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "entity"
+                }
+              },
+              "required": [
+                "entityId",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "entityId": {
+                  "default": [],
+                  "domain": "scene",
+                  "title": "Scene, script or button",
+                  "singleSelect": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "action"
+                }
+              },
+              "required": [
+                "entityId",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string",
+                  "formType": "icon-picker",
+                  "title": "Icon"
+                },
+                "timeFormat": {
+                  "default": "24",
+                  "title": "Time format",
+                  "type": "string",
+                  "enum": [
+                    "12",
+                    "24"
+                  ]
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "clock"
+                }
+              },
+              "required": [
+                "timeFormat",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
           ]
         }
       },
-      "timeFormat": {
-        "default": "24",
-        "title": "Time format",
-        "type": "string",
-        "enum": [
-          "12",
-          "24"
-        ]
+      "sunEntity": {
+        "default": [],
+        "domain": "sun",
+        "title": "Sun entity",
+        "singleSelect": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
       },
       "weatherEntity": {
         "default": [],
@@ -84,40 +267,19 @@
         "items": {
           "type": "string"
         }
-      },
-      "scope": {
-        "default": "dashboard",
-        "title": "Status scope",
-        "type": "string",
-        "enum": [
-          "dashboard",
-          "home",
-          "area"
-        ]
-      },
-      "areaId": {
-        "formType": "area-picker",
-        "title": "Area",
-        "type": "string"
       }
     },
     "required": [
-      "parts",
-      "timeFormat",
-      "weatherEntity",
-      "scope"
+      "items",
+      "sunEntity",
+      "weatherEntity"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "parts": [
-      "clock",
-      "weather",
-      "status"
-    ],
-    "timeFormat": "24",
-    "weatherEntity": [],
-    "scope": "dashboard"
+    "items": [],
+    "sunEntity": [],
+    "weatherEntity": []
   },
   "examples": [
     {
@@ -127,14 +289,30 @@
         "h": 1
       },
       "config": {
-        "parts": [
-          "clock",
-          "weather",
-          "status"
+        "items": [
+          {
+            "kind": "status",
+            "domain": "light",
+            "scope": "dashboard",
+            "label": "",
+            "icon": ""
+          },
+          {
+            "kind": "status",
+            "domain": "lock",
+            "scope": "dashboard",
+            "label": "",
+            "icon": ""
+          },
+          {
+            "kind": "clock",
+            "timeFormat": "24",
+            "label": "",
+            "icon": ""
+          }
         ],
-        "timeFormat": "24",
-        "weatherEntity": [],
-        "scope": "dashboard"
+        "sunEntity": [],
+        "weatherEntity": []
       }
     },
     {
@@ -146,10 +324,9 @@
       "config": {
         "title": "Upstairs",
         "icon": "mdi:stairs-up",
-        "parts": [],
-        "timeFormat": "24",
-        "weatherEntity": [],
-        "scope": "dashboard"
+        "items": [],
+        "sunEntity": [],
+        "weatherEntity": []
       }
     }
   ]
