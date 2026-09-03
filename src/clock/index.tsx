@@ -239,6 +239,56 @@ function ClockWidget(props: { config: ClockConfig }) {
     );
   };
 
+  // One grid row is too short for the stacked face; time left, meta right.
+  const BannerFace = () => (
+    <div class="flex items-center justify-center gap-3 leading-none">
+      <div
+        class="font-bold text-3xl text-foreground tabular-nums"
+        style={{
+          "font-family": digital().fontFamily,
+          "font-weight": digital().fontWeight,
+          "letter-spacing": digital().letterSpacing,
+          ...glowStyle(),
+        }}
+      >
+        {timeParts().hours}
+        <span class="mx-0.5">:</span>
+        {timeParts().minutes}
+        <Show when={timeParts().period}>
+          <span class="ml-1 font-medium text-foreground text-xs opacity-50">{timeParts().period}</span>
+        </Show>
+      </div>
+      <Show when={cfg().greeting || cfg().showDate}>
+        <div class="flex flex-col gap-1">
+          <Show when={cfg().greeting}>
+            <span class="font-medium text-[11px] text-foreground/70">{greeting()}</span>
+          </Show>
+          <Show when={cfg().showDate}>
+            <span class="text-[11px] text-foreground/50">{formattedDate()}</span>
+          </Show>
+        </div>
+      </Show>
+    </div>
+  );
+
+  const DigitalFace = () => {
+    const dimensions = useWidgetDimensions();
+    const short = createMemo(() => {
+      const h = dimensions().height;
+      return h > 0 && h < 96;
+    });
+    return (
+      <Show when={!short()} fallback={<BannerFace />}>
+        <DigitalTime />
+        <Show when={cfg().showDate || cfg().greeting}>
+          <div class="@[200px]:mt-3 mt-2">
+            <DateBlock />
+          </div>
+        </Show>
+      </Show>
+    );
+  };
+
   // Draft update helper
   const updateDraft = <K extends keyof ClockConfig>(key: K, value: ClockConfig[K]) => {
     setDraftConfig((prev) => ({ ...prev, [key]: value }));
@@ -294,10 +344,10 @@ function ClockWidget(props: { config: ClockConfig }) {
                   />
                 }
               >
-                <DigitalTime />
+                <DigitalFace />
               </Show>
 
-              <Show when={cfg().showDate || cfg().greeting}>
+              <Show when={cfg().clockStyle === "analog" && (cfg().showDate || cfg().greeting)}>
                 <div class="@[200px]:mt-3 mt-2">
                   <DateBlock />
                 </div>
