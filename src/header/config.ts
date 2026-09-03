@@ -3,6 +3,11 @@ import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
 export const configSchema = defineConfig({
   title: field.text({ title: "Title", description: "Empty shows the dashboard's name" }),
   icon: field.icon({ title: "Icon", description: "Empty shows the dashboard's icon" }),
+  greeting: field.toggle({
+    title: "Greeting",
+    description: "A line under the name that follows the time of day",
+    default: true,
+  }),
   where: field.variants(
     "scope",
     {

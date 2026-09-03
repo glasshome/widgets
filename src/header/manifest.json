@@ -64,6 +64,12 @@
         "formType": "icon-picker",
         "title": "Icon"
       },
+      "greeting": {
+        "default": true,
+        "title": "Greeting",
+        "description": "A line under the name that follows the time of day",
+        "type": "boolean"
+      },
       "where": {
         "default": {
           "scope": "dashboard"
@@ -317,12 +323,14 @@
       }
     },
     "required": [
+      "greeting",
       "where",
       "chips"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
+    "greeting": true,
     "where": {
       "scope": "dashboard"
     },
@@ -336,6 +344,7 @@
         "h": 1
       },
       "config": {
+        "greeting": true,
         "where": {
           "scope": "dashboard"
         },
@@ -360,6 +369,7 @@
       "config": {
         "title": "Upstairs",
         "icon": "mdi:stairs-up",
+        "greeting": false,
         "where": {
           "scope": "dashboard"
         },
