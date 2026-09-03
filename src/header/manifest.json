@@ -1,0 +1,156 @@
+{
+  "name": "Header",
+  "description": "Your dashboard's name with the time, the weather and what is on, or a title for a section of the grid",
+  "icon": "mdi:format-header-1",
+  "minSize": {
+    "w": 2,
+    "h": 1
+  },
+  "maxSize": {
+    "w": 12,
+    "h": 1
+  },
+  "defaultSize": {
+    "w": 6,
+    "h": 1
+  },
+  "sdkVersion": "^1.14.1",
+  "capabilities": [
+    {
+      "domain": "light",
+      "access": "control"
+    },
+    {
+      "domain": "lock",
+      "access": "control"
+    },
+    {
+      "domain": "weather",
+      "access": "read"
+    }
+  ],
+  "version": "0.1.0",
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "title": "Title",
+        "description": "Empty shows the dashboard's name",
+        "type": "string"
+      },
+      "icon": {
+        "type": "string",
+        "formType": "icon-picker",
+        "title": "Icon"
+      },
+      "parts": {
+        "default": [
+          "clock",
+          "weather",
+          "status"
+        ],
+        "title": "Show",
+        "labels": {
+          "clock": "Clock",
+          "weather": "Weather",
+          "status": "Lights and locks"
+        },
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "clock",
+            "weather",
+            "status"
+          ]
+        }
+      },
+      "timeFormat": {
+        "default": "24",
+        "title": "Time format",
+        "type": "string",
+        "enum": [
+          "12",
+          "24"
+        ]
+      },
+      "weatherEntity": {
+        "default": [],
+        "domain": "weather",
+        "title": "Weather entity",
+        "singleSelect": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "scope": {
+        "default": "dashboard",
+        "title": "Status scope",
+        "type": "string",
+        "enum": [
+          "dashboard",
+          "home",
+          "area"
+        ]
+      },
+      "areaId": {
+        "formType": "area-picker",
+        "title": "Area",
+        "type": "string"
+      }
+    },
+    "required": [
+      "parts",
+      "timeFormat",
+      "weatherEntity",
+      "scope"
+    ],
+    "additionalProperties": false
+  },
+  "defaultConfig": {
+    "parts": [
+      "clock",
+      "weather",
+      "status"
+    ],
+    "timeFormat": "24",
+    "weatherEntity": [],
+    "scope": "dashboard"
+  },
+  "examples": [
+    {
+      "label": "Dashboard header",
+      "size": {
+        "w": 6,
+        "h": 1
+      },
+      "config": {
+        "parts": [
+          "clock",
+          "weather",
+          "status"
+        ],
+        "timeFormat": "24",
+        "weatherEntity": [],
+        "scope": "dashboard"
+      }
+    },
+    {
+      "label": "Section title",
+      "size": {
+        "w": 3,
+        "h": 1
+      },
+      "config": {
+        "title": "Upstairs",
+        "icon": "mdi:stairs-up",
+        "parts": [],
+        "timeFormat": "24",
+        "weatherEntity": [],
+        "scope": "dashboard"
+      }
+    }
+  ]
+}

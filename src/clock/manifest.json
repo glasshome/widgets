@@ -75,11 +75,6 @@
         "title": "Show Date",
         "type": "boolean"
       },
-      "greeting": {
-        "default": false,
-        "title": "Greeting",
-        "type": "boolean"
-      },
       "dateFormat": {
         "default": "MM/DD/YYYY",
         "title": "Date Format",
@@ -149,7 +144,6 @@
       "timeFormat",
       "preset",
       "showDate",
-      "greeting",
       "dateFormat",
       "fontSize",
       "layout",
@@ -164,7 +158,6 @@
     "timeFormat": "24",
     "preset": "modern",
     "showDate": false,
-    "greeting": false,
     "dateFormat": "MM/DD/YYYY",
     "fontSize": "medium",
     "layout": "auto",
@@ -187,30 +180,6 @@
         "timeFormat": "24",
         "preset": "modern",
         "showDate": true,
-        "greeting": false,
-        "dateFormat": "DD/MM/YYYY",
-        "fontSize": "medium",
-        "layout": "auto",
-        "analogOptions": {
-          "border": false,
-          "ticks": "hour"
-        }
-      }
-    },
-    {
-      "label": "Header",
-      "size": {
-        "w": 2,
-        "h": 1
-      },
-      "config": {
-        "clockStyle": "digital",
-        "clockSize": "medium",
-        "showSeconds": false,
-        "timeFormat": "24",
-        "preset": "modern",
-        "showDate": true,
-        "greeting": true,
         "dateFormat": "DD/MM/YYYY",
         "fontSize": "medium",
         "layout": "auto",
@@ -233,7 +202,6 @@
         "timeFormat": "24",
         "preset": "classic",
         "showDate": false,
-        "greeting": false,
         "dateFormat": "DD/MM/YYYY",
         "fontSize": "medium",
         "layout": "auto",
@@ -256,7 +224,6 @@
         "timeFormat": "24",
         "preset": "bold",
         "showDate": true,
-        "greeting": false,
         "dateFormat": "DD/MM/YYYY",
         "fontSize": "large",
         "layout": "stacked",
@@ -266,6 +233,5 @@
         }
       }
     }
-  ],
-  "configVersion": 1
+  ]
 }

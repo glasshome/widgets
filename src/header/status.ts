@@ -3,6 +3,8 @@ export interface ChipSpec {
   domain: "light" | "lock";
   activeState: string;
   icon: string;
+  tone: string;
+  stateWord: string;
   actionLabel: string;
   service: { domain: string; name: string };
 }
@@ -13,6 +15,8 @@ export const CHIPS: Record<"lights" | "locks", ChipSpec> = {
     domain: "light",
     activeState: "on",
     icon: "mdi:lightbulb-on",
+    tone: "text-warning",
+    stateWord: "on",
     actionLabel: "Turn off lights",
     service: { domain: "light", name: "turn_off" },
   },
@@ -21,6 +25,8 @@ export const CHIPS: Record<"lights" | "locks", ChipSpec> = {
     domain: "lock",
     activeState: "unlocked",
     icon: "lucide:unlock",
+    tone: "text-destructive/80",
+    stateWord: "unlocked",
     actionLabel: "Lock doors",
     service: { domain: "lock", name: "lock" },
   },
