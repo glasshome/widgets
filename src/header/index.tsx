@@ -12,12 +12,17 @@ import {
   useService,
   useStore,
   useTemperatureUnit,
+  useWidgetContext,
   useWidgetDashboard,
+  useWidgetDialog,
   useWidgetDimensions,
+  useWidgetGestures,
   Widget,
+  WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { widgetDialogProps } from "../common";
 import { formatTemp, getWeatherIcon } from "../weather/utils";
 import { greetingForHour, hourIn } from "./greeting";
 import { activeIds, CHIPS, type ChipSpec, needsArea } from "./status";
@@ -41,8 +46,12 @@ const MIN_WIDTH = { status: 300, clock: 460, weather: 620 } as const;
 const DEFAULT_WEATHER = "weather.home";
 
 function HeaderWidget(props: { config: HeaderConfig }) {
+  const ctx = useWidgetContext();
   const dashboard = useWidgetDashboard();
   const { callService } = useService();
+  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
+  onCleanup(gestures.dispose);
 
   const [now, setNow] = createSignal(new Date());
   onMount(() => {
@@ -146,17 +155,31 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   };
 
   return (
-    <Widget variant="classic-glass">
-      <div class="flex h-full min-w-0 items-center gap-3 px-4">
+    <>
+      <Widget gestures={gestures} variant="classic-glass">
+        <div class="flex h-full min-w-0 items-center gap-3 px-4">
         <SectionIcon size="sm">
           <Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />
         </SectionIcon>
         <SectionTitle class="min-w-0 flex-1 truncate">
           {props.config.title || dashboard().name || "Dashboard"}
         </SectionTitle>
-        <Parts />
-      </div>
-    </Widget>
+          <Parts />
+        </div>
+      </Widget>
+      <WidgetDialog
+        {...widgetDialogProps}
+        {...dialogProps}
+        title="Header"
+        maxWidth="lg"
+        configSchema={configSchema}
+        config={props.config}
+        onConfigSave={(config) => {
+          ctx.updateConfig(config);
+          setShowDialog(false);
+        }}
+      />
+    </>
   );
 }
 
