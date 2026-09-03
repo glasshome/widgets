@@ -26,7 +26,6 @@ import {
   getDayOfWeek,
   getDefaultConfig,
   getTimeParts,
-  greetingForHour,
 } from "./utils";
 
 function ClockWidget(props: { config: ClockConfig }) {
@@ -54,15 +53,6 @@ function ClockWidget(props: { config: ClockConfig }) {
     formatDate(currentTime(), cfg().dateFormat, cfg().timeZone),
   );
   const dayOfWeek = createMemo(() => getDayOfWeek(currentTime(), cfg().timeZone));
-  const greeting = createMemo(() => {
-    const tz = cfg().timeZone;
-    const hour = Number(
-      new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, ...(tz && { timeZone: tz }) })
-        .formatToParts(currentTime())
-        .find((p) => p.type === "hour")?.value ?? "0",
-    );
-    return greetingForHour(hour % 24);
-  });
 
   // Live minute-progress: drives the sweeping bottom bar (digital only).
   const secondsNum = createMemo(() => Number.parseInt(timeParts().seconds, 10) || 0);
@@ -258,12 +248,9 @@ function ClockWidget(props: { config: ClockConfig }) {
           <span class="ml-1 font-medium text-foreground text-xs opacity-50">{timeParts().period}</span>
         </Show>
       </div>
-      <Show when={cfg().greeting || cfg().showDate}>
+      <Show when={cfg().showDate}>
         <div class="flex flex-col gap-1">
-          <Show when={cfg().greeting}>
-            <span class="font-medium text-[11px] text-foreground/70">{greeting()}</span>
-          </Show>
-          <Show when={cfg().showDate}>
+              <Show when={cfg().showDate}>
             <span class="text-[11px] text-foreground/50">{formattedDate()}</span>
           </Show>
         </div>
@@ -280,7 +267,7 @@ function ClockWidget(props: { config: ClockConfig }) {
     return (
       <Show when={!short()} fallback={<BannerFace />}>
         <DigitalTime />
-        <Show when={cfg().showDate || cfg().greeting}>
+        <Show when={cfg().showDate}>
           <div class="@[200px]:mt-3 mt-2">
             <DateBlock />
           </div>
@@ -297,9 +284,6 @@ function ClockWidget(props: { config: ClockConfig }) {
   // Day + date. Uniform foreground palette across all three faces.
   const DateBlock = () => (
     <div class="flex flex-col items-center @[200px]:gap-1 gap-0.5">
-      <Show when={cfg().greeting}>
-        <span class={`font-medium text-foreground/60 ${dayClasses()}`}>{greeting()}</span>
-      </Show>
       <Show when={cfg().showDate}>
         <span class={`font-medium text-foreground/60 ${dayClasses()}`}>{dayOfWeek()}</span>
         <span class={`text-foreground opacity-50 ${dateClasses()}`}>{formattedDate()}</span>
@@ -321,7 +305,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               analogOptions={cfg().analogOptions}
               presetTheme={presetTheme().analog}
             />
-            <Show when={cfg().showDate || cfg().greeting}>
+            <Show when={cfg().showDate}>
               <div class="pointer-events-none absolute inset-x-0 top-[58%] flex justify-center">
                 <DateBlock />
               </div>
@@ -347,7 +331,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 <DigitalFace />
               </Show>
 
-              <Show when={cfg().clockStyle === "analog" && (cfg().showDate || cfg().greeting)}>
+              <Show when={cfg().clockStyle === "analog" && (cfg().showDate)}>
                 <div class="@[200px]:mt-3 mt-2">
                   <DateBlock />
                 </div>
@@ -592,14 +576,6 @@ function ClockWidget(props: { config: ClockConfig }) {
               />
             </div>
 
-            <div class="flex items-center justify-between">
-              <Label>Greeting</Label>
-              <Switch
-                checked={draftConfig().greeting}
-                onChange={(checked) => updateDraft("greeting", checked)}
-              />
-            </div>
-
             {/* Date Format */}
             <Show when={draftConfig().showDate}>
               <div class="flex flex-col gap-1.5">
@@ -729,7 +705,6 @@ export default defineWidget<ClockConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
-    configVersion: 1,
     examples: [
       {
         label: "Digital",
@@ -741,24 +716,6 @@ export default defineWidget<ClockConfig>({
           timeFormat: "24",
           preset: "modern",
           showDate: true,
-          greeting: false,
-          dateFormat: "DD/MM/YYYY",
-          fontSize: "medium",
-          layout: "auto",
-          analogOptions: { border: false, ticks: "hour" },
-        },
-      },
-      {
-        label: "Header",
-        size: { w: 2, h: 1 },
-        config: {
-          clockStyle: "digital",
-          clockSize: "medium",
-          showSeconds: false,
-          timeFormat: "24",
-          preset: "modern",
-          showDate: true,
-          greeting: true,
           dateFormat: "DD/MM/YYYY",
           fontSize: "medium",
           layout: "auto",
@@ -775,7 +732,6 @@ export default defineWidget<ClockConfig>({
           timeFormat: "24",
           preset: "classic",
           showDate: false,
-          greeting: false,
           dateFormat: "DD/MM/YYYY",
           fontSize: "medium",
           layout: "auto",
@@ -792,7 +748,6 @@ export default defineWidget<ClockConfig>({
           timeFormat: "24",
           preset: "bold",
           showDate: true,
-          greeting: false,
           dateFormat: "DD/MM/YYYY",
           fontSize: "large",
           layout: "stacked",
