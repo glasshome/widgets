@@ -27,7 +27,6 @@ export const configSchema = defineConfig({
         watch: {
           domain: field.choice(["light", "lock", "cover", "switch", "fan"], {
             title: "What to count",
-            description: "Counts the ones that are on or open, and taps to put them back",
             default: "light",
             labels: {
               light: "Lights",
@@ -42,15 +41,13 @@ export const configSchema = defineConfig({
         action: { entityId: field.entity("scene", { title: "What to run" }) },
       },
       {
-        title: "Shows",
-        description:
-          "Counts what is on and taps to turn it off, shows one entity's value, or runs a scene",
-        labels: { watch: "What is on", entity: "Entity", action: "Action" },
+        title: "Kind",
+        labels: { watch: "Count", entity: "Value", action: "Action" },
       },
     ),
     {
       title: "Chips",
-      description: "Right to left. A chip with nothing to report stays hidden, and the last ones drop on a narrow screen.",
+      description: "Right to left. A chip with nothing to report hides itself.",
       max: 6,
     },
   ),
