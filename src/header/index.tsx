@@ -30,8 +30,9 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   onCleanup(gestures.dispose);
 
   const areaId = createMemo(() => {
-    if (props.config.scope === "area") return props.config.areaId ?? "";
-    if (props.config.scope === "dashboard") return dashboard().areaId ?? "";
+    const where = props.config.where;
+    if (where.scope === "area") return where.areaId ?? "";
+    if (where.scope === "dashboard") return dashboard().areaId ?? "";
     return "";
   });
   const area = useArea(areaId);
@@ -61,7 +62,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   };
 
   const chips = createMemo(() => {
-    if (needsArea(props.config)) return [];
+    if (needsArea(props.config.where)) return [];
     return props.config.chips.flatMap((chip) => {
       const r = resolveChip(chip as never, snapshot(chip));
       return r ? [r] : [];
@@ -152,8 +153,8 @@ export default defineWidget<HeaderConfig>({
       { domain: "sensor", access: "read" },
     ],
     examples: [
-      { label: "Dashboard header", size: { w: 6, h: 1 }, config: { scope: "dashboard", chips: DEFAULT_CHIPS } },
-      { label: "Section title", size: { w: 3, h: 1 }, config: { title: "Upstairs", icon: "mdi:stairs-up", scope: "dashboard", chips: [] } },
+      { label: "Dashboard header", size: { w: 6, h: 1 }, config: { where: { scope: "dashboard" }, chips: DEFAULT_CHIPS } },
+      { label: "Section title", size: { w: 3, h: 1 }, config: { title: "Upstairs", icon: "mdi:stairs-up", where: { scope: "dashboard" }, chips: [] } },
     ],
   },
   configSchema,

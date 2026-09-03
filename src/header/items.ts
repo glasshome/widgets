@@ -137,6 +137,6 @@ export function visibleCount(width: number, total: number): number {
 
 /** "Somewhere specific" with nowhere chosen: show nothing rather than the
  *  whole home, which is a different answer. */
-export function needsArea(config: { scope: string; areaId?: string }): boolean {
-  return config.scope === "area" && !config.areaId;
+export function needsArea(where: { scope: string; areaId?: string }): boolean {
+  return where.scope === "area" && !where.areaId;
 }

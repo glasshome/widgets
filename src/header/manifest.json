@@ -64,26 +64,71 @@
         "formType": "icon-picker",
         "title": "Icon"
       },
-      "scope": {
-        "default": "dashboard",
-        "title": "Where",
-        "type": "string",
-        "enum": [
-          "dashboard",
-          "home",
-          "area"
+      "where": {
+        "default": {
+          "scope": "dashboard"
+        },
+        "formType": "variants",
+        "discriminator": "scope",
+        "title": "Where the chips look",
+        "description": "Which entities a chip counts",
+        "labels": {
+          "dashboard": "This dashboard's area",
+          "home": "The whole home",
+          "area": "Somewhere specific"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "scope": {
+                "type": "string",
+                "const": "dashboard"
+              }
+            },
+            "required": [
+              "scope"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scope": {
+                "type": "string",
+                "const": "home"
+              }
+            },
+            "required": [
+              "scope"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "areaId": {
+                "formType": "area-picker",
+                "title": "Which area",
+                "type": "string"
+              },
+              "scope": {
+                "type": "string",
+                "const": "area"
+              }
+            },
+            "required": [
+              "scope"
+            ],
+            "additionalProperties": false
+          }
         ]
-      },
-      "areaId": {
-        "formType": "area-picker",
-        "title": "Area",
-        "type": "string"
       },
       "chips": {
         "default": [],
         "formType": "list",
         "title": "Chips",
-        "description": "Right to left; the last ones drop on a narrow screen",
+        "description": "Right to left. A chip with nothing to report stays hidden, and the last ones drop on a narrow screen.",
         "maxItems": 6,
         "type": "array",
         "items": {
@@ -95,9 +140,9 @@
           "discriminator": "shows",
           "title": "Shows",
           "labels": {
-            "watch": "What is on",
-            "entity": "An entity",
-            "action": "Runs something"
+            "watch": "How many are on, tap to turn them off",
+            "entity": "One entity's value",
+            "action": "A scene or script to run"
           },
           "oneOf": [
             {
@@ -105,7 +150,7 @@
               "properties": {
                 "domain": {
                   "default": "light",
-                  "title": "What",
+                  "title": "What to count",
                   "type": "string",
                   "enum": [
                     "light",
@@ -132,7 +177,7 @@
                 "entityId": {
                   "default": [],
                   "domain": "sensor",
-                  "title": "Entity",
+                  "title": "Which entity",
                   "singleSelect": true,
                   "type": "array",
                   "items": {
@@ -156,7 +201,7 @@
                 "entityId": {
                   "default": [],
                   "domain": "scene",
-                  "title": "Scene or script",
+                  "title": "What to run",
                   "singleSelect": true,
                   "type": "array",
                   "items": {
@@ -179,13 +224,15 @@
       }
     },
     "required": [
-      "scope",
+      "where",
       "chips"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "scope": "dashboard",
+    "where": {
+      "scope": "dashboard"
+    },
     "chips": []
   },
   "examples": [
@@ -196,7 +243,9 @@
         "h": 1
       },
       "config": {
-        "scope": "dashboard",
+        "where": {
+          "scope": "dashboard"
+        },
         "chips": [
           {
             "shows": "watch",
@@ -218,7 +267,9 @@
       "config": {
         "title": "Upstairs",
         "icon": "mdi:stairs-up",
-        "scope": "dashboard",
+        "where": {
+          "scope": "dashboard"
+        },
         "chips": []
       }
     }
