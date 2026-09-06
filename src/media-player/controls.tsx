@@ -12,7 +12,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import type { Accessor } from "solid-js";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, on, onCleanup, Show } from "solid-js";
 import { calculateFeatures, calculateProgress, formatDuration } from "./utils";
 
 interface MediaPlayerControlsProps {
@@ -30,13 +30,20 @@ export function MediaPlayerControls(props: MediaPlayerControlsProps) {
 
   const isPlaying = () => props.entity()?.state === "playing";
 
-  // Progress tracking with 1-second updates
-  const [progress, setProgress] = createSignal(0);
-  const progressInterval = setInterval(() => {
+  // The position only moves while playing; a paused player keeps no timer.
+  const [tick, setTick] = createSignal(0);
+  createEffect(
+    on(isPlaying, (playing) => {
+      if (!playing) return;
+      const id = setInterval(() => setTick((t) => t + 1), 1000);
+      onCleanup(() => clearInterval(id));
+    }),
+  );
+  const progress = createMemo(() => {
+    tick();
     const e = props.entity();
-    if (e) setProgress(calculateProgress(e));
-  }, 1000);
-  onCleanup(() => clearInterval(progressInterval));
+    return e ? calculateProgress(e) : 0;
+  });
 
   const duration = createMemo(() => {
     const e = props.entity();
