@@ -298,11 +298,11 @@ function ClockWidget(props: { config: ClockConfig }) {
             />
           </Show>
 
-          {/* Live minute-progress bar — sweeps each minute, snaps on the wrap */}
+          {/* Minute-progress bar: sweeps while the host's motion window is open, steps once a second after */}
           <Show when={cfg().clockStyle === "digital"}>
             <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
               <div
-                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? "snap" : ""}`}
+                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? " snap" : ""}`}
                 style={{
                   transform: `scaleX(${secondsProgress() / 100})`,
                   background: `linear-gradient(90deg, transparent, ${barColor()})`,
@@ -312,7 +312,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           </Show>
 
           <style>{`
-            .clock-seconds-fill { width: 100%; transition: transform 1000ms linear; will-change: transform; }
+            .clock-seconds-fill { width: 100%; transition: transform calc(var(--motion-ambient, 0) * 1000ms) linear; }
             .clock-seconds-fill.snap { transition: none; }
             @media (prefers-reduced-motion: reduce) {
               .clock-seconds-fill { transition: none; }
