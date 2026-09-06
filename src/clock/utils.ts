@@ -87,7 +87,6 @@ export function getClockGradient(preset?: ClockPreset): string {
   return CLOCK_GRADIENTS[preset ?? "modern"];
 }
 
-
 export function getDefaultConfig(): ClockConfig {
   return {
     clockStyle: "digital",

@@ -245,12 +245,14 @@ function ClockWidget(props: { config: ClockConfig }) {
         <span class="mx-0.5">:</span>
         {timeParts().minutes}
         <Show when={timeParts().period}>
-          <span class="ml-1 font-medium text-foreground text-xs opacity-50">{timeParts().period}</span>
+          <span class="ml-1 font-medium text-foreground text-xs opacity-50">
+            {timeParts().period}
+          </span>
         </Show>
       </div>
       <Show when={cfg().showDate}>
         <div class="flex flex-col gap-1">
-              <Show when={cfg().showDate}>
+          <Show when={cfg().showDate}>
             <span class="text-[11px] text-foreground/50">{formattedDate()}</span>
           </Show>
         </div>
@@ -331,7 +333,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 <DigitalFace />
               </Show>
 
-              <Show when={cfg().clockStyle === "analog" && (cfg().showDate)}>
+              <Show when={cfg().clockStyle === "analog" && cfg().showDate}>
                 <div class="@[200px]:mt-3 mt-2">
                   <DateBlock />
                 </div>

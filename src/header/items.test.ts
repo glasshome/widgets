@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { DOMAIN_SPECS, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 
+const hallOff = { id: "light.hall", state: "off", name: "Hall light" };
 const entities = [
   { id: "light.kitchen", state: "on", name: "Kitchen light" },
-  { id: "light.hall", state: "off", name: "Hall light" },
+  hallOff,
   { id: "lock.front", state: "unlocked", name: "Front door" },
   { id: "sensor.power", state: "412", name: "Power", unit: "W", icon: "mdi:flash" },
 ];
@@ -18,20 +19,18 @@ describe("resolveChip", () => {
   });
 
   test("a counting chip with nothing on shows nothing at all", () => {
-    expect(resolveChip({ shows: "lights" }, [entities[1]!])).toBeNull();
+    expect(resolveChip({ shows: "lights" }, [hallOff])).toBeNull();
   });
 
   test("only these counts just the entities named, ignoring the rest", () => {
-    const two = [
-      { id: "light.kitchen", state: "on" },
-      { id: "light.hall", state: "on" },
-    ];
+    const kitchenOn = { id: "light.kitchen", state: "on" };
+    const two = [kitchenOn, { id: "light.hall", state: "on" }];
     expect(resolveChip({ shows: "lights", only: ["light.kitchen"] }, two)).toMatchObject({
       value: "1",
       ids: ["light.kitchen"],
     });
     expect(resolveChip({ shows: "lights", only: [] }, two)).toMatchObject({ value: "2" });
-    expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [two[0]!])).toBeNull();
+    expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [kitchenOn])).toBeNull();
   });
 
   test("every counting kind names a real domain", () => {

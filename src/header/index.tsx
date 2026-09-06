@@ -11,8 +11,8 @@ import {
   useWidgetDashboard,
   useWidgetDialog,
   useWidgetDimensions,
-  useWidgetViewer,
   useWidgetGestures,
+  useWidgetViewer,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
@@ -89,7 +89,9 @@ function HeaderWidget(props: { config: HeaderConfig }) {
 
   const Chips = () => {
     const dimensions = useWidgetDimensions();
-    const shown = createMemo(() => chips().slice(0, visibleCount(dimensions().width, chips().length)));
+    const shown = createMemo(() =>
+      chips().slice(0, visibleCount(dimensions().width, chips().length)),
+    );
     return (
       <div class="flex shrink-0 items-center gap-1.5">
         <For each={shown()}>
@@ -103,12 +105,19 @@ function HeaderWidget(props: { config: HeaderConfig }) {
               aria-label={chip.label}
               onClick={() => {
                 if (chip.service)
-                  void callService(chip.service.domain, chip.service.name, {}, { entity_id: chip.ids });
+                  void callService(
+                    chip.service.domain,
+                    chip.service.name,
+                    {},
+                    { entity_id: chip.ids },
+                  );
               }}
             >
               <Icon icon={chip.icon} width={16} height={16} class={chip.tone} />
               <Show when={chip.value}>
-                <span class="font-semibold text-[15px] text-foreground tabular-nums">{chip.value}</span>
+                <span class="font-semibold text-[15px] text-foreground tabular-nums">
+                  {chip.value}
+                </span>
               </Show>
             </Button>
           )}
@@ -177,8 +186,22 @@ export default defineWidget<HeaderConfig>({
       { domain: "sensor", access: "read" },
     ],
     examples: [
-      { label: "Dashboard header", size: { w: 6, h: 1 }, config: { greeting: true, where: { scope: "dashboard" }, chips: DEFAULT_CHIPS } },
-      { label: "Section title", size: { w: 3, h: 1 }, config: { title: "Upstairs", icon: "mdi:stairs-up", greeting: false, where: { scope: "dashboard" }, chips: [] } },
+      {
+        label: "Dashboard header",
+        size: { w: 6, h: 1 },
+        config: { greeting: true, where: { scope: "dashboard" }, chips: DEFAULT_CHIPS },
+      },
+      {
+        label: "Section title",
+        size: { w: 3, h: 1 },
+        config: {
+          title: "Upstairs",
+          icon: "mdi:stairs-up",
+          greeting: false,
+          where: { scope: "dashboard" },
+          chips: [],
+        },
+      },
     ],
   },
   configSchema,
