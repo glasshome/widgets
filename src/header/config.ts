@@ -39,7 +39,15 @@ export const configSchema = defineConfig({
       },
       {
         title: "Kind",
-        labels: { lights: "Lights", locks: "Locks", covers: "Covers", switches: "Switches", fans: "Fans", value: "Value", action: "Action" },
+        labels: {
+          lights: "Lights",
+          locks: "Locks",
+          covers: "Covers",
+          switches: "Switches",
+          fans: "Fans",
+          value: "Value",
+          action: "Action",
+        },
       },
     ),
     {
