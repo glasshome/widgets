@@ -62,7 +62,8 @@
       "icon": {
         "type": "string",
         "formType": "icon-picker",
-        "title": "Icon"
+        "title": "Icon",
+        "description": "Empty shows the dashboard's icon"
       },
       "greeting": {
         "default": true,
