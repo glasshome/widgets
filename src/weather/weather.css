@@ -21,3 +21,8 @@
     padding-bottom: 0;
   }
 }
+
+/* The scenes set `animation` inline, and the shorthand resets play-state, hence !important. */
+.weather-scene * {
+  animation-play-state: var(--motion-play, running) !important;
+}
