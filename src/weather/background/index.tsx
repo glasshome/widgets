@@ -22,7 +22,7 @@ interface WeatherBackgroundProps {
 export function WeatherBackground(props: WeatherBackgroundProps) {
   return (
     <div
-      class="absolute inset-0 overflow-hidden rounded-[inherit]"
+      class="weather-scene absolute inset-0 overflow-hidden rounded-[inherit]"
       style={{ "container-type": "size" }}
     >
       <Switch fallback={<CloudyScene />}>
