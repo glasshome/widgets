@@ -2,6 +2,7 @@ import {
   Button,
   byDomain,
   defineWidget,
+  Icon,
   SectionIcon,
   SectionTitle,
   useArea,
@@ -16,7 +17,6 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
