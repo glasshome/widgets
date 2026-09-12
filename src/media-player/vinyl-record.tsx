@@ -13,7 +13,7 @@ export function VinylRecord(props: VinylRecordProps) {
         background:
           "repeating-radial-gradient(circle, #1a1a1a 0px, #1a1a1a 2px, #222 3px, #1a1a1a 4px)",
         animation: "vinyl-spin 3s linear infinite",
-        "animation-play-state": props.isPlaying ? "running" : "paused",
+        "animation-play-state": props.isPlaying ? "var(--motion-play, running)" : "paused",
       }}
     >
       {/* Album art center */}
