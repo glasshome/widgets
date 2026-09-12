@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@glasshome/widget-cli": "0.13.2",
+    "@glasshome/widget-sdk": "1.15.0",
     "@iconify-json/lucide": "^1.2.0",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/simple-icons": "^1.2.0",
