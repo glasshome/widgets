@@ -157,7 +157,6 @@ function FanWidget(props: { config: FanConfig }) {
           <Show when={supportsSpeed()}>
             <WidgetSliderFill
               value={uiPercentage()}
-              color="var(--primary)"
               isDragging={isDragging()}
             />
           </Show>

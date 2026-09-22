@@ -154,7 +154,6 @@ function LightWidget(props: { config: LightConfig }) {
         <Show when={hasEntities()}>
           <WidgetSliderFill
             value={uiBrightness()}
-            color={displayColor()}
             isDragging={isDragging()}
           />
           <Widget.Content>
