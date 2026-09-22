@@ -1,4 +1,12 @@
-import { Badge, Button, ButtonGroup, Icon, SectionIcon, ToggleGroup, ToggleGroupItem } from "@glasshome/widget-sdk";
+import {
+  Badge,
+  Button,
+  ButtonGroup,
+  Icon,
+  SectionIcon,
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@glasshome/widget-sdk";
 import { For, type JSX, Show } from "solid-js";
 import "./tile.css";
 
@@ -38,7 +46,7 @@ export function TileHead(props: {
           <SectionIcon
             icon={icon()}
             tone={props.active ? "var(--widget-color)" : undefined}
-            class={`tile-icon ${INNER}`}
+            class="tile-icon"
           />
         )}
       </Show>
@@ -60,9 +68,10 @@ export function TileHero(props: {
   unit?: string;
   sub?: JSX.Element;
   art?: JSX.Element;
+  class?: string;
 }) {
   return (
-    <div class="tile-hero">
+    <div class={props.class ? `tile-hero ${props.class}` : "tile-hero"}>
       <div class="tile-reading">
         <span class="tile-value">
           {props.value}
@@ -89,16 +98,25 @@ export function TileControls(props: { children: JSX.Element }) {
   );
 }
 
-export function TileStepper(props: {
-  label: string;
-  onStep: (direction: -1 | 1) => void;
-}) {
+export function TileStepper(props: { label: string; onStep: (direction: -1 | 1) => void }) {
   return (
     <ButtonGroup aria-label={props.label} class="tile-stepper">
-      <Button variant="outline" size="icon" aria-label="Lower" class={`tile-control ${INNER}`} onClick={() => props.onStep(-1)}>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label="Lower"
+        class={`tile-control ${INNER}`}
+        onClick={() => props.onStep(-1)}
+      >
         <Icon icon="mdi:minus" width={18} />
       </Button>
-      <Button variant="outline" size="icon" aria-label="Raise" class={`tile-control ${INNER}`} onClick={() => props.onStep(1)}>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label="Raise"
+        class={`tile-control ${INNER}`}
+        onClick={() => props.onStep(1)}
+      >
         <Icon icon="mdi:plus" width={18} />
       </Button>
     </ButtonGroup>
@@ -107,6 +125,7 @@ export function TileStepper(props: {
 
 export function TileChoice(props: {
   label: string;
+  tone?: string;
   value: string;
   options: { value: string; icon: string; label: string }[];
   onChange: (value: string) => void;
@@ -114,6 +133,7 @@ export function TileChoice(props: {
   return (
     <ToggleGroup
       aria-label={props.label}
+      tone={props.tone}
       value={props.value}
       onChange={(v: string | null) => v && props.onChange(v)}
       class={`tile-choice ${INNER}`}

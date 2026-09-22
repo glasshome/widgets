@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -13,13 +12,14 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
   WidgetSliderFill,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
-import { formatTemperature, useSetpoints, widgetDialogProps } from "../common";
+import { formatTemperature, shiftBand, useSetpoints, widgetDialogProps } from "../common";
 import {
   Tile,
   TileChoice,
@@ -61,7 +61,15 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   const currentTemp = createMemo(
     () => entity()?.attributes?.current_temperature as number | undefined,
   );
-  const targetTemp = createMemo(() => entity()?.attributes?.temperature as number | undefined);
+  const stateSetpoints = createMemo(() => {
+    const a = entity()?.attributes;
+    const low = a?.target_temp_low as number | undefined;
+    const high = a?.target_temp_high as number | undefined;
+    if (low != null && high != null) return [low, high];
+    const t = a?.temperature as number | undefined;
+    return t == null ? [] : [t];
+  });
+  const isRange = () => stateSetpoints().length === 2;
   const hvacAction = createMemo(() => entity()?.attributes?.hvac_action as string | undefined);
   const temperatureUnit = useTemperatureUnit();
   const tempUnit = createMemo(() => {
@@ -82,31 +90,50 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   const minTemp = () => (entity()?.attributes?.min_temp as number | undefined) ?? 7;
   const maxTemp = () => (entity()?.attributes?.max_temp as number | undefined) ?? 35;
   const setpoints = useSetpoints({
-    stateValues: () => {
-      const t = targetTemp();
-      return t === undefined ? [] : [t];
-    },
+    stateValues: stateSetpoints,
     min: minTemp,
     max: maxTemp,
     step,
     commit: (values) => {
       const id = entity()?.id;
-      if (id)
-        callService("climate", "set_temperature", { temperature: values[0] }, { entity_id: id });
+      if (!id) return;
+      const data =
+        values.length === 2
+          ? { target_temp_low: values[0], target_temp_high: values[1] }
+          : { temperature: values[0] };
+      callService("climate", "set_temperature", data, { entity_id: id });
     },
   });
-  const modes = createMemo(() =>
-    ((entity()?.attributes?.hvac_modes as string[] | undefined) ?? [])
-      .filter((m) => ["heat", "cool", "auto", "heat_cool", "off"].includes(m))
-      .slice(0, 3),
-  );
+  const modes = createMemo(() => {
+    const offered = (entity()?.attributes?.hvac_modes as string[] | undefined) ?? [];
+    const quick = offered
+      .filter((m) => ["off", "heat", "cool", "heat_cool", "auto"].includes(m))
+      .slice(0, 3);
+    const current = hvacMode();
+    return quick.includes(current) || !offered.includes(current)
+      ? quick
+      : [...quick.slice(0, 2), current];
+  });
   const setMode = (m: string) => {
     const id = entity()?.id;
     if (id) callService("climate", "set_hvac_mode", { hvac_mode: m }, { entity_id: id });
   };
+  const degrees = (t: number) => t.toFixed(t % 1 === 0 ? 0 : 1);
   const targetLabel = () => {
-    const t = setpoints.values()[0];
-    return t === undefined ? "--" : t.toFixed(t % 1 === 0 ? 0 : 1);
+    const [low, high] = setpoints.values();
+    if (low === undefined) return "--";
+    if (high === undefined) return degrees(low);
+    return (
+      <>
+        {degrees(low)}
+        <span class="tile-unit tile-range-sep">to</span>
+        {degrees(high)}
+      </>
+    );
+  };
+  const band = () => {
+    const v = setpoints.values();
+    return v.length === 0 ? undefined : (Math.min(...v) + Math.max(...v)) / 2;
   };
   const eyebrow = createMemo(() => {
     const action = hvacAction();
@@ -127,20 +154,23 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 
   const [dragging, setDragging] = createSignal(false);
   const fillPercent = () => {
-    const t = setpoints.values()[0];
+    const t = band();
     if (t === undefined) return 0;
     return ((t - minTemp()) / (maxTemp() - minTemp())) * 100;
   };
   let dragCommit: ReturnType<typeof setTimeout> | undefined;
   const onSlide = (percent: number) => {
     setDragging(true);
+    const mid = band();
+    if (mid === undefined) return;
     const raw = minTemp() + (percent / 100) * (maxTemp() - minTemp());
-    const next = Math.round(raw / step()) * step();
-    setpoints.setPending([next]);
+    const delta = Math.round((raw - mid) / step()) * step();
+    const next = shiftBand(setpoints.values(), delta, minTemp(), maxTemp());
+    setpoints.setPending(next);
     if (dragCommit) clearTimeout(dragCommit);
     dragCommit = setTimeout(() => {
       setDragging(false);
-      setpoints.commitValues([next]);
+      setpoints.commitValues(next);
     }, 300);
   };
 
@@ -191,15 +221,17 @@ function ClimateWidget(props: { config: ClimateConfig }) {
             <TileHero
               value={hvacMode() === "off" ? "Off" : targetLabel()}
               unit={hvacMode() === "off" ? undefined : "°"}
+              class={isRange() && hvacMode() !== "off" ? "tile-hero-range" : undefined}
               sub={subLine()}
             />
             <TileControls>
               <TileStepper
                 label="Target temperature"
-                onStep={(d) => setpoints.stepValue(0, d * step())}
+                onStep={(d) => setpoints.shiftValues(d * step())}
               />
               <TileChoice
                 label="Mode"
+                tone={mode().color}
                 value={hvacMode()}
                 options={modes().map((m) => ({
                   value: m,

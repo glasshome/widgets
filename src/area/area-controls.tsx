@@ -1,7 +1,7 @@
 import { Button, useService } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
-import type { EntityGroups } from "./utils";
+import { coverIcon, type EntityGroups } from "./utils";
 
 interface AreaControlsProps {
   groups: EntityGroups;
@@ -124,40 +124,42 @@ export function AreaControls(props: AreaControlsProps) {
       </Show>
 
       {/* Covers */}
-      <Show when={props.groups.covers.length > 0}>
+      <Show when={props.groups.covers.length + props.groups.doors.length > 0}>
         <div class="flex flex-col gap-2">
           <h3 class="font-medium text-muted-foreground text-xs">Covers</h3>
-          <div class="flex gap-2">
-            <Button
-              variant="outline"
-              class="flex-1"
-              onClick={() => {
-                for (const entity of props.groups.covers) {
-                  callService("cover", "open_cover", {}, { entity_id: entity.id });
-                }
-              }}
-            >
-              <Icon icon="mdi:arrow-up" width={16} />
-              Open all
-            </Button>
-            <Button
-              variant="outline"
-              class="flex-1"
-              onClick={() => {
-                for (const entity of props.groups.covers) {
-                  callService("cover", "close_cover", {}, { entity_id: entity.id });
-                }
-              }}
-            >
-              <Icon icon="mdi:arrow-down" width={16} />
-              Close all
-            </Button>
-          </div>
+          <Show when={props.groups.covers.length > 0}>
+            <div class="flex gap-2">
+              <Button
+                variant="outline"
+                class="flex-1"
+                onClick={() => {
+                  for (const entity of props.groups.covers) {
+                    callService("cover", "open_cover", {}, { entity_id: entity.id });
+                  }
+                }}
+              >
+                <Icon icon="mdi:arrow-up" width={16} />
+                Open all
+              </Button>
+              <Button
+                variant="outline"
+                class="flex-1"
+                onClick={() => {
+                  for (const entity of props.groups.covers) {
+                    callService("cover", "close_cover", {}, { entity_id: entity.id });
+                  }
+                }}
+              >
+                <Icon icon="mdi:arrow-down" width={16} />
+                Close all
+              </Button>
+            </div>
+          </Show>
           <div class="flex flex-col gap-0.5">
-            <For each={props.groups.covers}>
+            <For each={[...props.groups.covers, ...props.groups.doors]}>
               {(entity) => (
                 <div class="flex items-center gap-3 rounded-lg px-3 py-2">
-                  <Icon icon="mdi:blinds" width={18} class="text-muted-foreground" />
+                  <Icon icon={coverIcon(entity)} width={18} class="text-muted-foreground" />
                   <span class="flex-1 truncate text-sm">{entity.friendlyName}</span>
                   <div class="flex items-center gap-1">
                     <CoverButton

@@ -1,11 +1,19 @@
-import { Button, type EntityView, hassMediaUrl, Icon, Toggle, useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
-import { createMemo, For, Show } from "solid-js";
-import { Tile, TILE_INNER_RADIUS, TileBackdrop, TileChip, TileHead } from "../common/tile/tile";
+import {
+  Button,
+  type EntityView,
+  hassMediaUrl,
+  Icon,
+  Toggle,
+  useDaylight,
+  useWidgetDimensions,
+} from "@glasshome/widget-sdk";
+import { createMemo, For, type JSX, Show } from "solid-js";
 import { type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
+import { TILE_INNER_RADIUS, Tile, TileBackdrop, TileChip, TileHead } from "../common/tile/tile";
 import "./area-content.css";
-import type { AreaMetrics, EntityGroups } from "./utils";
+import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
 
-export type AreaAction = "lights" | "covers" | "climate" | "switches";
+export type AreaAction = "lights" | "covers" | "doors" | "climate" | "switches";
 
 interface AreaContentProps {
   metrics: AreaMetrics;
@@ -30,7 +38,6 @@ interface Pill {
 const WARM = "oklch(0.84 0.13 80)";
 
 function occupancy(m: AreaMetrics): string | undefined {
-  if (m.alertCount > 0) return m.alertCount > 1 ? `${m.alertCount} alerts` : "Alert";
   if (m.hasMotion) return "Motion";
   if (m.hasPresence) return "Occupied";
   return undefined;
@@ -44,7 +51,9 @@ function climatePill(entity: EntityView): Pill {
     action: "climate",
     icon: mode === "cool" ? "mdi:snowflake" : "mdi:thermostat",
     label: "Climate",
-    state: on ? `${mode.charAt(0).toUpperCase()}${mode.slice(1)}${target === undefined ? "" : ` · ${target}°`}` : "Off",
+    state: on
+      ? `${mode.charAt(0).toUpperCase()}${mode.slice(1)}${target === undefined ? "" : ` · ${target}°`}`
+      : "Off",
     short: on && target !== undefined ? `${target}°` : "Off",
     on,
     color: mode === "cool" ? "oklch(0.72 0.14 235)" : "oklch(0.7 0.19 35)",
@@ -58,21 +67,51 @@ function buildPills(m: AreaMetrics, g: EntityGroups): Pill[] {
       action: "lights",
       icon: m.lightsOn > 0 ? "mdi:lightbulb-group" : "mdi:lightbulb-group-outline",
       label: "Lights",
-      state: m.lightsOn === 0 ? "Off" : m.lightsOn === m.lightsTotal ? "On" : `${m.lightsOn} of ${m.lightsTotal} on`,
+      state:
+        m.lightsOn === 0
+          ? "Off"
+          : m.lightsOn === m.lightsTotal
+            ? "On"
+            : `${m.lightsOn} of ${m.lightsTotal} on`,
       short: m.lightsOn === 0 ? "Off" : `${m.lightsOn} on`,
       on: m.lightsOn > 0,
       color: WARM,
     });
   }
   if (m.coversTotal > 0) {
+    const kind = coverKind(g.covers);
     pills.push({
       action: "covers",
-      icon: m.coversOpen > 0 ? "mdi:blinds-horizontal" : "mdi:blinds-horizontal-closed",
-      label: "Blinds",
-      state: m.coversOpen === 0 ? "Closed" : m.coversOpen === m.coversTotal ? "Open" : `${m.coversOpen} open`,
-      short: m.coversOpen === 0 ? "Closed" : m.coversOpen === m.coversTotal ? "Open" : `${m.coversOpen} open`,
+      icon: m.coversOpen > 0 ? kind.open : kind.closed,
+      label: m.coversTotal === 1 ? kind.one : kind.many,
+      state:
+        m.coversOpen === 0
+          ? "Closed"
+          : m.coversOpen === m.coversTotal
+            ? "Open"
+            : `${m.coversOpen} open`,
+      short:
+        m.coversOpen === 0
+          ? "Closed"
+          : m.coversOpen === m.coversTotal
+            ? "Open"
+            : `${m.coversOpen} open`,
       on: m.coversOpen > 0,
       color: "oklch(0.74 0.12 230)",
+    });
+  }
+  if (g.doors.length > 0) {
+    const kind = doorKind(g.doors);
+    const open = m.doorsOpen;
+    const state = open === 0 ? "Closed" : open === g.doors.length ? "Open" : `${open} open`;
+    pills.push({
+      action: "doors",
+      icon: open > 0 ? kind.open : kind.closed,
+      label: g.doors.length === 1 ? kind.one : kind.many,
+      state,
+      short: state,
+      on: open > 0,
+      color: "oklch(0.78 0.14 75)",
     });
   }
   const climate = g.climate[0];
@@ -118,30 +157,58 @@ export function AreaContent(props: AreaContentProps) {
     }
     return out;
   };
-  const summary = () =>
-    [
-      occupancy(m()),
-      m().temperature === null ? undefined : `${(m().temperature ?? 0).toFixed(1)}°`,
-      m().humidity === null ? undefined : `${Math.round(m().humidity ?? 0)}% humidity`,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+  const summary = () => {
+    const temperature = m().temperature;
+    const humidity = m().humidity;
+    const parts: JSX.Element[] = [];
+    const presence = occupancy(m());
+    if (presence) parts.push(presence);
+    if (temperature !== null) parts.push(`${temperature.toFixed(1)}°`);
+    if (humidity !== null)
+      parts.push(
+        <span class="area-humidity" aria-label={`${Math.round(humidity)}% humidity`}>
+          <Icon icon="mdi:water-percent" width={14} />
+          {Math.round(humidity)}%
+        </span>,
+      );
+    return parts.length === 0 ? undefined : parts.flatMap((p, i) => (i === 0 ? [p] : [" · ", p]));
+  };
   const warmth = () => (m().lightsTotal === 0 ? 0 : 12 + (m().lightsOn / m().lightsTotal) * 30);
 
   return (
     <Tile backdrop active={m().lightsOn > 0} accent={WARM}>
       <TileBackdrop>
-        <Show when={photos()} fallback={<div class="area-ambient" style={{ "--area-warmth": `${warmth()}%` }} />}>
+        <Show
+          when={photos()}
+          fallback={<div class="area-ambient" style={{ "--area-warmth": `${warmth()}%` }} />}
+        >
           {(p) => (
             <>
               <img src={p().day} alt="" />
               <Show when={p().nightOff}>
-                {(src) => <img src={src()} alt="" class="area-night" data-visible={scene() === "night-off" || undefined} />}
+                {(src) => (
+                  <img
+                    src={src()}
+                    alt=""
+                    class="area-night"
+                    data-visible={scene() === "night-off" || undefined}
+                  />
+                )}
               </Show>
               <Show when={p().nightOn}>
-                {(src) => <img src={src()} alt="" class="area-night" data-visible={scene() === "night-on" || undefined} />}
+                {(src) => (
+                  <img
+                    src={src()}
+                    alt=""
+                    class="area-night"
+                    data-visible={scene() === "night-on" || undefined}
+                  />
+                )}
               </Show>
-              <div class="tile-backdrop-light" style={{ "--backdrop-light": scene() === "day" ? warmth() / 42 : 0 }} />
+              <div
+                class="tile-backdrop-light"
+                style={{ "--backdrop-light": scene() === "day" ? warmth() / 42 : 0 }}
+              />
             </>
           )}
         </Show>
@@ -149,7 +216,7 @@ export function AreaContent(props: AreaContentProps) {
       <TileHead
         icon={props.areaIcon ?? roomIcon(props.areaName)}
         active={m().lightsOn > 0}
-        eyebrow={summary() || undefined}
+        eyebrow={summary()}
         name={props.areaName}
         aside={
           <>
@@ -157,9 +224,6 @@ export function AreaContent(props: AreaContentProps) {
               <TileChip icon="mdi:alert-circle" tone="var(--destructive)">
                 Alert
               </TileChip>
-            </Show>
-            <Show when={m().coversOpen > 0}>
-              <TileChip icon="mdi:window-open-variant">{m().coversOpen} open</TileChip>
             </Show>
           </>
         }
@@ -175,7 +239,11 @@ export function AreaContent(props: AreaContentProps) {
               aria-label={`${pill.label}: ${pill.state}`}
               class={`area-chip ${TILE_INNER_RADIUS}`}
             >
-              <Icon icon={pill.icon} width={18} style={pill.on ? { color: pill.color } : undefined} />
+              <Icon
+                icon={pill.icon}
+                width={18}
+                style={pill.on ? { color: pill.color } : undefined}
+              />
               <span>{pill.short}</span>
             </Toggle>
           )}

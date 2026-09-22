@@ -17,6 +17,17 @@ interface UseSetpointsResult {
   setPending: (values: number[]) => void;
   commitValues: (values: number[]) => void;
   stepValue: (index: number, delta: number) => void;
+  shiftValues: (delta: number) => void;
+}
+
+const round1 = (v: number) => Math.round(v * 10) / 10;
+
+export function shiftBand(values: number[], delta: number, min: number, max: number): number[] {
+  if (values.length === 0) return values;
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const d = Math.min(Math.max(delta, min - lo), max - hi);
+  return values.map((v) => round1(v + d));
 }
 
 /**
@@ -34,7 +45,6 @@ export function useSetpoints(options: UseSetpointsOptions): UseSetpointsResult {
 
   const values = () => pending() ?? options.stateValues();
 
-  const round1 = (v: number) => Math.round(v * 10) / 10;
   const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
   const commitWithGrace = (next: number[]) => {
@@ -59,6 +69,14 @@ export function useSetpoints(options: UseSetpointsOptions): UseSetpointsResult {
     commitDebounce = setTimeout(() => commitWithGrace(next), debounceMs);
   };
 
+  const shiftValues = (delta: number) => {
+    const next = shiftBand(values(), delta, options.min(), options.max());
+    if (next.length === 0) return;
+    setPendingSignal(next);
+    if (commitDebounce) clearTimeout(commitDebounce);
+    commitDebounce = setTimeout(() => commitWithGrace(next), debounceMs);
+  };
+
   onCleanup(() => {
     if (commitDebounce) clearTimeout(commitDebounce);
     if (pendingGrace) clearTimeout(pendingGrace);
@@ -69,5 +87,6 @@ export function useSetpoints(options: UseSetpointsOptions): UseSetpointsResult {
     setPending: (v) => setPendingSignal(v),
     commitValues: commitWithGrace,
     stepValue,
+    shiftValues,
   };
 }

@@ -4,6 +4,7 @@ export interface EntityGroups {
   lights: EntityView[];
   switches: EntityView[];
   covers: EntityView[];
+  doors: EntityView[];
   climate: EntityView[];
   sensors: EntityView[];
   binarySensors: EntityView[];
@@ -14,6 +15,7 @@ export interface AreaMetrics {
   lightsTotal: number;
   coversOpen: number;
   coversTotal: number;
+  doorsOpen: number;
   temperature: number | null;
   humidity: number | null;
   co2: number | null;
@@ -23,11 +25,91 @@ export interface AreaMetrics {
   alertCount: number;
 }
 
+interface CoverKind {
+  one: string;
+  many: string;
+  open: string;
+  closed: string;
+}
+
+// Doors move people and cars through the house, so they never share a one-tap bulk action with blinds.
+const DOOR_KINDS: Record<string, CoverKind> = {
+  garage: {
+    one: "Garage door",
+    many: "Garage doors",
+    open: "mdi:garage-open",
+    closed: "mdi:garage",
+  },
+  gate: { one: "Gate", many: "Gates", open: "mdi:gate-open", closed: "mdi:gate" },
+  door: { one: "Door", many: "Doors", open: "mdi:door-open", closed: "mdi:door-closed" },
+};
+const MIXED_DOORS: CoverKind = {
+  one: "Door",
+  many: "Doors",
+  open: "mdi:door-open",
+  closed: "mdi:door-closed",
+};
+
+const BLINDS: CoverKind = {
+  one: "Blind",
+  many: "Blinds",
+  open: "mdi:blinds-horizontal",
+  closed: "mdi:blinds-horizontal-closed",
+};
+const COVERING_KINDS: Record<string, CoverKind> = {
+  blind: BLINDS,
+  shade: {
+    one: "Shade",
+    many: "Shades",
+    open: "mdi:roller-shade",
+    closed: "mdi:roller-shade-closed",
+  },
+  curtain: {
+    one: "Curtain",
+    many: "Curtains",
+    open: "mdi:curtains",
+    closed: "mdi:curtains-closed",
+  },
+  shutter: {
+    one: "Shutter",
+    many: "Shutters",
+    open: "mdi:window-shutter-open",
+    closed: "mdi:window-shutter",
+  },
+  awning: {
+    one: "Awning",
+    many: "Awnings",
+    open: "mdi:awning-outline",
+    closed: "mdi:awning-outline",
+  },
+  window: { one: "Window", many: "Windows", open: "mdi:window-open", closed: "mdi:window-closed" },
+};
+
+export function isDoorCover(entity: EntityView): boolean {
+  return entity.deviceClass != null && entity.deviceClass in DOOR_KINDS;
+}
+
+function sharedKind(
+  entities: EntityView[],
+  table: Record<string, CoverKind>,
+  mixed: CoverKind,
+): CoverKind {
+  const first = entities[0]?.deviceClass ?? "";
+  const same = entities.every((e) => (e.deviceClass ?? "") === first);
+  return (same ? table[first] : undefined) ?? mixed;
+}
+
+export const coverKind = (covers: EntityView[]) => sharedKind(covers, COVERING_KINDS, BLINDS);
+export const doorKind = (doors: EntityView[]) => sharedKind(doors, DOOR_KINDS, MIXED_DOORS);
+export const coverIcon = (entity: EntityView) =>
+  (isDoorCover(entity) ? doorKind([entity]) : coverKind([entity])).closed;
+
 export function groupEntitiesByDomain(entities: EntityView[]): EntityGroups {
   const groups: EntityGroups = {
     lights: [],
     switches: [],
     covers: [],
+    doors: [],
     climate: [],
     sensors: [],
     binarySensors: [],
@@ -42,7 +124,7 @@ export function groupEntitiesByDomain(entities: EntityView[]): EntityGroups {
         groups.switches.push(entity);
         break;
       case "cover":
-        groups.covers.push(entity);
+        (isDoorCover(entity) ? groups.doors : groups.covers).push(entity);
         break;
       case "climate":
         groups.climate.push(entity);
@@ -81,6 +163,7 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
 
   const coversTotal = groups.covers.length;
   const coversOpen = groups.covers.filter((e) => e.state === "open").length;
+  const doorsOpen = groups.doors.filter((e) => e.state !== "closed").length;
 
   // Prefer HA-configured area sensors, fall back to deviceClass scan
   const tempEntity = area?.temperatureEntityId
@@ -114,6 +197,7 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
     lightsTotal,
     coversOpen,
     coversTotal,
+    doorsOpen,
     temperature,
     humidity,
     co2,

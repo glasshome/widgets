@@ -3,11 +3,21 @@
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(120% 95% at 0% 0%, color-mix(in oklch, oklch(0.84 0.13 75) var(--area-warmth, 0%), transparent), transparent 62%),
-    radial-gradient(90% 80% at 100% 100%, color-mix(in oklch, oklch(0.72 0.08 240) 14%, transparent), transparent 70%);
+    radial-gradient(
+      120% 95% at 0% 0%,
+      color-mix(in oklch, oklch(0.84 0.13 75) var(--area-warmth, 0%), transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      90% 80% at 100% 100%,
+      color-mix(in oklch, oklch(0.72 0.08 240) 14%, transparent),
+      transparent 70%
+    );
   transition: --area-warmth 500ms ease;
 }
-.area-spacer { min-height: 0; }
+.area-spacer {
+  min-height: 0;
+}
 .area-chips {
   display: flex;
   gap: 6px;
@@ -24,4 +34,17 @@
   --glass-tone: var(--foreground);
   --glass-wash: 10%;
 }
-.area-more.area-more { width: var(--tile-control-h); padding: 0; margin-left: auto; }
+.area-more.area-more {
+  width: var(--tile-control-h);
+  padding: 0;
+  margin-left: auto;
+}
+.area-chip.area-chip {
+  --glass-base: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+.area-humidity {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  vertical-align: bottom;
+}

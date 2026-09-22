@@ -36,7 +36,15 @@ function AreaWidget(props: { config: AreaConfig }) {
   const groups = createMemo(() => {
     const a = area();
     if (!a)
-      return { lights: [], switches: [], covers: [], climate: [], sensors: [], binarySensors: [] };
+      return {
+        lights: [],
+        switches: [],
+        covers: [],
+        doors: [],
+        climate: [],
+        sensors: [],
+        binarySensors: [],
+      };
     return groupEntitiesByDomain(a.entities);
   });
 
@@ -85,6 +93,7 @@ function AreaWidget(props: { config: AreaConfig }) {
         lights: groups().lights.length,
         switches: groups().switches.length,
         covers: groups().covers.length,
+        doors: groups().doors.length,
         climate: groups().climate.length,
         sensors: groups().sensors.length,
         binarySensors: groups().binarySensors.length,
