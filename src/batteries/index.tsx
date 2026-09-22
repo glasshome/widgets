@@ -111,7 +111,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
               <div class="max-h-80 space-y-2 overflow-y-auto">
                 <For each={batteries()}>
                   {(battery) => (
-                    <div class="flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2">
+                    <div class="glass flex items-center gap-3 rounded-lg px-3 py-2">
                       <Icon
                         icon={getBatteryIcon(battery.level)}
                         width={24}

@@ -158,6 +158,7 @@ function MediaPlayerContent(props: MediaPlayerContentProps) {
               >
                 <img src={props.albumArt} alt="" class="h-full w-full object-cover" />
               </Show>
+              {/* ui-drift-ok art scrim over album art */}
               <div class="absolute inset-0 flex items-center justify-center bg-black/30">
                 <Icon icon={getMediaIcon(props.state)} width={16} class="text-foreground" />
               </div>

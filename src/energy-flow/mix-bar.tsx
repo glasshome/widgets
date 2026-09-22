@@ -81,7 +81,7 @@ export function SourceMix(props: { flow: ResolvedFlow; tariff: Tariff }): JSX.El
       <div class="flex h-2 w-full items-stretch gap-[3px]" role="img" aria-label={barLabel()}>
         <Show
           when={activeIds().length > 0}
-          fallback={<div class="h-full w-full rounded-full bg-foreground/10" />}
+          fallback={<div class="h-full w-full rounded-full bg-muted" />}
         >
           <For each={activeIds()}>
             {(id) => (
