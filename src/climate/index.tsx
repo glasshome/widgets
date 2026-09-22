@@ -217,6 +217,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
               eyebrow={eyebrow()}
               name={props.config.title || entity()?.friendlyName || "Climate"}
               active={hvacMode() !== "off"}
+              count={entities().length}
             />
             <TileHero
               value={hvacMode() === "off" ? "Off" : targetLabel()}

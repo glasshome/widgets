@@ -96,6 +96,10 @@ interface AnalogClockProps {
   preset: ClockPreset;
   analogOptions?: AnalogOptions;
   presetTheme?: AnalogPresetTheme;
+  /** Vertical space kept free below the face (the date block). */
+  reserve?: number;
+  /** Horizontal space kept free beside the face. */
+  reserveX?: number;
 }
 
 const SIZE_MAP: Record<ClockSize, number> = {
@@ -109,15 +113,15 @@ const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", 
 // Colours come from the theme (adapt to light/dark); the preset drives shape/character only.
 // Shared verbatim with the square face so all three clock styles read as one system.
 const FACE_THEME = {
-  tickColor: "var(--color-foreground)",
-  handColor: "var(--color-foreground)",
-  accentColor: "var(--tone-accent)",
-  faceColor: "var(--tone-neutral)",
+  tickColor: "var(--foreground)",
+  handColor: "var(--foreground)",
+  accentColor: "var(--primary)",
+  faceColor: "color-mix(in oklch, var(--foreground) 6%, transparent)",
 } as const;
 
 /**
  * Round analog face. A circular sibling of the square face: same theme-aware
- * palette, same per-preset character (shaped/gradient/glowing hands, numerals,
+ * palette, same per-preset character (shaped/gradient hands, numerals,
  * ornaments, jeweled cap) — only the geometry is a circle instead of the box.
  */
 export function AnalogClock(props: AnalogClockProps) {
@@ -127,7 +131,15 @@ export function AnalogClock(props: AnalogClockProps) {
   const border = () => options().border;
   const ticks = () => options().ticks;
 
-  const size = () => SIZE_MAP[props.size] ?? 130;
+  const dimensions = useWidgetDimensions();
+  const size = () => {
+    const d = dimensions();
+    const fit = Math.min(
+      d.width - 16 - (props.reserveX ?? 0),
+      d.height - 16 - (props.reserve ?? 0),
+    );
+    return Math.max(56, Math.min(SIZE_MAP[props.size] ?? 130, fit));
+  };
   const cx = () => size() / 2;
   const cy = () => size() / 2;
   const radius = () => size() / 2 - 14;
@@ -231,7 +243,7 @@ export function AnalogClock(props: AnalogClockProps) {
       : "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
   });
 
-  // One hand, shaped by the preset and optionally ornamented / glowing.
+  // One hand, shaped by the preset and optionally ornamented.
   const Hand = (p: {
     angle: number;
     lenFrac: number;
@@ -241,7 +253,6 @@ export function AnalogClock(props: AnalogClockProps) {
     animate?: boolean;
     forceLine?: boolean;
     gradient?: boolean;
-    glow?: boolean;
     ornate?: boolean;
   }) => {
     const tipY = () => cy() - handLen() * p.lenFrac;
@@ -249,10 +260,7 @@ export function AnalogClock(props: AnalogClockProps) {
     const shape = () => (p.forceLine ? "line" : style().hand);
     const paint = () => (p.gradient ? `url(#${gid()}-hand)` : p.color);
     return (
-      <g
-        style={handStyle(p.angle, p.animate ?? false)}
-        filter={p.glow ? `url(#${gid()}-glow)` : undefined}
-      >
+      <g style={handStyle(p.angle, p.animate ?? false)}>
         <Show
           when={shape() === "taper"}
           fallback={
@@ -261,7 +269,7 @@ export function AnalogClock(props: AnalogClockProps) {
               y1={baseY()}
               x2={cx()}
               y2={tipY()}
-              stroke={paint()}
+              stroke={p.color}
               stroke-width={p.width}
               stroke-linecap="round"
             />
@@ -295,7 +303,6 @@ export function AnalogClock(props: AnalogClockProps) {
   const minuteW = () =>
     (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6) * Math.max(0.7, k());
   const ornate = () => props.preset === "classic";
-  const glowHands = () => props.preset === "modern";
   const gradHands = () => props.preset !== "classic";
 
   return (
@@ -312,13 +319,6 @@ export function AnalogClock(props: AnalogClockProps) {
           <stop offset="0%" stop-color={theme.handColor} stop-opacity="0.75" />
           <stop offset="100%" stop-color={theme.handColor} />
         </linearGradient>
-        <filter id={`${gid()}-glow`} x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="2.4" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
 
       {/* Face */}
@@ -460,7 +460,6 @@ export function AnalogClock(props: AnalogClockProps) {
         color={theme.handColor}
         width={hourW()}
         gradient={gradHands()}
-        glow={glowHands()}
         ornate={ornate()}
       />
       <Hand
@@ -470,11 +469,10 @@ export function AnalogClock(props: AnalogClockProps) {
         color={theme.handColor}
         width={minuteW()}
         gradient={gradHands()}
-        glow={glowHands()}
         ornate={ornate()}
       />
 
-      {/* Second hand (thin line, glowing accent) */}
+      {/* Second hand (thin accent line) */}
       <Show when={props.showSeconds}>
         <Hand
           angle={secondAngle()}
@@ -484,7 +482,6 @@ export function AnalogClock(props: AnalogClockProps) {
           width={1.5}
           animate
           forceLine
-          glow
         />
       </Show>
 
@@ -525,10 +522,10 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const dimensions = useWidgetDimensions();
   // Colors come from the theme (adapt to light/dark); the preset drives shape only.
   const theme = () => ({
-    tickColor: "var(--color-foreground)",
-    handColor: "var(--color-foreground)",
-    accentColor: "var(--tone-accent)",
-    faceColor: "var(--tone-neutral)",
+    tickColor: "var(--foreground)",
+    handColor: "var(--foreground)",
+    accentColor: "var(--primary)",
+    faceColor: "color-mix(in oklch, var(--foreground) 6%, transparent)",
   });
   const ticks = () => props.analogOptions?.ticks ?? "hour";
   const border = () => props.analogOptions?.border ?? false;
@@ -699,7 +696,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     };
   };
 
-  // One hand, shaped by the preset and optionally ornamented / glowing.
+  // One hand, shaped by the preset and optionally ornamented.
   const Hand = (p: {
     angle: number;
     lenFrac: number;
@@ -709,7 +706,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     animate?: boolean;
     forceLine?: boolean;
     gradient?: boolean;
-    glow?: boolean;
     ornate?: boolean;
   }) => {
     // Reactive: destructuring dims() to numbers here froze the drawn coords at
@@ -721,10 +717,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
     const shape = () => (p.forceLine ? "line" : style().hand);
     const paint = () => (p.gradient ? `url(#${gid()}-hand)` : p.color);
     return (
-      <g
-        style={handStyle(p.angle, p.animate ?? false)}
-        filter={p.glow ? `url(#${gid()}-glow)` : undefined}
-      >
+      <g style={handStyle(p.angle, p.animate ?? false)}>
         <Show
           when={shape() === "taper"}
           fallback={
@@ -733,7 +726,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
               y1={baseY()}
               x2={cx()}
               y2={tipY()}
-              stroke={paint()}
+              stroke={p.color}
               stroke-width={p.width}
               stroke-linecap="round"
             />
@@ -765,7 +758,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const hourW = () => (style().hand === "bar" ? 10 : style().hand === "line" ? 3.5 : 9);
   const minuteW = () => (style().hand === "bar" ? 7 : style().hand === "line" ? 2.5 : 6.5);
   const ornate = () => props.preset === "classic";
-  const glowHands = () => props.preset === "modern";
   const gradHands = () => props.preset !== "classic";
 
   return (
@@ -782,13 +774,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
             <stop offset="0%" stop-color={theme().handColor} stop-opacity="0.75" />
             <stop offset="100%" stop-color={theme().handColor} />
           </linearGradient>
-          <filter id={`${gid()}-glow`} x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="2.4" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
         {/* ── BOLD: ghost hour numeral + radar wedge ── */}
@@ -928,7 +913,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
           color={theme().handColor}
           width={hourW()}
           gradient={gradHands()}
-          glow={glowHands()}
           ornate={ornate()}
         />
         <Hand
@@ -938,11 +922,10 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
           color={theme().handColor}
           width={minuteW()}
           gradient={gradHands()}
-          glow={glowHands()}
           ornate={ornate()}
         />
 
-        {/* Second hand (thin line, glowing accent) */}
+        {/* Second hand (thin accent line) */}
         <Show when={props.showSeconds}>
           <Hand
             angle={secondAngle()}
@@ -952,7 +935,6 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
             width={1.5}
             animate
             forceLine
-            glow
           />
         </Show>
 

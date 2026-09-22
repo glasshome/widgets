@@ -15,8 +15,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { AnalogTile, DigitalTile } from "./faces";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
@@ -53,7 +52,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   const secondsNum = createMemo(() => Number.parseInt(timeParts().seconds, 10) || 0);
   const secondsProgress = createMemo(() => (secondsNum() / 60) * 100);
   // Single accent drives the live seconds bar — same palette as the analog/square faces.
-  const barColor = () => "var(--tone-accent)";
+  const barColor = () => "var(--primary)";
 
   // Responsive font classes
   const timeClasses = () => {
@@ -81,11 +80,11 @@ function ClockWidget(props: { config: ClockConfig }) {
   const dayClasses = () => {
     switch (cfg().fontSize) {
       case "small":
-        return "text-[10px] @[200px]:text-xs tracking-[0.2em]";
+        return "text-[10px] @[200px]:text-xs ";
       case "large":
-        return "text-sm @[200px]:text-base tracking-[0.3em]";
+        return "text-sm @[200px]:text-base ";
       default:
-        return "text-xs @[200px]:text-sm tracking-[0.25em]";
+        return "text-xs @[200px]:text-sm ";
     }
   };
 
@@ -99,21 +98,6 @@ function ClockWidget(props: { config: ClockConfig }) {
         return "text-xs @[200px]:text-sm";
     }
   };
-
-  // Preset presence gates the glow (minimal stays flat); the accent tone paints it.
-  const glowStyle = createMemo(() => {
-    if (!presetTheme().digital.glowColor) return {};
-    const glow = "var(--tone-accent)";
-    return { "text-shadow": `0 0 20px ${glow}, 0 0 40px ${glow}, 0 0 60px ${glow}` };
-  });
-
-  const faceProps = createMemo(() => ({
-    ...timeParts(),
-    weekday: new Intl.DateTimeFormat("en-GB", { weekday: "long", ...(cfg().timeZone && { timeZone: cfg().timeZone }) }).format(currentTime()),
-    date: new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", ...(cfg().timeZone && { timeZone: cfg().timeZone }) }).format(currentTime()),
-    showSeconds: cfg().showSeconds,
-    showDate: cfg().showDate,
-  }));
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -147,7 +131,6 @@ function ClockWidget(props: { config: ClockConfig }) {
                 "font-weight": digital().fontWeight,
                 "letter-spacing": digital().letterSpacing,
                 "line-height": "0.9",
-                ...glowStyle(),
               }}
             >
               {timeParts().hours}
@@ -159,7 +142,6 @@ function ClockWidget(props: { config: ClockConfig }) {
                 "font-weight": digital().fontWeight,
                 "letter-spacing": digital().letterSpacing,
                 "line-height": "0.9",
-                ...glowStyle(),
               }}
             >
               {timeParts().minutes}
@@ -171,7 +153,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                   style={{
                     "font-family": digital().fontFamily,
                     "font-weight": digital().fontWeight,
-                    color: "var(--tone-accent)",
+                    color: "var(--primary)",
                   }}
                 >
                   {timeParts().seconds}
@@ -197,7 +179,6 @@ function ClockWidget(props: { config: ClockConfig }) {
               "font-family": digital().fontFamily,
               "font-weight": digital().fontWeight,
               "letter-spacing": digital().letterSpacing,
-              ...glowStyle(),
             }}
           >
             {timeParts().hours}
@@ -211,7 +192,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               style={{
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
-                color: "var(--tone-accent)",
+                color: "var(--primary)",
               }}
             >
               :{timeParts().seconds}
@@ -236,12 +217,12 @@ function ClockWidget(props: { config: ClockConfig }) {
   const BannerFace = () => (
     <div class="flex items-center justify-center gap-3 leading-none">
       <div
-        class="font-bold text-3xl text-foreground tabular-nums"
+        class="font-bold text-foreground tabular-nums"
         style={{
+          "font-size": "clamp(20px, min(48cqb, 17cqi), 34px)",
           "font-family": digital().fontFamily,
           "font-weight": digital().fontWeight,
           "letter-spacing": digital().letterSpacing,
-          ...glowStyle(),
         }}
       >
         {timeParts().hours}
@@ -254,29 +235,79 @@ function ClockWidget(props: { config: ClockConfig }) {
         </Show>
       </div>
       <Show when={cfg().showDate}>
-        <div class="flex flex-col gap-1">
-          <Show when={cfg().showDate}>
-            <span class="text-[11px] text-foreground/50">{formattedDate()}</span>
-          </Show>
-        </div>
+        <span class="@[240px]:inline hidden text-[11px] text-foreground/50">{formattedDate()}</span>
       </Show>
     </div>
   );
 
-  const DigitalFace = () => {
+  const DigitalFace = () => (
+    <>
+      <DigitalTime />
+      <Show when={cfg().showDate}>
+        <div class="@[200px]:mt-3 mt-2">
+          <DateBlock />
+        </div>
+      </Show>
+    </>
+  );
+
+  // Square face fills the widget; the date sits under the 12, only where it clears the hub.
+  const SquareFace = () => {
     const dimensions = useWidgetDimensions();
-    const short = createMemo(() => {
-      const h = dimensions().height;
-      return h > 0 && h < 96;
-    });
     return (
-      <Show when={!short()} fallback={<BannerFace />}>
-        <DigitalTime />
-        <Show when={cfg().showDate}>
-          <div class="@[200px]:mt-3 mt-2">
+      <>
+        <SquareAnalogClock
+          date={currentTime()}
+          timeZone={cfg().timeZone}
+          showSeconds={cfg().showSeconds}
+          preset={cfg().preset}
+          analogOptions={cfg().analogOptions}
+          presetTheme={presetTheme().analog}
+        />
+        <Show when={cfg().showDate && dimensions().height >= 200}>
+          <div class="pointer-events-none absolute inset-x-0 top-[24%] flex justify-center">
             <DateBlock />
           </div>
         </Show>
+      </>
+    );
+  };
+
+  // A wide, short box sets the date beside the dial instead of under it.
+  const AnalogFace = () => {
+    const dimensions = useWidgetDimensions();
+    const beside = () => cfg().showDate && dimensions().width > dimensions().height * 1.5;
+    return (
+      <div class={`flex items-center justify-center ${beside() ? "flex-row gap-5" : "flex-col"}`}>
+        <AnalogClock
+          date={currentTime()}
+          timeZone={cfg().timeZone}
+          size={cfg().clockSize}
+          reserve={cfg().showDate && !beside() ? 48 : 0}
+          reserveX={beside() ? 110 : 0}
+          showSeconds={cfg().showSeconds}
+          preset={cfg().preset}
+          analogOptions={cfg().analogOptions}
+        />
+        <Show when={cfg().showDate}>
+          <div class={beside() ? "" : "@[200px]:mt-3 mt-2"}>
+            <DateBlock />
+          </div>
+        </Show>
+      </div>
+    );
+  };
+
+  // One grid row fits no dial; every style reads as the banner there.
+  const ShortOrFull = (p: { children: JSX.Element }) => {
+    const dimensions = useWidgetDimensions();
+    const short = () => {
+      const h = dimensions().height;
+      return h > 0 && h < 96;
+    };
+    return (
+      <Show when={!short()} fallback={<BannerFace />}>
+        {p.children}
       </Show>
     );
   };
@@ -298,13 +329,50 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass">
-        <Show
-          when={cfg().clockStyle === "analog"}
-          fallback={<DigitalTile {...faceProps()} />}
-        >
-          <AnalogTile {...faceProps()} />
-        </Show>
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        color={tones().color}
+        colorTo={tones().colorTo}
+      >
+        <div class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+          <ShortOrFull>
+            <Show when={cfg().clockStyle === "square"}>
+              <SquareFace />
+            </Show>
+
+            <Show when={cfg().clockStyle === "digital"}>
+              <div class="flex flex-col items-center justify-center">
+                <DigitalFace />
+              </div>
+            </Show>
+            <Show when={cfg().clockStyle === "analog"}>
+              <AnalogFace />
+            </Show>
+          </ShortOrFull>
+
+          {/* Minute-progress bar: sweeps while the host's motion window is open, steps once a second after */}
+          <Show when={cfg().clockStyle === "digital"}>
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
+              <div
+                class="clock-seconds-fill h-full origin-left rounded-full"
+                classList={{ snap: secondsNum() === 0 }}
+                style={{
+                  transform: `scaleX(${secondsProgress() / 100})`,
+                  background: `linear-gradient(90deg, transparent, ${barColor()})`,
+                }}
+              />
+            </div>
+          </Show>
+
+          <style>{`
+            .clock-seconds-fill { width: 100%; transition: transform calc(var(--motion-ambient, 0) * 1000ms) linear; }
+            .clock-seconds-fill.snap { transition: none; }
+            @media (prefers-reduced-motion: reduce) {
+              .clock-seconds-fill { transition: none; }
+            }
+          `}</style>
+        </div>
       </Widget>
 
       <WidgetDialog

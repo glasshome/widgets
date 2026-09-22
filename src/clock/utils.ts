@@ -53,7 +53,7 @@ export function getDayOfWeek(date: Date, timeZone?: string): string {
     weekday: "long",
     ...(timeZone && { timeZone }),
   };
-  return new Intl.DateTimeFormat("en-US", options).format(date).toUpperCase();
+  return new Intl.DateTimeFormat("en-US", options).format(date);
 }
 
 export function formatDate(date: Date, format: DateFormat, timeZone?: string): string {

@@ -253,7 +253,7 @@ export function AreaContent(props: AreaContentProps) {
           size="icon"
           aria-label="More"
           class={`area-chip area-more ${TILE_INNER_RADIUS}`}
-          onClick={props.onMore}
+          onClick={() => props.onMore()}
         >
           <Icon icon="mdi:chevron-right" width={20} />
         </Button>

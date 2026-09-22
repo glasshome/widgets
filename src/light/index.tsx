@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -13,17 +12,18 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
   WidgetSliderFill,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { LightControls } from "./controls";
-import { brightnessToPercent, hsToCSS } from "./utils";
 import { LampArt, lampKind } from "../common/art/lamp";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { LightControls } from "./controls";
+import { brightnessToPercent, hsToCSS } from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -172,11 +172,19 @@ function LightWidget(props: { config: LightConfig }) {
               eyebrow={eyebrow()}
               name={name()}
               active={isOn()}
+              count={count()}
             />
             <TileHero
               value={isOn() ? Math.round(uiBrightness()) : "Off"}
               unit={isOn() ? "%" : undefined}
-              art={<LampArt kind={lampKind(name())} on={isOn()} brightness={uiBrightness()} color={vividColor()} />}
+              art={
+                <LampArt
+                  kind={lampKind(name())}
+                  on={isOn()}
+                  brightness={uiBrightness()}
+                  color={vividColor()}
+                />
+              }
             />
           </Tile>
         </Show>

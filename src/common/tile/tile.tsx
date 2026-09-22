@@ -3,9 +3,9 @@ import {
   Button,
   ButtonGroup,
   Icon,
-  SectionIcon,
   ToggleGroup,
   ToggleGroupItem,
+  WidgetIcon,
 } from "@glasshome/widget-sdk";
 import { For, type JSX, Show } from "solid-js";
 import "./tile.css";
@@ -38,14 +38,16 @@ export function TileHead(props: {
   name: JSX.Element;
   aside?: JSX.Element;
   active?: boolean;
+  count?: number;
 }) {
   return (
     <div class="tile-head">
       <Show when={props.icon}>
         {(icon) => (
-          <SectionIcon
-            icon={icon()}
-            tone={props.active ? "var(--widget-color)" : undefined}
+          <WidgetIcon
+            icon={<Icon icon={icon()} />}
+            entityCount={props.count}
+            color={props.active ? undefined : "var(--muted-foreground)"}
             class="tile-icon"
           />
         )}
@@ -73,15 +75,17 @@ export function TileHero(props: {
   return (
     <div class={props.class ? `tile-hero ${props.class}` : "tile-hero"}>
       <div class="tile-reading">
-        <span class="tile-value">
-          {props.value}
-          <Show when={props.unit}>
-            <span class="tile-unit">{props.unit}</span>
-          </Show>
-        </span>
         <Show when={props.sub}>
           <span class="tile-sub">{props.sub}</span>
         </Show>
+        <span class="tile-value">
+          {props.value}
+          <Show when={props.unit}>
+            <span class="tile-unit" data-degree={props.unit === "°" || undefined}>
+              {props.unit}
+            </span>
+          </Show>
+        </span>
       </div>
       <Show when={props.art}>
         <div class="tile-art">{props.art}</div>
