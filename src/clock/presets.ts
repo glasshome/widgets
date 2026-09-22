@@ -1,5 +1,4 @@
 import type { ClockPreset, ClockPresetTheme } from "./types";
-import { CLOCK_GRADIENTS } from "./utils";
 
 export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   modern: {
@@ -9,7 +8,6 @@ export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
       fontWeight: "700",
       letterSpacing: "0.02em",
-      gradient: CLOCK_GRADIENTS.modern,
       textColor: "text-foreground",
       glowColor: "rgba(34, 211, 238, 0.5)",
       secondsColor: "text-amber-400",
@@ -30,7 +28,6 @@ export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
       fontFamily: "Georgia, Cambria, serif",
       fontWeight: "400",
       letterSpacing: "0.02em",
-      gradient: CLOCK_GRADIENTS.classic,
       textColor: "text-amber-50",
       glowColor: "rgba(245, 158, 11, 0.4)",
       secondsColor: "text-amber-300",
@@ -51,7 +48,6 @@ export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
       fontFamily: "ui-monospace, SFMono-Regular, monospace",
       fontWeight: "400",
       letterSpacing: "0.05em",
-      gradient: CLOCK_GRADIENTS.minimal,
       textColor: "text-slate-100",
       glowColor: undefined,
       secondsColor: "text-slate-400",
@@ -72,7 +68,6 @@ export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
       fontWeight: "900",
       letterSpacing: "-0.02em",
-      gradient: CLOCK_GRADIENTS.bold,
       textColor: "text-foreground",
       glowColor: "rgba(167, 139, 250, 0.5)",
       secondsColor: "text-emerald-400",

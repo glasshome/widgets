@@ -54,7 +54,6 @@ export interface DigitalPresetTheme {
   fontFamily: string;
   fontWeight: string;
   letterSpacing: string;
-  gradient: string;
   textColor: string;
   glowColor?: string;
   secondsColor?: string;

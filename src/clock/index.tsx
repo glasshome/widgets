@@ -20,13 +20,7 @@ import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
 import { type ClockConfig, configSchema } from "./types";
-import {
-  formatDate,
-  getClockGradient,
-  getDayOfWeek,
-  getDefaultConfig,
-  getTimeParts,
-} from "./utils";
+import { formatDate, getClockTones, getDayOfWeek, getDefaultConfig, getTimeParts } from "./utils";
 
 function ClockWidget(props: { config: ClockConfig }) {
   const defaults = getDefaultConfig();
@@ -46,7 +40,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   onCleanup(() => clearInterval(timer));
 
   const presetTheme = createMemo(() => getPresetTheme(cfg().preset));
-  const gradient = createMemo(() => getClockGradient(cfg().preset));
+  const tones = createMemo(() => getClockTones(cfg().preset));
 
   const timeParts = createMemo(() => getTimeParts(currentTime(), cfg().timeFormat, cfg().timeZone));
   const formattedDate = createMemo(() =>
@@ -295,7 +289,12 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" gradient={gradient()}>
+      <Widget
+        gestures={gestures}
+        variant="classic-glass"
+        color={tones().color}
+        colorTo={tones().colorTo}
+      >
         <div class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
           {/* Square face fills the widget; ticks ride its edges */}
           <Show when={cfg().clockStyle === "square"}>
@@ -353,7 +352,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={cfg().clockStyle === "digital"}>
             <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
               <div
-                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? " snap" : ""}`}
+                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? "snap" : ""}`}
                 style={{
                   transform: `scaleX(${secondsProgress() / 100})`,
                   background: `linear-gradient(90deg, transparent, ${barColor()})`,
