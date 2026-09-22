@@ -37,6 +37,6 @@
   "peerDependencies": {
     "solid-js": "^1.9.11",
     "@glasshome/widget-sdk": "1.15.0",
-    "@glasshome/ui": "1.14.0"
+    "@glasshome/ui": "1.18.0"
   }
 }
