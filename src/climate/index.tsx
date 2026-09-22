@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -11,12 +12,12 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, formatTemperature, WidgetDebugView, widgetDialogProps } from "../common";
+import { formatTemperature, widgetDialogProps } from "../common";
 import "../common/mode-transition.css";
 import { ClimateControls } from "./controls";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
@@ -91,10 +92,6 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     if (ents.length === 0) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, ents);
   });
-  const debugView = createMemo(() => {
-    const dbg = debugData();
-    return dbg ? <WidgetDebugView data={dbg} /> : undefined;
-  });
 
   return (
     <>
@@ -130,7 +127,6 @@ function ClimateWidget(props: { config: ClimateConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<ClimateControls entities={entities} />}
-        debugContent={debugView()}
         debugData={debugData()}
       />
     </>

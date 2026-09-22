@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -9,12 +10,12 @@ import {
   useWidgetDialog,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import { AreaContent } from "./area-content";
 import { AreaControls } from "./area-controls";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
@@ -119,7 +120,6 @@ function AreaWidget(props: { config: AreaConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<AreaControls groups={groups()} />}
-        debugContent={<Show when={debugData()}>{(d) => <WidgetDebugView data={d()} />}</Show>}
         debugData={debugData()}
       />
     </>

@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -10,12 +11,12 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -108,7 +109,6 @@ function ButtonWidget(props: { config: ButtonConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -12,13 +13,13 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import { FanControls } from "./controls";
 
 const configSchema = defineConfig({
@@ -187,7 +188,6 @@ function FanWidget(props: { config: FanConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<FanControls entities={entities} />}
-        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -12,12 +13,12 @@ import {
   useWidgetDimensions,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import { MediaPlayerControls } from "./controls";
 import { getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
@@ -70,10 +71,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     if (!e) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, [e]);
   });
-  const debugView = createMemo(() => {
-    const dbg = debugData();
-    return dbg ? <WidgetDebugView data={dbg} /> : undefined;
-  });
 
   return (
     <>
@@ -114,7 +111,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           setShowDialog(false);
         }}
         controlsContent={<MediaPlayerControls entity={entity} />}
-        debugContent={debugView()}
         debugData={debugData()}
       />
     </>

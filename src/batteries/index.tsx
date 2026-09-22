@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   byDomain,
   defineConfig,
   defineWidget,
@@ -9,12 +10,12 @@ import {
   useWidgetDialog,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import "./batteries.css";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
@@ -144,7 +145,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             </Show>
           </div>
         }
-        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

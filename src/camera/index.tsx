@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -10,12 +11,12 @@ import {
   useWidgetDialog,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import { CameraView } from "./camera-view";
 import { createCameraPlayer } from "./create-player";
 import { resolveSources, type StreamEngine } from "./sources";
@@ -135,7 +136,6 @@ function CameraWidget(props: { config: CameraConfig }) {
             </div>
           </div>
         }
-        debugContent={<Show when={debugData()}>{(d) => <WidgetDebugView data={d()} />}</Show>}
         debugData={debugData()}
       />
     </>

@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   countActiveEntities,
   defineConfig,
   defineWidget,
@@ -12,12 +13,12 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, getBinarySensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import { getBinarySensorIcon, widgetDialogProps } from "../common";
 import { getBinarySensorStateText } from "./utils";
 
 const configSchema = defineConfig({
@@ -115,7 +116,6 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

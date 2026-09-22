@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -14,12 +15,12 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, getSensorIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import { getSensorIcon, widgetDialogProps } from "../common";
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
@@ -153,10 +154,6 @@ function SensorWidget(props: { config: SensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        debugContent={(() => {
-          const data = debugData();
-          return data ? <WidgetDebugView data={data} /> : undefined;
-        })()}
         debugData={debugData()}
       />
     </>

@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -10,12 +11,12 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, getCoverIcon, WidgetDebugView, widgetDialogProps } from "../common";
+import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverControls } from "./controls";
 import {
   getCoverCapabilities,
@@ -194,7 +195,6 @@ function CoverWidget(props: { config: CoverConfig }) {
             </div>
           </Show>
         }
-        debugContent={<Show when={debugData()}>{(data) => <WidgetDebugView data={data()} />}</Show>}
         debugData={debugData()}
       />
     </>

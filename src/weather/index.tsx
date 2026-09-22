@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -12,12 +13,12 @@ import {
   useWidgetDimensions,
   useWidgetGestures,
   Widget,
+  type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
-import type { WidgetDebugData } from "../common";
-import { buildDebugData, WidgetDebugView, widgetDialogProps } from "../common";
+import { widgetDialogProps } from "../common";
 import { WeatherBackground } from "./background";
 import { ForecastChart } from "./forecast-chart";
 import "./weather.css";
@@ -199,10 +200,6 @@ function WeatherWidget(props: { config: WeatherConfig }) {
             </div>
           </div>
         }
-        debugContent={(() => {
-          const data = debugData();
-          return data ? <WidgetDebugView data={data} /> : undefined;
-        })()}
         debugData={debugData()}
       />
     </>
