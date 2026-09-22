@@ -155,10 +155,7 @@ function FanWidget(props: { config: FanConfig }) {
       >
         <Show when={hasEntities()}>
           <Show when={supportsSpeed()}>
-            <WidgetSliderFill
-              value={uiPercentage()}
-              isDragging={isDragging()}
-            />
+            <WidgetSliderFill value={uiPercentage()} isDragging={isDragging()} />
           </Show>
           <Widget.Content>
             <Widget.Icon

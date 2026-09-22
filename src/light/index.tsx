@@ -152,10 +152,7 @@ function LightWidget(props: { config: LightConfig }) {
         class={isDragging() ? "duration-0" : undefined}
       >
         <Show when={hasEntities()}>
-          <WidgetSliderFill
-            value={uiBrightness()}
-            isDragging={isDragging()}
-          />
+          <WidgetSliderFill value={uiBrightness()} isDragging={isDragging()} />
           <Widget.Content>
             <Widget.Icon
               icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
