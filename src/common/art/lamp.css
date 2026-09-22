@@ -1,0 +1,56 @@
+.lamp-art {
+  position: relative;
+  height: 100%;
+  display: inline-block;
+  isolation: isolate;
+}
+.lamp-art[data-flip] { transform: scaleX(-1); }
+.lamp-art > img {
+  position: relative;
+  height: 100%;
+  width: auto;
+  display: block;
+  filter: brightness(calc(1 - var(--lamp-level) * 0.22)) saturate(calc(1 - var(--lamp-level) * 0.2));
+  transition: filter 400ms ease;
+}
+.lamp-bloom,
+.lamp-light,
+.lamp-emit,
+.lamp-cast {
+  position: absolute;
+  pointer-events: none;
+  opacity: var(--lamp-level);
+  transition: opacity 400ms ease;
+}
+.lamp-bloom {
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklch, var(--lamp-color) 55%, transparent) 0%,
+    color-mix(in oklch, var(--lamp-color) 24%, transparent) 30%,
+    color-mix(in oklch, var(--lamp-color) 8%, transparent) 60%,
+    transparent 100%
+  );
+  z-index: -1;
+}
+.lamp-light {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: -1;
+}
+.lamp-emit {
+  inset: 0;
+  mask: var(--lamp-mask) center / 100% 100% no-repeat;
+  mix-blend-mode: screen;
+}
+.lamp-cast {
+  inset: 0;
+  mask: var(--lamp-mask) center / 100% 100% no-repeat;
+  background: var(--lamp-color);
+  mix-blend-mode: soft-light;
+  opacity: calc(var(--lamp-level) * 0.55);
+}

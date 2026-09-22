@@ -71,6 +71,46 @@
         "areaId": "living_room",
         "title": "Living Room"
       }
+    },
+    {
+      "label": "Bedroom",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "areaId": "bedroom"
+      }
+    },
+    {
+      "label": "Kitchen",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "areaId": "kitchen"
+      }
+    },
+    {
+      "label": "Entry",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "areaId": "entry"
+      }
+    },
+    {
+      "label": "Garage",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "areaId": "garage"
+      }
     }
   ]
 }

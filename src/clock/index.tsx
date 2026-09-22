@@ -15,6 +15,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
+import { AnalogTile, DigitalTile } from "./faces";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
@@ -105,6 +106,14 @@ function ClockWidget(props: { config: ClockConfig }) {
     const glow = "var(--tone-accent)";
     return { "text-shadow": `0 0 20px ${glow}, 0 0 40px ${glow}, 0 0 60px ${glow}` };
   });
+
+  const faceProps = createMemo(() => ({
+    ...timeParts(),
+    weekday: new Intl.DateTimeFormat("en-GB", { weekday: "long", ...(cfg().timeZone && { timeZone: cfg().timeZone }) }).format(currentTime()),
+    date: new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", ...(cfg().timeZone && { timeZone: cfg().timeZone }) }).format(currentTime()),
+    showSeconds: cfg().showSeconds,
+    showDate: cfg().showDate,
+  }));
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -289,87 +298,13 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        color={tones().color}
-        colorTo={tones().colorTo}
-      >
-        <div class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-          {/* Square face fills the widget; ticks ride its edges */}
-          <Show when={cfg().clockStyle === "square"}>
-            <SquareAnalogClock
-              date={currentTime()}
-              timeZone={cfg().timeZone}
-              showSeconds={cfg().showSeconds}
-              preset={cfg().preset}
-              analogOptions={cfg().analogOptions}
-              presetTheme={presetTheme().analog}
-            />
-            <Show when={cfg().showDate}>
-              <div class="pointer-events-none absolute inset-x-0 top-[58%] flex justify-center">
-                <DateBlock />
-              </div>
-            </Show>
-          </Show>
-
-          {/* Centered clock display (digital + round analog) */}
-          <Show when={cfg().clockStyle !== "square"}>
-            <div class="flex flex-col items-center justify-center">
-              <Show
-                when={cfg().clockStyle !== "analog"}
-                fallback={
-                  <AnalogClock
-                    date={currentTime()}
-                    timeZone={cfg().timeZone}
-                    size={cfg().clockSize}
-                    showSeconds={cfg().showSeconds}
-                    preset={cfg().preset}
-                    analogOptions={cfg().analogOptions}
-                  />
-                }
-              >
-                <DigitalFace />
-              </Show>
-
-              <Show when={cfg().clockStyle === "analog" && cfg().showDate}>
-                <div class="@[200px]:mt-3 mt-2">
-                  <DateBlock />
-                </div>
-              </Show>
-            </div>
-          </Show>
-
-          {/* Ambient glow effect */}
-          <Show when={digital().glowColor && cfg().clockStyle === "digital"}>
-            <div
-              class="pointer-events-none absolute inset-0 -z-10 opacity-30 blur-3xl"
-              style={{ "background-color": "var(--tone-accent)" }}
-            />
-          </Show>
-
-          {/* Minute-progress bar: sweeps while the host's motion window is open, steps once a second after */}
-          <Show when={cfg().clockStyle === "digital"}>
-            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
-              <div
-                class="clock-seconds-fill h-full origin-left rounded-full"
-                classList={{ snap: secondsNum() === 0 }}
-                style={{
-                  transform: `scaleX(${secondsProgress() / 100})`,
-                  background: `linear-gradient(90deg, transparent, ${barColor()})`,
-                }}
-              />
-            </div>
-          </Show>
-
-          <style>{`
-            .clock-seconds-fill { width: 100%; transition: transform calc(var(--motion-ambient, 0) * 1000ms) linear; }
-            .clock-seconds-fill.snap { transition: none; }
-            @media (prefers-reduced-motion: reduce) {
-              .clock-seconds-fill { transition: none; }
-            }
-          `}</style>
-        </div>
+      <Widget gestures={gestures} variant="classic-glass">
+        <Show
+          when={cfg().clockStyle === "analog"}
+          fallback={<DigitalTile {...faceProps()} />}
+        >
+          <AnalogTile {...faceProps()} />
+        </Show>
       </Widget>
 
       <WidgetDialog

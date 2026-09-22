@@ -1,0 +1,27 @@
+.area-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(120% 95% at 0% 0%, color-mix(in oklch, oklch(0.84 0.13 75) var(--area-warmth, 0%), transparent), transparent 62%),
+    radial-gradient(90% 80% at 100% 100%, color-mix(in oklch, oklch(0.72 0.08 240) 14%, transparent), transparent 70%);
+  transition: --area-warmth 500ms ease;
+}
+.area-spacer { min-height: 0; }
+.area-chips {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.area-chip.area-chip {
+  gap: 6px;
+  height: var(--tile-control-h);
+  padding: 0 12px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+  --glass-tone: var(--foreground);
+  --glass-wash: 10%;
+}
+.area-more.area-more { width: var(--tile-control-h); padding: 0; margin-left: auto; }

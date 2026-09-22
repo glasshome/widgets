@@ -21,7 +21,9 @@ import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { LightControls } from "./controls";
-import { brightnessToPercent, formatBrightness, hsToCSS } from "./utils";
+import { brightnessToPercent, hsToCSS } from "./utils";
+import { LampArt, lampKind } from "../common/art/lamp";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -121,16 +123,25 @@ function LightWidget(props: { config: LightConfig }) {
     return "rgb(255, 200, 100)";
   });
 
+  const vividColor = createMemo(() => {
+    const first = entities().find((e) => isEntityActive(e)) ?? entities()[0];
+    const hs = first?.attributes?.hs_color as [number, number] | undefined;
+    return hs ? hsToCSS(hs) : "oklch(0.86 0.12 80)";
+  });
+
   const activeCount = createMemo(() => entities().filter((e) => isEntityActive(e)).length);
 
-  const statusText = createMemo(() => {
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Light";
+
+  const eyebrow = createMemo(() => {
     const total = count();
-    if (total === 0) return "Off";
-    if (!isOn()) return "Off";
-    const bri = formatBrightness(uiBrightness());
-    if (total === 1) return bri;
-    const active = activeCount();
-    return `${active}/${total} on - ${bri}`;
+    if (total <= 1) return "Light";
+    return `${activeCount()} of ${total} on`;
   });
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -154,23 +165,20 @@ function LightWidget(props: { config: LightConfig }) {
       >
         <Show when={hasEntities()}>
           <WidgetSliderFill value={uiBrightness()} isDragging={isDragging()} />
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />}
-              color={isOn() ? displayColor() : undefined}
-              entityCount={entities().length}
+          <Tile active={isOn()} accent={isOn() ? vividColor() : undefined}>
+            <TileGlyph icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />
+            <TileHead
+              icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"}
+              eyebrow={eyebrow()}
+              name={name()}
+              active={isOn()}
             />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Light"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+            <TileHero
+              value={isOn() ? Math.round(uiBrightness()) : "Off"}
+              unit={isOn() ? "%" : undefined}
+              art={<LampArt kind={lampKind(name())} on={isOn()} brightness={uiBrightness()} color={vividColor()} />}
+            />
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

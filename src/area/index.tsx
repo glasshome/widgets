@@ -16,7 +16,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { AreaContent } from "./area-content";
+import { type AreaAction, AreaContent } from "./area-content";
 import { AreaControls } from "./area-controls";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
 
@@ -42,7 +42,6 @@ function AreaWidget(props: { config: AreaConfig }) {
 
   const metrics = createMemo(() => calculateMetrics(groups(), area()));
 
-  const areaIcon = createMemo(() => area()?.icon || "mdi:home-floor-1");
   const areaName = createMemo(() => props.config.title || area()?.name || "Area");
   const isActive = createMemo(() => metrics().lightsOn > 0);
 
@@ -54,6 +53,24 @@ function AreaWidget(props: { config: AreaConfig }) {
     if (lights.length === 0) return;
     const action = isActive() ? turnOff : turnOn;
     Promise.allSettled(lights.map((l) => action(l.id)));
+  };
+
+  const toggleGroup = (entities: { id: string; state: string }[], on: boolean) => {
+    const live = entities.filter((e) => e.state !== "unavailable" && e.state !== "unknown");
+    Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
+  };
+
+  const onAction = (action: AreaAction) => {
+    const g = groups();
+    const m = metrics();
+    if (action === "lights") toggleLights();
+    else if (action === "covers") toggleGroup(g.covers, m.coversOpen > 0);
+    else if (action === "switches")
+      toggleGroup(
+        g.switches,
+        g.switches.some((s) => s.state === "on"),
+      );
+    else openDialog();
   };
 
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
@@ -80,7 +97,7 @@ function AreaWidget(props: { config: AreaConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        tone={isActive() ? "warning" : "neutral"}
+        tone="neutral"
         emptyState={
           !props.config.areaId
             ? {
@@ -98,14 +115,15 @@ function AreaWidget(props: { config: AreaConfig }) {
         }
       >
         <Show when={area()}>
-          <Widget.Content>
-            <AreaContent
-              metrics={metrics()}
-              areaName={areaName()}
-              areaIcon={areaIcon()}
-              onToggleLights={toggleLights}
-            />
-          </Widget.Content>
+          <AreaContent
+            metrics={metrics()}
+            groups={groups()}
+            areaName={areaName()}
+            areaIcon={area()?.icon}
+            picture={area()?.picture}
+            onAction={onAction}
+            onMore={openDialog}
+          />
         </Show>
       </Widget>
       <WidgetDialog
@@ -140,6 +158,10 @@ export default defineWidget<AreaConfig>({
         size: { w: 3, h: 3 },
         config: { areaId: "living_room", title: "Living Room" },
       },
+      { label: "Bedroom", size: { w: 3, h: 3 }, config: { areaId: "bedroom" } },
+      { label: "Kitchen", size: { w: 3, h: 3 }, config: { areaId: "kitchen" } },
+      { label: "Entry", size: { w: 3, h: 3 }, config: { areaId: "entry" } },
+      { label: "Garage", size: { w: 3, h: 3 }, config: { areaId: "garage" } },
     ],
   },
   configSchema,

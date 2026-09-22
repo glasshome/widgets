@@ -6,6 +6,7 @@ import {
   type Infer,
   isDark,
   useEntities,
+  useService,
   useTemperatureUnit,
   useWidgetContext,
   useWidgetDialog,
@@ -14,10 +15,20 @@ import {
   Widget,
   type WidgetDebugData,
   WidgetDialog,
+  WidgetSliderFill,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, onCleanup, Show } from "solid-js";
-import { formatTemperature, widgetDialogProps } from "../common";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { formatTemperature, useSetpoints, widgetDialogProps } from "../common";
+import {
+  Tile,
+  TileChoice,
+  TileControls,
+  TileGlyph,
+  TileHead,
+  TileHero,
+  TileStepper,
+} from "../common/tile/tile";
 import "../common/mode-transition.css";
 import { ClimateControls } from "./controls";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
@@ -64,26 +75,88 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   // on next memo invalidation (acceptable per CONTEXT D-10 / T-29-04).
   const mode = createMemo(() => getModeColors(hvacMode(), isDark()));
 
-  const statusText = createMemo(() => {
-    const mode = HVAC_MODES[hvacMode()]?.label ?? hvacMode();
-    const ct = currentTemp();
-    if (ct === undefined) return mode;
-
-    const action = hvacAction();
-    if (action && action !== "idle" && action !== "off") {
-      const actionLabel = action.charAt(0).toUpperCase() + action.slice(1);
-      const tt = targetTemp();
-      if (tt !== undefined) {
-        return `${actionLabel} to ${formatTemperature(tt, tempUnit())}`;
-      }
-      return actionLabel;
-    }
-
-    return `${mode} - ${formatTemperature(ct, tempUnit())}`;
+  const { callService } = useService();
+  const step = () =>
+    (entity()?.attributes?.target_temp_step as number | undefined) ??
+    (tempUnit() === "F" ? 1 : 0.5);
+  const minTemp = () => (entity()?.attributes?.min_temp as number | undefined) ?? 7;
+  const maxTemp = () => (entity()?.attributes?.max_temp as number | undefined) ?? 35;
+  const setpoints = useSetpoints({
+    stateValues: () => {
+      const t = targetTemp();
+      return t === undefined ? [] : [t];
+    },
+    min: minTemp,
+    max: maxTemp,
+    step,
+    commit: (values) => {
+      const id = entity()?.id;
+      if (id)
+        callService("climate", "set_temperature", { temperature: values[0] }, { entity_id: id });
+    },
   });
+  const modes = createMemo(() =>
+    ((entity()?.attributes?.hvac_modes as string[] | undefined) ?? [])
+      .filter((m) => ["heat", "cool", "auto", "heat_cool", "off"].includes(m))
+      .slice(0, 3),
+  );
+  const setMode = (m: string) => {
+    const id = entity()?.id;
+    if (id) callService("climate", "set_hvac_mode", { hvac_mode: m }, { entity_id: id });
+  };
+  const targetLabel = () => {
+    const t = setpoints.values()[0];
+    return t === undefined ? "--" : t.toFixed(t % 1 === 0 ? 0 : 1);
+  };
+  const eyebrow = createMemo(() => {
+    const action = hvacAction();
+    if (action && action !== "idle" && action !== "off")
+      return action.charAt(0).toUpperCase() + action.slice(1);
+    return HVAC_MODES[hvacMode()]?.label ?? hvacMode();
+  });
+  const subLine = createMemo(() => {
+    const ct = currentTemp();
+    const hum = entity()?.attributes?.current_humidity as number | undefined;
+    return [
+      ct === undefined ? undefined : `Now ${formatTemperature(ct, tempUnit())}`,
+      hum === undefined ? undefined : `${hum}%`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  });
+
+  const [dragging, setDragging] = createSignal(false);
+  const fillPercent = () => {
+    const t = setpoints.values()[0];
+    if (t === undefined) return 0;
+    return ((t - minTemp()) / (maxTemp() - minTemp())) * 100;
+  };
+  let dragCommit: ReturnType<typeof setTimeout> | undefined;
+  const onSlide = (percent: number) => {
+    setDragging(true);
+    const raw = minTemp() + (percent / 100) * (maxTemp() - minTemp());
+    const next = Math.round(raw / step()) * step();
+    setpoints.setPending([next]);
+    if (dragCommit) clearTimeout(dragCommit);
+    dragCommit = setTimeout(() => {
+      setDragging(false);
+      setpoints.commitValues([next]);
+    }, 300);
+  };
 
   const gestures = useWidgetGestures(() => ({
     hold: { action: openDialog },
+    slide:
+      hvacMode() === "off"
+        ? undefined
+        : {
+            value: fillPercent(),
+            onChange: onSlide,
+            min: 0,
+            max: 100,
+            orientation: "auto" as const,
+            activationDelay: 0,
+          },
   }));
   onCleanup(gestures.dispose);
 
@@ -104,15 +177,39 @@ function ClimateWidget(props: { config: ClimateConfig }) {
         class="widget-mode-transition"
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title || entity()?.friendlyName || "Climate"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+          <Show when={hvacMode() !== "off"}>
+            <WidgetSliderFill value={fillPercent()} isDragging={dragging()} />
+          </Show>
+          <Tile active={hvacMode() !== "off"}>
+            <TileGlyph icon={iconName()} />
+            <TileHead
+              icon={iconName()}
+              eyebrow={eyebrow()}
+              name={props.config.title || entity()?.friendlyName || "Climate"}
+              active={hvacMode() !== "off"}
+            />
+            <TileHero
+              value={hvacMode() === "off" ? "Off" : targetLabel()}
+              unit={hvacMode() === "off" ? undefined : "°"}
+              sub={subLine()}
+            />
+            <TileControls>
+              <TileStepper
+                label="Target temperature"
+                onStep={(d) => setpoints.stepValue(0, d * step())}
+              />
+              <TileChoice
+                label="Mode"
+                value={hvacMode()}
+                options={modes().map((m) => ({
+                  value: m,
+                  icon: getHvacModeIcon(m),
+                  label: HVAC_MODES[m]?.label ?? m,
+                }))}
+                onChange={setMode}
+              />
+            </TileControls>
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog
