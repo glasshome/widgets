@@ -33,7 +33,7 @@ function DebugSection(props: { title: string; data: unknown }) {
   return (
     <div class="space-y-1.5">
       <h3 class="font-semibold text-muted-foreground text-xs">{props.title}</h3>
-      <pre class="overflow-auto rounded-lg bg-muted/50 p-3 font-mono text-xs leading-relaxed">
+      <pre class="overflow-auto rounded-lg bg-muted p-3 font-mono text-xs leading-relaxed">
         {JSON.stringify(props.data, null, 2)}
       </pre>
     </div>

@@ -35,7 +35,7 @@ function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): J
     <Show when={props.view}>
       {(v) => (
         <div
-          class="flex h-full w-full items-center rounded-lg border border-border bg-card transition-opacity"
+          class="glass flex h-full w-full items-center rounded-lg transition-opacity"
           classList={{
             "opacity-50": v().idle,
             "flex-row-reverse text-right": props.align === "right",

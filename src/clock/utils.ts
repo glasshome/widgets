@@ -1,15 +1,11 @@
 import type { ClockConfig, ClockPreset, DateFormat } from "./types";
 
-/* Per-preset gradient strings — raw CSS for the channel API's <Widget gradient=...> contract.
- * tuned in Phase 29 — placeholder oklch hues match the shell formula's direction/opacities. */
-export const CLOCK_GRADIENTS: Record<ClockPreset, string> = {
-  modern:
-    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 240) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 200) 12%, transparent))",
-  classic:
-    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 70) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 40) 12%, transparent))",
-  minimal:
-    "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.02 250) 22%, transparent), color-mix(in oklch, oklch(0.7 0.02 250) 12%, transparent))",
-  bold: "linear-gradient(135deg, color-mix(in oklch, oklch(0.7 0.18 20) 22%, transparent), color-mix(in oklch, oklch(0.7 0.18 330) 12%, transparent))",
+/** Each preset's two glass stops; the shell paints them at its own wash. */
+export const CLOCK_TONES: Record<ClockPreset, { color: string; colorTo: string }> = {
+  modern: { color: "oklch(0.7 0.18 240)", colorTo: "oklch(0.7 0.18 200)" },
+  classic: { color: "oklch(0.7 0.18 70)", colorTo: "oklch(0.7 0.18 40)" },
+  minimal: { color: "oklch(0.7 0.02 250)", colorTo: "oklch(0.7 0.02 250)" },
+  bold: { color: "oklch(0.7 0.18 20)", colorTo: "oklch(0.7 0.18 330)" },
 };
 
 export function getTimeParts(
@@ -83,8 +79,8 @@ export function formatDate(date: Date, format: DateFormat, timeZone?: string): s
   }
 }
 
-export function getClockGradient(preset?: ClockPreset): string {
-  return CLOCK_GRADIENTS[preset ?? "modern"];
+export function getClockTones(preset?: ClockPreset): { color: string; colorTo: string } {
+  return CLOCK_TONES[preset ?? "modern"];
 }
 
 export function getDefaultConfig(): ClockConfig {

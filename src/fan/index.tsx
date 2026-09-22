@@ -149,17 +149,13 @@ function FanWidget(props: { config: FanConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        tone={supportsSpeed() ? "neutral" : isOn() ? "success" : "neutral"}
+        tone={isOn() ? "success" : "neutral"}
         emptyState={emptyState()}
         class={isDragging() ? "duration-0" : undefined}
       >
         <Show when={hasEntities()}>
           <Show when={supportsSpeed()}>
-            <WidgetSliderFill
-              value={uiPercentage()}
-              color="var(--primary)"
-              isDragging={isDragging()}
-            />
+            <WidgetSliderFill value={uiPercentage()} isDragging={isDragging()} />
           </Show>
           <Widget.Content>
             <Widget.Icon

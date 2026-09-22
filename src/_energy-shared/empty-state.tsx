@@ -1,3 +1,4 @@
+import { Badge, Button } from "@glasshome/widget-sdk";
 import { type JSX, Match, Show, Switch } from "solid-js";
 
 export type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
@@ -21,13 +22,9 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
             </p>
           </div>
           <Show when={props.onConfigure}>
-            <button
-              type="button"
-              class="flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border border-border px-4 text-sm transition-colors hover:bg-muted"
-              onClick={() => props.onConfigure?.()}
-            >
+            <Button variant="outline" size="sm" onClick={() => props.onConfigure?.()}>
               Configure
-            </button>
+            </Button>
           </Show>
         </div>
       </Match>
@@ -35,9 +32,7 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
       <Match when={props.kind === "unavailable"}>
         <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
           <span class="font-medium text-foreground text-sm opacity-60">{props.lastKnownValue}</span>
-          <span class="rounded-full bg-muted px-2 py-0.5 text-muted-foreground text-xs">
-            Reconnecting...
-          </span>
+          <Badge>Reconnecting...</Badge>
         </div>
       </Match>
 

@@ -1,4 +1,4 @@
-import { useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
+import { Badge, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, type JSX, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
@@ -23,21 +23,12 @@ interface ChipDef {
   title: string;
 }
 
-/** Mixing the tone into the theme's own ink keeps a badge readable on both grounds. */
-function toneInk(color: string): string {
-  return `color-mix(in oklch, ${color} 55%, var(--color-foreground))`;
-}
-
 function StatusChip(props: ChipDef) {
   return (
-    <span
-      class="inline-flex items-center gap-1 rounded-full bg-foreground/[0.07] px-2 py-0.5 font-medium text-[11px] tabular-nums leading-none"
-      style={{ color: toneInk(props.color) }}
-      title={props.title}
-    >
+    <Badge tone={props.color} title={props.title} class="gap-1 tabular-nums">
       <Icon icon={props.icon} width={12} />
       {props.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -123,21 +114,12 @@ function buildStatus(m: AreaMetrics): AreaStatus {
 
 function StatusBadge(props: { status: AreaStatus; compact?: boolean }) {
   return (
-    <span
-      class={`inline-flex shrink-0 items-center gap-1.5 font-medium tabular-nums leading-none ${
-        props.compact ? "text-[10px]" : "text-xs"
-      }`}
-      style={{ color: toneInk(props.status.color) }}
+    <Badge
+      tone={props.status.color}
+      class={`shrink-0 tabular-nums ${props.compact ? "text-[10px]" : ""}`}
     >
-      <span
-        class="inline-block size-1.5 rounded-full"
-        style={{
-          "background-color": toneInk(props.status.color),
-          "box-shadow": `0 0 6px ${props.status.color}`,
-        }}
-      />
       {props.status.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -177,16 +159,12 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
     <Dynamic
       component={tag}
       type={interactive() ? "button" : undefined}
-      class={`group @container relative flex min-w-0 flex-1 overflow-hidden rounded-lg border text-left transition-all ${
+      class={`group @container glass relative flex min-w-0 flex-1 overflow-hidden rounded-lg text-left transition-glass ${
         props.horizontal ? "items-center gap-3" : "flex-col justify-end gap-1"
-      } ${props.compact ? "p-2.5" : "p-3"} ${
-        props.active ? "border-transparent" : "border-foreground/10 bg-foreground/[0.05]"
-      } ${interactive() ? "cursor-pointer active:scale-[0.97]" : ""}`}
-      style={
-        props.active
-          ? { "background-color": `color-mix(in oklch, ${accent()} 16%, transparent)` }
-          : undefined
-      }
+      } ${props.compact ? "p-2.5" : "p-3"} ${props.active ? "glass-tint [--glass-wash:16%]" : ""} ${
+        interactive() ? "cursor-pointer active:scale-[0.97]" : ""
+      }`}
+      style={{ "--glass-tone": props.active ? accent() : "transparent" }}
       on:pointerdown={interactive() ? (e: PointerEvent) => e.stopPropagation() : undefined}
       on:pointerup={interactive() ? (e: PointerEvent) => e.stopPropagation() : undefined}
       on:click={props.onTap ? () => props.onTap?.() : undefined}
@@ -200,24 +178,12 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
 
       {/* glyph chip — top in vertical, left in horizontal */}
       <div
-        class={`relative flex shrink-0 items-center justify-center rounded-full transition-colors ${
+        class={`glass relative flex shrink-0 items-center justify-center rounded-full transition-glass ${
           props.horizontal ? "" : "mb-auto"
         } ${props.compact ? "h-7 w-7" : "h-9 w-9"} ${
-          props.active
-            ? "shadow-[0_0_14px_-2px_var(--tw-shadow-color)]"
-            : interactive()
-              ? "bg-foreground/10 text-foreground/55 group-hover:bg-foreground/[0.14]"
-              : "bg-foreground/[0.07] text-foreground/45"
+          props.active ? "glass-tint [--glass-wash:70%]" : "text-muted-foreground"
         }`}
-        style={
-          props.active
-            ? {
-                "background-color": accent(),
-                color: "oklch(0.18 0.02 80)",
-                "--tw-shadow-color": accent(),
-              }
-            : undefined
-        }
+        style={props.active ? { "--glass-tone": accent() } : undefined}
       >
         <Icon icon={props.glyph} width={props.compact ? 15 : 18} />
       </div>
@@ -225,7 +191,7 @@ function ControlTile(props: TileDef & { compact?: boolean; horizontal?: boolean 
       {/* label + value */}
       <div class={`relative min-w-0 ${props.horizontal ? "flex-1" : ""}`}>
         <div
-          class={`truncate font-medium text-foreground/45 ${props.compact ? "text-[10px]" : "text-xs"}`}
+          class={`truncate font-medium text-muted-foreground ${props.compact ? "text-[10px]" : "text-xs"}`}
         >
           {props.label}
         </div>

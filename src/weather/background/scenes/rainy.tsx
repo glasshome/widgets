@@ -110,6 +110,7 @@ export function RainyScene(props: RainyProps) {
         <For each={splX}>
           {(x, i) => (
             <div
+              /* ui-drift-ok raindrop, scene art */
               class="absolute bottom-0 h-px w-2 rounded-full bg-white/40"
               style={{
                 left: `${x * 100}%`,
