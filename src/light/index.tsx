@@ -147,6 +147,7 @@ function LightWidget(props: { config: LightConfig }) {
         gestures={gestures}
         variant="classic-glass"
         tone="neutral"
+        color={isOn() ? displayColor() : undefined}
         emptyState={emptyState()}
         class={isDragging() ? "duration-0" : undefined}
       >

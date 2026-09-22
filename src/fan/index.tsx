@@ -149,7 +149,7 @@ function FanWidget(props: { config: FanConfig }) {
       <Widget
         gestures={gestures}
         variant="classic-glass"
-        tone={supportsSpeed() ? "neutral" : isOn() ? "success" : "neutral"}
+        tone={isOn() ? "success" : "neutral"}
         emptyState={emptyState()}
         class={isDragging() ? "duration-0" : undefined}
       >
