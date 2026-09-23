@@ -9,7 +9,15 @@ import sconce from "./assets/lamp-sconce.webp";
 import table from "./assets/lamp-table.webp";
 import "./lamp.css";
 
-export type LampKind = "table" | "floor" | "pendant" | "desk" | "mushroom" | "ceiling" | "sconce" | "bulb";
+export type LampKind =
+  | "table"
+  | "floor"
+  | "pendant"
+  | "desk"
+  | "mushroom"
+  | "ceiling"
+  | "sconce"
+  | "bulb";
 
 interface Emitter {
   x: number;
@@ -221,11 +229,19 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
                 <stop offset="70%" stop-color="var(--lamp-color)" stop-opacity="0.08" />
                 <stop offset="100%" stop-color="var(--lamp-color)" stop-opacity="0" />
               </radialGradient>
-              <polygon points={g.points} fill={`url(#${id}-beam-${i()})`} filter={`url(#${id}-soft)`} />
+              <polygon
+                points={g.points}
+                fill={`url(#${id}-beam-${i()})`}
+                filter={`url(#${id}-soft)`}
+              />
             </>
           )}
         </For>
-        <For each={lamp().beams.filter((b) => b.floor).map((b) => beamGeometry(lamp(), b))}>
+        <For
+          each={lamp()
+            .beams.filter((b) => b.floor)
+            .map((b) => beamGeometry(lamp(), b))}
+        >
           {(g) => (
             <ellipse
               cx={g.ex}
@@ -253,11 +269,10 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
         class="lamp-emit"
         style={{
           background: lamp()
-            .emit.map(
-              (e) =>
-                e.core
-                  ? `radial-gradient(${e.rx}% ${e.ry}% at ${e.x}% ${e.y}%, color-mix(in oklch, var(--lamp-color) 20%, white) 0%, color-mix(in oklch, var(--lamp-color) 70%, white) 35%, var(--lamp-color) 70%, transparent 100%)`
-                  : `radial-gradient(${e.rx}% ${e.ry}% at ${e.x}% ${e.y}%, color-mix(in oklch, var(--lamp-color) 70%, white) 0%, var(--lamp-color) 60%, transparent 100%)`,
+            .emit.map((e) =>
+              e.core
+                ? `radial-gradient(${e.rx}% ${e.ry}% at ${e.x}% ${e.y}%, color-mix(in oklch, var(--lamp-color) 20%, white) 0%, color-mix(in oklch, var(--lamp-color) 70%, white) 35%, var(--lamp-color) 70%, transparent 100%)`
+                : `radial-gradient(${e.rx}% ${e.ry}% at ${e.x}% ${e.y}%, color-mix(in oklch, var(--lamp-color) 70%, white) 0%, var(--lamp-color) 60%, transparent 100%)`,
             )
             .join(", "),
         }}

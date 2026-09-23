@@ -28,6 +28,7 @@ import livingNightOn from "./assets/room-living-night-on.webp";
 import office from "./assets/room-office.webp";
 import officeNightOff from "./assets/room-office-night-off.webp";
 import officeNightOn from "./assets/room-office-night-on.webp";
+
 const ROOMS: [RegExp, string, string][] = [
   [/kid|child|nursery|play/i, kids, "mdi:teddy-bear"],
   [/bed|sleep|guest/i, bedroom, "mdi:bed"],

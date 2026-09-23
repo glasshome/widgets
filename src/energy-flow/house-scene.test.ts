@@ -41,7 +41,7 @@ describe("layoutHouseScene", () => {
       });
       const [solar, ev] = s.links;
       expect((solar?.anchor.x ?? 0) - (solar?.from.x ?? 0)).toBeLessThan(s.house.w * 0.5);
-      expect((ev?.from.x ?? 0) - (ev?.anchor.x ?? 0)).toBeLessThan(s.house.w * 0.2);
+      expect((ev?.from.x ?? 0) - (ev?.anchor.x ?? 0)).toBeLessThan(s.house.w * 0.1 + 20);
     }
   });
 

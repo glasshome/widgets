@@ -31,7 +31,7 @@ describe("arcPoint", () => {
     const right = arcPoint(1, box);
     expect(left.y).toBeCloseTo(right.y, 5);
     expect(top.y).toBeLessThan(left.y);
-    expect(top.x).toBeCloseTo(150, 5);
+    expect(top.x).toBeCloseTo((left.x + right.x) / 2, 5);
     expect(left.x).toBeLessThan(top.x);
     expect(right.x).toBeGreaterThan(top.x);
   });

@@ -4,7 +4,9 @@
   display: inline-block;
   isolation: isolate;
 }
-.lamp-art[data-flip] { transform: scaleX(-1); }
+.lamp-art[data-flip] {
+  transform: scaleX(-1);
+}
 .lamp-art > img {
   position: relative;
   height: 100%;

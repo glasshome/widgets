@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   countActiveEntities,
   defineConfig,
   defineWidget,
@@ -12,9 +13,8 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  WidgetDialog,
-  buildDebugData,
   type WidgetDebugData,
+  WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
