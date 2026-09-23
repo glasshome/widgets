@@ -352,7 +352,8 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={cfg().clockStyle === "digital"}>
             <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
               <div
-                class={`clock-seconds-fill h-full origin-left rounded-full${secondsNum() === 0 ? "snap" : ""}`}
+                class="clock-seconds-fill h-full origin-left rounded-full"
+                classList={{ snap: secondsNum() === 0 }}
                 style={{
                   transform: `scaleX(${secondsProgress() / 100})`,
                   background: `linear-gradient(90deg, transparent, ${barColor()})`,
