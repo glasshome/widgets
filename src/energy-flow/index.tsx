@@ -75,38 +75,40 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" color={channelColor()}>
-        <Widget.Content>
-          <Show
-            when={!unconfigured()}
-            fallback={
+        <Show
+          when={!unconfigured()}
+          fallback={
+            <Widget.Content>
               <div class="flex h-full min-h-0 flex-col gap-2">
                 <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
                 <div class="min-h-0 flex-1">
                   <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
                 </div>
               </div>
-            }
-          >
-            <Show
-              when={!stale()}
-              fallback={
+            </Widget.Content>
+          }
+        >
+          <Show
+            when={!stale()}
+            fallback={
+              <Widget.Content>
                 <div class="flex h-full min-h-0 flex-col gap-2">
                   <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
                   <div class="min-h-0 flex-1">
                     <EnergyEmptyState kind="unavailable" />
                   </div>
                 </div>
-              }
-            >
-              <EnergyContent
-                flow={flow()}
-                description={description()}
-                tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
-                title={props.config.title || "Energy Flow"}
-              />
-            </Show>
+              </Widget.Content>
+            }
+          >
+            <EnergyContent
+              flow={flow()}
+              description={description()}
+              tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
+              title={props.config.title || "Energy Flow"}
+            />
           </Show>
-        </Widget.Content>
+        </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}

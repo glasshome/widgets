@@ -1,0 +1,61 @@
+.tile-backdrop > .sky-photo {
+  object-position: center 70%;
+}
+.tile-backdrop > .sky-layer {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.tile-backdrop > .sky-layer[data-visible] {
+  opacity: 1;
+}
+.sky-arc {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sky-track {
+  fill: none;
+  stroke: oklch(1 0 0 / 0.35);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+}
+.sky-trail {
+  fill: none;
+  stroke: oklch(0.88 0.15 80 / 0.9);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.sky-trail[data-body="moon"] {
+  stroke: oklch(0.9 0.03 250 / 0.6);
+}
+.sky-sun {
+  fill: oklch(0.97 0.08 90);
+}
+.sky-moon {
+  fill: oklch(0.95 0.02 250);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile-backdrop > .sky-layer {
+    transition: none;
+  }
+}
+.sky-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      color-mix(in oklch, var(--card) 72%, transparent) 0%,
+      color-mix(in oklch, var(--card) 48%, transparent) 50%,
+      transparent 74%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--card) 45%, transparent) 0%,
+      transparent 32%
+    );
+}
+.dark .tile-backdrop > .sky-photo {
+  filter: brightness(0.72);
+}

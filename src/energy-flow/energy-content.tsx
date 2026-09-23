@@ -1,16 +1,17 @@
-import { useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, Match, Switch } from "solid-js";
+import { useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
+import { createMemo, createSignal, Index, Show } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
+import { Tile, TileChip, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import houseDay from "./assets/house-clay.webp";
+import houseNight from "./assets/house-clay-night.webp";
 import type { Tariff } from "./cost";
-import { isIdle, type ResolvedFlow } from "./flow";
-import { EnergyHeader } from "./header";
+import { ACTIVE_THRESHOLD, aggregate, isIdle, type ResolvedFlow } from "./flow";
 import { selectTier } from "./layout";
-import { SourceMix } from "./mix-bar";
 import { NodeDetail } from "./node-detail";
 import { Spine } from "./spine";
+import "./house.css";
 
 interface EnergyContentProps {
   flow: ResolvedFlow;
@@ -19,73 +20,90 @@ interface EnergyContentProps {
   title: string;
 }
 
+function splitPower(watts: number): { value: string; unit: string } {
+  const text = formatPower(watts);
+  const i = text.lastIndexOf(" ");
+  return i < 0 ? { value: text, unit: "" } : { value: text.slice(0, i), unit: text.slice(i + 1) };
+}
+
 export function EnergyContent(props: EnergyContentProps) {
   const dimensions = useWidgetDimensions();
-
+  const daylight = useDaylight();
   const [openNode, setOpenNode] = createSignal<string | null>(null);
 
   const tier = createMemo(() => {
     const d = dimensions();
     return selectTier(d.width, d.height);
   });
-
-  // Nothing meaningfully flowing → the header tile dims like other widgets'
-  // off states.
   const idle = createMemo(() => isIdle(props.flow));
+  const reading = createMemo(() => splitPower(props.flow.hubW));
+  const glow = createMemo(() => Math.min(1, aggregate(props.flow.nodes).productionW / 4000));
+  const activeNodes = createMemo(() =>
+    props.flow.nodes.filter(
+      (n) =>
+        n.configured && n.kind !== "output" && n.watts > ACTIVE_THRESHOLD && n.direction !== "idle",
+    ),
+  );
+
+  const house = () => (
+    <div class="flow-house flow-house-art">
+      <img src={houseDay} alt="" />
+      <img
+        src={houseNight}
+        alt=""
+        class="flow-house-night"
+        data-visible={daylight().isNight || undefined}
+      />
+      <div class="flow-house-panels" style={{ opacity: glow() }} />
+    </div>
+  );
 
   return (
-    <div class="relative h-full w-full">
-      <Switch>
-        {/* --- Glance: header row only, like any 2x1 widget --- */}
-        <Match when={tier() === "glance"}>
-          <div class="flex h-full min-h-0 items-center gap-3">
-            <Widget.Icon icon={<Icon icon={energyIcons.home} />} dimmed={idle()} />
-            <div class="flex min-w-0 flex-col overflow-hidden">
-              <Widget.Title>{props.description.headline}</Widget.Title>
-              <Widget.Status class="tabular-nums">{formatPower(props.flow.hubW)}</Widget.Status>
-            </div>
+    <>
+      <Tile active={!idle()} class={tier() === "full" ? "flow-tile-full" : undefined}>
+        <TileGlyph icon={energyIcons.home} />
+        <TileHead
+          icon={energyIcons.home}
+          eyebrow={props.description.headline}
+          name={props.title}
+          active={!idle()}
+        />
+        <Show
+          when={tier() === "full"}
+          fallback={
+            <>
+              <TileHero
+                value={reading().value}
+                unit={` ${reading().unit}`}
+                sub="Home now"
+                art={house()}
+              />
+              <TileControls>
+                <div class="flow-chips">
+                  <Index each={activeNodes()}>
+                    {(n) => (
+                      <TileChip icon={n().icon} tone={n().color}>
+                        {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
+                        {formatPower(n().watts)}
+                      </TileChip>
+                    )}
+                  </Index>
+                </div>
+              </TileControls>
+            </>
+          }
+        >
+          <div class="flow-scene">
+            <Spine flow={props.flow} tariff={props.tariff} onTap={setOpenNode} />
           </div>
-        </Match>
-
-        {/* --- Mid: header + home draw + supply-mix bar --- */}
-        <Match when={tier() === "mid"}>
-          <div class="flex h-full min-h-0 flex-col justify-between gap-2">
-            <EnergyHeader
-              headline={props.title}
-              detail={props.description.headline}
-              dimmed={idle()}
-            />
-            <div class="flex min-w-0 flex-col gap-2">
-              <div class="flex items-baseline gap-1.5">
-                <Widget.Status class="tabular-nums">{formatPower(props.flow.hubW)}</Widget.Status>
-                <span class="text-foreground/50 text-xs">home</span>
-              </div>
-              <SourceMix flow={props.flow} tariff={props.tariff} />
-            </div>
-          </div>
-        </Match>
-
-        {/* --- Full: header + the source → home → spend spine --- */}
-        <Match when={tier() === "full"}>
-          <div class="flex h-full min-h-0 flex-col gap-1">
-            <EnergyHeader
-              headline={props.title}
-              detail={props.description.headline}
-              dimmed={idle()}
-            />
-            <div class="min-h-0 flex-1">
-              <Spine flow={props.flow} tariff={props.tariff} onTap={setOpenNode} />
-            </div>
-          </div>
-        </Match>
-      </Switch>
-
+        </Show>
+      </Tile>
       <NodeDetail
         flow={props.flow}
         tariff={props.tariff}
         node={openNode()}
         onClose={() => setOpenNode(null)}
       />
-    </div>
+    </>
   );
 }

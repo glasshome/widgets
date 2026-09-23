@@ -8,12 +8,13 @@ describe("selectTier", () => {
   });
 
   test("comfortable size is full", () => {
-    expect(selectTier(360, 300)).toBe("full");
+    expect(selectTier(340, 230)).toBe("full");
     expect(selectTier(600, 400)).toBe("full");
   });
 
   test("in-between is mid", () => {
     expect(selectTier(300, 200)).toBe("mid");
-    expect(selectTier(359, 299)).toBe("mid");
+    expect(selectTier(339, 400)).toBe("mid");
+    expect(selectTier(600, 229)).toBe("mid");
   });
 });

@@ -1,24 +1,30 @@
-import { useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
+import { useDaylight, useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
-  createUniqueId,
+  For,
   type JSX,
   onCleanup,
   Show,
 } from "solid-js";
-import { FlowCanvas } from "../_flow-graph/FlowCanvas";
-import type { FlowNode as FlowNodeData, Rect } from "../_flow-graph/types";
+import { formatPower } from "../_energy-shared";
+import houseDay from "./assets/house-clay.webp";
+import houseNight from "./assets/house-clay-night.webp";
 import type { Tariff } from "./cost";
-import type { ResolvedFlow } from "./flow";
-import { buildEnergyGraph, type NodeView } from "./graph-adapter";
+import { aggregate, type ResolvedFlow, type ResolvedNode } from "./flow";
+import { buildEnergyGraph } from "./graph-adapter";
+import { type LabelSide, layoutHouseScene, linkPath, type SceneRole } from "./house-scene";
+import "./house.css";
 
-/** True while the document is hidden (tab switched, app backgrounded). Covers the
- *  Capacitor WebView, which fires visibilitychange on app-state changes, without
- *  pulling a Capacitor dependency into the widget bundle. */
+const STREAM_CSS = `
+@keyframes flow-stream { to { stroke-dashoffset: var(--flow-travel, -64); } }
+.flow-stream { animation: flow-stream var(--flow-dur, 3s) linear infinite; }
+@media (prefers-reduced-motion: reduce) { .flow-stream { animation: none; opacity: 0; } }
+`;
+
 function useDocumentHidden(): Accessor<boolean> {
   if (typeof document === "undefined") return () => false;
   const [hidden, setHidden] = createSignal(document.hidden);
@@ -28,118 +34,25 @@ function useDocumentHidden(): Accessor<boolean> {
   return hidden;
 }
 
-/** A source/spend node's content, filling its layout box. The role color is
- *  carried by the glyph; the box is a neutral themed sub-card. */
-function Chip(props: { view: NodeView | undefined; align: "left" | "right" }): JSX.Element {
-  return (
-    <Show when={props.view}>
-      {(v) => (
-        <div
-          class="glass flex h-full w-full items-center rounded-lg transition-opacity"
-          classList={{
-            "opacity-50": v().idle,
-            "flex-row-reverse text-right": props.align === "right",
-          }}
-          style={{ gap: "clamp(8px, 1.3cqi, 12px)", padding: "0 clamp(9px, 1.5cqi, 14px)" }}
-        >
-          <Icon
-            icon={v().icon}
-            class="shrink-0"
-            style={{
-              color: v().idle ? "currentColor" : v().color,
-              "font-size": "clamp(20px, 3.2cqi, 30px)",
-            }}
-          />
-          <span class="flex min-w-0 flex-col leading-tight">
-            <span
-              class="truncate text-foreground/55"
-              style={{ "font-size": "clamp(11px, 1.7cqi, 14px)" }}
-            >
-              {v().label}
-            </span>
-            <span
-              class="truncate font-semibold text-foreground tabular-nums"
-              style={{ "font-size": "clamp(15px, 2.7cqi, 23px)" }}
-            >
-              {v().value}
-            </span>
-            <Show when={v().sub}>
-              <span
-                class="truncate text-foreground/45 tabular-nums"
-                style={{ "font-size": "clamp(10px, 1.5cqi, 12px)" }}
-              >
-                {v().sub}
-              </span>
-            </Show>
-          </span>
-        </div>
-      )}
-    </Show>
-  );
+const ROLE: Record<ResolvedNode["kind"], SceneRole> = {
+  input: "roof",
+  output: "wall-right",
+  bidirectional: "base",
+};
+
+// Three steps only: a new duration restarts the animation, so small changes must not move it.
+function streamSeconds(watts: number, max: number): number {
+  return 4 - Math.round(Math.min(1, watts / (max || 1)) * 2);
 }
 
-/** Same auto-contrast formula as the SDK icon tile: light text on a dark fill,
- *  dark text on a light fill, in either theme. */
-const HOUSE_TEXT =
-  "oklch(from var(--widget-color) calc(0.52 + sign(0.5 - l) * 0.43) calc(c * 0.2) h)";
-
-/** Pentagon inset 8 viewBox-units inside the node box; the 16-wide stroke
- *  centered on it reaches back out to the box edge and its round joins give
- *  the 8px corner radius. Eaves sit at y=42 — keep `hubAttachTop` in sync so
- *  ribbons attach below the roofline. */
-const HOUSE_PATH = "M52 8 L96 42 V84 H8 V42 Z";
-
-/** The central hub: a house-shaped tile in the dominant source color (the
- *  widget channel), carrying total home consumption. The silhouette fills the
- *  node box so the ribbon ends tuck under its walls. */
-function Hub(props: { view: NodeView | undefined }): JSX.Element {
-  const sheenId = `house-sheen-${createUniqueId()}`;
-  return (
-    <div class="relative h-full w-full" role="img" aria-label={`Home, ${props.view?.value ?? ""}`}>
-      <svg
-        class="absolute inset-0 h-full w-full"
-        viewBox="0 0 104 92"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{
-          filter: "drop-shadow(0 0 14px color-mix(in oklch, var(--widget-color) 40%, transparent))",
-        }}
-      >
-        <defs>
-          {/* Top-down white sheen over the fill: the same glass highlight the
-              widget shell carries via --widget-border-highlight. */}
-          <linearGradient id={sheenId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#fff" stop-opacity="0.32" />
-            <stop offset="0.55" stop-color="#fff" stop-opacity="0.06" />
-            <stop offset="1" stop-color="#fff" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d={HOUSE_PATH}
-          fill="var(--widget-color)"
-          stroke="var(--widget-color)"
-          stroke-width="16"
-          stroke-linejoin="round"
-        />
-        <path
-          d={HOUSE_PATH}
-          fill={`url(#${sheenId})`}
-          stroke={`url(#${sheenId})`}
-          stroke-width="16"
-          stroke-linejoin="round"
-        />
-      </svg>
-      {/* Center the reading in the house body, below the roofline. */}
-      <div
-        class="absolute inset-x-0 top-[42%] bottom-0 z-[1] flex items-center justify-center"
-        style={{ color: HOUSE_TEXT }}
-      >
-        <span class="font-bold tabular-nums" style={{ "font-size": "clamp(19px, 3.8cqi, 30px)" }}>
-          {props.view?.value ?? ""}
-        </span>
-      </div>
-    </div>
-  );
+function labelPosition(
+  side: LabelSide,
+  at: { x: number; y: number },
+  width: number,
+): JSX.CSSProperties {
+  if (side === "bottom") return { left: `${at.x}px`, top: `${at.y}px` };
+  if (side === "left") return { right: `${width - at.x}px`, top: `${at.y}px` };
+  return { left: `${at.x}px`, top: `${at.y}px` };
 }
 
 export function Spine(props: {
@@ -148,59 +61,124 @@ export function Spine(props: {
   onTap: (id: string) => void;
 }): JSX.Element {
   const energy = createMemo(() => buildEnergyGraph(props.flow, props.tariff));
-
-  // One ResizeObserver on the canvas box feeds the pure layout. This is the only
-  // measurement: a single stable container, not per-node anchor chasing.
-  const [canvasEl, setCanvasEl] = createSignal<HTMLDivElement>();
-  const [size, setSize] = createSignal({ w: 0, h: 0 });
+  const [el, setEl] = createSignal<HTMLDivElement>();
+  const [size, setSize] = createSignal({ width: 0, height: 0 });
   createEffect(() => {
-    const el = canvasEl();
-    if (!el || typeof ResizeObserver === "undefined") return;
+    const node = el();
+    if (!node || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver((entries) => {
       const r = entries[0]?.contentRect;
-      if (r) setSize({ w: Math.round(r.width), h: Math.round(r.height) });
+      if (!r) return;
+      const next = { width: Math.round(r.width), height: Math.round(r.height) };
+      const prev = size();
+      if (next.width !== prev.width || next.height !== prev.height) setSize(next);
     });
-    ro.observe(el);
+    ro.observe(node);
     onCleanup(() => ro.disconnect());
   });
 
-  // FLOW-07: stop ribbon animation when the user prefers reduced motion, the
-  // widget is scrolled offscreen, or the app/tab is hidden (saves battery).
   const reduced = useReducedMotion();
-  const offscreen = useIntersectionPause(canvasEl);
+  const offscreen = useIntersectionPause(el);
   const hidden = useDocumentHidden();
   const paused = () => reduced() || offscreen() || hidden();
+  const daylight = useDaylight();
 
-  const renderNode = (node: Accessor<FlowNodeData>, _rect: Accessor<Rect>): JSX.Element => {
-    const view = () => energy().views.get(node().id);
-    return (
-      <Show
-        when={node().kind === "hub"}
-        fallback={<Chip view={view()} align={node().kind === "source" ? "left" : "right"} />}
-      >
-        <Hub view={view()} />
-      </Show>
-    );
-  };
+  const placed = createMemo(() => props.flow.nodes.filter((n) => n.configured));
+  const sceneNodes = createMemo(
+    () => placed().map((n) => ({ id: n.id, role: ROLE[n.kind] })),
+    undefined,
+    {
+      equals: (a, b) =>
+        a.length === b.length && a.every((x, i) => x.id === b[i]?.id && x.role === b[i]?.role),
+    },
+  );
+  const scene = createMemo(() => layoutHouseScene(sceneNodes(), size()));
+  const edgeOf = (id: string) => energy().graph.edges.find((e) => e.id === id);
+  const maxWatts = createMemo(() => Math.max(1, ...placed().map((n) => n.watts)));
+  const glow = createMemo(() => Math.min(1, aggregate(props.flow.nodes).productionW / 4000));
 
   return (
-    // No padding here: Widget.Content already applies --widget-pad. Adding it
-    // again double-insets the canvas and wastes the widget's width/height.
-    <div class="relative h-full w-full">
-      <div ref={setCanvasEl} class="relative h-full w-full">
-        <FlowCanvas
-          graph={energy().graph}
-          width={size().w}
-          height={size().h}
-          paused={paused()}
-          // Tuck ribbon ends deeper under the hub and keep them attached
-          // below the house silhouette's roofline (eaves at y=42, minus the
-          // stroke bulge).
-          layoutOpts={{ hubInset: 18, hubAttachTop: 40 }}
-          renderNode={renderNode}
-          onNodeTap={(id) => props.onTap(id)}
-        />
-      </div>
+    <div ref={setEl} class="flow-scene-box">
+      <style>{STREAM_CSS}</style>
+      <Show when={size().width > 0}>
+        <svg class="flow-links" width={size().width} height={size().height} aria-hidden="true">
+          <For each={scene().links}>
+            {(link) => {
+              const edge = () => edgeOf(link.id);
+              const node = () => placed().find((n) => n.id === link.id);
+              const toHouse = () => {
+                const e = edge();
+                const inbound = node()?.kind !== "output";
+                return e?.direction === "forward" ? inbound : !inbound;
+              };
+              return (
+                <Show when={edge() && !edge()?.idle}>
+                  <path d={linkPath(link)} class="flow-link" style={{ stroke: edge()?.color }} />
+                  <Show when={!paused()}>
+                    <path
+                      d={linkPath(link)}
+                      class="flow-stream flow-link-stream"
+                      style={{
+                        "--flow-travel": `${toHouse() ? -64 : 64}`,
+                        "--flow-dur": `${streamSeconds(node()?.watts ?? 0, maxWatts())}s`,
+                      }}
+                    />
+                  </Show>
+                </Show>
+              );
+            }}
+          </For>
+        </svg>
+        <div
+          class="flow-house-scene"
+          role="img"
+          aria-label={`Home, ${formatPower(props.flow.hubW)}`}
+          style={{
+            left: `${scene().house.x}px`,
+            top: `${scene().house.y}px`,
+            width: `${scene().house.w}px`,
+            height: `${scene().house.h}px`,
+          }}
+        >
+          <img src={houseDay} alt="" />
+          <img
+            src={houseNight}
+            alt=""
+            class="flow-house-night"
+            data-visible={daylight().isNight || undefined}
+          />
+          <div class="flow-house-panels" style={{ opacity: glow() }} />
+        </div>
+        <For each={scene().labels}>
+          {(label) => {
+            const view = () => energy().views.get(label.id);
+            return (
+              <Show when={view()}>
+                {(v) => (
+                  <button
+                    type="button"
+                    class="flow-label"
+                    data-side={label.side}
+                    data-idle={v().idle || undefined}
+                    style={labelPosition(label.side, label.at, size().width)}
+                    onClick={() => props.onTap(label.id)}
+                  >
+                    <Icon
+                      icon={v().icon}
+                      class="flow-label-icon"
+                      style={{ color: v().idle ? undefined : v().color }}
+                    />
+                    <span class="flow-label-text">
+                      <span class="flow-label-value">{v().value}</span>
+                      <span class="flow-label-name">{v().label}</span>
+                    </span>
+                  </button>
+                )}
+              </Show>
+            );
+          }}
+        </For>
+      </Show>
     </div>
   );
 }

@@ -1,0 +1,14 @@
+.grid-tile .tile-value {
+  font-size: clamp(20px, min(16cqb, 11cqi), 40px);
+  white-space: normal;
+  max-width: 60cqi;
+  line-height: 1.05;
+}
+.grid-chips {
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 24px;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}

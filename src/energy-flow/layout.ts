@@ -1,7 +1,5 @@
 /**
- * Render-tier selection for the energy-flow widget. The ribbon/node geometry
- * lives in the shared `_flow-graph` module now; this file only owns the
- * glance/mid/full threshold, which is widget-specific, not graph layout.
+ * Render-tier selection for the energy-flow widget.
  */
 
 export type Tier = "glance" | "mid" | "full";
@@ -15,6 +13,6 @@ export type Tier = "glance" | "mid" | "full";
  */
 export function selectTier(width: number, height: number): Tier {
   if (height < 150) return "glance";
-  if (width >= 360 && height >= 300) return "full";
+  if (width >= 340 && height >= 230) return "full";
   return "mid";
 }

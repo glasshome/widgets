@@ -1,0 +1,14 @@
+.balance-modes {
+  width: 100%;
+}
+.balance-mode.balance-mode {
+  height: calc(var(--tile-control-h) - 8px);
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+@container widget (max-width: 239px) {
+  .balance-modes {
+    display: none;
+  }
+}

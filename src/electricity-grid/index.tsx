@@ -4,123 +4,82 @@ import {
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, type JSX, onCleanup, Show } from "solid-js";
 import { EnergyEmptyState } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
+import { Tile, TileChip, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { configSchema, type ElectricityGridConfig } from "./config";
-import { ArcGauge, BandMeter } from "./meters";
+import { PylonArt } from "./pylon-art";
+import "./grid.css";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
-
-// Below these measured heights the gauge, then the meter and numbers, drop out.
-// LARGE at 205 lets a 2x2 tile carry the arc gauge instead of dead space.
-// The width floor keeps the instrument row off 1-wide tiles, where it can only
-// shred into overlapping wraps; those tiles get the verdict line alone.
-const MEDIUM_HEIGHT = 130;
-const LARGE_HEIGHT = 205;
-const INSTRUMENT_MIN_WIDTH = 160;
 
 const TINT: Record<Band, string> = {
   clean: "var(--success)",
   mixed: "var(--muted-foreground)",
   dirty: "var(--warning)",
 };
-const GLYPH: Record<Band, string> = {
-  clean: "mdi:leaf",
-  mixed: "mdi:approximately-equal",
-  dirty: "mdi:factory",
-};
 
 function firstId(ids: string[] | undefined): string {
   return ids?.[0] ?? "";
-}
-
-interface BodyProps {
-  title: string;
-  verdict: Verdict;
-  co2: number | null;
-  fossilPct: number | null;
-  price: number | null;
-  priceUnit: string;
-  showPrice: boolean;
-  reducedMotion: boolean;
 }
 
 function fmt(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(value < 10 ? 2 : 1);
 }
 
-// Rendered inside <Widget>: useWidgetDimensions throws in the top-level
-// widget scope, which never sees real measurements.
+interface BodyProps {
+  title: string;
+  verdict: Verdict;
+  co2: number | null;
+  price: number | null;
+  priceUnit: string;
+  showPrice: boolean;
+}
+
 function GridBody(props: BodyProps): JSX.Element {
-  const dimensions = useWidgetDimensions();
   const tint = () => TINT[props.verdict.band];
-  const wideEnough = () => dimensions().width >= INSTRUMENT_MIN_WIDTH;
-  const showMeter = () => wideEnough() && dimensions().height >= MEDIUM_HEIGHT;
-  const showGauge = () => wideEnough() && dimensions().height >= LARGE_HEIGHT;
+  const note = () => props.verdict.priceNote;
   return (
-    <div class="flex h-full min-h-0 flex-col gap-2">
-      <div class="flex min-w-0 shrink-0 items-center gap-3">
-        <Widget.Icon icon={<Icon icon="mdi:transmission-tower" />} />
-        <div class="flex min-w-0 flex-col overflow-hidden">
-          <Widget.Title>{props.title}</Widget.Title>
-          <span class="line-clamp-2 text-sm leading-snug">
-            <span class="inline-flex items-center gap-1 font-medium" style={{ color: tint() }}>
-              <Icon icon={GLYPH[props.verdict.band]} style={{ "font-size": "14px" }} />
-              {props.verdict.phrase}
-            </span>
-            <Show when={props.verdict.priceNote}>
-              <span class="whitespace-nowrap text-foreground/50"> · {props.verdict.priceNote}</span>
-            </Show>
-          </span>
+    <Tile active={props.verdict.band === "clean"} accent={tint()} class="grid-tile">
+      <TileGlyph icon="mdi:transmission-tower" />
+      <TileHead
+        icon="mdi:transmission-tower"
+        eyebrow={
+          note() ? `${note().charAt(0).toUpperCase()}${note().slice(1)}` : "Electricity grid"
+        }
+        name={props.title}
+        active={props.verdict.band === "clean"}
+      />
+      <TileHero
+        value={props.verdict.phrase}
+        sub={`${Math.round(props.verdict.lowCarbonPct)}% low-carbon`}
+        art={<PylonArt lowCarbonPct={props.verdict.lowCarbonPct} tint={tint()} />}
+      />
+      <TileControls>
+        <div class="grid-chips">
+          <Show when={props.co2 !== null}>
+            <TileChip icon="mdi:molecule-co2">{fmt(props.co2 ?? 0)} g/kWh</TileChip>
+          </Show>
+          <Show when={props.showPrice && props.price !== null}>
+            <TileChip icon="mdi:cash">
+              {fmt(props.price ?? 0)}
+              {props.priceUnit ? ` ${props.priceUnit}` : ""}
+            </TileChip>
+          </Show>
         </div>
-      </div>
-      <Show when={showGauge()}>
-        <div class="min-h-0 flex-1">
-          <ArcGauge
-            lowCarbonPct={props.verdict.lowCarbonPct}
-            tint={tint()}
-            label="low-carbon"
-            reducedMotion={props.reducedMotion}
-          />
-        </div>
-      </Show>
-      <Show when={showMeter()}>
-        <div class="mt-auto flex shrink-0 flex-col gap-1.5 px-1">
-          <BandMeter
-            lowCarbonPct={props.verdict.lowCarbonPct}
-            tint={tint()}
-            reducedMotion={props.reducedMotion}
-          />
-          <div class="flex justify-between text-muted-foreground text-xs tabular-nums">
-            <Show when={props.co2 !== null}>
-              <span>{fmt(props.co2 ?? 0)} g/kWh</span>
-            </Show>
-            <Show when={props.fossilPct !== null}>
-              <span>{fmt(props.fossilPct ?? 0)}% fossil</span>
-            </Show>
-            <Show when={props.showPrice && props.price !== null}>
-              <span>
-                {fmt(props.price ?? 0)}
-                {props.priceUnit ? ` ${props.priceUnit}` : ""}
-              </span>
-            </Show>
-          </div>
-        </div>
-      </Show>
-    </div>
+      </TileControls>
+    </Tile>
   );
 }
 
 function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
-  const reducedMotion = useReducedMotion();
+  const _reducedMotion = useReducedMotion();
 
   const co2Id = () => firstId(props.config.co2IntensityEntity);
   const fossilId = () => firstId(props.config.fossilFuelEntity);
@@ -156,30 +115,34 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" color="var(--tone-info)">
-        <Widget.Content>
+        <Show
+          when={configured()}
+          fallback={
+            <Widget.Content>
+              <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
+            </Widget.Content>
+          }
+        >
           <Show
-            when={configured()}
-            fallback={<EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />}
+            when={verdict()}
+            fallback={
+              <Widget.Content>
+                <EnergyEmptyState kind="unavailable" lastKnownValue="Grid data" />
+              </Widget.Content>
+            }
           >
-            <Show
-              when={verdict()}
-              fallback={<EnergyEmptyState kind="unavailable" lastKnownValue="Grid data" />}
-            >
-              {(v) => (
-                <GridBody
-                  title={props.config.title || "Electricity Grid"}
-                  verdict={v()}
-                  co2={co2()}
-                  fossilPct={fossilPct()}
-                  price={price()}
-                  priceUnit={priceUnit()}
-                  showPrice={priceId().length > 0}
-                  reducedMotion={reducedMotion()}
-                />
-              )}
-            </Show>
+            {(v) => (
+              <GridBody
+                title={props.config.title || "Electricity grid"}
+                verdict={v()}
+                co2={co2()}
+                price={price()}
+                priceUnit={priceUnit()}
+                showPrice={priceId().length > 0}
+              />
+            )}
           </Show>
-        </Widget.Content>
+        </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}

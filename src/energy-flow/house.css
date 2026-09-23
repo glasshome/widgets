@@ -1,0 +1,133 @@
+.flow-scene-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.flow-links {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.flow-link {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.flow-link-stream {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-opacity: 0.6;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 10 54;
+}
+.flow-house-scene {
+  position: absolute;
+}
+.flow-house-scene > img,
+.flow-house > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.flow-house-night {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.flow-house-night[data-visible] {
+  opacity: 1;
+}
+.flow-house-panels {
+  position: absolute;
+  left: 8%;
+  right: 22%;
+  top: 2%;
+  height: 40%;
+  background: radial-gradient(60% 70% at 50% 50%, oklch(0.9 0.14 85 / 0.6), transparent 70%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+.flow-label {
+  position: absolute;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--foreground);
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 400ms ease;
+}
+.flow-label[data-side="left"] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.flow-label[data-side="bottom"] {
+  transform: translateX(-50%);
+}
+.flow-label[data-idle] {
+  opacity: 0.45;
+}
+.flow-label-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.flow-label-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 72px;
+  line-height: 1.15;
+}
+.flow-label-value {
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.flow-label-name {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flow-house {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.tile-art > .flow-house-art {
+  aspect-ratio: 520 / 358;
+  height: auto;
+  width: 40cqi;
+  max-height: 100%;
+  align-self: flex-end;
+}
+.tile.flow-tile-full {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.flow-scene {
+  position: relative;
+  min-height: 0;
+}
+.flow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  max-height: 24px;
+  overflow: hidden;
+}
+@container widget (max-width: 299px) {
+  .tile-art > .flow-house-art {
+    display: none;
+  }
+}

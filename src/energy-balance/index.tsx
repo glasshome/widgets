@@ -1,34 +1,47 @@
 import {
-  Badge,
   defineWidget,
   svgColors,
+  ToggleGroup,
+  ToggleGroupItem,
+  useDaylight,
   useEntities,
   useEntityStatistics,
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
+import {
+  TILE_INNER_RADIUS,
+  Tile,
+  TileBackdrop,
+  TileControls,
+  TileGlyph,
+  TileHead,
+  TileHero,
+} from "../common/tile/tile";
 import { deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
-import { BalanceBar, EnergyColumns, type ValueUnit } from "./ring";
+import { SkyScene } from "./sky";
+import { skyScene } from "./sun-path";
+import "./balance.css";
+
+type ValueUnit = "W" | "kWh";
 
 const STATS_REFRESH_MS = 5 * 60 * 1000;
 // Below this measured height the produced-vs-used bars can't breathe, so the
 // compact single balance bar shows instead.
-const COMPACT_HEIGHT = 210;
+const _COMPACT_HEIGHT = 210;
 const AMBER = svgColors.solar.solid;
 const BLUE = svgColors.grid.solid;
 
 type Mode = "live" | "today" | "week" | "month";
-const MODES: Mode[] = ["today", "live", "week", "month"];
+const MODES: Mode[] = ["live", "today", "week", "month"];
 const MODE_LABEL: Record<Mode, string> = {
   live: "Now",
   today: "Today",
@@ -51,75 +64,10 @@ function firstId(ids: string[]): string {
   return ids[0] ?? "";
 }
 
-interface BodyProps {
-  title: string;
-  value: string;
-  unit: string;
-  caption: string;
-  color: string;
-  modeLabel: string;
-  dataUnit: ValueUnit;
-  produced: number;
-  consumed: number;
-  balance: number;
-  showProduced: boolean;
-  reducedMotion: boolean;
-}
-
-// Rendered inside <Widget>: useWidgetDimensions throws in the top-level
-// widget scope, which never sees real measurements.
-function BalanceBody(props: BodyProps): JSX.Element {
-  const dimensions = useWidgetDimensions();
-  const compact = () => dimensions().height < COMPACT_HEIGHT;
-  return (
-    <div class="relative flex h-full min-h-0 flex-col gap-2">
-      <div class="flex min-w-0 shrink-0 items-center gap-3">
-        <Widget.Icon icon={<Icon icon="mdi:scale-balance" />} />
-        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <Widget.Title>{props.title}</Widget.Title>
-          <span class="truncate text-sm leading-snug">
-            <span class="font-semibold tabular-nums" style={{ color: props.color || undefined }}>
-              {props.value}
-              {props.unit ? ` ${props.unit}` : ""}
-            </span>{" "}
-            <span class="text-foreground/50">{props.caption}</span>
-          </span>
-        </div>
-        <Badge tone="var(--muted-foreground)" class="ml-auto shrink-0 self-start">
-          {props.modeLabel}
-        </Badge>
-      </div>
-      <div class="flex min-h-0 flex-1 flex-col justify-center px-1">
-        <Show
-          when={compact()}
-          fallback={
-            <EnergyColumns
-              produced={props.produced}
-              consumed={props.consumed}
-              unit={props.dataUnit}
-              showProduced={props.showProduced}
-              reducedMotion={props.reducedMotion}
-            />
-          }
-        >
-          <BalanceBar
-            produced={props.produced}
-            consumed={props.consumed}
-            unit={props.dataUnit}
-            balance={props.balance}
-            showProduced={props.showProduced}
-            reducedMotion={props.reducedMotion}
-          />
-        </Show>
-      </div>
-    </div>
-  );
-}
-
 function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
-  const reducedMotion = useReducedMotion();
+  const _reducedMotion = useReducedMotion();
   const [mode, setMode] = createSignal<Mode>("today");
 
   // Bumping the tick hands useEntityStatistics a fresh options object, re-running the daily query.
@@ -220,7 +168,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       : firstId(props.config.solarEnergyEntity).length > 0;
 
   // -1 draws entirely from the grid, 0 matches, +1 all surplus.
-  const dayBalance = createMemo(() => {
+  const _dayBalance = createMemo(() => {
     const p = produced();
     const c = consumed();
     const total = p + c;
@@ -269,6 +217,20 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     };
   });
 
+  const headIcon = () => (hasSolar() ? "mdi:solar-power-variant" : "mdi:transmission-tower");
+  const eyebrow = () => {
+    const c = readout().caption;
+    return `${c.charAt(0).toUpperCase()}${c.slice(1)}`;
+  };
+  const subLine = () => {
+    const unit = dataUnit();
+    const fmt = (v: number) =>
+      unit === "W" ? formatPower(v) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
+    const home = `Home ${fmt(consumed())}`;
+    return hasSolar() ? `Solar ${fmt(produced())} · ${home}` : home;
+  };
+
+  const daylight = useDaylight();
   const cycleMode = () => setMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length]);
   const gestures = useWidgetGestures(() => ({ tap: cycleMode, hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
@@ -276,27 +238,52 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" color="var(--tone-accent)">
-        <Widget.Content>
-          <Show
-            when={configured()}
-            fallback={<EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />}
+        <Show
+          when={configured()}
+          fallback={
+            <Widget.Content>
+              <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
+            </Widget.Content>
+          }
+        >
+          <Tile
+            backdrop
+            active={readout().color === AMBER}
+            class={skyScene(daylight().phase) === "day" ? undefined : "dark"}
           >
-            <BalanceBody
-              title={props.config.title || "Energy Balance"}
-              value={readout().value}
-              unit={readout().unit}
-              caption={readout().caption}
-              color={readout().color}
-              modeLabel={MODE_LABEL[mode()]}
-              dataUnit={dataUnit()}
-              produced={produced()}
-              consumed={consumed()}
-              balance={dayBalance()}
-              showProduced={hasSolar()}
-              reducedMotion={reducedMotion()}
+            <TileBackdrop>
+              <SkyScene glow={Math.min(1, liveSolarW() / 4000)} />
+            </TileBackdrop>
+            <TileGlyph icon={headIcon()} />
+            <TileHead
+              icon={headIcon()}
+              eyebrow={eyebrow()}
+              name={props.config.title || "Energy balance"}
+              active={readout().color === AMBER}
             />
-          </Show>
-        </Widget.Content>
+            <TileHero
+              value={readout().value}
+              unit={readout().unit ? ` ${readout().unit}` : undefined}
+              sub={subLine()}
+            />
+            <TileControls>
+              <ToggleGroup
+                aria-label="Period"
+                value={mode()}
+                onChange={(v: string | null) => v && setMode(v as Mode)}
+                class={`balance-modes ${TILE_INNER_RADIUS}`}
+              >
+                <For each={MODES}>
+                  {(m) => (
+                    <ToggleGroupItem value={m} class="balance-mode">
+                      {MODE_LABEL[m]}
+                    </ToggleGroupItem>
+                  )}
+                </For>
+              </ToggleGroup>
+            </TileControls>
+          </Tile>
+        </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
