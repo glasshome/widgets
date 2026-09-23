@@ -6,4 +6,3 @@ preview/
 .turbo/
 .env
 .env*.local
-.sizes/

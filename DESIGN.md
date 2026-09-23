@@ -81,7 +81,7 @@ A new reading changes text and attributes in place; it never rebuilds DOM.
 
 Look at pixels, in both themes, at real sizes.
 
-- `CHROMIUM_PATH=… HEIGHTS=156,242,328 WIDTHS=150,270,340,420 bun tools/sizes/run.ts <widget> dark,light [example]` renders a widget across sizes into `.sizes/`; `bun tools/sizes/sheet.ts <widget>-e0-dark` makes a contact sheet. `AT=<iso time>` freezes the clock; `Q="cfg=<json>&svc=<domain.service|entity|json>"` overrides the config and replays demo service calls. `bun tools/sizes/probe.ts <widget> '<js>'` evaluates in the page (`window.__srs[0]` is the shadow root).
+- `bun widget preview <widget> --sizes grid` renders every example across common sizes into `preview/sweep/`, with one contact sheet per example and theme. Narrow it with `--sizes 150x156,340x242`, `--theme dark` and `--example 0`; change the state with `--config '<json>'`, `--service 'domain.service|entity_id|<json>'`, `--at <iso time>` and `--click <selector>`; `--eval '<expr>'` prints a value per render (`root` is the widget's shadow root). `bun widget help` lists them all.
 - Over 20 seconds of changing demo data, a widget adds and removes no DOM nodes.
 - Regenerate previews after a visual change.
 
