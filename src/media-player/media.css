@@ -1,0 +1,22 @@
+.media-volume {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+.tile-backdrop > img.media-backdrop {
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  filter: blur(18px) saturate(1.2);
+  opacity: 0.5;
+}
+.media-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}

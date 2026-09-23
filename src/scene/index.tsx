@@ -1,5 +1,5 @@
 import {
-  buildDebugData,
+  Button,
   defineConfig,
   defineWidget,
   field,
@@ -11,12 +11,15 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import "./scene.css";
 import { widgetDialogProps } from "../common";
+import { TILE_INNER_RADIUS, Tile, TileGlyph, TileHead } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -58,6 +61,10 @@ function SceneWidget(props: { config: SceneConfig }) {
     }
   };
 
+  const name = () =>
+    props.config.title ||
+    (entities().length === 1 ? entities()[0]?.friendlyName : undefined) ||
+    "Scenes";
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
     hold: { action: openDialog },
@@ -80,19 +87,28 @@ function SceneWidget(props: { config: SceneConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon icon={<Icon icon="mdi:palette" />} />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Scene"}
-              </Widget.Title>
-              <Widget.Status>Activate</Widget.Status>
+          <Tile>
+            <TileGlyph icon="mdi:palette" />
+            <TileHead
+              icon="mdi:palette"
+              eyebrow={entities().length > 1 ? `${entities().length} scenes` : "Scene"}
+              name={name()}
+            />
+            <div class="scene-chips">
+              <For each={entities()}>
+                {(e) => (
+                  <Button
+                    variant="outline"
+                    class={`scene-chip ${TILE_INNER_RADIUS}`}
+                    onClick={() => turnOn(e.id)}
+                  >
+                    <Icon icon="mdi:play" width={16} />
+                    {entities().length > 1 ? e.friendlyName : "Activate"}
+                  </Button>
+                )}
+              </For>
             </div>
-          </Widget.Content>
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

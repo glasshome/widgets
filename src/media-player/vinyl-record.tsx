@@ -12,7 +12,7 @@ export function VinylRecord(props: VinylRecordProps) {
       style={{
         background:
           "repeating-radial-gradient(circle, #1a1a1a 0px, #1a1a1a 2px, #222 3px, #1a1a1a 4px)",
-        animation: "vinyl-spin 3s linear infinite",
+        animation: "vinyl-spin 8s linear infinite",
         "animation-play-state": props.isPlaying ? "var(--motion-play, running)" : "paused",
       }}
     >
@@ -20,10 +20,10 @@ export function VinylRecord(props: VinylRecordProps) {
       <div
         class="absolute rounded-full"
         style={{
-          top: "30%",
-          left: "30%",
-          width: "40%",
-          height: "40%",
+          top: "13%",
+          left: "13%",
+          width: "74%",
+          height: "74%",
           overflow: "hidden",
         }}
       >
@@ -44,12 +44,14 @@ export function VinylRecord(props: VinylRecordProps) {
 
       {/* Center hole */}
       <div
-        class="absolute rounded-full bg-neutral-900"
+        class="absolute rounded-full"
         style={{
-          top: "47%",
-          left: "47%",
-          width: "6%",
-          height: "6%",
+          top: "43%",
+          left: "43%",
+          width: "14%",
+          height: "14%",
+          background: "oklch(0.13 0 0)",
+          "box-shadow": "0 0 0 1px oklch(1 0 0 / 0.12), inset 0 1px 2px oklch(0 0 0 / 0.6)",
         }}
       />
 

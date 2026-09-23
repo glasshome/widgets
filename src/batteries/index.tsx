@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   byDomain,
   defineConfig,
   defineWidget,
@@ -10,12 +9,14 @@ import {
   useWidgetDialog,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
@@ -45,6 +46,8 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   }));
   onCleanup(gestures.dispose);
 
+  const lowestLevel = () => batteries()[0]?.level;
+
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = sensorEntities();
     if (ents.length === 0) return undefined;
@@ -57,36 +60,44 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
-        <Widget.Content class="batteries-content">
-          <Widget.Icon icon={<Icon icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />} />
-          <div class="flex flex-col gap-1 overflow-hidden">
-            <Widget.Title>{props.config.title || "Batteries"}</Widget.Title>
-            <Widget.Value value={hasLow() ? `${lowCount()} low` : "All good"} />
-            <Widget.Status>{totalCount()} batteries</Widget.Status>
-          </div>
-          <div class="batteries-list">
-            <For each={batteries().slice(0, 5)}>
-              {(battery) => (
-                <div class="flex min-w-0 items-center gap-2">
-                  <Icon
-                    icon={getBatteryIcon(battery.level)}
-                    width={16}
-                    style={{ color: getBatteryColor(battery.level) }}
-                  />
-                  <span class="min-w-0 flex-1 truncate text-foreground/60 text-xs">
-                    {battery.entity.friendlyName || battery.entity.id}
-                  </span>
-                  <span
-                    class="shrink-0 font-medium text-xs tabular-nums"
-                    style={{ color: getBatteryColor(battery.level) }}
-                  >
-                    {battery.level}%
-                  </span>
-                </div>
-              )}
-            </For>
-          </div>
-        </Widget.Content>
+        <Tile active={hasLow()}>
+          <TileGlyph icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />
+          <TileHead
+            icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"}
+            eyebrow={`${totalCount()} batteries`}
+            name={props.config.title || "Batteries"}
+            active={hasLow()}
+          />
+          <TileHero
+            value={lowestLevel() ?? "--"}
+            unit={lowestLevel() === undefined ? undefined : "%"}
+            sub={hasLow() ? `${lowCount()} low` : "All good"}
+            art={
+              <div class="batteries-list">
+                <For each={batteries().slice(0, 4)}>
+                  {(battery) => (
+                    <div class="batteries-row">
+                      <Icon
+                        icon={getBatteryIcon(battery.level)}
+                        width={16}
+                        style={{ color: getBatteryColor(battery.level) }}
+                      />
+                      <span class="batteries-name">
+                        {battery.entity.friendlyName || battery.entity.id}
+                      </span>
+                      <span
+                        class="batteries-level"
+                        style={{ color: getBatteryColor(battery.level) }}
+                      >
+                        {battery.level}%
+                      </span>
+                    </div>
+                  )}
+                </For>
+              </div>
+            }
+          />
+        </Tile>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}

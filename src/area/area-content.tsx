@@ -166,9 +166,9 @@ export function AreaContent(props: AreaContentProps) {
     if (temperature !== null) parts.push(`${temperature.toFixed(1)}°`);
     if (humidity !== null)
       parts.push(
-        <span class="area-humidity" aria-label={`${Math.round(humidity)}% humidity`}>
+        <span class="area-humidity">
           <Icon icon="mdi:water-percent" width={14} />
-          {Math.round(humidity)}%
+          {Math.round(humidity)}%<span class="sr-only"> humidity</span>
         </span>,
       );
     return parts.length === 0 ? undefined : parts.flatMap((p, i) => (i === 0 ? [p] : [" · ", p]));

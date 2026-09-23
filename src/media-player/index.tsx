@@ -1,5 +1,6 @@
 import {
-  buildDebugData,
+  Button,
+  ButtonGroup,
   defineConfig,
   defineWidget,
   field,
@@ -10,17 +11,28 @@ import {
   useService,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetDimensions,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  WidgetSliderFill,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import {
+  TILE_INNER_RADIUS,
+  Tile,
+  TileBackdrop,
+  TileControls,
+  TileGlyph,
+  TileHead,
+  TileHero,
+} from "../common/tile/tile";
 import { MediaPlayerControls } from "./controls";
-import { getMediaIcon } from "./utils";
+import "./media.css";
+import { calculateFeatures, getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
 
 const configSchema = defineConfig({
@@ -38,6 +50,10 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const { callService } = useService();
 
   const isPlaying = () => entity()?.state === "playing";
+  const features = createMemo(() => {
+    const e = entity();
+    return e ? calculateFeatures(e) : undefined;
+  });
 
   const mediaTitle = createMemo(() => {
     const e = entity();
@@ -53,18 +69,55 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     return hassMediaUrl(getEntityAttribute<string>(e, "entity_picture"));
   });
 
-  const handleTap = () => {
+  const serverVolume = createMemo(() => {
+    const e = entity();
+    const v = e ? getEntityAttribute<number>(e, "volume_level") : undefined;
+    return v === undefined ? 0 : Math.round(v * 100);
+  });
+  const [uiVolume, setUiVolume] = createSignal(serverVolume());
+  const [isDragging, setIsDragging] = createSignal(false);
+  createEffect(() => {
+    const v = serverVolume();
+    if (!isDragging()) setUiVolume(v);
+  });
+
+  const call = (service: string, data: Record<string, unknown> = {}) => {
     const id = entityId();
-    if (id) {
-      callService("media_player", "media_play_pause", {}, { entity_id: id });
-    }
+    if (id) callService("media_player", service, data, { entity_id: id });
+  };
+
+  let volumeDebounce: ReturnType<typeof setTimeout> | undefined;
+  const onVolumeSlide = (value: number) => {
+    setIsDragging(true);
+    setUiVolume(value);
+    if (volumeDebounce) clearTimeout(volumeDebounce);
+    volumeDebounce = setTimeout(() => {
+      setIsDragging(false);
+      call("volume_set", { volume_level: value / 100 });
+    }, 300);
   };
 
   const gestures = useWidgetGestures(() => ({
-    tap: handleTap,
+    tap: () => call("media_play_pause"),
     hold: { action: openDialog },
+    slide: features()?.supportsVolume
+      ? {
+          value: uiVolume(),
+          onChange: onVolumeSlide,
+          min: 0,
+          max: 100,
+          orientation: "auto" as const,
+          activationDelay: 0,
+        }
+      : undefined,
   }));
   onCleanup(gestures.dispose);
+
+  const eyebrow = () => {
+    const state = entity()?.state ?? "";
+    const label = state === "playing" ? undefined : state.charAt(0).toUpperCase() + state.slice(1);
+    return [mediaArtist() || undefined, label].filter(Boolean).join(" · ") || undefined;
+  };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const e = entity();
@@ -89,13 +142,74 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
       >
         <Show when={entity()}>
           {(e) => (
-            <MediaPlayerContent
-              state={e().state}
-              title={mediaTitle() || props.config.title || e().friendlyName || "Media"}
-              artist={mediaArtist()}
-              albumArt={albumArt()}
-              isPlaying={isPlaying()}
-            />
+            <>
+              <Tile backdrop={!!albumArt()} active={isPlaying()}>
+                <Show when={albumArt()}>
+                  {(src) => (
+                    <TileBackdrop>
+                      <img src={src()} alt="" class="media-backdrop" />
+                    </TileBackdrop>
+                  )}
+                </Show>
+                <Show when={features()?.supportsVolume}>
+                  <div class="media-fill">
+                    <WidgetSliderFill value={uiVolume()} isDragging={isDragging()} />
+                  </div>
+                </Show>
+                <TileGlyph icon={getMediaIcon(e().state)} />
+                <TileHead
+                  icon="mdi:music"
+                  eyebrow={eyebrow()}
+                  name={mediaTitle() || props.config.title || e().friendlyName || "Media"}
+                  active={isPlaying()}
+                />
+                <TileHero
+                  value=""
+                  art={<VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />}
+                />
+                <TileControls>
+                  <ButtonGroup aria-label="Playback" class="tile-stepper">
+                    <Show when={features()?.supportsPrevious}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="Previous track"
+                        class={`tile-control ${TILE_INNER_RADIUS}`}
+                        onClick={() => call("media_previous_track")}
+                      >
+                        <Icon icon="mdi:skip-previous" width={20} />
+                      </Button>
+                    </Show>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={isPlaying() ? "Pause" : "Play"}
+                      class={`tile-control ${TILE_INNER_RADIUS}`}
+                      onClick={() => call("media_play_pause")}
+                    >
+                      <Icon icon={isPlaying() ? "mdi:pause" : "mdi:play"} width={20} />
+                    </Button>
+                    <Show when={features()?.supportsNext}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="Next track"
+                        class={`tile-control ${TILE_INNER_RADIUS}`}
+                        onClick={() => call("media_next_track")}
+                      >
+                        <Icon icon="mdi:skip-next" width={20} />
+                      </Button>
+                    </Show>
+                  </ButtonGroup>
+                  <Show when={features()?.supportsVolume}>
+                    <span class="media-volume">
+                      <Icon icon="mdi:volume-high" width={16} />
+                      {uiVolume()}%
+                    </span>
+                  </Show>
+                </TileControls>
+              </Tile>
+            </>
           )}
         </Show>
       </Widget>
@@ -114,78 +228,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         debugData={debugData()}
       />
     </>
-  );
-}
-
-interface MediaPlayerContentProps {
-  state: string;
-  title: string;
-  artist: string;
-  albumArt: string | undefined;
-  isPlaying: boolean;
-}
-
-// Must render inside <Widget>: useWidgetDimensions throws in the top-level
-// widget scope, which never sees real measurements.
-function MediaPlayerContent(props: MediaPlayerContentProps) {
-  const dimensions = useWidgetDimensions();
-  // Compact layout when widget is ≤ 2 cells wide (≈ 300 px) OR ≤ 2 cells tall.
-  // Equivalent to the old `xs`/`sm` tiers (area ≤ 4).
-  const isSmall = () => {
-    const d = dimensions();
-    return d.width <= 300 || d.height <= 150;
-  };
-
-  return (
-    <Widget.Content>
-      <Show
-        when={!isSmall()}
-        fallback={
-          /* xs/sm: thumbnail + play icon overlay + truncated title */
-          <div class="flex h-full items-center gap-2 overflow-hidden">
-            <div class="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
-              <Show
-                when={props.albumArt}
-                fallback={
-                  <div class="flex h-full w-full items-center justify-center bg-muted">
-                    <Icon icon="mdi:music" width={20} />
-                  </div>
-                }
-              >
-                <img src={props.albumArt} alt="" class="h-full w-full object-cover" />
-              </Show>
-              {/* ui-drift-ok art scrim over album art */}
-              <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                <Icon icon={getMediaIcon(props.state)} width={16} class="text-foreground" />
-              </div>
-            </div>
-            <div class="flex flex-col overflow-hidden">
-              <Widget.Title>{props.title}</Widget.Title>
-              <Show when={props.artist}>
-                <Widget.Status>{props.artist}</Widget.Status>
-              </Show>
-            </div>
-          </div>
-        }
-      >
-        {/* md+: vinyl record + title/artist */}
-        <div class="flex h-full items-center gap-3">
-          <div class="h-14 w-14 flex-shrink-0">
-            <VinylRecord imageUrl={props.albumArt} isPlaying={props.isPlaying} />
-          </div>
-          <div class="flex flex-col gap-1 overflow-hidden">
-            <Widget.Title>{props.title}</Widget.Title>
-            <Show when={props.artist}>
-              <Widget.Status>{props.artist}</Widget.Status>
-            </Show>
-            <span class="flex items-center gap-1 text-xs opacity-60">
-              <Icon icon={getMediaIcon(props.state)} width={12} />
-              <span class="capitalize">{props.state}</span>
-            </span>
-          </div>
-        </div>
-      </Show>
-    </Widget.Content>
   );
 }
 

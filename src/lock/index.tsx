@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -11,12 +10,14 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -50,15 +51,16 @@ function LockWidget(props: { config: LockConfig }) {
     return ents.some((e) => e.state === "locked");
   });
 
-  const statusText = createMemo(() => {
-    const total = count();
-    if (total === 0) return "Unknown";
-    if (total === 1) return isLocked() ? "Locked" : "Unlocked";
-    const lockedCount = entities().filter((e) => e.state === "locked").length;
-    if (lockedCount === 0) return "All unlocked";
-    if (lockedCount === total) return "All locked";
-    return `${lockedCount} of ${total} locked`;
-  });
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Lock";
+  const heroValue = () => {
+    if (count() > 1) return `${entities().filter((e) => e.state === "locked").length}/${count()}`;
+    return isLocked() ? "Locked" : "Unlocked";
+  };
 
   const handleTap = async () => {
     if (isToggling()) return;
@@ -97,22 +99,17 @@ function LockWidget(props: { config: LockConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />}
-              entityCount={entities().length}
+          <Tile active={isLocked()}>
+            <TileGlyph icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />
+            <TileHead
+              icon={isLocked() ? "mdi:lock" : "mdi:lock-open-variant"}
+              eyebrow={count() > 1 ? "Locked" : "Lock"}
+              name={name()}
+              active={isLocked()}
+              count={entities().length}
             />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Lock"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+            <TileHero value={heroValue()} />
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

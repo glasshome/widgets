@@ -1,5 +1,5 @@
 import {
-  buildDebugData,
+  Button,
   defineConfig,
   defineWidget,
   field,
@@ -11,12 +11,21 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import {
+  TILE_INNER_RADIUS,
+  Tile,
+  TileControls,
+  TileGlyph,
+  TileHead,
+  TileHero,
+} from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -58,6 +67,19 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     }
   };
 
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Button";
+  const lastPressed = () => {
+    const stamp = entities()[0]?.state;
+    const date = stamp ? new Date(stamp) : undefined;
+    if (!date || Number.isNaN(date.getTime())) return undefined;
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
     hold: { action: openDialog },
@@ -80,22 +102,29 @@ function ButtonWidget(props: { config: ButtonConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon="mdi:gesture-tap-button" />}
-              entityCount={entities().length}
+          <Tile>
+            <TileGlyph icon="mdi:gesture-tap-button" />
+            <TileHead
+              icon="mdi:gesture-tap-button"
+              eyebrow="Button"
+              name={name()}
+              count={entities().length}
             />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Button"}
-              </Widget.Title>
-              <Widget.Status>Press</Widget.Status>
-            </div>
-          </Widget.Content>
+            <TileHero
+              value={lastPressed() ?? ""}
+              sub={lastPressed() ? "Last pressed" : "Never pressed"}
+            />
+            <TileControls>
+              <Button
+                variant="outline"
+                class={`tile-control-wide ${TILE_INNER_RADIUS}`}
+                onClick={handleTap}
+              >
+                <Icon icon="mdi:gesture-tap" width={18} />
+                Press
+              </Button>
+            </TileControls>
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

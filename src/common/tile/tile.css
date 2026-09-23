@@ -12,6 +12,7 @@
   padding: var(--tile-pad);
   overflow: hidden;
   isolation: isolate;
+  color: var(--foreground);
 }
 
 .tile-head {
@@ -291,4 +292,20 @@
   vertical-align: top;
   margin-left: 0.02em;
   color: var(--foreground);
+}
+.tile-control-wide.tile-control-wide {
+  height: var(--tile-control-h);
+  gap: 6px;
+  padding: 0 14px;
+}
+@container widget (max-width: 179px) {
+  .tile[data-backdrop] .tile-icon {
+    display: none;
+  }
+}
+.tile[data-backdrop] :is(.tile-value, .tile-sub, .tile-name, .tile-eyebrow) {
+  text-shadow: 0 1px 8px color-mix(in oklch, var(--card) 75%, transparent);
+}
+.tile[data-backdrop] :is(.tile-sub, .tile-eyebrow) {
+  color: color-mix(in oklch, var(--foreground) 82%, transparent);
 }

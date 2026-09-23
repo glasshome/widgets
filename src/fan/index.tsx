@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -13,14 +12,38 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
   WidgetSliderFill,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import {
+  Tile,
+  TileChoice,
+  TileControls,
+  TileGlyph,
+  TileHead,
+  TileHero,
+  TileStepper,
+} from "../common/tile/tile";
+import pedestalArt from "./assets/fan-pedestal.webp";
+import purifierArt from "./assets/fan-purifier.webp";
 import { FanControls } from "./controls";
+import "./fan.css";
+
+const PRESET_ICONS: Record<string, string> = {
+  auto: "mdi:fan-auto",
+  sleep: "mdi:power-sleep",
+  eco: "mdi:leaf",
+  nature: "mdi:weather-windy",
+  normal: "mdi:fan",
+  turbo: "mdi:fan-plus",
+  boost: "mdi:fan-plus",
+  smart: "mdi:brain",
+};
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -125,17 +148,33 @@ function FanWidget(props: { config: FanConfig }) {
   }));
   onCleanup(gestures.dispose);
 
-  const statusText = createMemo(() => {
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Fan";
+  const presets = createMemo(() =>
+    ((firstEntity()?.attributes?.preset_modes as string[] | undefined) ?? []).slice(0, 3),
+  );
+  const presetIcon = (p: string) => PRESET_ICONS[p.toLowerCase()] ?? "mdi:fan";
+  const heroValue = () => {
+    if (isUnavailable()) return "--";
+    if (!isOn()) return "Off";
+    if (count() > 1) return `${activeCount()}/${count()}`;
+    return supportsSpeed() ? Math.round(uiPercentage()) : "On";
+  };
+  const eyebrow = () => {
     if (isUnavailable()) return "Unavailable";
-    const total = count();
-    if (total === 0 || !isOn()) return "Off";
-    if (total > 1) return `${activeCount()}/${total} on`;
-    const pct = Math.round(uiPercentage());
-    if (supportsSpeed() && pct > 0) return `On - ${pct}%`;
     const preset = firstEntity()?.attributes?.preset_mode as string | undefined;
-    if (preset) return `On - ${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
-    return "On";
-  });
+    if (isOn() && preset) return `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
+    return count() > 1 ? `${count()} fans` : "Fan";
+  };
+  const stepSpeed = (direction: -1 | 1) => {
+    const step = (firstEntity()?.attributes?.percentage_step as number | undefined) ?? 10;
+    const next = Math.min(100, Math.max(0, Math.round(uiPercentage() + direction * step)));
+    handleSpeedSlide(next);
+  };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
@@ -158,22 +197,53 @@ function FanWidget(props: { config: FanConfig }) {
           <Show when={supportsSpeed()}>
             <WidgetSliderFill value={uiPercentage()} isDragging={isDragging()} />
           </Show>
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={isOn() ? "mdi:fan" : "mdi:fan-off"} />}
-              entityCount={entities().length}
+          <Tile active={isOn()}>
+            <TileGlyph icon={isOn() ? "mdi:fan" : "mdi:fan-off"} />
+            <TileHead
+              icon={isOn() ? "mdi:fan" : "mdi:fan-off"}
+              eyebrow={eyebrow()}
+              name={name()}
+              active={isOn()}
+              count={entities().length}
             />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Fan"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+            <TileHero
+              value={heroValue()}
+              unit={isOn() && supportsSpeed() && count() === 1 ? "%" : undefined}
+              art={
+                <img
+                  src={/purif|air/i.test(name()) ? purifierArt : pedestalArt}
+                  alt=""
+                  class="fan-object"
+                  data-on={isOn() || undefined}
+                />
+              }
+            />
+            <Show when={supportsSpeed() || presets().length > 0}>
+              <TileControls>
+                <Show when={supportsSpeed()} fallback={<span />}>
+                  <TileStepper label="Fan speed" onStep={(d) => stepSpeed(d)} />
+                </Show>
+                <Show when={presets().length > 0}>
+                  <TileChoice
+                    label="Preset"
+                    tone="var(--widget-color)"
+                    value={firstEntity()?.attributes?.preset_mode as string}
+                    options={presets().map((p) => ({ value: p, icon: presetIcon(p), label: p }))}
+                    onChange={(p) => {
+                      for (const e of entities()) {
+                        callService(
+                          "fan",
+                          "set_preset_mode",
+                          { preset_mode: p },
+                          { entity_id: e.id },
+                        );
+                      }
+                    }}
+                  />
+                </Show>
+              </TileControls>
+            </Show>
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

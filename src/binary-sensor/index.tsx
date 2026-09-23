@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   countActiveEntities,
   defineConfig,
   defineWidget,
@@ -13,12 +12,14 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
 import { getBinarySensorIcon, widgetDialogProps } from "../common";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { getBinarySensorStateText } from "./utils";
 
 const configSchema = defineConfig({
@@ -52,23 +53,29 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const deviceClass = createMemo(() => {
     const first = entities()[0];
     if (!first) return null;
-    return getEntityAttribute<string>(first, "device_class") ?? null;
+    return first.deviceClass ?? getEntityAttribute<string>(first, "device_class") ?? null;
   });
 
   const iconName = createMemo(() => getBinarySensorIcon(deviceClass(), isOn()));
 
   const activeCount = createMemo(() => countActiveEntities(entities()));
 
-  const statusText = createMemo(() => {
-    const total = count();
-    if (total === 0) return "Unknown";
-    if (total === 1) return getBinarySensorStateText(deviceClass(), isOn());
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Sensor";
+  const heroValue = () => {
     const active = activeCount();
-    if (active === 0) return `All ${getBinarySensorStateText(deviceClass(), false).toLowerCase()}`;
-    if (active === total)
-      return `All ${getBinarySensorStateText(deviceClass(), true).toLowerCase()}`;
-    return `${active} of ${total} active`;
-  });
+    if (count() > 1 && active > 0 && active < count()) return `${active}/${count()}`;
+    return getBinarySensorStateText(deviceClass(), active > 0);
+  };
+  const eyebrow = () => {
+    const cls = deviceClass();
+    if (count() > 1) return `${count()} sensors`;
+    return cls ? `${cls.charAt(0).toUpperCase()}${cls.slice(1).replace(/_/g, " ")}` : "Sensor";
+  };
 
   const gestures = useWidgetGestures(() => ({
     hold: { action: openDialog },
@@ -90,19 +97,17 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Binary Sensor"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+          <Tile active={isOn()}>
+            <TileGlyph icon={iconName()} />
+            <TileHead
+              icon={iconName()}
+              eyebrow={eyebrow()}
+              name={name()}
+              active={isOn()}
+              count={entities().length}
+            />
+            <TileHero value={heroValue()} />
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

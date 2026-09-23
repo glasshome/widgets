@@ -1,0 +1,10 @@
+.fan-object {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0.7) saturate(0.85);
+  transition: filter 400ms ease;
+}
+.fan-object[data-on] {
+  filter: none;
+}

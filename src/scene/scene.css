@@ -1,0 +1,23 @@
+.scene-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.scene-chip.scene-chip {
+  gap: 6px;
+  height: var(--tile-control-h);
+  padding: 0 12px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 100%;
+}
+@container widget (max-height: 119px) {
+  .scene-chips {
+    display: none;
+  }
+}

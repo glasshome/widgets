@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
@@ -15,12 +14,14 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
@@ -78,7 +79,7 @@ function SensorWidget(props: { config: SensorConfig }) {
   const deviceClass = createMemo(() => {
     const first = entities()[0];
     if (!first) return null;
-    return getEntityAttribute<string>(first, "device_class") ?? null;
+    return first.deviceClass ?? getEntityAttribute<string>(first, "device_class") ?? null;
   });
 
   const iconName = createMemo(() => getSensorIcon(deviceClass()));
@@ -103,6 +104,19 @@ function SensorWidget(props: { config: SensorConfig }) {
     return data?.description ?? `${total} sensors`;
   });
 
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Sensor";
+  const eyebrow = () => {
+    const sub = subtitle();
+    if (sub) return sub;
+    const cls = deviceClass();
+    return cls ? `${cls.charAt(0).toUpperCase()}${cls.slice(1).replace(/_/g, " ")}` : "Sensor";
+  };
+
   const gestures = useWidgetGestures(() => ({
     hold: { action: openDialog },
   }));
@@ -120,27 +134,26 @@ function SensorWidget(props: { config: SensorConfig }) {
     <>
       <Widget gestures={gestures} variant="classic-glass" tone="info" emptyState={emptyState()}>
         <Show when={hasEntities()}>
-          <Widget.Content class={dataPoints().length >= 2 ? "sensor-spark-reserve" : undefined}>
-            <Widget.Icon icon={<Icon icon={iconName()} />} entityCount={entities().length} />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Sensor"}
-              </Widget.Title>
-              <Widget.Value value={displayValue()} unit={displayUnit() || undefined} />
-              <Show when={subtitle()}>
-                <Widget.Status>{subtitle()}</Widget.Status>
-              </Show>
-            </div>
-          </Widget.Content>
-          <Show when={dataPoints().length >= 2}>
-            <div class="sensor-spark-band absolute right-0 bottom-0 left-0 opacity-50">
-              <Sparkline data={dataPoints()} />
-            </div>
-          </Show>
+          <Tile>
+            <TileGlyph icon={iconName()} />
+            <TileHead
+              icon={iconName()}
+              eyebrow={eyebrow()}
+              name={name()}
+              count={entities().length}
+            />
+            <TileHero
+              value={displayValue()}
+              unit={displayUnit() || undefined}
+              art={
+                dataPoints().length >= 2 ? (
+                  <div class="sensor-spark-art">
+                    <Sparkline data={dataPoints()} />
+                  </div>
+                ) : undefined
+              }
+            />
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog

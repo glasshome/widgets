@@ -1,5 +1,4 @@
 import {
-  buildDebugData,
   countActiveEntities,
   defineConfig,
   defineWidget,
@@ -13,12 +12,14 @@ import {
   useWidgetEntityGroup,
   useWidgetGestures,
   Widget,
-  type WidgetDebugData,
   WidgetDialog,
+  buildDebugData,
+  type WidgetDebugData,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -52,17 +53,18 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     return ents.some((e) => isEntityActive(e));
   });
 
-  const activeCount = createMemo(() => countActiveEntities(entities()));
+  const _activeCount = createMemo(() => countActiveEntities(entities()));
 
-  const statusText = createMemo(() => {
-    const total = count();
-    if (total === 0) return "Off";
-    if (total === 1) return isOn() ? "On" : "Off";
-    const active = activeCount();
-    if (active === 0) return "All off";
-    if (active === total) return "All on";
-    return `${active} of ${total} on`;
-  });
+  const name = () =>
+    props.config.title ||
+    entities()
+      .map((e) => e.friendlyName)
+      .join(", ") ||
+    "Switch";
+  const heroValue = () => {
+    if (count() > 1) return `${entities().filter((e) => e.state === "on").length}/${count()}`;
+    return isOn() ? "On" : "Off";
+  };
 
   const handleTap = async () => {
     if (isToggling()) return;
@@ -99,22 +101,17 @@ function SwitchWidget(props: { config: SwitchConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.Content>
-            <Widget.Icon
-              icon={<Icon icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />}
-              entityCount={entities().length}
+          <Tile active={isOn()}>
+            <TileGlyph icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />
+            <TileHead
+              icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"}
+              eyebrow={count() > 1 ? `${count()} switches` : "Switch"}
+              name={name()}
+              active={isOn()}
+              count={entities().length}
             />
-            <div class="flex flex-col gap-1 overflow-hidden">
-              <Widget.Title>
-                {props.config.title ||
-                  entities()
-                    .map((e) => e.friendlyName)
-                    .join(", ") ||
-                  "Switch"}
-              </Widget.Title>
-              <Widget.Status>{statusText()}</Widget.Status>
-            </div>
-          </Widget.Content>
+            <TileHero value={heroValue()} />
+          </Tile>
         </Show>
       </Widget>
       <WidgetDialog
