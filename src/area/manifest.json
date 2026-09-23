@@ -55,6 +55,12 @@
         "formType": "area-picker",
         "title": "Area",
         "type": "string"
+      },
+      "image": {
+        "type": "string",
+        "formType": "image-picker",
+        "title": "Photo",
+        "description": "Your own photo of the room, shown instead of the built-in one."
       }
     },
     "additionalProperties": false
@@ -112,5 +118,6 @@
         "areaId": "garage"
       }
     }
-  ]
+  ],
+  "configVersion": 2
 }

@@ -3,6 +3,7 @@ import {
   type EntityView,
   hassMediaUrl,
   Icon,
+  imageUrl,
   Toggle,
   useDaylight,
   useWidgetDimensions,
@@ -21,6 +22,7 @@ interface AreaContentProps {
   areaName: string;
   areaIcon: string | null | undefined;
   picture: string | null | undefined;
+  image?: string;
   onAction: (action: AreaAction) => void;
   onMore: () => void;
 }
@@ -135,7 +137,7 @@ export function AreaContent(props: AreaContentProps) {
   const dims = useWidgetDimensions();
   const m = () => props.metrics;
   const photos = (): RoomPhotos | undefined => {
-    const own = hassMediaUrl(props.picture);
+    const own = (props.image ? imageUrl(props.image) : undefined) ?? hassMediaUrl(props.picture);
     return own ? { day: own } : roomPhotos(props.areaName);
   };
   const daylight = useDaylight();

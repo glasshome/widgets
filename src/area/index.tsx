@@ -23,6 +23,10 @@ import { calculateMetrics, groupEntitiesByDomain } from "./utils";
 const configSchema = defineConfig({
   title: field.title(),
   areaId: field.area(),
+  image: field.image({
+    title: "Photo",
+    description: "Your own photo of the room, shown instead of the built-in one.",
+  }),
 });
 type AreaConfig = Infer<typeof configSchema>;
 
@@ -130,6 +134,7 @@ function AreaWidget(props: { config: AreaConfig }) {
             areaName={areaName()}
             areaIcon={area()?.icon}
             picture={area()?.picture}
+            image={props.config.image}
             onAction={onAction}
             onMore={openDialog}
           />
@@ -156,6 +161,7 @@ function AreaWidget(props: { config: AreaConfig }) {
 export default defineWidget<AreaConfig>({
   manifest: {
     name: "Area",
+    configVersion: 2,
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
