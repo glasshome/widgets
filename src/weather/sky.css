@@ -1,0 +1,338 @@
+.weather {
+  --wx-play: var(--motion-play, running);
+}
+.weather.wx-paused {
+  --wx-play: paused;
+}
+.wx-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.wx-sky-photo,
+.wx-land {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.wx-land {
+  object-position: center 62%;
+}
+.wx-sky-photo {
+  object-position: center top;
+}
+.wx-sky-photo[data-drift] {
+  left: -14%;
+  width: 128%;
+  animation: wx-clouds 60s ease-in-out infinite alternate var(--wx-play);
+}
+.dark :is(.wx-sky-photo, .wx-land) {
+  filter: brightness(0.72);
+}
+
+.wx-sky-grade,
+.wx-stars,
+.wx-haze,
+.wx-grade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+/* Sky: warm by day, deep at night, glowing at dusk, heavy in a storm. */
+.wx-sky-grade {
+  background: linear-gradient(to bottom, transparent 30%, oklch(0.86 0.1 75 / 0.45));
+}
+.wx-sky:is([data-sky="sunny"], [data-sky="partlycloudy"]) .wx-sky-grade {
+  opacity: 1;
+}
+.wx-sky:is([data-phase="dusk"], [data-phase="dawn"]) .wx-sky-grade {
+  opacity: 1;
+  background: linear-gradient(
+    to bottom,
+    oklch(0.45 0.08 280 / 0.55),
+    oklch(0.72 0.14 45 / 0.6) 70%,
+    oklch(0.82 0.12 70 / 0.5)
+  );
+}
+.wx-sky[data-phase="night"] .wx-sky-grade {
+  opacity: 1;
+  background: linear-gradient(to bottom, oklch(0.14 0.04 268 / 0.96), oklch(0.26 0.05 260 / 0.9));
+}
+.wx-sky:is(
+    [data-sky="rainy"],
+    [data-sky="pouring"],
+    [data-sky="lightning"],
+    [data-sky="lightning-rainy"],
+    [data-sky="hail"],
+    [data-sky="exceptional"]
+  )
+  .wx-sky-grade {
+  opacity: 1;
+  background: oklch(0.3 0.02 255 / 0.55);
+}
+
+.wx-stars {
+  background-repeat: repeat;
+}
+.wx-sky[data-phase="night"]:is(
+    [data-sky="clear-night"],
+    [data-sky="sunny"],
+    [data-sky="partlycloudy"]
+  )
+  .wx-stars {
+  opacity: 0.9;
+}
+
+/* Between the mountains and the shore, so weather takes the peaks first. */
+.wx-haze {
+  opacity: 1;
+  background: linear-gradient(
+    to bottom,
+    transparent 15%,
+    oklch(0.95 0.02 230 / 0.08) 45%,
+    oklch(0.95 0.02 230 / 0.12) 62%,
+    transparent 70%
+  );
+}
+.wx-sky:is([data-sky="cloudy"], [data-sky="snowy"], [data-sky="snowy-rainy"]) .wx-haze {
+  background: linear-gradient(
+    to bottom,
+    oklch(0.9 0.01 250 / 0.3) 10%,
+    oklch(0.9 0.01 250 / 0.45) 50%,
+    transparent 68%
+  );
+}
+.wx-sky:is(
+    [data-sky="rainy"],
+    [data-sky="pouring"],
+    [data-sky="lightning"],
+    [data-sky="lightning-rainy"],
+    [data-sky="hail"]
+  )
+  .wx-haze {
+  background: linear-gradient(
+    to bottom,
+    oklch(0.55 0.01 250 / 0.5) 10%,
+    oklch(0.6 0.01 250 / 0.55) 50%,
+    transparent 68%
+  );
+}
+.wx-sky[data-sky="fog"] .wx-haze {
+  background: linear-gradient(
+    to bottom,
+    oklch(0.93 0.005 250 / 0.85) 0%,
+    oklch(0.93 0.005 250 / 0.92) 55%,
+    oklch(0.93 0.005 250 / 0.4) 72%
+  );
+}
+.wx-sky[data-phase="night"] .wx-haze {
+  opacity: 0.35;
+}
+
+/* Whole scene: the light the landscape is in. */
+.wx-sky[data-phase="night"] .wx-grade {
+  opacity: 1;
+  background: oklch(0.16 0.05 265 / 0.62);
+}
+/* The moonlit photos are already night; the grade only settles them into the sky. */
+.wx-sky[data-moonlit] .wx-grade {
+  background: oklch(0.16 0.05 265 / 0.18);
+}
+.wx-sky:is([data-phase="dusk"], [data-phase="dawn"]) .wx-grade {
+  opacity: 1;
+  background: linear-gradient(to top, oklch(0.4 0.08 30 / 0.35), oklch(0.6 0.12 50 / 0.15));
+}
+.wx-sky:is(
+    [data-sky="rainy"],
+    [data-sky="pouring"],
+    [data-sky="lightning"],
+    [data-sky="lightning-rainy"],
+    [data-sky="hail"],
+    [data-sky="exceptional"]
+  )
+  .wx-grade {
+  opacity: 1;
+  background: oklch(0.25 0.02 255 / 0.35);
+}
+.wx-sky[data-sky="fog"] .wx-grade {
+  opacity: 1;
+  background: linear-gradient(
+    to top,
+    oklch(0.93 0.005 250 / 0.55),
+    oklch(0.93 0.005 250 / 0.1) 60%
+  );
+}
+
+@keyframes wx-clouds {
+  from {
+    transform: translate3d(-6%, 0, 0);
+  }
+  to {
+    transform: translate3d(6%, 0, 0);
+  }
+}
+
+@keyframes wx-fall {
+  to {
+    transform: translate3d(0, var(--wx-tile), 0);
+  }
+}
+@keyframes wx-drift {
+  to {
+    transform: translate3d(var(--wx-tile), 0, 0);
+  }
+}
+@keyframes wx-sway {
+  0%,
+  100% {
+    translate: -14px 0;
+  }
+  30% {
+    translate: 16px 0;
+  }
+  55% {
+    translate: 4px 0;
+  }
+  78% {
+    translate: 20px 0;
+  }
+}
+/* A gust leans the rain a little and lets it go again, at an uneven pace. */
+@keyframes wx-gust {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 8deg;
+    opacity: 1;
+  }
+  22% {
+    translate: -20px 0;
+    rotate: 15deg;
+    opacity: 0.75;
+  }
+  38% {
+    translate: -8px 0;
+    rotate: 11deg;
+    opacity: 1;
+  }
+  60% {
+    translate: 12px 0;
+    rotate: 3deg;
+    opacity: 0.55;
+  }
+  80% {
+    translate: 4px 0;
+    rotate: 6deg;
+    opacity: 0.9;
+  }
+}
+@keyframes wx-fog {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes wx-flash {
+  0%,
+  88%,
+  92%,
+  100% {
+    opacity: 0;
+  }
+  89%,
+  91% {
+    opacity: 0.55;
+  }
+  90% {
+    opacity: 0.15;
+  }
+}
+@keyframes wx-flash-far {
+  0%,
+  41%,
+  43.5%,
+  100% {
+    opacity: 0;
+  }
+  42% {
+    opacity: 0.22;
+  }
+}
+
+.wx-fall,
+.wx-drift {
+  position: absolute;
+  background-repeat: repeat;
+  will-change: transform;
+}
+.wx-fall {
+  left: -22%;
+  right: -22%;
+  top: calc(-1 * var(--wx-tile) - 14%);
+  bottom: -14%;
+  rotate: 8deg;
+  animation: wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+}
+.wx-fall.wx-gusty {
+  animation:
+    wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play),
+    wx-gust var(--wx-gust) ease-in-out var(--wx-delay, 0s) infinite var(--wx-play);
+}
+.wx-drift {
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--wx-tile));
+  right: 0;
+  animation: wx-drift var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+}
+.wx-fall.wx-sway {
+  rotate: none;
+  animation:
+    wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play),
+    wx-sway var(--wx-gust, 5s) ease-in-out var(--wx-delay, 0s) infinite var(--wx-play);
+}
+.wx-fog {
+  left: 0;
+  right: auto;
+  width: 200%;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      oklch(1 0 0 / 0.5) 20%,
+      transparent 45%,
+      oklch(1 0 0 / 0.38) 70%,
+      transparent
+    )
+    0 0 / 50% 100% repeat-x;
+  mask-image: linear-gradient(to top, black 30%, transparent 85%);
+  animation: wx-fog var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+}
+.wx-fog-back {
+  top: -12%;
+  opacity: 0.7;
+  animation-direction: reverse;
+  mask-image: linear-gradient(to top, transparent 20%, black 55%, transparent 90%);
+}
+.wx-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 60% 0%, oklch(0.97 0.03 260), oklch(0.75 0.05 260 / 0.6));
+  opacity: 0;
+  animation: wx-flash 7.3s linear infinite var(--wx-play);
+}
+.wx-flash-far {
+  background: oklch(0.9 0.04 270);
+  animation: wx-flash-far 11.9s linear -4s infinite var(--wx-play);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.wx-sky-grade, .wx-stars, .wx-haze, .wx-grade) {
+    transition: none;
+  }
+}

@@ -4,33 +4,29 @@ import {
   defineWidget,
   field,
   getEntityAttribute,
-  getForecasts,
   type Infer,
   useEntity,
   useForecast,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetDimensions,
   useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { WeatherBackground } from "./background";
-import { ForecastChart } from "./forecast-chart";
-import "./weather.css";
+import { dayHigh, upcomingHours } from "./forecast";
+import { type Detail, type Model, WeatherTile } from "./layout";
 import {
+  formatDegrees,
   formatTemp,
   formatWindSpeed,
   getConditionLabel,
-  getSceneGlyphShadowClass,
-  getSceneInkClass,
-  getWeatherIcon,
   getWeatherIconColor,
 } from "./utils";
+import "./weather.css";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -39,7 +35,16 @@ const configSchema = defineConfig({
 });
 type WeatherConfig = Infer<typeof configSchema>;
 
-const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
+const MAX_DAYS = 10;
+const SNOWY = new Set(["snowy", "snowy-rainy"]);
+
+const UV_WORDS: [number, string][] = [
+  [11, "Extreme"],
+  [8, "Very high"],
+  [6, "High"],
+  [3, "Moderate"],
+  [0, "Low"],
+];
 
 function WeatherWidget(props: { config: WeatherConfig }) {
   const ctx = useWidgetContext();
@@ -47,78 +52,90 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
-  const forecast = useForecast(entityId);
+  const forecast = useForecast(entityId, ["hourly", "daily"]);
 
-  const fetchForecastData = () => {
-    const id = entityId();
-    if (id) {
-      getForecasts(id, ["hourly", "daily"]).catch(() => {});
+  const attr = <T,>(key: string) => {
+    const e = entity();
+    return e ? getEntityAttribute<T>(e, key) : undefined;
+  };
+  const condition = createMemo(() => entity()?.state ?? "cloudy");
+  const hours = createMemo(() =>
+    props.config.showForecast === false
+      ? []
+      : upcomingHours(forecast()?.forecasts?.hourly ?? [], new Date()),
+  );
+  const days = createMemo(() =>
+    props.config.showForecast === false
+      ? []
+      : (forecast()?.forecasts?.daily?.slice(0, MAX_DAYS) ?? []),
+  );
+
+  const details = (): Detail[] => {
+    const out: Detail[] = [];
+    const feels = attr<number>("apparent_temperature");
+    if (feels != null) {
+      out.push({ icon: "mdi:thermometer", label: "Feels like", value: formatTemp(feels) });
     }
+    const wind = attr<number>("wind_speed");
+    if (wind != null) {
+      const bearing = attr<number>("wind_bearing");
+      out.push({
+        icon: bearing != null ? "mdi:navigation" : "mdi:weather-windy",
+        label: "Wind",
+        value: formatWindSpeed(wind, attr<string>("wind_speed_unit") ?? undefined),
+        rotate: bearing != null ? bearing + 180 : undefined,
+      });
+    }
+    const humidity = attr<number>("humidity");
+    if (humidity != null) {
+      out.push({ icon: "mdi:water-percent", label: "Humidity", value: `${Math.round(humidity)}%` });
+    }
+    const uv = attr<number>("uv_index");
+    if (uv != null) {
+      const word = UV_WORDS.find(([min]) => uv >= min)?.[1] ?? "";
+      out.push({
+        icon: "mdi:sun-wireless-outline",
+        label: "UV index",
+        value: `${Math.round(uv)} ${word}`,
+      });
+    }
+    const pressure = attr<number>("pressure");
+    if (pressure != null) {
+      const unit = attr<string>("pressure_unit") ?? "hPa";
+      out.push({ icon: "mdi:gauge", label: "Pressure", value: `${Math.round(pressure)} ${unit}` });
+    }
+    const visibility = attr<number>("visibility");
+    if (visibility != null) {
+      const unit = attr<string>("visibility_unit") ?? "km";
+      out.push({
+        icon: "mdi:eye-outline",
+        label: "Visibility",
+        value: `${Math.round(visibility)} ${unit}`,
+      });
+    }
+    return out;
   };
 
-  onMount(() => {
-    fetchForecastData();
-    const interval = setInterval(fetchForecastData, REFRESH_INTERVAL);
-    onCleanup(() => clearInterval(interval));
+  const model = createMemo((): Model => {
+    const today = days()[0];
+    const high = today ? dayHigh(today) : undefined;
+    const low = today?.temp_low;
+    const range = high != null && low != null ? ` · ${formatTemp(high)} / ${formatTemp(low)}` : "";
+    const t = attr<number>("temperature");
+    const freezing = attr<string>("temperature_unit") === "°F" ? 32 : 0;
+    return {
+      title: props.config.title || undefined,
+      condition: condition(),
+      wintry: SNOWY.has(condition()) || (t != null && t <= freezing),
+      temperature: t != null ? formatDegrees(t) : "--",
+      sub: `${getConditionLabel(condition())}${range}`,
+      hours: hours(),
+      days: days(),
+      details: details(),
+    };
   });
 
-  const condition = createMemo(() => entity()?.state ?? "cloudy");
-  const temperature = createMemo(() => {
-    const e = entity();
-    if (!e) return "--";
-    const temp = getEntityAttribute<number>(e, "temperature");
-    return temp != null ? formatTemp(temp) : "--";
-  });
-  const humidity = createMemo(() => {
-    const e = entity();
-    if (!e) return undefined;
-    const val = getEntityAttribute<number>(e, "humidity");
-    return val != null ? `${Math.round(val)}%` : undefined;
-  });
-  const windSpeed = createMemo(() => {
-    const e = entity();
-    if (!e) return undefined;
-    const val = getEntityAttribute<number>(e, "wind_speed");
-    const unit = getEntityAttribute<string>(e, "wind_speed_unit");
-    return val != null ? formatWindSpeed(val, unit ?? undefined) : undefined;
-  });
-  const pressure = createMemo(() => {
-    const e = entity();
-    if (!e) return undefined;
-    const val = getEntityAttribute<number>(e, "pressure");
-    const unit = getEntityAttribute<string>(e, "pressure_unit") ?? "hPa";
-    return val != null ? `${Math.round(val)} ${unit}` : undefined;
-  });
-  const feelsLike = createMemo(() => {
-    const e = entity();
-    if (!e) return undefined;
-    const apparent = getEntityAttribute<number>(e, "apparent_temperature");
-    const actual = getEntityAttribute<number>(e, "temperature");
-    if (apparent == null || actual == null) return undefined;
-    if (Math.round(apparent) === Math.round(actual)) return undefined;
-    return formatTemp(apparent);
-  });
-
-  const showForecast = () => props.config.showForecast !== false;
-
-  const hourlyData = createMemo(() => {
-    const f = forecast();
-    const hourly = f?.forecasts?.hourly;
-    if (!hourly || hourly.length === 0) return [];
-    return hourly.slice(0, 12).map((h) => ({
-      temp: h.temperature ?? 0,
-      time: h.datetime,
-    }));
-  });
-
-  const dailyForecast = createMemo(() => {
-    const f = forecast();
-    return f?.forecasts?.daily?.slice(0, 7) ?? [];
-  });
-
-  const gestures = useWidgetGestures(() => ({
-    hold: { action: openDialog },
-  }));
+  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -129,19 +146,12 @@ function WeatherWidget(props: { config: WeatherConfig }) {
     });
   });
 
-  const formatDayName = (datetime: string) => {
-    try {
-      return new Date(datetime).toLocaleDateString(undefined, { weekday: "short" });
-    } catch {
-      return "";
-    }
-  };
-
   return (
     <>
       <Widget
         gestures={gestures}
         variant="classic-glass"
+        color={getWeatherIconColor(condition())}
         emptyState={
           !entity()
             ? {
@@ -153,17 +163,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
         }
       >
         <Show when={entity()}>
-          <WeatherBackground condition={condition()} />
-          <WeatherBody
-            condition={condition()}
-            temperature={temperature()}
-            feelsLike={feelsLike()}
-            humidity={humidity()}
-            windSpeed={windSpeed()}
-            pressure={pressure()}
-            hasForecast={showForecast() && hourlyData().length > 1}
-            hourlyData={hourlyData()}
-          />
+          <WeatherTile model={model()} />
         </Show>
       </Widget>
       <WidgetDialog
@@ -177,203 +177,41 @@ function WeatherWidget(props: { config: WeatherConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={
-          <div class="flex flex-col gap-2">
-            <h3 class="font-medium text-sm">7-Day Forecast</h3>
-            <div class="flex flex-col gap-1">
-              <For each={dailyForecast()}>
-                {(day) => (
-                  <div class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm">
-                    <span class="w-12 font-medium">{formatDayName(day.datetime)}</span>
-                    <Icon icon={getWeatherIcon(day.condition ?? "cloudy")} width={20} />
-                    <span class="w-20 text-right tabular-nums">
-                      {day.temp_high != null
-                        ? formatTemp(day.temp_high)
-                        : formatTemp(day.temperature ?? 0)}
-                      {day.temp_low != null && (
-                        <span class="ml-1 opacity-60">{formatTemp(day.temp_low)}</span>
-                      )}
-                    </span>
-                  </div>
-                )}
-              </For>
-            </div>
-          </div>
-        }
         debugData={debugData()}
       />
     </>
   );
 }
 
-interface WeatherBodyProps {
-  condition: string;
-  temperature: string;
-  feelsLike: string | undefined;
-  humidity: string | undefined;
-  windSpeed: string | undefined;
-  pressure: string | undefined;
-  hasForecast: boolean;
-  hourlyData: Array<{ temp: number; time: string }>;
-}
-
-// Must render inside <Widget>: useWidgetDimensions throws in the top-level
-// widget scope, which never sees real measurements.
-function WeatherBody(props: WeatherBodyProps) {
-  const dimensions = useWidgetDimensions();
-  // Direct pixel thresholds. xs ≈ area ≤ 2 (≈ 1x1, 1x2): one tiny axis. lg/xl ≈ area ≥ 12 (4x2 / 4x4).
-  const isSmall = () => {
-    const d = dimensions();
-    return d.width <= 150 || d.height <= 75;
-  };
-  const isLarge = () => {
-    const d = dimensions();
-    return d.width >= 600 || d.height >= 300;
-  };
-
-  return (
-    <>
-      <Widget.Content>
-        <Show
-          when={isSmall()}
-          fallback={
-            <HeroLayout
-              condition={props.condition}
-              temperature={props.temperature}
-              feelsLike={props.feelsLike}
-              humidity={props.humidity}
-              windSpeed={props.windSpeed}
-              pressure={props.pressure}
-              isLarge={isLarge()}
-              hasForecast={props.hasForecast}
-            />
-          }
-        >
-          <CompactLayout condition={props.condition} temperature={props.temperature} />
-        </Show>
-      </Widget.Content>
-
-      {/* Forecast chart bleeds to widget edges so it sits below content */}
-      <Show when={!isSmall() && props.hasForecast}>
-        <div
-          class={`weather-forecast-band absolute right-0 bottom-0 left-0 z-10 ${getSceneInkClass(props.condition)} ${getSceneGlyphShadowClass(props.condition)}`}
-        >
-          <ForecastChart data={props.hourlyData} />
-        </div>
-      </Show>
-    </>
-  );
-}
-
-interface HeroLayoutProps {
-  condition: string;
-  temperature: string;
-  feelsLike: string | undefined;
-  humidity: string | undefined;
-  windSpeed: string | undefined;
-  pressure: string | undefined;
-  isLarge: boolean;
-  hasForecast: boolean;
-}
-
-/**
- * Hero layout: icon+temp pair, condition+feels-like subtitle, metric strip.
- * Pressure shown on large only. Reserves bottom padding for forecast chart.
- */
-function HeroLayout(props: HeroLayoutProps) {
-  const metrics = () => {
-    const out: Array<{ icon: string; value: string }> = [];
-    if (props.humidity) out.push({ icon: "mdi:water-percent", value: props.humidity });
-    if (props.windSpeed) out.push({ icon: "mdi:weather-windy", value: props.windSpeed });
-    if (props.pressure && props.isLarge) out.push({ icon: "mdi:gauge", value: props.pressure });
-    return out;
-  };
-
-  return (
-    <div
-      class={`relative z-10 flex h-full flex-col gap-1.5 ${props.hasForecast ? "weather-hero-reserve" : ""} ${getSceneInkClass(props.condition)}`}
-    >
-      {/* Hero pair: icon + temp */}
-      <div class="flex items-center gap-4">
-        <Widget.Icon
-          icon={<Icon icon={getWeatherIcon(props.condition)} />}
-          color={getWeatherIconColor(props.condition)}
-        />
-        <span
-          class="font-black leading-none"
-          style={{
-            "font-size": props.isLarge ? "3rem" : "2rem",
-            "letter-spacing": "-0.04em",
-          }}
-        >
-          {props.temperature}
-        </span>
-      </div>
-
-      {/* Subtitle line */}
-      <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
-        <span class="font-semibold">{getConditionLabel(props.condition)}</span>
-        <Show when={props.feelsLike}>
-          <span class="opacity-75">
-            <span class="mr-2 opacity-40">·</span>Feels like {props.feelsLike}
-          </span>
-        </Show>
-      </div>
-
-      {/* Metric strip — pinned bottom */}
-      <Show when={metrics().length > 0}>
-        <div class="flex items-center gap-2 text-xs">
-          <For each={metrics()}>
-            {(m, i) => (
-              <>
-                <Show when={i() > 0}>
-                  <span class="opacity-30">·</span>
-                </Show>
-                <span class="flex items-center gap-1.5">
-                  <Icon icon={m.icon} width={16} class="opacity-70" />
-                  <span class="font-medium tabular-nums">{m.value}</span>
-                </span>
-              </>
-            )}
-          </For>
-        </div>
-      </Show>
-    </div>
-  );
-}
-
-interface CompactLayoutProps {
-  condition: string;
-  temperature: string;
-}
-
-/** xs widgets: single icon + temperature, no metrics. */
-function CompactLayout(props: CompactLayoutProps) {
-  return (
-    <div
-      class={`relative z-10 flex h-full items-center gap-3 ${getSceneInkClass(props.condition)}`}
-    >
-      <Icon icon={getWeatherIcon(props.condition)} width={32} />
-      <span class="font-bold leading-none" style={{ "font-size": "2.25rem" }}>
-        {props.temperature}
-      </span>
-    </div>
-  );
-}
-
 export default defineWidget<WeatherConfig>({
   manifest: {
     name: "Weather",
-    description: "Weather conditions with animated backgrounds and forecast chart",
+    description: "The sky outside, the hours and days ahead",
     icon: "mdi:weather-partly-cloudy",
     minSize: { w: 2, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 12, h: 8 },
+    defaultSize: { w: 4, h: 3 },
     sdkVersion: "^1.0.0",
     examples: [
       {
-        label: "Weather",
-        size: { w: 2, h: 2 },
-        config: { entityIds: ["weather.demo_partly_cloudy"], title: "Weather", showForecast: true },
+        label: "Partly cloudy",
+        size: { w: 4, h: 3 },
+        config: { entityIds: ["weather.demo_partly_cloudy"], showForecast: true },
+      },
+      {
+        label: "Centerpiece",
+        size: { w: 8, h: 5 },
+        config: { entityIds: ["weather.demo_rainy"], showForecast: true },
+      },
+      {
+        label: "Snow",
+        size: { w: 4, h: 4 },
+        config: { entityIds: ["weather.demo_snowy"], showForecast: true },
+      },
+      {
+        label: "Strip",
+        size: { w: 6, h: 1 },
+        config: { entityIds: ["weather.demo_sunny"], showForecast: true },
       },
     ],
   },

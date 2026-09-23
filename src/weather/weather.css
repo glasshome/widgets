@@ -1,28 +1,401 @@
-/* One value drives the chart band and the reservation the hero leaves for it,
-   so the curve can never cross the text. */
-.glasshome-widget {
-  --weather-forecast-band: clamp(56px, 28cqb, 92px);
+.tile.weather {
+  grid-template-rows: minmax(0, 1fr);
+}
+.wx-layout {
+  /* Mixed in sRGB so the blue darkens or lightens with the theme's ink without turning violet. */
+  --wx-rain-ink: color-mix(in srgb, #2f80e8 72%, var(--foreground));
+  --wx-s: 1;
+  --wx-t: 1;
+  --wx-ink-shadow:
+    0 0 2px color-mix(in oklch, var(--card) 90%, transparent),
+    0 1px 8px color-mix(in oklch, var(--card) 75%, transparent);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: calc(10px * var(--wx-s));
+  /* The tile's height is not definite to a percentage, so the layout pins to its padding box. */
+  position: absolute;
+  inset: var(--tile-pad);
 }
 
-.weather-forecast-band {
-  height: var(--weather-forecast-band);
+/* Now: always the top-left corner, the first thing read at every size. */
+.wx-now {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(2px * var(--wx-s));
+  min-width: 0;
+  text-shadow: var(--wx-ink-shadow);
+}
+.wx-title {
+  font-size: clamp(12px, 4.5cqb, 14px);
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
+}
+.wx-now-temp {
+  font-size: clamp(34px, min(30cqb, 24cqi), 76px);
+  font-weight: 650;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.wx-degree {
+  font-size: 0.5em;
+  font-weight: 550;
+  vertical-align: top;
+  margin-left: 0.04em;
+}
+.wx-cond {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(12px, 5.5cqb, 16px);
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.weather-hero-reserve {
-  padding-bottom: var(--weather-forecast-band);
+/* The band sits on the widget's own glass, below the scene: small text never meets the photo. */
+.wx-band {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--wx-s));
+  min-width: 0;
+  margin: 0 calc(-1 * var(--tile-pad)) calc(-1 * var(--tile-pad));
+  padding: 0 var(--tile-pad) calc(var(--tile-pad) * 0.6);
 }
 
-/* Below this the reading and the chart cannot both fit; the reading wins. */
-@container widget (max-height: 219px) {
-  .weather-forecast-band {
-    display: none;
+/* Stack with hours: now on top, days in the middle, the day's curve on the bottom edge. */
+/* The band takes what is left under the temperature and shrinks to it, never past the edge. */
+.wx-layout:is([data-rich], [data-tier="split"]) {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.wx-layout:is([data-rich], [data-tier="split"]) > .wx-band {
+  grid-row: 2;
+  align-self: end;
+  max-height: calc(100% + var(--tile-pad));
+}
+.wx-layout[data-rich] .wx-chart {
+  flex: 0 1 clamp(92px, 44cqb, 150px);
+  min-height: 72px;
+}
+.wx-layout[data-rich] .wx-days {
+  flex: 0 1 clamp(120px, 30cqb, 170px);
+  min-height: 0;
+}
+
+/* Split: now top left, details top right, the hours and days as one band along the bottom. */
+.wx-layout[data-tier="split"] > .wx-band {
+  flex-direction: row;
+  gap: calc(16px * var(--wx-s));
+  height: calc(150px * var(--wx-s));
+}
+.wx-layout[data-tier="split"] .wx-chart {
+  flex: 62;
+  height: 100%;
+  margin-right: 0;
+}
+.wx-layout[data-tier="split"] .wx-days {
+  flex: 38;
+}
+.wx-layout[data-tier="split"] .wx-now-temp {
+  font-size: calc(72px * var(--wx-s));
+}
+.wx-layout[data-tier="split"] .wx-cond {
+  font-size: calc(15px * var(--wx-s));
+}
+
+.wx-layout:is([data-tier="compact"], [data-tier="row"]),
+.wx-layout:is([data-tier="compact"], [data-tier="row"]) > .wx-band {
+  display: contents;
+}
+.wx-layout[data-tier="compact"] .wx-now-temp {
+  font-size: clamp(26px, min(42cqb, 24cqi), 48px);
+}
+.wx-layout[data-tier="row"] .wx-now-temp {
+  font-size: clamp(26px, 46cqb, 44px);
+}
+.wx-row-hours {
+  display: flex;
+  flex: 1;
+  justify-content: space-evenly;
+  margin: 0 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.wx-row-hours li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wx-label {
+  font-size: calc(12px * var(--wx-t));
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 78%, transparent);
+  white-space: nowrap;
+}
+.wx-icon {
+  font-size: calc(22px * var(--wx-t));
+  filter: drop-shadow(0 1px 4px color-mix(in oklch, var(--card) 80%, transparent));
+}
+.wx-temp {
+  font-size: calc(15px * var(--wx-t));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.wx-rain {
+  min-height: 1.25em;
+  font-size: calc(11px * var(--wx-t));
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--wx-rain-ink);
+}
+
+.wx-chart {
+  position: relative;
+  min-width: 0;
+  margin: 0 calc(-1 * var(--tile-pad));
+}
+.wx-chart svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.wx-chart-halo {
+  fill: none;
+  stroke: color-mix(in oklch, var(--card) 35%, transparent);
+  stroke-width: calc(6px * var(--wx-t));
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.wx-chart-line {
+  fill: none;
+  stroke-width: calc(5px * var(--wx-t));
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.wx-drops-box {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+.wx-chart-drops {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  will-change: transform;
+  animation: wx-drop var(--wx-drop-t) linear infinite var(--wx-play);
+}
+.wx-chart-drops line {
+  stroke: var(--wx-rain-ink);
+  stroke-width: calc(1.6px * var(--wx-t));
+  stroke-linecap: round;
+  stroke-opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+.wx-chart-drops[data-depth="far"] line {
+  stroke-width: calc(1.1px * var(--wx-t));
+  stroke-opacity: 0.45;
+}
+@keyframes wx-drop {
+  to {
+    transform: translateY(var(--wx-drop-p));
   }
-  .weather-hero-reserve {
-    padding-bottom: 0;
-  }
+}
+/* Labels float on the line; only "Now" carries a marker, a bead in the line's own colour. */
+.wx-chart-point {
+  position: absolute;
+  width: calc(5px * var(--wx-t));
+  height: calc(5px * var(--wx-t));
+  transform: translate(-50%, -50%);
+}
+.wx-chart-point[data-now] {
+  width: calc(12px * var(--wx-t));
+  height: calc(12px * var(--wx-t));
+  border-radius: 50%;
+  background: var(--wx-bead);
+  box-shadow:
+    0 0 0 calc(2.5px * var(--wx-t)) color-mix(in oklch, var(--card) 90%, transparent),
+    0 1px 3px color-mix(in oklch, var(--foreground) 25%, transparent);
+}
+.wx-chart-callout {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  transform: translateX(-50%);
+}
+.wx-chart-point[data-edge="start"] .wx-chart-callout {
+  left: -3px;
+  align-items: flex-start;
+  transform: none;
+}
+.wx-chart-point[data-edge="end"] .wx-chart-callout {
+  left: auto;
+  right: -3px;
+  align-items: flex-end;
+  transform: none;
+}
+.wx-chart-time[data-edge="start"] {
+  transform: translateX(-4px);
+}
+.wx-chart-time[data-edge="end"] {
+  transform: translateX(calc(-100% + 4px));
+}
+.wx-chart-time {
+  position: absolute;
+  bottom: calc(6px * var(--wx-t));
+  transform: translateX(-50%);
 }
 
-/* The scenes set `animation` inline, and the shorthand resets play-state, hence !important. */
-.weather-scene * {
-  animation-play-state: var(--motion-play, running) !important;
+.wx-days {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.wx-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3px * var(--wx-t));
+  min-width: 0;
+  min-height: 0;
+}
+.wx-range {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: calc(24px * var(--wx-t));
+  margin: calc(20px * var(--wx-t)) 0;
+}
+.wx-range-bar {
+  position: absolute;
+  left: 50%;
+  width: calc(5px * var(--wx-t));
+  min-height: 6px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1.5px color-mix(in oklch, var(--card) 60%, transparent);
+  filter: drop-shadow(
+    0 calc(2px * var(--wx-t)) calc(2px * var(--wx-t))
+      color-mix(in oklch, var(--foreground) 20%, transparent)
+  );
+  transform: translateX(-50%);
+}
+.wx-range-high,
+.wx-range-low {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.wx-range-high {
+  bottom: calc(100% + 3px);
+}
+.wx-range-low {
+  top: calc(100% + 3px);
+  font-size: calc(13px * var(--wx-t));
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 78%, transparent);
+}
+
+.wx-details {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: calc(8px * var(--wx-t)) calc(22px * var(--wx-t));
+  margin: 0;
+}
+.wx-detail dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wx-detail dd {
+  margin: 0;
+  font-size: calc(18px * var(--wx-t));
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* Under the forecast the scene carries on as through frosted glass: blurred once, veiled in the surface. */
+.wx-frost {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+.wx-frost img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 40%;
+  filter: blur(26px) saturate(1.35);
+  transform: scale(1.15);
+}
+.wx-frost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklch, var(--card) 58%, transparent);
+}
+
+/* The picture is a layer on the widget's own glass; the tile's rounded frame clips it. */
+.wx-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  overflow: hidden;
+
+  mask-image: linear-gradient(to bottom, black 45%, transparent);
+}
+.wx-plain .wx-scene {
+  bottom: 0;
+  mask-image: none;
+}
+.wx-scene[data-side] {
+  right: auto;
+  bottom: 0;
+  mask-image: linear-gradient(to right, black 65%, transparent);
+}
+.wx-scene:not([data-side]) .wx-land {
+  object-position: center 40%;
+}
+.wx-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--card) 40%, transparent),
+    transparent 40%
+  );
+}
+.wx-band .wx-details {
+  grid-template-columns: repeat(2, auto);
+  align-self: center;
+}
+/* On a strip the photo is the left 30%: the temperature holds that width so hours start on glass. */
+.wx-layout[data-tier="row"] .wx-now {
+  min-width: calc(30cqi - var(--tile-pad));
 }

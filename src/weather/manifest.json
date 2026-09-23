@@ -1,20 +1,20 @@
 {
   "name": "Weather",
-  "description": "Weather conditions with animated backgrounds and forecast chart",
+  "description": "The sky outside, the hours and days ahead",
   "icon": "mdi:weather-partly-cloudy",
   "minSize": {
     "w": 2,
     "h": 1
   },
   "maxSize": {
-    "w": 4,
-    "h": 4
+    "w": 12,
+    "h": 8
   },
   "sdkVersion": "^1.16.0",
   "version": "0.8.1",
   "defaultSize": {
-    "w": 3,
-    "h": 2
+    "w": 4,
+    "h": 3
   },
   "capabilities": [
     {
@@ -58,16 +58,54 @@
   },
   "examples": [
     {
-      "label": "Weather",
+      "label": "Partly cloudy",
       "size": {
-        "w": 2,
-        "h": 2
+        "w": 4,
+        "h": 3
       },
       "config": {
         "entityIds": [
           "weather.demo_partly_cloudy"
         ],
-        "title": "Weather",
+        "showForecast": true
+      }
+    },
+    {
+      "label": "Centerpiece",
+      "size": {
+        "w": 8,
+        "h": 5
+      },
+      "config": {
+        "entityIds": [
+          "weather.demo_rainy"
+        ],
+        "showForecast": true
+      }
+    },
+    {
+      "label": "Snow",
+      "size": {
+        "w": 4,
+        "h": 4
+      },
+      "config": {
+        "entityIds": [
+          "weather.demo_snowy"
+        ],
+        "showForecast": true
+      }
+    },
+    {
+      "label": "Strip",
+      "size": {
+        "w": 6,
+        "h": 1
+      },
+      "config": {
+        "entityIds": [
+          "weather.demo_sunny"
+        ],
         "showForecast": true
       }
     }

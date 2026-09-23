@@ -56,7 +56,7 @@ The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 
 Two roles, one per widget:
 
-- **Backdrop**: a full-bleed photo under a scrim, text on top (area, energy balance, camera placeholder).
+- **Backdrop**: a full-bleed photo under a scrim, text on top (area, energy balance, weather, camera placeholder).
 - **Object**: a cut-out in the hero's art slot (lamps, fan, window, pylon, house).
 
 Media is the exception: the album cover sharp on the vinyl, blurred behind the tile. Each widget has its own subject, so neighbours never repeat a picture.
@@ -66,6 +66,8 @@ Media is the exception: the album cover sharp on the vinyl, blurred behind the t
 - **The homeowner's picture wins.** Where a photo stands for their home (a room, a camera), a picture they chose replaces the built-in one: the widget's own `field.image`, then the picture Home Assistant has, then the default. Object art is illustrative and stays built in.
 - **Legibility**: a `--card` scrim behind text, a soft text shadow, near-white small lines. Dark scenes put the tile in the theme's `.dark` scope; in dark mode a daytime photo is dimmed.
 - **Weight**: images ship inside the bundle, so keep each small (most are 10 to 40KB WebP).
+- **Layered scenes**: a scene that weather must move through is cut into full-frame layers (sky, far, near) keyed from one generation, so fog, cloud and rain sit between them. Night gets its own registered pair (moonlight cannot be faked by darkening daylight); dusk, storm and fog are graded in code over the layers, never a new image per condition.
+- **Small text never sits on a photo.** A scene that shares a tile with data takes its own region (the top, or the left of a strip) and fades into the widget's glass; only the big value and its one line sit on the picture. Data below reads in theme ink like every other widget. Show a change, not a repeat: a forecast marks the hour the sky turns instead of an icon per hour.
 
 ## Live data
 
@@ -76,6 +78,7 @@ A new reading changes text and attributes in place; it never rebuilds DOM.
 - Layout that depends on which things exist is memoised on that set, not on readings.
 - Animation durations move in a few fixed steps, since a new duration restarts the animation.
 - Ambient motion is composite-only and pauses offscreen, when hidden, and with reduced motion.
+- Particles (rain, snow) are one tiled layer per depth that moves by one tile and loops, never one node per drop.
 
 ## Checking a change
 
@@ -105,9 +108,10 @@ Look at pixels, in both themes, at real sizes.
 | energy-balance | how did today go | net energy | horizon with the sun's arc |
 | energy-flow | where is power going | home use; a scene on large tiles | house, ribbons sized and tapered by flow |
 | electricity-grid | a good time to use power | the verdict | pylon, wires green by low-carbon share |
+| weather | is it raining, how warm, how will it go | the temperature, fixed top left, no name unless one is set; days above a curve of the next hours on the bottom edge, one colour scale for both | alpine lake in layers: sky, mountains, shore, with weather between them |
 | camera | the live view | the stream | soft entrance photo without a feed |
 
-Weather, picture-frame and header are not on this system yet.
+Picture-frame and header are not on this system yet.
 
 ## Keeping this current
 
