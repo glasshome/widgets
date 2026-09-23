@@ -2,6 +2,10 @@
 
 Reference implementation of the built-in widgets that ship with [GlassHome](https://glasshome.app), the local-first dashboard for Home Assistant. Not published to npm -- browse the source for widget development patterns, and see the [widget development guide](https://glasshome.app/docs/widget-development) to build your own.
 
+## Design
+
+[`DESIGN.md`](./DESIGN.md) is how these widgets look and behave: the shared tile, size rules, art direction, and how to verify a change. Tooling it describes lives in `tools/`.
+
 ## Structure
 
 ```

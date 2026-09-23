@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Widget Preview Harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+      }
+      /* The capture target: the widget tile alone. Background and padding are
+         the renderer's job, so the screenshot is tight and transparent. */
+      #stage {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script type="module" src="./harness.tsx"></script>
+  </body>
+</html>

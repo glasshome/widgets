@@ -6,4 +6,4 @@ preview/
 .turbo/
 .env
 .env*.local
-.glasshome-sizes/
+.sizes/
