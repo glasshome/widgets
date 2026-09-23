@@ -107,3 +107,59 @@ export function linkPath(link: Pick<SceneLink, "side" | "from" | "anchor">): str
   const mid = (from.x + to.x) / 2;
   return `M${from.x},${from.y} C${mid},${from.y} ${mid},${to.y} ${to.x},${to.y}`;
 }
+
+function cubicPoint(p0: Point, p1: Point, p2: Point, p3: Point, t: number): Point {
+  const u = 1 - t;
+  const a = u * u * u;
+  const b = 3 * u * u * t;
+  const c = 3 * u * t * t;
+  const d = t * t * t;
+  return {
+    x: a * p0.x + b * p1.x + c * p2.x + d * p3.x,
+    y: a * p0.y + b * p1.y + c * p2.y + d * p3.y,
+  };
+}
+
+function controlPoints(
+  link: Pick<SceneLink, "side" | "from" | "anchor">,
+): [Point, Point, Point, Point] {
+  const { from, anchor: to } = link;
+  if (link.side === "bottom") {
+    const mid = (from.y + to.y) / 2;
+    return [from, { x: from.x, y: mid }, { x: to.x, y: mid }, to];
+  }
+  const mid = (from.x + to.x) / 2;
+  return [from, { x: mid, y: from.y }, { x: mid, y: to.y }, to];
+}
+
+/** The link as a filled ribbon, `fromW` wide at the label and `toW` wide at the house. */
+export function ribbonShape(
+  link: Pick<SceneLink, "side" | "from" | "anchor">,
+  fromW: number,
+  toW: number,
+): string {
+  const [p0, p1, p2, p3] = controlPoints(link);
+  const steps = 24;
+  const left: Point[] = [];
+  const right: Point[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const p = cubicPoint(p0, p1, p2, p3, t);
+    const q = cubicPoint(p0, p1, p2, p3, Math.min(1, t + 0.01));
+    const r = cubicPoint(p0, p1, p2, p3, Math.max(0, t - 0.01));
+    const dx = q.x - r.x;
+    const dy = q.y - r.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const half = (fromW + (toW - fromW) * t) / 2;
+    left.push({ x: p.x - (dy / len) * half, y: p.y + (dx / len) * half });
+    right.push({ x: p.x + (dy / len) * half, y: p.y - (dx / len) * half });
+  }
+  const f = (p: Point) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+  return `M${left.map(f).join("L")}L${right.reverse().map(f).join("L")}Z`;
+}
+
+/** Ribbon width for a flow, relative to the largest one on screen; square root keeps small flows visible. */
+export function flowWidth(watts: number, maxWatts: number): number {
+  const share = Math.sqrt(Math.min(1, Math.max(0, watts) / (maxWatts || 1)));
+  return 2.5 + share * 9.5;
+}

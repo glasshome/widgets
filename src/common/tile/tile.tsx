@@ -7,7 +7,7 @@ import {
   ToggleGroupItem,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { For, type JSX, Show } from "solid-js";
+import { children, For, type JSX, Show } from "solid-js";
 import "./tile.css";
 
 const INNER = "rounded-[var(--tile-radius-inner)]";
@@ -40,6 +40,9 @@ export function TileHead(props: {
   active?: boolean;
   count?: number;
 }) {
+  // Resolved once: reading a JSX prop twice (Show + body) rebuilds its DOM on every change.
+  const eyebrow = children(() => props.eyebrow);
+  const aside = children(() => props.aside);
   return (
     <div class="tile-head">
       <Show when={props.icon}>
@@ -53,13 +56,13 @@ export function TileHead(props: {
         )}
       </Show>
       <div class="tile-head-text">
-        <Show when={props.eyebrow}>
-          <span class="tile-eyebrow">{props.eyebrow}</span>
+        <Show when={eyebrow()}>
+          <span class="tile-eyebrow">{eyebrow()}</span>
         </Show>
         <span class="tile-name">{props.name}</span>
       </div>
-      <Show when={props.aside}>
-        <div class="tile-head-aside">{props.aside}</div>
+      <Show when={aside()}>
+        <div class="tile-head-aside">{aside()}</div>
       </Show>
     </div>
   );
@@ -72,11 +75,13 @@ export function TileHero(props: {
   art?: JSX.Element;
   class?: string;
 }) {
+  const sub = children(() => props.sub);
+  const art = children(() => props.art);
   return (
     <div class={props.class ? `tile-hero ${props.class}` : "tile-hero"}>
       <div class="tile-reading">
-        <Show when={props.sub}>
-          <span class="tile-sub">{props.sub}</span>
+        <Show when={sub()}>
+          <span class="tile-sub">{sub()}</span>
         </Show>
         <span class="tile-value">
           {props.value}
@@ -87,8 +92,8 @@ export function TileHero(props: {
           </Show>
         </span>
       </div>
-      <Show when={props.art}>
-        <div class="tile-art">{props.art}</div>
+      <Show when={art()}>
+        <div class="tile-art">{art()}</div>
       </Show>
     </div>
   );

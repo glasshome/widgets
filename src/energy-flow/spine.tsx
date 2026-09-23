@@ -16,7 +16,15 @@ import houseNight from "./assets/house-clay-night.webp";
 import type { Tariff } from "./cost";
 import { aggregate, type ResolvedFlow, type ResolvedNode } from "./flow";
 import { buildEnergyGraph } from "./graph-adapter";
-import { type LabelSide, layoutHouseScene, linkPath, type SceneRole } from "./house-scene";
+import {
+  flowWidth,
+  type LabelSide,
+  layoutHouseScene,
+  linkPath,
+  ribbonShape,
+  type SceneRole,
+} from "./house-scene";
+
 import "./house.css";
 
 const STREAM_CSS = `
@@ -111,9 +119,15 @@ export function Spine(props: {
                 const inbound = node()?.kind !== "output";
                 return e?.direction === "forward" ? inbound : !inbound;
               };
+              // Thin where the power leaves, full width where it arrives.
+              const ribbon = () => {
+                const wide = flowWidth(node()?.watts ?? 0, maxWatts());
+                const thin = Math.max(1.5, wide * 0.3);
+                return toHouse() ? ribbonShape(link, thin, wide) : ribbonShape(link, wide, thin);
+              };
               return (
                 <Show when={edge() && !edge()?.idle}>
-                  <path d={linkPath(link)} class="flow-link" style={{ stroke: edge()?.color }} />
+                  <path d={ribbon()} class="flow-ribbon" style={{ fill: edge()?.color }} />
                   <Show when={!paused()}>
                     <path
                       d={linkPath(link)}

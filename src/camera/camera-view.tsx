@@ -1,15 +1,6 @@
 import { Badge } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  Match,
-  onMount,
-  Show,
-  Switch,
-} from "solid-js";
+import { type Accessor, createMemo, createSignal, Match, onMount, Show, Switch } from "solid-js";
 import noFeedArt from "./assets/no-feed.webp";
 import type { CameraPlayer } from "./create-player";
 
@@ -35,12 +26,8 @@ export function CameraView(props: {
 }) {
   const status = props.player.status;
 
-  // A failed poster otherwise paints the browser's broken-image glyph over the chrome.
-  const [posterFailed, setPosterFailed] = createSignal(false);
-  createEffect(() => {
-    props.poster();
-    setPosterFailed(false);
-  });
+  // Hidden until it loads: a failed poster otherwise paints the broken-image glyph.
+  const [posterLoaded, setPosterLoaded] = createSignal(false);
 
   const streaming = () =>
     status() === "connecting" || status() === "reconnecting" || status() === "live";
@@ -77,12 +64,14 @@ export function CameraView(props: {
     <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
       <img src={noFeedArt} alt="" class={`${MEDIA_CLASS} ${connecting() ? "animate-pulse" : ""}`} />
 
-      <Show when={!posterFailed() && props.poster()}>
+      <Show when={props.poster() !== undefined}>
         <img
           src={props.poster()}
           alt=""
           class={MEDIA_CLASS}
-          onError={() => setPosterFailed(true)}
+          style={{ visibility: posterLoaded() ? "visible" : "hidden" }}
+          onLoad={() => setPosterLoaded(true)}
+          onError={() => setPosterLoaded(false)}
         />
       </Show>
 
@@ -90,15 +79,16 @@ export function CameraView(props: {
         <StreamElement player={props.player} poster={props.poster()} />
       </Show>
 
-      <Show when={props.active() && overlay()}>
-        {(o) => (
-          <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div class="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
-              <Icon icon={o().icon} width={16} class="text-white/90" />
-              <span class="font-medium text-[11px] text-white/90">{o().label}</span>
-            </div>
+      <Show when={props.active()}>
+        <div
+          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+          style={{ visibility: overlay() ? "visible" : "hidden" }}
+        >
+          <div class="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
+            <Icon icon={overlay()?.icon ?? "mdi:cctv-off"} width={16} class="text-white/90" />
+            <span class="font-medium text-[11px] text-white/90">{overlay()?.label}</span>
           </div>
-        )}
+        </div>
       </Show>
 
       <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">

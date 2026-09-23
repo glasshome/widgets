@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { layoutHouseScene, type SceneNode } from "./house-scene";
+import { flowWidth, layoutHouseScene, ribbonShape, type SceneNode } from "./house-scene";
 
 const node = (id: string, role: SceneNode["role"]): SceneNode => ({ id, role });
 const box = { width: 480, height: 240 };
@@ -78,5 +78,19 @@ describe("a column on a small house", () => {
     });
     const [a, b] = s.labels;
     expect(Math.abs((a?.at.y ?? 0) - (b?.at.y ?? 0))).toBeGreaterThanOrEqual(36);
+  });
+});
+
+describe("flow ribbons", () => {
+  it("grow with power, relative to the largest flow, and never vanish", () => {
+    expect(flowWidth(4000, 4000)).toBeCloseTo(12, 5);
+    expect(flowWidth(1000, 4000)).toBeGreaterThan(flowWidth(250, 4000));
+    expect(flowWidth(1, 4000)).toBeGreaterThan(2.5);
+  });
+
+  it("draw a closed shape between the label and the house", () => {
+    const d = ribbonShape({ side: "left", from: { x: 0, y: 0 }, anchor: { x: 100, y: 40 } }, 2, 10);
+    expect(d.startsWith("M")).toBe(true);
+    expect(d.endsWith("Z")).toBe(true);
   });
 });

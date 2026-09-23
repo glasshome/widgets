@@ -1,4 +1,5 @@
 import {
+  buildDebugData,
   byDomain,
   defineConfig,
   defineWidget,
@@ -9,12 +10,11 @@ import {
   useWidgetDialog,
   useWidgetGestures,
   Widget,
-  WidgetDialog,
-  buildDebugData,
   type WidgetDebugData,
+  WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, For, onCleanup, Show } from "solid-js";
+import { createMemo, Index, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
@@ -74,26 +74,26 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             sub={hasLow() ? `${lowCount()} low` : "All good"}
             art={
               <div class="batteries-list">
-                <For each={batteries().slice(0, 4)}>
+                <Index each={batteries().slice(0, 4)}>
                   {(battery) => (
                     <div class="batteries-row">
                       <Icon
-                        icon={getBatteryIcon(battery.level)}
+                        icon={getBatteryIcon(battery().level)}
                         width={16}
-                        style={{ color: getBatteryColor(battery.level) }}
+                        style={{ color: getBatteryColor(battery().level) }}
                       />
                       <span class="batteries-name">
-                        {battery.entity.friendlyName || battery.entity.id}
+                        {battery().entity.friendlyName || battery().entity.id}
                       </span>
                       <span
                         class="batteries-level"
-                        style={{ color: getBatteryColor(battery.level) }}
+                        style={{ color: getBatteryColor(battery().level) }}
                       >
-                        {battery.level}%
+                        {battery().level}%
                       </span>
                     </div>
                   )}
-                </For>
+                </Index>
               </div>
             }
           />
@@ -121,37 +121,37 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
               }
             >
               <div class="max-h-80 space-y-2 overflow-y-auto">
-                <For each={batteries()}>
+                <Index each={batteries()}>
                   {(battery) => (
                     <div class="glass flex items-center gap-3 rounded-lg px-3 py-2">
                       <Icon
-                        icon={getBatteryIcon(battery.level)}
+                        icon={getBatteryIcon(battery().level)}
                         width={24}
-                        style={{ color: getBatteryColor(battery.level) }}
+                        style={{ color: getBatteryColor(battery().level) }}
                       />
                       <div class="min-w-0 flex-1">
                         <div class="truncate font-medium text-sm">
-                          {battery.entity.friendlyName || battery.entity.id}
+                          {battery().entity.friendlyName || battery().entity.id}
                         </div>
                         <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                           <div
                             class="h-full rounded-full transition-all"
                             style={{
-                              width: `${Math.min(100, Math.max(0, battery.level))}%`,
-                              "background-color": getBatteryColor(battery.level),
+                              width: `${Math.min(100, Math.max(0, battery().level))}%`,
+                              "background-color": getBatteryColor(battery().level),
                             }}
                           />
                         </div>
                       </div>
                       <span
                         class="font-medium text-sm tabular-nums"
-                        style={{ color: getBatteryColor(battery.level) }}
+                        style={{ color: getBatteryColor(battery().level) }}
                       >
-                        {battery.level}%
+                        {battery().level}%
                       </span>
                     </div>
                   )}
-                </For>
+                </Index>
               </div>
             </Show>
           </div>
