@@ -125,10 +125,7 @@
   position: absolute;
   right: var(--tile-pad);
   bottom: var(--tile-pad);
-  height: min(
-    calc(100% - 2 * var(--tile-pad) - var(--widget-icon-box) - var(--tile-gap)),
-    48cqi
-  );
+  height: min(calc(100% - 2 * var(--tile-pad) - var(--widget-icon-box) - var(--tile-gap)), 48cqi);
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;

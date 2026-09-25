@@ -7,7 +7,16 @@ import {
   ToggleGroupItem,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { children, createEffect, createMemo, createSignal, For, type JSX, on, Show } from "solid-js";
+import {
+  children,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  on,
+  Show,
+} from "solid-js";
 import "./tile.css";
 
 const INNER = "rounded-[var(--tile-radius-inner)]";

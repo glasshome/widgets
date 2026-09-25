@@ -78,7 +78,11 @@ export function CoverArt(props: { kind: CoverKind; closed: number }) {
   };
   const art = () => rollerFor()?.art ?? curtainArt;
   return (
-    <div class="cover-art" data-kind={props.kind} style={{ "aspect-ratio": String(art().aspect), "--art-aspect": art().aspect }}>
+    <div
+      class="cover-art"
+      data-kind={props.kind}
+      style={{ "aspect-ratio": String(art().aspect), "--art-aspect": art().aspect }}
+    >
       <img src={art().src} alt="" />
       <Show when={rollerFor()} keyed fallback={<Curtain open={1 - share()} />}>
         {(roller) => <RollerPanel roller={roller} share={share()} />}

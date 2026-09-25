@@ -47,7 +47,9 @@ function GridBody(props: BodyProps): JSX.Element {
     <Tile
       active={props.verdict.band === "clean"}
       accent={tint()}
-      class={props.verdict.phrase.split(" ").length === 2 ? "grid-tile grid-two-words" : "grid-tile"}
+      class={
+        props.verdict.phrase.split(" ").length === 2 ? "grid-tile grid-two-words" : "grid-tile"
+      }
     >
       <TileGlyph icon="mdi:transmission-tower" />
       <TileHead
