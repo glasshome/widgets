@@ -23,8 +23,8 @@ import { groupLine } from "../common/group";
 import { Tile, TileChoice, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
-import { FanControls } from "./controls";
 import "./fan.css";
+import { FanPanel } from "./panel";
 
 const PRESET_ICONS: Record<string, string> = {
   auto: "mdi:fan-auto",
@@ -245,7 +245,16 @@ function FanWidget(props: { config: FanConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={<FanControls entities={entities} />}
+        panel={
+          <Show when={hasEntities()}>
+            <FanPanel
+              entities={entities()}
+              name={name()}
+              art={props.config.art === "purifier" ? purifierArt : pedestalArt}
+              presetIcon={presetIcon}
+            />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

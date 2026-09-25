@@ -17,13 +17,13 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { CoverControls } from "./controls";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
+import { CoverPanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -280,13 +280,9 @@ function CoverWidget(props: { config: CoverConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={
+        panel={
           <Show when={hasEntities()}>
-            <div class="flex flex-col gap-6">
-              <Index each={entities()}>
-                {(entity) => <CoverControls entity={entity()} showName={entities().length > 1} />}
-              </Index>
-            </div>
+            <CoverPanel entities={entities()} name={name()} kind={artKind()} />
           </Show>
         }
         debugData={debugData()}

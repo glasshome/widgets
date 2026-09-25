@@ -22,7 +22,7 @@ import { widgetDialogProps } from "../common";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
 import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { LightControls } from "./controls";
+import { LightPanel } from "./panel";
 import { brightnessToPercent, hsToCSS } from "./utils";
 
 const configSchema = defineConfig({
@@ -205,7 +205,18 @@ function LightWidget(props: { config: LightConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={<LightControls entities={entities} brightness={() => uiBrightness()} />}
+        panel={
+          <Show when={hasEntities()}>
+            <LightPanel
+              entities={entities()}
+              name={name()}
+              eyebrow={eyebrow()}
+              lamp={props.config.lamp}
+              brightness={uiBrightness()}
+              color={vividColor()}
+            />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

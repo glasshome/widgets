@@ -1,22 +1,89 @@
 import { Badge } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { type Accessor, createMemo, createSignal, Match, onMount, Show, Switch } from "solid-js";
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  Match,
+  onCleanup,
+  onMount,
+  Show,
+  Switch,
+} from "solid-js";
 import noFeedArt from "./assets/no-feed.webp";
 import type { CameraPlayer } from "./create-player";
+import type { PlayerStatus } from "./player";
 
 const MEDIA_CLASS = "absolute inset-0 h-full w-full object-cover";
 
-function BoundVideo(props: { player: CameraPlayer; poster?: string }) {
+function BoundVideo(props: { player: CameraPlayer; poster?: string; class?: string }) {
   let ref!: HTMLVideoElement;
   onMount(() => props.player.bindEl(ref));
-  return <video ref={ref} autoplay muted playsinline poster={props.poster} class={MEDIA_CLASS} />;
+  return <video ref={ref} autoplay muted playsinline poster={props.poster} class={props.class} />;
 }
 
-function BoundImage(props: { player: CameraPlayer; poster?: string }) {
+function BoundImage(props: { player: CameraPlayer; poster?: string; class?: string }) {
   let ref!: HTMLImageElement;
   onMount(() => props.player.bindEl(ref));
-  return <img ref={ref} src={props.poster} alt="" class={MEDIA_CLASS} />;
+  return <img ref={ref} src={props.poster} alt="" class={props.class} />;
 }
+
+/** The picture layers alone: placeholder, last frame, live stream. The tile and the panel share it. */
+export function CameraFeed(props: {
+  player: CameraPlayer;
+  poster: Accessor<string | undefined>;
+  active: Accessor<boolean>;
+  class?: string;
+}) {
+  const status = props.player.status;
+  // Hidden until it loads: a failed poster otherwise paints the broken-image glyph.
+  const [posterLoaded, setPosterLoaded] = createSignal(false);
+  // A dialog may also build its panel detached; only a feed in the document may claim the player.
+  const [attached, setAttached] = createSignal(false);
+  let placeholder!: HTMLImageElement;
+  onMount(() => {
+    const frame = requestAnimationFrame(() => setAttached(placeholder.isConnected));
+    onCleanup(() => cancelAnimationFrame(frame));
+  });
+
+  const streaming = () =>
+    status() === "connecting" || status() === "reconnecting" || status() === "live";
+  const connecting = () => status() === "connecting" || status() === "reconnecting";
+
+  return (
+    <>
+      <img
+        ref={placeholder}
+        src={noFeedArt}
+        alt=""
+        class={`${props.class ?? ""} ${connecting() ? "animate-pulse" : ""}`}
+      />
+      <Show when={props.poster() !== undefined}>
+        <img
+          src={props.poster()}
+          alt=""
+          class={props.class}
+          style={{ visibility: posterLoaded() ? "visible" : "hidden" }}
+          onLoad={() => setPosterLoaded(true)}
+          onError={() => setPosterLoaded(false)}
+        />
+      </Show>
+      <Show when={props.active() && attached() && streaming()}>
+        <StreamElement player={props.player} poster={props.poster()} class={props.class} />
+      </Show>
+    </>
+  );
+}
+
+const BADGE: Record<PlayerStatus, { label: string; tone: string }> = {
+  offline: { label: "Offline", tone: "var(--destructive)" },
+  live: { label: "Live", tone: "var(--success)" },
+  "no-signal": { label: "No signal", tone: "var(--destructive)" },
+  connecting: { label: "Connecting", tone: "var(--warning)" },
+  reconnecting: { label: "Connecting", tone: "var(--warning)" },
+};
+
+export const statusBadge = (status: PlayerStatus) => BADGE[status];
 
 export function CameraView(props: {
   player: CameraPlayer;
@@ -24,33 +91,10 @@ export function CameraView(props: {
   name: Accessor<string>;
   active: Accessor<boolean>;
 }) {
-  const status = props.player.status;
-
-  // Hidden until it loads: a failed poster otherwise paints the broken-image glyph.
-  const [posterLoaded, setPosterLoaded] = createSignal(false);
-
-  const streaming = () =>
-    status() === "connecting" || status() === "reconnecting" || status() === "live";
-  const connecting = () => status() === "connecting" || status() === "reconnecting";
-
-  const badge = createMemo(() => {
-    switch (status()) {
-      case "offline":
-        return { label: "Offline", tone: "var(--destructive)" };
-      case "live":
-        return { label: "Live", tone: "var(--success)" };
-      case "no-signal":
-        return { label: "No signal", tone: "var(--destructive)" };
-      case "connecting":
-      case "reconnecting":
-        return { label: "Connecting", tone: "var(--warning)" };
-      default:
-        return { label: "Idle", tone: "var(--warning)" };
-    }
-  });
+  const badge = createMemo(() => statusBadge(props.player.status()));
 
   const overlay = createMemo(() => {
-    switch (status()) {
+    switch (props.player.status()) {
       case "no-signal":
         return { icon: "mdi:cctv-off", label: "No signal · tap to retry" };
       case "offline":
@@ -62,22 +106,12 @@ export function CameraView(props: {
 
   return (
     <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
-      <img src={noFeedArt} alt="" class={`${MEDIA_CLASS} ${connecting() ? "animate-pulse" : ""}`} />
-
-      <Show when={props.poster() !== undefined}>
-        <img
-          src={props.poster()}
-          alt=""
-          class={MEDIA_CLASS}
-          style={{ visibility: posterLoaded() ? "visible" : "hidden" }}
-          onLoad={() => setPosterLoaded(true)}
-          onError={() => setPosterLoaded(false)}
-        />
-      </Show>
-
-      <Show when={props.active() && streaming()}>
-        <StreamElement player={props.player} poster={props.poster()} />
-      </Show>
+      <CameraFeed
+        player={props.player}
+        poster={props.poster}
+        active={props.active}
+        class={MEDIA_CLASS}
+      />
 
       <Show when={props.active()}>
         <div
@@ -101,15 +135,15 @@ export function CameraView(props: {
   );
 }
 
-function StreamElement(props: { player: CameraPlayer; poster?: string }) {
+function StreamElement(props: { player: CameraPlayer; poster?: string; class?: string }) {
   const kind = props.player.activeKind;
   return (
     <Switch>
       <Match when={kind() === "webrtc" || kind() === "hls"}>
-        <BoundVideo player={props.player} poster={props.poster} />
+        <BoundVideo player={props.player} poster={props.poster} class={props.class} />
       </Match>
       <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
-        <BoundImage player={props.player} />
+        <BoundImage player={props.player} class={props.class} />
       </Match>
     </Switch>
   );

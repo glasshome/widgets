@@ -23,7 +23,7 @@ import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
-import { LockControls } from "./controls";
+import { LockPanel } from "./panel";
 
 const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
 
@@ -70,6 +70,12 @@ function LockWidget(props: { config: LockConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     "Lock";
+  const art = () => (
+    <ArtStrip
+      strip={ART[props.config.art]}
+      end={entities().some((e) => OPEN_STATES.has(e.state))}
+    />
+  );
   const heroValue = () => (isLocked() ? "Locked" : "Unlocked");
   const eyebrow = () =>
     count() > 1
@@ -129,22 +135,14 @@ function LockWidget(props: { config: LockConfig }) {
               active={isLocked()}
               count={entities().length}
             />
-            <TileHero
-              value={heroValue()}
-              art={
-                <ArtStrip
-                  strip={ART[props.config.art]}
-                  end={entities().some((e) => OPEN_STATES.has(e.state))}
-                />
-              }
-            />
+            <TileHero value={heroValue()} art={art()} />
           </Tile>
         </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Lock"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -152,9 +150,15 @@ function LockWidget(props: { config: LockConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={
+        panel={
           <Show when={hasEntities()}>
-            <LockControls entities={entities()} />
+            <LockPanel
+              entities={entities()}
+              name={name()}
+              eyebrow={eyebrow()}
+              locked={isLocked()}
+              art={art()}
+            />
           </Show>
         }
         debugData={debugData()}

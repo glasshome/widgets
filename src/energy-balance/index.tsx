@@ -1,5 +1,6 @@
 import {
   defineWidget,
+  type PanelFact,
   svgColors,
   ToggleGroup,
   ToggleGroupItem,
@@ -26,6 +27,7 @@ import {
 } from "../common/tile/tile";
 import { deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
+import { EnergyBalancePanel } from "./panel";
 import { SkyScene } from "./sky";
 import { skyScene } from "./sun-path";
 import "./balance.css";
@@ -52,6 +54,13 @@ const MODE_WHEN: Record<Mode, string> = {
   today: "today",
   week: "this week",
   month: "this month",
+};
+
+const MODE_FACTS_LABEL: Record<Mode, string> = {
+  live: "Right now",
+  today: "Today",
+  week: "This week",
+  month: "This month",
 };
 
 function sumChange(values: { change?: number }[] | undefined): number {
@@ -228,6 +237,31 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     return hasSolar() ? `Solar ${fmt(produced())} · Home ${fmt(consumed())}` : undefined;
   };
 
+  const facts = createMemo((): PanelFact[] => {
+    const live = isLive();
+    const fmt = (v: number) =>
+      live ? formatPower(v) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
+    const out: PanelFact[] = [];
+    if (hasSolar())
+      out.push({ icon: "mdi:solar-power-variant", label: "Produced", value: fmt(produced()) });
+    out.push({ icon: "mdi:home-lightning-bolt", label: "Used", value: fmt(consumed()) });
+    out.push({
+      icon: "mdi:transmission-tower-import",
+      label: "Imported",
+      value: fmt(live ? Math.max(0, netW()) : balance().gridImportKWh),
+    });
+    const exports = live
+      ? firstId(props.config.gridExportPowerEntity) || firstId(props.config.gridSignedPowerEntity)
+      : firstId(props.config.gridExportEnergyEntity);
+    if (exports)
+      out.push({
+        icon: "mdi:transmission-tower-export",
+        label: "Exported",
+        value: fmt(live ? Math.max(0, -netW()) : balance().gridExportKWh),
+      });
+    return out;
+  });
+
   const daylight = useDaylight();
   const cycleMode = () => setMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length]);
   const gestures = useWidgetGestures(() => ({ tap: cycleMode, hold: { action: openDialog } }));
@@ -294,6 +328,24 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={configured()}>
+            <EnergyBalancePanel
+              name={props.config.title || "Energy balance"}
+              icon={headIcon()}
+              tone="var(--tone-accent)"
+              eyebrow={eyebrow()}
+              value={readout().value}
+              unit={readout().unit}
+              glow={Math.min(1, liveSolarW() / 4000)}
+              modes={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
+              mode={mode()}
+              onMode={(m) => setMode(m as Mode)}
+              factsLabel={MODE_FACTS_LABEL[mode()]}
+              facts={facts()}
+            />
+          </Show>
+        }
       />
     </>
   );

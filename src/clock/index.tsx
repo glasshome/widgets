@@ -18,6 +18,7 @@ import {
 import { createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
+import { ClockPanel } from "./panel";
 import { getPresetTheme } from "./presets";
 import { type ClockConfig, configSchema } from "./types";
 import { formatDate, getClockTones, getDayOfWeek, getDefaultConfig, getTimeParts } from "./utils";
@@ -384,6 +385,17 @@ function ClockWidget(props: { config: ClockConfig }) {
         }}
         title="Clock"
         maxWidth="md"
+        panel={
+          <ClockPanel
+            config={cfg()}
+            now={currentTime()}
+            onFace={(clockStyle) => {
+              const next = { ...cfg(), clockStyle };
+              setDraftConfig(next);
+              ctx.updateConfig(next as unknown as Record<string, unknown>);
+            }}
+          />
+        }
         hasUnsavedChanges={hasChanges()}
         onSave={() => {
           ctx.updateConfig(draftConfig() as unknown as Record<string, unknown>);

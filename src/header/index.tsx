@@ -20,8 +20,24 @@ import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-j
 import { widgetDialogProps } from "../common";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
 import { greetingForHour, hourIn } from "./greeting";
-import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
+import {
+  DOMAIN_SPECS,
+  type EntitySnapshot,
+  needsArea,
+  resolveChip,
+  visibleCount,
+  WATCH_DOMAIN,
+} from "./items";
+import { type HeaderGroup, HeaderPanel } from "./panel";
 import "./header.css";
+
+const GROUP_WORDS: Record<string, { label: string; one: string; many: string }> = {
+  lights: { label: "Lights", one: "light", many: "lights" },
+  locks: { label: "Locks", one: "lock", many: "locks" },
+  covers: { label: "Covers", one: "cover", many: "covers" },
+  switches: { label: "Switches", one: "switch", many: "switches" },
+  fans: { label: "Fans", one: "fan", many: "fans" },
+};
 
 function HeaderWidget(props: { config: HeaderConfig }) {
   const ctx = useWidgetContext();
@@ -88,6 +104,42 @@ function HeaderWidget(props: { config: HeaderConfig }) {
     });
   });
 
+  const groups = createMemo((): HeaderGroup[] => {
+    if (needsArea(props.config.where)) return [];
+    return props.config.chips.flatMap((chip) => {
+      const domain = WATCH_DOMAIN[chip.shows];
+      const words = GROUP_WORDS[chip.shows];
+      const spec = domain ? DOMAIN_SPECS[domain] : undefined;
+      if (!domain || !words || !spec) return [];
+      const members = snapshot(chip).filter((e) => e.id.startsWith(`${domain}.`));
+      const active = members.filter((e) => e.state === spec.activeState).length;
+      return [
+        {
+          label: words.label,
+          summary: active
+            ? `${active} ${active === 1 ? words.one : words.many} ${spec.activeState}`
+            : undefined,
+          ids: members.map((e) => e.id),
+          bulk: resolveChip(chip as never, members),
+        },
+      ];
+    });
+  });
+  const runs = createMemo(() =>
+    props.config.chips.flatMap((chip) =>
+      chip.shows === "action" && "entityId" in chip ? chip.entityId.slice(0, 1) : [],
+    ),
+  );
+  const readings = createMemo(() =>
+    props.config.chips.flatMap((chip) => {
+      if (chip.shows !== "value") return [];
+      const r = resolveChip(chip as never, snapshot(chip));
+      return r?.value ? [{ icon: r.icon, label: r.label, value: r.value }] : [];
+    }),
+  );
+  const title = () => props.config.title || dashboard().name || "Dashboard";
+  const icon = () => props.config.icon || dashboard().icon || "mdi:view-dashboard";
+
   const Chips = () => {
     const dimensions = useWidgetDimensions();
     const shown = createMemo(() =>
@@ -129,17 +181,12 @@ function HeaderWidget(props: { config: HeaderConfig }) {
     <>
       <Widget gestures={gestures} variant="classic-glass">
         <div class="header">
-          <WidgetIcon
-            icon={<Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />}
-            class="header-icon"
-          />
+          <WidgetIcon icon={<Icon icon={icon()} />} class="header-icon" />
           <div class="header-text">
             <Show when={props.config.greeting}>
               <span class="header-greeting">{greeting()}</span>
             </Show>
-            <span class="header-title">
-              {props.config.title || dashboard().name || "Dashboard"}
-            </span>
+            <span class="header-title">{title()}</span>
           </div>
           <Chips />
         </div>
@@ -155,6 +202,25 @@ function HeaderWidget(props: { config: HeaderConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <HeaderPanel
+            icon={icon()}
+            greeting={props.config.greeting ? greeting() : undefined}
+            name={title()}
+            groups={groups()}
+            runs={runs()}
+            readings={readings()}
+            onBulk={(chip) => {
+              if (chip.service)
+                void callService(
+                  chip.service.domain,
+                  chip.service.name,
+                  {},
+                  { entity_id: chip.ids },
+                );
+            }}
+          />
+        }
       />
     </>
   );

@@ -20,6 +20,7 @@ import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead } from "../common/tile/tile";
+import { ScenePanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -110,7 +111,7 @@ function SceneWidget(props: { config: SceneConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Scene"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -118,6 +119,11 @@ function SceneWidget(props: { config: SceneConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={hasEntities()}>
+            <ScenePanel entities={entities()} name={name()} />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

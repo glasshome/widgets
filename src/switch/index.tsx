@@ -21,6 +21,7 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { SwitchPanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -127,6 +128,11 @@ function SwitchWidget(props: { config: SwitchConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={hasEntities()}>
+            <SwitchPanel entities={entities()} name={name()} />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

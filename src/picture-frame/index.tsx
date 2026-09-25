@@ -17,6 +17,7 @@ import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "so
 import { widgetDialogProps } from "../common";
 import { Tile, TileChip } from "../common/tile/tile";
 import { FrameContent } from "./frame-content";
+import { PictureFramePanel } from "./panel";
 import { SAMPLES } from "./samples";
 import { resolveSlideshow } from "./slideshow";
 import { configSchema, type PictureFrameConfig } from "./types";
@@ -59,6 +60,21 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
     const count = view().slides.length;
     if (count > 0) api()?.reInit();
   });
+
+  const [position, setPosition] = createSignal(0);
+  createEffect(() => {
+    const carousel = api();
+    if (!carousel) return;
+    const sync = () => setPosition(carousel.selectedScrollSnap());
+    sync();
+    carousel.on("select", sync);
+    carousel.on("reInit", sync);
+    onCleanup(() => {
+      carousel.off("select", sync);
+      carousel.off("reInit", sync);
+    });
+  });
+  const shownAt = () => Math.min(position(), Math.max(0, view().slides.length - 1));
 
   const markFailed = (src: string) =>
     setFailed((prev) => {
@@ -136,6 +152,18 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <PictureFramePanel
+            slide={view().slides[shownAt()]}
+            position={shownAt()}
+            count={view().slides.length}
+            samples={view().note !== undefined}
+            fit={view().objectFit}
+            interval={props.config.interval ?? "30s"}
+            onPrevious={() => api()?.scrollPrev()}
+            onNext={() => api()?.scrollNext()}
+          />
+        }
       />
     </>
   );

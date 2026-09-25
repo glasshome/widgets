@@ -24,6 +24,7 @@ import windowSash from "../common/art/assets/window-sash.strip";
 import { CoverArt } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { BinarySensorPanel } from "./panel";
 import { getBinarySensorStateText } from "./utils";
 
 const configSchema = defineConfig({
@@ -120,6 +121,11 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     return ART_BY_DEVICE_CLASS[deviceClass() ?? ""];
   };
 
+  const art = () => {
+    const kind = artKind();
+    return kind ? ART[kind](isOn) : undefined;
+  };
+
   const gestures = useWidgetGestures(() => ({
     hold: { action: openDialog },
   }));
@@ -149,21 +155,14 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
               active={isOn()}
               count={entities().length}
             />
-            <TileHero
-              value={heroValue()}
-              art={
-                <Show when={artKind()} keyed>
-                  {(kind) => ART[kind](isOn)}
-                </Show>
-              }
-            />
+            <TileHero value={heroValue()} art={art()} />
           </Tile>
         </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Binary Sensor"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -171,6 +170,17 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={hasEntities()}>
+            <BinarySensorPanel
+              entities={entities()}
+              name={name()}
+              deviceClass={deviceClass()}
+              on={isOn()}
+              art={art()}
+            />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

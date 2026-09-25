@@ -35,7 +35,7 @@ import heatpumpArt from "./assets/climate-heatpump.webp";
 import radiatorArt from "./assets/climate-radiator.webp";
 import thermostatArt from "./assets/climate-thermostat.webp";
 import "./climate.css";
-import { ClimateControls } from "./controls";
+import { ClimatePanel } from "./panel";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const configSchema = defineConfig({
@@ -291,7 +291,22 @@ function ClimateWidget(props: { config: ClimateConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={<ClimateControls entities={entities} />}
+        panel={
+          <Show when={entity()}>
+            {(e) => (
+              <ClimatePanel
+                entity={e()}
+                name={props.config.title || e().friendlyName || "Climate"}
+                art={ART[props.config.art]}
+                setpoints={setpoints}
+                min={minTemp()}
+                max={maxTemp()}
+                step={step()}
+                unit={tempUnit()}
+              />
+            )}
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

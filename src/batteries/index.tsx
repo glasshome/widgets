@@ -14,10 +14,11 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, Index, onCleanup, Show } from "solid-js";
+import { createMemo, Index, onCleanup } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
+import { BatteriesPanel } from "./panel";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
 const configSchema = defineConfig({
@@ -110,51 +111,12 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={
-          <div class="flex flex-col gap-2">
-            <Show
-              when={batteries().length > 0}
-              fallback={
-                <div class="py-8 text-center text-muted-foreground text-sm">
-                  No battery sensors found
-                </div>
-              }
-            >
-              <div class="max-h-80 space-y-2 overflow-y-auto">
-                <Index each={batteries()}>
-                  {(battery) => (
-                    <div class="glass flex items-center gap-3 rounded-lg px-3 py-2">
-                      <Icon
-                        icon={getBatteryIcon(battery().level)}
-                        width={24}
-                        style={{ color: getBatteryColor(battery().level) }}
-                      />
-                      <div class="min-w-0 flex-1">
-                        <div class="truncate font-medium text-sm">
-                          {battery().entity.friendlyName || battery().entity.id}
-                        </div>
-                        <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            class="h-full rounded-full transition-all"
-                            style={{
-                              width: `${Math.min(100, Math.max(0, battery().level))}%`,
-                              "background-color": getBatteryColor(battery().level),
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <span
-                        class="font-medium text-sm tabular-nums"
-                        style={{ color: getBatteryColor(battery().level) }}
-                      >
-                        {battery().level}%
-                      </span>
-                    </div>
-                  )}
-                </Index>
-              </div>
-            </Show>
-          </div>
+        panel={
+          <BatteriesPanel
+            batteries={batteries()}
+            name={props.config.title || "Batteries"}
+            threshold={props.config.threshold ?? 20}
+          />
         }
         debugData={debugData()}
       />

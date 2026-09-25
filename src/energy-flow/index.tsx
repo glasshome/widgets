@@ -17,6 +17,7 @@ import { allStale, isUnconfigured } from "./flow";
 import { configEntityIds, dominantColor, type PowerLookup, resolveFlow } from "./graph-adapter";
 import { EnergyHeader } from "./header";
 import { migrateConfig } from "./migrate";
+import { EnergyFlowPanel } from "./panel";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
  *  HA power sensors commonly report kW. "MW" and "mW" collide under a
@@ -106,6 +107,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
               description={description()}
               tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
               title={props.config.title || "Energy Flow"}
+              onOpen={() => openDialog()}
             />
           </Show>
         </Show>
@@ -121,6 +123,17 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={!unconfigured()}>
+            <EnergyFlowPanel
+              flow={flow()}
+              description={description()}
+              tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
+              name={props.config.title || "Energy Flow"}
+              tone={channelColor()}
+            />
+          </Show>
+        }
       />
     </>
   );

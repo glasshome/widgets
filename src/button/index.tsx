@@ -19,6 +19,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { ButtonPanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -119,7 +120,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Button"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -127,6 +128,16 @@ function ButtonWidget(props: { config: ButtonConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        panel={
+          <Show when={hasEntities()}>
+            <ButtonPanel
+              entities={entities()}
+              name={name()}
+              busy={isLoading()}
+              onPress={() => void handleTap()}
+            />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

@@ -19,6 +19,7 @@ import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { CameraView } from "./camera-view";
 import { createCameraPlayer } from "./create-player";
+import { CameraPanel } from "./panel";
 import { resolveSources, type StreamEngine } from "./sources";
 
 const configSchema = defineConfig({
@@ -124,17 +125,18 @@ function CameraWidget(props: { config: CameraConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={
-          <div class="flex flex-col gap-3">
-            <div class="relative aspect-video overflow-hidden rounded-lg">
-              <CameraView player={player} poster={poster} name={name} active={() => showDialog()} />
-            </div>
-            <div class="flex items-center gap-2 text-muted-foreground text-sm">
-              <Icon icon="mdi:cctv" width={16} />
-              <span>{name()}</span>
-              <span class="capitalize opacity-60">{entity()?.state ?? "unknown"}</span>
-            </div>
-          </div>
+        panel={
+          <Show when={entity()}>
+            {(e) => (
+              <CameraPanel
+                name={name()}
+                state={e().state}
+                player={player}
+                poster={poster}
+                active={showDialog}
+              />
+            )}
+          </Show>
         }
         debugData={debugData()}
       />

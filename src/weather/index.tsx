@@ -19,6 +19,7 @@ import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";
 import { type Detail, type Model, WeatherTile } from "./layout";
+import { WeatherPanel } from "./panel";
 import {
   formatDegrees,
   formatTemp,
@@ -178,6 +179,19 @@ function WeatherWidget(props: { config: WeatherConfig }) {
           setShowDialog(false);
         }}
         debugData={debugData()}
+        panel={
+          <Show when={entity()}>
+            <WeatherPanel
+              name={props.config.title || entity()?.friendlyName || "Weather"}
+              condition={condition()}
+              wintry={model().wintry}
+              temperature={model().temperature}
+              hours={upcomingHours(forecast()?.forecasts?.hourly ?? [], new Date())}
+              days={forecast()?.forecasts?.daily ?? []}
+              details={details()}
+            />
+          </Show>
+        }
       />
     </>
   );

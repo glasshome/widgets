@@ -1,5 +1,5 @@
 import { useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, Index, Show } from "solid-js";
+import { createMemo, Index, Show } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
@@ -9,7 +9,6 @@ import houseNight from "./assets/house-clay-night.webp";
 import type { Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, aggregate, isIdle, type ResolvedFlow } from "./flow";
 import { selectTier } from "./layout";
-import { NodeDetail } from "./node-detail";
 import { Spine } from "./spine";
 import "./house.css";
 
@@ -18,6 +17,7 @@ interface EnergyContentProps {
   description: FlowDescription;
   tariff: Tariff;
   title: string;
+  onOpen: () => void;
 }
 
 function splitPower(watts: number): { value: string; unit: string } {
@@ -29,7 +29,6 @@ function splitPower(watts: number): { value: string; unit: string } {
 export function EnergyContent(props: EnergyContentProps) {
   const dimensions = useWidgetDimensions();
   const daylight = useDaylight();
-  const [openNode, setOpenNode] = createSignal<string | null>(null);
 
   const tier = createMemo(() => {
     const d = dimensions();
@@ -59,51 +58,43 @@ export function EnergyContent(props: EnergyContentProps) {
   );
 
   return (
-    <>
-      <Tile active={!idle()} class={tier() === "full" ? "flow-tile-full" : undefined}>
-        <TileGlyph icon={energyIcons.home} />
-        <TileHead
-          icon={energyIcons.home}
-          eyebrow={props.description.headline}
-          name={props.title}
-          active={!idle()}
-        />
-        <Show
-          when={tier() === "full"}
-          fallback={
-            <>
-              <TileHero
-                value={reading().value}
-                unit={` ${reading().unit}`}
-                sub="Home now"
-                art={house()}
-              />
-              <TileControls>
-                <div class="flow-chips">
-                  <Index each={activeNodes()}>
-                    {(n) => (
-                      <TileChip icon={n().icon} tone={n().color}>
-                        {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
-                        {formatPower(n().watts)}
-                      </TileChip>
-                    )}
-                  </Index>
-                </div>
-              </TileControls>
-            </>
-          }
-        >
-          <div class="flow-scene">
-            <Spine flow={props.flow} tariff={props.tariff} onTap={setOpenNode} />
-          </div>
-        </Show>
-      </Tile>
-      <NodeDetail
-        flow={props.flow}
-        tariff={props.tariff}
-        node={openNode()}
-        onClose={() => setOpenNode(null)}
+    <Tile active={!idle()} class={tier() === "full" ? "flow-tile-full" : undefined}>
+      <TileGlyph icon={energyIcons.home} />
+      <TileHead
+        icon={energyIcons.home}
+        eyebrow={props.description.headline}
+        name={props.title}
+        active={!idle()}
       />
-    </>
+      <Show
+        when={tier() === "full"}
+        fallback={
+          <>
+            <TileHero
+              value={reading().value}
+              unit={` ${reading().unit}`}
+              sub="Home now"
+              art={house()}
+            />
+            <TileControls>
+              <div class="flow-chips">
+                <Index each={activeNodes()}>
+                  {(n) => (
+                    <TileChip icon={n().icon} tone={n().color}>
+                      {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
+                      {formatPower(n().watts)}
+                    </TileChip>
+                  )}
+                </Index>
+              </div>
+            </TileControls>
+          </>
+        }
+      >
+        <div class="flow-scene">
+          <Spine flow={props.flow} tariff={props.tariff} onTap={() => props.onOpen()} />
+        </div>
+      </Show>
+    </Tile>
   );
 }

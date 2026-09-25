@@ -29,8 +29,8 @@ import {
   TileHead,
   TileHero,
 } from "../common/tile/tile";
-import { MediaPlayerControls } from "./controls";
 import "./media.css";
+import { MediaPlayerPanel } from "./panel";
 import { calculateFeatures, getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
 
@@ -223,7 +223,16 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        controlsContent={<MediaPlayerControls entity={entity} />}
+        panel={
+          <Show when={entity()}>
+            {(e) => (
+              <MediaPlayerPanel
+                entity={e()}
+                name={props.config.title || e().friendlyName || "Media"}
+              />
+            )}
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

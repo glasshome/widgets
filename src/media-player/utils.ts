@@ -9,7 +9,9 @@ const FEATURE_NEXT_TRACK = 32;
 const FEATURE_VOLUME_STEP = 1024;
 const FEATURE_SELECT_SOURCE = 2048;
 const FEATURE_PLAY = 16384;
+const FEATURE_SHUFFLE_SET = 32768;
 const FEATURE_SELECT_SOUND_MODE = 65536;
+const FEATURE_REPEAT_SET = 262144;
 
 export interface MediaFeatures {
   supportsPlayPause: boolean;
@@ -19,6 +21,8 @@ export interface MediaFeatures {
   supportsSeek: boolean;
   supportsSource: boolean;
   supportsSoundMode: boolean;
+  supportsShuffle: boolean;
+  supportsRepeat: boolean;
 }
 
 export function calculateFeatures(entity: EntityView): MediaFeatures {
@@ -31,6 +35,8 @@ export function calculateFeatures(entity: EntityView): MediaFeatures {
     supportsSeek: !!(features & FEATURE_SEEK),
     supportsSource: !!(features & FEATURE_SELECT_SOURCE),
     supportsSoundMode: !!(features & FEATURE_SELECT_SOUND_MODE),
+    supportsShuffle: !!(features & FEATURE_SHUFFLE_SET),
+    supportsRepeat: !!(features & FEATURE_REPEAT_SET),
   };
 }
 

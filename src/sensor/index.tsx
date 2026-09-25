@@ -22,6 +22,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { SensorPanel } from "./panel";
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
@@ -168,6 +169,11 @@ function SensorWidget(props: { config: SensorConfig }) {
           setShowDialog(false);
         }}
         debugData={debugData()}
+        panel={
+          <Show when={hasEntities()}>
+            <SensorPanel entities={entities()} name={name()} icon={iconName()} />
+          </Show>
+        }
       />
     </>
   );
