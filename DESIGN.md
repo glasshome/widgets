@@ -55,7 +55,16 @@ A widget opens at its first example's size, and that size shows its whole face: 
 - Corners are concentric: shapes flush to the tile edge use `TILE_INNER_RADIUS`, inset shapes the theme corner.
 - Use theme token names (`--card`, `--foreground`, `--muted-foreground`, `--primary`); `--color-*` aliases do not exist in a widget's shadow root.
 
-## Groups
+## Panel
+
+Holding a tile opens its panel (`WidgetPanel`, passed to `WidgetDialog` as `panel`); edit mode opens the settings alone, and Debug shows only in Developer Mode. The panel never repeats the tile: it shows what the tile cannot.
+
+- **Stage**: the tile's own icon, name and small line, its object art big on the right (`art`) or a full-bleed picture (`backdrop`, a room or an album cover), the big value bottom-left, and `slide` so a drag anywhere sets the widget's main value. `actions` is the stage's bottom row: scenes, modes, transport, as ui `Button` or `ToggleGroup`.
+- **Aside**: `PanelSection`s beside the stage (under it on a phone). A group lists its members with `PanelEntityRow` (tap switches, a drag across sets the level); a hand-made row uses `PanelRow`. Readings go in one `PanelFacts` strip, never as buttons.
+- A light that can change colour shows the `LIGHT_SWATCHES` row (`common/light-swatches.ts`) through `SwatchPicker`, always open: a colour is one tap.
+- Rows are ui `Button` glass with the tile's slider fill and icon box, so nothing changes look between a tile and its panel. No switches beside a row that already switches on tap.
+- The panel renders outside the widget's shadow root: style it only through the SDK's panel parts, never with a widget's own classes.
+
 
 One rule for every tile that holds several entities (`common/group.ts`):
 
