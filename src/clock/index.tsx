@@ -11,14 +11,12 @@ import {
   useWidgetContext,
   useWidgetDialog,
   useWidgetDimensions,
-  useWidgetGestures,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
-import { ClockPanel } from "./panel";
 import { getPresetTheme } from "./presets";
 import { type ClockConfig, configSchema } from "./types";
 import { formatDate, getClockTones, getDayOfWeek, getDefaultConfig, getTimeParts } from "./utils";
@@ -28,7 +26,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   const cfg = createMemo(() => ({ ...defaults, ...props.config }));
 
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   // Draft state for dialog edits
   const [draftConfig, setDraftConfig] = createSignal<ClockConfig>(cfg());
@@ -99,9 +97,6 @@ function ClockWidget(props: { config: ClockConfig }) {
         return "text-xs @[200px]:text-sm";
     }
   };
-
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
-  onCleanup(gestures.dispose);
 
   const digital = () => presetTheme().digital;
 
@@ -330,12 +325,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        color={tones().color}
-        colorTo={tones().colorTo}
-      >
+      <Widget variant="classic-glass" color={tones().color} colorTo={tones().colorTo}>
         <div class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
           <ShortOrFull>
             <Show when={cfg().clockStyle === "square"}>
@@ -385,17 +375,6 @@ function ClockWidget(props: { config: ClockConfig }) {
         }}
         title="Clock"
         maxWidth="md"
-        panel={
-          <ClockPanel
-            config={cfg()}
-            now={currentTime()}
-            onFace={(clockStyle) => {
-              const next = { ...cfg(), clockStyle };
-              setDraftConfig(next);
-              ctx.updateConfig(next as unknown as Record<string, unknown>);
-            }}
-          />
-        }
         hasUnsavedChanges={hasChanges()}
         onSave={() => {
           ctx.updateConfig(draftConfig() as unknown as Record<string, unknown>);

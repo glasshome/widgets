@@ -2,6 +2,7 @@ import {
   type EntityView,
   getEntityAttribute,
   monotoneCubicPath,
+  type PanelFact,
   PanelFacts,
   PanelRow,
   PanelRows,
@@ -12,8 +13,6 @@ import {
   untrackEntityHistory,
   useEntityHistory,
   useEntityStatistics,
-  useLocale,
-  WidgetPanel,
 } from "@glasshome/widget-sdk";
 import {
   createEffect,
@@ -25,14 +24,7 @@ import {
   Show,
 } from "solid-js";
 import { getSensorIcon } from "../common";
-import {
-  downsample,
-  formatSensorValue,
-  type Reading,
-  readingsWithin,
-  summarize,
-  timeAgo,
-} from "./utils";
+import { downsample, formatSensorValue, type Reading, readingsWithin, summarize } from "./utils";
 
 type Range = "6h" | "24h" | "7d";
 
@@ -44,17 +36,19 @@ const RANGES: { id: Range; label: string; hours: number; words: string }[] = [
 
 const HOUR_MS = 3_600_000;
 const CHART_POINTS = 120;
+const CHART_HEIGHT = 112;
+const INK = "var(--tone-info)";
 
 const deviceClassOf = (e: EntityView) =>
   e.deviceClass ?? getEntityAttribute<string>(e, "device_class") ?? null;
 
-function reading(e: EntityView): { value: string; unit: string } {
+function readingText(e: EntityView): string {
   const n = Number(e.state);
-  if (Number.isNaN(n)) return { value: e.state, unit: "" };
-  return { value: formatSensorValue(n, deviceClassOf(e)), unit: e.unitOfMeasurement ?? "" };
+  if (Number.isNaN(n)) return e.state;
+  const value = formatSensorValue(n, deviceClassOf(e));
+  return e.unitOfMeasurement ? `${value} ${e.unitOfMeasurement}` : value;
 }
 
-/** The last hours of one sensor as a filled line, drawn to whatever box it is given. */
 function HistoryChart(props: { readings: Reading[] }) {
   const id = createUniqueId();
   const shape = createMemo(() => {
@@ -66,13 +60,10 @@ function HistoryChart(props: { readings: Reading[] }) {
     const lo = Math.min(...values);
     const hi = Math.max(...values);
     const span = hi - lo || Math.abs(hi) * 0.1 || 1;
-    const t0 = first.t;
-    const dt = last.t - t0 || 1;
-    const points = pts.map((p) => ({
-      x: ((p.t - t0) / dt) * 100,
-      y: 90 - ((p.value - lo) / span) * 70,
-    }));
-    const line = monotoneCubicPath(points);
+    const dt = last.t - first.t || 1;
+    const line = monotoneCubicPath(
+      pts.map((p) => ({ x: ((p.t - first.t) / dt) * 100, y: 90 - ((p.value - lo) / span) * 80 })),
+    );
     return { line, area: `${line} L 100 100 L 0 100 Z` };
   });
   return (
@@ -81,12 +72,19 @@ function HistoryChart(props: { readings: Reading[] }) {
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
-          style={{ width: "100%", height: "100%", display: "block", overflow: "visible" }}
+          role="img"
+          aria-label="Reading over the chosen range"
+          style={{
+            width: "100%",
+            height: `${CHART_HEIGHT}px`,
+            display: "block",
+            overflow: "visible",
+          }}
         >
           <defs>
             <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" style={{ "stop-color": "var(--widget-color)", "stop-opacity": 0.35 }} />
-              <stop offset="1" style={{ "stop-color": "var(--widget-color)", "stop-opacity": 0 }} />
+              <stop offset="0" style={{ "stop-color": INK, "stop-opacity": 0.3 }} />
+              <stop offset="1" style={{ "stop-color": INK, "stop-opacity": 0 }} />
             </linearGradient>
           </defs>
           <path d={s().area} fill={`url(#${id})`} />
@@ -97,7 +95,7 @@ function HistoryChart(props: { readings: Reading[] }) {
             stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
-            style={{ stroke: "var(--widget-color)" }}
+            style={{ stroke: INK }}
           />
         </svg>
       )}
@@ -105,15 +103,10 @@ function HistoryChart(props: { readings: Reading[] }) {
   );
 }
 
-/** A sensor held: its reading over the hours or the week, and the range's low, high and average. */
-export function SensorPanel(props: { entities: EntityView[]; name: string; icon: string }) {
-  const locale = useLocale();
+/** What the sensor tile cannot show: the first sensor's history over a chosen range, and every sensor's reading. */
+export function SensorSheet(props: { entities: EntityView[] }) {
   const [range, setRange] = createSignal<Range>("24h");
-  const [chosenId, setChosenId] = createSignal<string>();
-
-  const shown = createMemo(
-    () => props.entities.find((e) => e.id === chosenId()) ?? props.entities[0],
-  );
+  const shown = () => props.entities[0];
   const shownId = () => shown()?.id ?? "";
   const spec = () => RANGES.find((r) => r.id === range()) ?? RANGES[1];
 
@@ -141,17 +134,15 @@ export function SensorPanel(props: { entities: EntityView[]; name: string; icon:
     const raw = (history()?.timeline ?? [])
       .map((p) => ({ t: p.timestamp * 1000, value: Number(p.state) }))
       .filter((p) => !Number.isNaN(p.value));
-    const live = shown();
-    const current = live ? Number(live.state) : Number.NaN;
+    const current = Number(shown()?.state);
     if (!Number.isNaN(current)) raw.push({ t: now, value: current });
     return readingsWithin(raw, now - spec().hours * HOUR_MS, now);
   });
 
   const summary = createMemo(() => {
-    if (range() !== "7d") return summarize(readings(), Date.now());
-    const buckets = week() ?? [];
     const base = summarize(readings(), Date.now());
-    if (!base) return undefined;
+    if (range() !== "7d" || !base) return base;
+    const buckets = week() ?? [];
     const mins = buckets.flatMap((b) => (b.min === undefined ? [] : [b.min]));
     const maxes = buckets.flatMap((b) => (b.max === undefined ? [] : [b.max]));
     return {
@@ -163,12 +154,15 @@ export function SensorPanel(props: { entities: EntityView[]; name: string; icon:
 
   const fmt = (n: number) => {
     const e = shown();
-    const unit = e?.unitOfMeasurement;
-    const v = formatSensorValue(n, e ? deviceClassOf(e) : null, Math.abs(n) >= 1000 ? 0 : undefined);
-    return unit ? `${v} ${unit}` : v;
+    const v = formatSensorValue(
+      n,
+      e ? deviceClassOf(e) : null,
+      Math.abs(n) >= 1000 ? 0 : undefined,
+    );
+    return e?.unitOfMeasurement ? `${v} ${e.unitOfMeasurement}` : v;
   };
 
-  const facts = () => {
+  const facts = (): PanelFact[] => {
     const s = summary();
     return s
       ? [
@@ -176,45 +170,17 @@ export function SensorPanel(props: { entities: EntityView[]; name: string; icon:
           { icon: "mdi:arrow-up", label: "High", value: fmt(s.max) },
           { icon: "mdi:approximately-equal", label: "Average", value: fmt(s.average) },
         ]
-      : [];
+      : [{ icon: "mdi:chart-line", label: "History", value: "None for this range yet" }];
   };
 
-  const updated = () => {
-    const e = shown();
-    return e ? `Updated ${timeAgo(e.lastUpdated, new Date(), locale()).toLowerCase()}` : "";
-  };
-
-  const icon = () => {
-    const e = shown();
-    return e ? getSensorIcon(deviceClassOf(e)) : props.icon;
-  };
-
-  const now = () => {
-    const e = shown();
-    return e ? reading(e) : undefined;
-  };
+  const historyLabel = () =>
+    props.entities.length > 1
+      ? `${shown()?.friendlyName ?? "History"}, ${spec().words.toLowerCase()}`
+      : spec().words;
 
   return (
-    <WidgetPanel
-      icon={icon()}
-      tone="var(--tone-info)"
-      eyebrow={props.entities.length > 1 ? shown()?.friendlyName : undefined}
-      name={props.name}
-      art={<HistoryChart readings={downsample(readings(), CHART_POINTS)} />}
-      value={
-        <Show when={now()}>
-          {(r) => (
-            <>
-              {r().value}
-              <Show when={r().unit}>
-                <small>{r().unit}</small>
-              </Show>
-            </>
-          )}
-        </Show>
-      }
-      caption={updated()}
-      actions={
+    <>
+      <PanelSection label={historyLabel()}>
         <ToggleGroup
           aria-label="Range"
           value={range()}
@@ -224,12 +190,8 @@ export function SensorPanel(props: { entities: EntityView[]; name: string; icon:
             {(r) => <ToggleGroupItem value={r.id}>{r.label}</ToggleGroupItem>}
           </For>
         </ToggleGroup>
-      }
-    >
-      <PanelSection label={spec().words}>
-        <Show when={facts().length} fallback={<PanelFacts items={[{ icon: "mdi:chart-line", label: "History", value: "None for this range yet" }]} />}>
-          <PanelFacts items={facts()} />
-        </Show>
+        <HistoryChart readings={downsample(readings(), CHART_POINTS)} />
+        <PanelFacts items={facts()} />
       </PanelSection>
       <Show when={props.entities.length > 1}>
         <PanelSection label="Sensors">
@@ -239,17 +201,15 @@ export function SensorPanel(props: { entities: EntityView[]; name: string; icon:
                 <PanelRow
                   icon={getSensorIcon(deviceClassOf(e))}
                   name={e.friendlyName}
-                  state={`${reading(e).value}${reading(e).unit ? ` ${reading(e).unit}` : ""}`}
-                  tone="var(--tone-info)"
-                  on={e.id === shownId()}
-                  onTap={() => setChosenId(e.id)}
-                  aria-label={`Show ${e.friendlyName}`}
+                  state={readingText(e)}
+                  tone={INK}
+                  on
                 />
               )}
             </For>
           </PanelRows>
         </PanelSection>
       </Show>
-    </WidgetPanel>
+    </>
   );
 }

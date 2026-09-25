@@ -24,7 +24,7 @@ import { Tile, TileChoice, TileControls, TileGlyph, TileHead, TileHero } from ".
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
 import "./fan.css";
-import { FanPanel } from "./panel";
+import { FanSheet, fanHasExtras } from "./sheet";
 
 const PRESET_ICONS: Record<string, string> = {
   auto: "mdi:fan-auto",
@@ -127,6 +127,8 @@ function FanWidget(props: { config: FanConfig }) {
     await (isOn() ? turnOff(ids) : turnOn(ids));
   };
 
+  const extras = createMemo(() => fanHasExtras(entities()));
+
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
     ...(supportsSpeed()
@@ -141,7 +143,7 @@ function FanWidget(props: { config: FanConfig }) {
           },
         }
       : {}),
-    hold: { action: openDialog },
+    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -245,16 +247,11 @@ function FanWidget(props: { config: FanConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <FanPanel
-              entities={entities()}
-              name={name()}
-              art={props.config.art === "purifier" ? purifierArt : pedestalArt}
-              presetIcon={presetIcon}
-            />
-          </Show>
-        }
+        {...(extras()
+          ? {
+              sheet: <FanSheet entities={entities()} name={name()} presetIcon={presetIcon} />,
+            }
+          : {})}
         debugData={debugData()}
       />
     </>

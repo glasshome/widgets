@@ -174,15 +174,10 @@ const SKIES: Record<string, string> = {
   partlycloudy: skyCumulus,
 };
 
-/** The condition's falling or drifting marks as tiled images, for a still copy of the scene. */
-export function sceneMarks(condition: string): { image: string; size: number }[] {
-  return (LAYERS[condition] ?? []).filter((l) => l.image).map((l) => ({ image: l.image, size: l.size }));
-}
-
 const FLASHES = new Set(["lightning", "lightning-rainy"]);
 
 /** The still photos for a sky: one lookup so the scene and its frosted copy never disagree. */
-export function scenePhotos(condition: string, wintry: boolean, night: boolean) {
+function scenePhotos(condition: string, wintry: boolean, night: boolean) {
   const moonlit = night && !wintry;
   return {
     sky: SKIES[condition] ?? skyOvercast,

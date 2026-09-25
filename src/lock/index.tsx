@@ -23,7 +23,7 @@ import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
-import { LockPanel } from "./panel";
+import { LockSheet } from "./sheet";
 
 const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
 
@@ -106,7 +106,7 @@ function LockWidget(props: { config: LockConfig }) {
 
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
-    hold: { action: openDialog },
+    hold: count() > 1 ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -150,17 +150,7 @@ function LockWidget(props: { config: LockConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <LockPanel
-              entities={entities()}
-              name={name()}
-              eyebrow={eyebrow()}
-              locked={isLocked()}
-              art={art()}
-            />
-          </Show>
-        }
+        {...(count() > 1 ? { sheet: <LockSheet entities={entities()} /> } : {})}
         debugData={debugData()}
       />
     </>

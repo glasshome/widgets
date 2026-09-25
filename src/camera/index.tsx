@@ -19,7 +19,6 @@ import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { CameraView } from "./camera-view";
 import { createCameraPlayer } from "./create-player";
-import { CameraPanel } from "./panel";
 import { resolveSources, type StreamEngine } from "./sources";
 
 const configSchema = defineConfig({
@@ -35,7 +34,7 @@ type CameraConfig = Infer<typeof configSchema>;
 
 function CameraWidget(props: { config: CameraConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { showDialog, setShowDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -79,10 +78,7 @@ function CameraWidget(props: { config: CameraConfig }) {
     return n > 0 ? `${url}${url.includes("?") ? "&" : "?"}_f=${n}` : url;
   });
 
-  const gestures = useWidgetGestures(() => ({
-    tap: player.retry,
-    hold: { action: openDialog },
-  }));
+  const gestures = useWidgetGestures(() => ({ tap: player.retry }));
   onCleanup(gestures.dispose);
 
   // Only the unconfigured case is empty; a configured camera that cannot be
@@ -125,19 +121,6 @@ function CameraWidget(props: { config: CameraConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={entity()}>
-            {(e) => (
-              <CameraPanel
-                name={name()}
-                state={e().state}
-                player={player}
-                poster={poster}
-                active={showDialog}
-              />
-            )}
-          </Show>
-        }
         debugData={debugData()}
       />
     </>

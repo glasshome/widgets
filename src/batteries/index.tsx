@@ -18,7 +18,7 @@ import { createMemo, Index, onCleanup } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
-import { BatteriesPanel } from "./panel";
+import { BatteriesSheet } from "./sheet";
 import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
 const configSchema = defineConfig({
@@ -43,7 +43,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   const hasLow = createMemo(() => lowCount() > 0);
 
   const gestures = useWidgetGestures(() => ({
-    hold: { action: openDialog },
+    hold: totalCount() > 0 ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -111,13 +111,13 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <BatteriesPanel
-            batteries={batteries()}
-            name={props.config.title || "Batteries"}
-            threshold={props.config.threshold ?? 20}
-          />
-        }
+        {...(totalCount() > 0
+          ? {
+              sheet: (
+                <BatteriesSheet batteries={batteries()} threshold={props.config.threshold ?? 20} />
+              ),
+            }
+          : {})}
         debugData={debugData()}
       />
     </>

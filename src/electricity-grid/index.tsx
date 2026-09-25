@@ -4,17 +4,14 @@ import {
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetGestures,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, type JSX, onCleanup, Show } from "solid-js";
+import { createMemo, type JSX, Show } from "solid-js";
 import { EnergyEmptyState } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { Tile, TileChip, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { configSchema, type ElectricityGridConfig } from "./config";
-import { outlook } from "./outlook";
-import { ElectricityGridPanel } from "./panel";
 import { PylonArt } from "./pylon-art";
 import "./grid.css";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
@@ -115,17 +112,11 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
     }),
   );
 
-  const priceAttributes = () => entities().find((e) => e.id === priceId())?.attributes ?? {};
-  const ahead = createMemo(() => outlook(priceAttributes(), new Date()));
-
   const configured = () => co2Id().length > 0 && fossilId().length > 0;
-
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
-  onCleanup(gestures.dispose);
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" color="var(--tone-info)">
+      <Widget variant="classic-glass" color="var(--tone-info)">
         <Show
           when={configured()}
           fallback={
@@ -166,23 +157,6 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={configured() && verdict()}>
-            {(v) => (
-              <ElectricityGridPanel
-                name={props.config.title || "Electricity grid"}
-                verdict={v()}
-                tint={TINT[v().band]}
-                co2={co2()}
-                price={price()}
-                priceUnit={priceUnit()}
-                showPrice={priceId().length > 0}
-                outlook={ahead()}
-                format={fmt}
-              />
-            )}
-          </Show>
-        }
       />
     </>
   );

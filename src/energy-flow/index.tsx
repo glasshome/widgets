@@ -17,7 +17,7 @@ import { allStale, isUnconfigured } from "./flow";
 import { configEntityIds, dominantColor, type PowerLookup, resolveFlow } from "./graph-adapter";
 import { EnergyHeader } from "./header";
 import { migrateConfig } from "./migrate";
-import { EnergyFlowPanel } from "./panel";
+import { EnergyFlowSheet } from "./sheet";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
  *  HA power sensors commonly report kW. "MW" and "mW" collide under a
@@ -70,7 +70,12 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   // Every sensor-backed node has a null reading → whole widget is unavailable.
   const stale = createMemo(() => allStale(flow()));
 
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
+  const extras = () => !unconfigured() && !stale();
+  const tariff = () => ({ currency: props.config.tariffCurrency, rate: props.config.tariffRate });
+
+  const gestures = useWidgetGestures(() => ({
+    hold: extras() ? { action: openDialog } : undefined,
+  }));
   onCleanup(gestures.dispose);
 
   return (
@@ -105,7 +110,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
             <EnergyContent
               flow={flow()}
               description={description()}
-              tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
+              tariff={tariff()}
               title={props.config.title || "Energy Flow"}
               onOpen={() => openDialog()}
             />
@@ -123,17 +128,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={!unconfigured()}>
-            <EnergyFlowPanel
-              flow={flow()}
-              description={description()}
-              tariff={{ currency: props.config.tariffCurrency, rate: props.config.tariffRate }}
-              name={props.config.title || "Energy Flow"}
-              tone={channelColor()}
-            />
-          </Show>
-        }
+        {...(extras() ? { sheet: <EnergyFlowSheet flow={flow()} tariff={tariff()} /> } : {})}
       />
     </>
   );

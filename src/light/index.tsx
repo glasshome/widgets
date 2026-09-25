@@ -22,7 +22,7 @@ import { widgetDialogProps } from "../common";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
 import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { LightPanel } from "./panel";
+import { LightSheet, lightHasExtras } from "./sheet";
 import { brightnessToPercent, hsToCSS } from "./utils";
 
 const configSchema = defineConfig({
@@ -103,6 +103,8 @@ function LightWidget(props: { config: LightConfig }) {
     await (isOn() ? turnOff(ids) : turnOn(ids));
   };
 
+  const extras = createMemo(() => lightHasExtras(entities()));
+
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
     slide: {
@@ -113,7 +115,7 @@ function LightWidget(props: { config: LightConfig }) {
       orientation: "auto" as const,
       activationDelay: 0,
     },
-    hold: { action: openDialog },
+    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -205,18 +207,7 @@ function LightWidget(props: { config: LightConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <LightPanel
-              entities={entities()}
-              name={name()}
-              eyebrow={eyebrow()}
-              lamp={props.config.lamp}
-              brightness={uiBrightness()}
-              color={vividColor()}
-            />
-          </Show>
-        }
+        {...(extras() ? { sheet: <LightSheet entities={entities()} name={name()} /> } : {})}
         debugData={debugData()}
       />
     </>

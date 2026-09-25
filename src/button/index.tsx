@@ -19,7 +19,6 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { ButtonPanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -30,7 +29,7 @@ type ButtonConfig = Infer<typeof configSchema>;
 
 function ButtonWidget(props: { config: ButtonConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isLoading, setIsLoading] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -74,10 +73,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  const gestures = useWidgetGestures(() => ({
-    tap: handleTap,
-    hold: { action: openDialog },
-  }));
+  const gestures = useWidgetGestures(() => ({ tap: handleTap }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -120,7 +116,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={name()}
+        title="Button"
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -128,16 +124,6 @@ function ButtonWidget(props: { config: ButtonConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <ButtonPanel
-              entities={entities()}
-              name={name()}
-              busy={isLoading()}
-              onPress={() => void handleTap()}
-            />
-          </Show>
-        }
         debugData={debugData()}
       />
     </>

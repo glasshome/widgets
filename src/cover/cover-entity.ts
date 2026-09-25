@@ -47,34 +47,8 @@ export function getCoverTiltPosition(entity: EntityView | undefined): number | n
   return typeof position === "number" ? position : null;
 }
 
-export function isCoverMoving(entity: EntityView): boolean {
-  return entity.state === "opening" || entity.state === "closing";
-}
-
 // State-based, not position-based: position-less covers (garage doors,
 // gates) only report open/closed.
 export function isCoverOpen(entity: EntityView): boolean {
   return entity.state !== "closed" && entity.state !== "unavailable" && entity.state !== "unknown";
-}
-
-export function getCoverStatusText(
-  entity: EntityView | undefined,
-  position: number | null,
-): string {
-  if (!entity) return "Unknown";
-  switch (entity.state) {
-    case "opening":
-      return "Opening...";
-    case "closing":
-      return "Closing...";
-    case "closed":
-      return "Closed";
-    case "open":
-      if (position !== null && position > 0 && position < 100) return `${position}%`;
-      return "Open";
-    case "unavailable":
-      return "Unavailable";
-    default:
-      return "Unknown";
-  }
 }

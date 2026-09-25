@@ -20,7 +20,6 @@ import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead } from "../common/tile/tile";
-import { ScenePanel } from "./panel";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -31,7 +30,7 @@ type SceneConfig = Infer<typeof configSchema>;
 
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isLoading, setIsLoading] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -66,10 +65,7 @@ function SceneWidget(props: { config: SceneConfig }) {
     props.config.title ||
     (entities().length === 1 ? entities()[0]?.friendlyName : undefined) ||
     "Scenes";
-  const gestures = useWidgetGestures(() => ({
-    tap: handleTap,
-    hold: { action: openDialog },
-  }));
+  const gestures = useWidgetGestures(() => ({ tap: handleTap }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -111,7 +107,7 @@ function SceneWidget(props: { config: SceneConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={name()}
+        title="Scene"
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -119,11 +115,6 @@ function SceneWidget(props: { config: SceneConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <ScenePanel entities={entities()} name={name()} />
-          </Show>
-        }
         debugData={debugData()}
       />
     </>

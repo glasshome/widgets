@@ -75,7 +75,8 @@ export function summarize(readings: Reading[], to: number): RangeSummary | undef
     area += r.value * held;
     span += held;
   });
-  const average = span > 0 ? area / span : readings.reduce((s, r) => s + r.value, 0) / readings.length;
+  const average =
+    span > 0 ? area / span : readings.reduce((s, r) => s + r.value, 0) / readings.length;
   return { min, max, average };
 }
 
@@ -88,14 +89,4 @@ export function downsample(readings: Reading[], buckets: number): Reading[] {
     const value = slice.reduce((s, r) => s + r.value, 0) / slice.length;
     return { t: slice[0]?.t ?? 0, value };
   });
-}
-
-/** "Just now", "5 min. ago", "3 hr. ago". */
-export function timeAgo(when: Date, now: Date, locale?: string): string {
-  const seconds = Math.round((now.getTime() - when.getTime()) / 1000);
-  if (seconds < 45) return "Just now";
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto", style: "short" });
-  if (seconds < 3600) return rtf.format(-Math.round(seconds / 60), "minute");
-  if (seconds < 86_400) return rtf.format(-Math.round(seconds / 3600), "hour");
-  return rtf.format(-Math.round(seconds / 86_400), "day");
 }

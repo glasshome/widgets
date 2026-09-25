@@ -19,7 +19,7 @@ import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";
 import { type Detail, type Model, WeatherTile } from "./layout";
-import { WeatherPanel } from "./panel";
+import { WeatherSheet } from "./sheet";
 import {
   formatDegrees,
   formatTemp,
@@ -136,7 +136,16 @@ function WeatherWidget(props: { config: WeatherConfig }) {
     };
   });
 
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
+  const sheetHours = createMemo(() =>
+    upcomingHours(forecast()?.forecasts?.hourly ?? [], new Date()),
+  );
+  const sheetDays = createMemo(() => forecast()?.forecasts?.daily ?? []);
+  const extras = () =>
+    !!entity() && (sheetHours().length > 1 || sheetDays().length > 0 || details().length > 0);
+
+  const gestures = useWidgetGestures(() => ({
+    hold: extras() ? { action: openDialog } : undefined,
+  }));
   onCleanup(gestures.dispose);
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -179,19 +188,11 @@ function WeatherWidget(props: { config: WeatherConfig }) {
           setShowDialog(false);
         }}
         debugData={debugData()}
-        panel={
-          <Show when={entity()}>
-            <WeatherPanel
-              name={props.config.title || entity()?.friendlyName || "Weather"}
-              condition={condition()}
-              wintry={model().wintry}
-              temperature={model().temperature}
-              hours={upcomingHours(forecast()?.forecasts?.hourly ?? [], new Date())}
-              days={forecast()?.forecasts?.daily ?? []}
-              details={details()}
-            />
-          </Show>
-        }
+        {...(extras()
+          ? {
+              sheet: <WeatherSheet hours={sheetHours()} days={sheetDays()} details={details()} />,
+            }
+          : {})}
       />
     </>
   );

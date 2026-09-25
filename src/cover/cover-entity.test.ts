@@ -3,9 +3,7 @@ import type { EntityView } from "@glasshome/widget-sdk";
 import {
   getCoverCapabilities,
   getCoverPosition,
-  getCoverStatusText,
   getCoverTiltPosition,
-  isCoverMoving,
   isCoverOpen,
 } from "./cover-entity";
 
@@ -97,7 +95,7 @@ describe("getCoverTiltPosition", () => {
   });
 });
 
-describe("isCoverOpen / isCoverMoving", () => {
+describe("isCoverOpen", () => {
   it("position-less garage door reporting state open is open", () => {
     const garage = makeCover({ state: "open", supportedFeatures: 1 | 2 | 8 });
     expect(isCoverOpen(garage)).toBe(true);
@@ -109,29 +107,7 @@ describe("isCoverOpen / isCoverMoving", () => {
     expect(isCoverOpen(makeCover({ state: "unknown" }))).toBe(false);
   });
 
-  it("moving states count as open and moving", () => {
-    const opening = makeCover({ state: "opening" });
-    expect(isCoverOpen(opening)).toBe(true);
-    expect(isCoverMoving(opening)).toBe(true);
-    expect(isCoverMoving(makeCover({ state: "closing" }))).toBe(true);
-    expect(isCoverMoving(makeCover({ state: "open" }))).toBe(false);
-  });
-});
-
-describe("getCoverStatusText", () => {
-  it("derives status from state, not position", () => {
-    expect(getCoverStatusText(makeCover({ state: "open" }), null)).toBe("Open");
-    expect(getCoverStatusText(makeCover({ state: "closed" }), null)).toBe("Closed");
-    expect(getCoverStatusText(makeCover({ state: "opening" }), null)).toBe("Opening...");
-    expect(getCoverStatusText(makeCover({ state: "closing" }), null)).toBe("Closing...");
-    expect(getCoverStatusText(makeCover({ state: "unavailable" }), null)).toBe("Unavailable");
-    expect(getCoverStatusText(undefined, null)).toBe("Unknown");
-  });
-
-  it("shows percentage only for partial positions", () => {
-    const open = makeCover({ state: "open" });
-    expect(getCoverStatusText(open, 47)).toBe("47%");
-    expect(getCoverStatusText(open, 100)).toBe("Open");
-    expect(getCoverStatusText(open, 0)).toBe("Open");
+  it("moving states count as open", () => {
+    expect(isCoverOpen(makeCover({ state: "opening" }))).toBe(true);
   });
 });

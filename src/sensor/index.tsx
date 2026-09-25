@@ -22,7 +22,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { SensorPanel } from "./panel";
+import { SensorSheet } from "./sheet";
 import { Sparkline, type SparklinePoint } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
@@ -118,8 +118,11 @@ function SensorWidget(props: { config: SensorConfig }) {
     return cls ? `${cls.charAt(0).toUpperCase()}${cls.slice(1).replace(/_/g, " ")}` : "Sensor";
   };
 
+  const extras = () =>
+    entities().length > 1 || !Number.isNaN(Number(entities()[0]?.state ?? Number.NaN));
+
   const gestures = useWidgetGestures(() => ({
-    hold: { action: openDialog },
+    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -169,11 +172,7 @@ function SensorWidget(props: { config: SensorConfig }) {
           setShowDialog(false);
         }}
         debugData={debugData()}
-        panel={
-          <Show when={hasEntities()}>
-            <SensorPanel entities={entities()} name={name()} icon={iconName()} />
-          </Show>
-        }
+        {...(extras() ? { sheet: <SensorSheet entities={entities()} /> } : {})}
       />
     </>
   );

@@ -19,7 +19,7 @@ import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { ROOM_PRESETS } from "../common/art/room";
 import { type AreaAction, AreaContent } from "./area-content";
-import { AreaPanel } from "./panel";
+import { AreaSheet } from "./sheet";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
 
 const configSchema = defineConfig({
@@ -162,12 +162,8 @@ function AreaWidget(props: { config: AreaConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={area()}>
-            {(a) => (
-              <AreaPanel area={a()} name={areaName()} image={props.config.image} metrics={metrics()} />
-            )}
-          </Show>
+        sheet={
+          <Show when={area()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
         }
         debugData={debugData()}
       />

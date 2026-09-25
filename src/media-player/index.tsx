@@ -30,7 +30,7 @@ import {
   TileHero,
 } from "../common/tile/tile";
 import "./media.css";
-import { MediaPlayerPanel } from "./panel";
+import { MediaPlayerSheet, mediaHasExtras } from "./sheet";
 import { calculateFeatures, getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
 
@@ -96,9 +96,14 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     }, 300);
   };
 
+  const extras = createMemo(() => {
+    const e = entity();
+    return !!e && mediaHasExtras(e);
+  });
+
   const gestures = useWidgetGestures(() => ({
     tap: () => call("media_play_pause"),
-    hold: { action: openDialog },
+    hold: extras() ? { action: openDialog } : undefined,
     slide: features()?.supportsVolume
       ? {
           value: uiVolume(),
@@ -223,16 +228,20 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={entity()}>
-            {(e) => (
-              <MediaPlayerPanel
-                entity={e()}
-                name={props.config.title || e().friendlyName || "Media"}
-              />
-            )}
-          </Show>
-        }
+        {...(extras()
+          ? {
+              sheet: (
+                <Show when={entity()}>
+                  {(e) => (
+                    <MediaPlayerSheet
+                      entity={e()}
+                      name={props.config.title || e().friendlyName || "Media"}
+                    />
+                  )}
+                </Show>
+              ),
+            }
+          : {})}
         debugData={debugData()}
       />
     </>

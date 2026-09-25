@@ -100,8 +100,6 @@ interface AnalogClockProps {
   reserve?: number;
   /** Horizontal space kept free beside the face. */
   reserveX?: number;
-  /** Overrides the size's cap, for a face drawn larger than any tile. */
-  maxSize?: number;
 }
 
 const SIZE_MAP: Record<ClockSize, number> = {
@@ -140,7 +138,7 @@ export function AnalogClock(props: AnalogClockProps) {
       d.width - 16 - (props.reserveX ?? 0),
       d.height - 16 - (props.reserve ?? 0),
     );
-    return Math.max(56, Math.min(props.maxSize ?? SIZE_MAP[props.size] ?? 130, fit));
+    return Math.max(56, Math.min(SIZE_MAP[props.size] ?? 130, fit));
   };
   const cx = () => size() / 2;
   const cy = () => size() / 2;

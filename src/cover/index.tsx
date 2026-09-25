@@ -23,7 +23,7 @@ import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
-import { CoverPanel } from "./panel";
+import { CoverSheet, coverHasExtras } from "./sheet";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -167,9 +167,11 @@ function CoverWidget(props: { config: CoverConfig }) {
     else callService("cover", isOpen() ? "close_cover" : "open_cover", {}, { entity_id: targets });
   };
 
+  const extras = createMemo(() => coverHasExtras(entities()));
+
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
-    hold: { action: openDialog },
+    hold: extras() ? { action: openDialog } : undefined,
     slide: !actsInBulk()
       ? undefined
       : supportsPosition()
@@ -280,11 +282,7 @@ function CoverWidget(props: { config: CoverConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <CoverPanel entities={entities()} name={name()} kind={artKind()} />
-          </Show>
-        }
+        {...(extras() ? { sheet: <CoverSheet entities={entities()} name={name()} /> } : {})}
         debugData={debugData()}
       />
     </>

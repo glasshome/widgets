@@ -24,7 +24,7 @@ import windowSash from "../common/art/assets/window-sash.strip";
 import { CoverArt } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { BinarySensorPanel } from "./panel";
+import { BinarySensorSheet } from "./sheet";
 import { getBinarySensorStateText } from "./utils";
 
 const configSchema = defineConfig({
@@ -127,7 +127,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   };
 
   const gestures = useWidgetGestures(() => ({
-    hold: { action: openDialog },
+    hold: count() > 1 ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 
@@ -170,17 +170,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        panel={
-          <Show when={hasEntities()}>
-            <BinarySensorPanel
-              entities={entities()}
-              name={name()}
-              deviceClass={deviceClass()}
-              on={isOn()}
-              art={art()}
-            />
-          </Show>
-        }
+        {...(count() > 1 ? { sheet: <BinarySensorSheet entities={entities()} /> } : {})}
         debugData={debugData()}
       />
     </>
