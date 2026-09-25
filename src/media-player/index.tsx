@@ -22,7 +22,6 @@ import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import {
-  TILE_INNER_RADIUS,
   Tile,
   TileBackdrop,
   TileControls,
@@ -174,7 +173,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         variant="outline"
                         size="icon"
                         aria-label="Previous track"
-                        class={`tile-control ${TILE_INNER_RADIUS}`}
+                        class="tile-control"
                         onClick={() => call("media_previous_track")}
                       >
                         <Icon icon="mdi:skip-previous" width={20} />
@@ -184,7 +183,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                       variant="outline"
                       size="icon"
                       aria-label={isPlaying() ? "Pause" : "Play"}
-                      class={`tile-control ${TILE_INNER_RADIUS}`}
+                      class="tile-control"
                       onClick={() => call("media_play_pause")}
                     >
                       <Icon icon={isPlaying() ? "mdi:pause" : "mdi:play"} width={20} />
@@ -194,7 +193,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         variant="outline"
                         size="icon"
                         aria-label="Next track"
-                        class={`tile-control ${TILE_INNER_RADIUS}`}
+                        class="tile-control"
                         onClick={() => call("media_next_track")}
                       >
                         <Icon icon="mdi:skip-next" width={20} />

@@ -3,9 +3,6 @@
   --tile-pad: clamp(10px, min(6cqb, 7cqi), max(20px, 4cqmin));
   --tile-gap: clamp(6px, 3cqb, 12px);
   --tile-control-h: clamp(36px, 13cqb, max(44px, 8cqmin));
-  /* Past a 4x4 box the padding grows; the inner radius keeps its 4x4 value instead of squaring off. */
-  --tile-radius-inner: max(0px, calc(var(--radius-xl) - min(var(--tile-pad), 20px)));
-  --tile-radius-nested: max(0px, calc(var(--tile-radius-inner) - 4px));
   position: relative;
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);

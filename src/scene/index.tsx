@@ -19,7 +19,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
-import { TILE_INNER_RADIUS, Tile, TileGlyph, TileHead } from "../common/tile/tile";
+import { Tile, TileGlyph, TileHead } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -97,11 +97,7 @@ function SceneWidget(props: { config: SceneConfig }) {
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (
-                  <Button
-                    variant="outline"
-                    class={`scene-chip ${TILE_INNER_RADIUS}`}
-                    onClick={() => turnOn(e.id)}
-                  >
+                  <Button variant="outline" class="scene-chip" onClick={() => turnOn(e.id)}>
                     <Icon icon="mdi:play" width={16} />
                     {entities().length > 1 ? e.friendlyName : "Activate"}
                   </Button>

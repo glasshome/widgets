@@ -11,7 +11,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, For, type JSX, Show } from "solid-js";
 import { isRoomKind, type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
-import { TILE_INNER_RADIUS, Tile, TileBackdrop, TileChip, TileHead } from "../common/tile/tile";
+import { Tile, TileBackdrop, TileChip, TileHead } from "../common/tile/tile";
 import "./area-content.css";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
 
@@ -246,7 +246,7 @@ export function AreaContent(props: AreaContentProps) {
               pressed={pill.on}
               onChange={() => props.onAction(pill.action)}
               aria-label={`${pill.label}: ${pill.state}`}
-              class={`area-chip ${TILE_INNER_RADIUS}`}
+              class="area-chip"
             >
               <Icon
                 icon={pill.icon}
@@ -261,7 +261,7 @@ export function AreaContent(props: AreaContentProps) {
           variant="outline"
           size="icon"
           aria-label="More"
-          class={`area-chip area-more ${TILE_INNER_RADIUS}`}
+          class="area-chip area-more"
           onClick={() => props.onMore()}
         >
           <Icon icon="mdi:chevron-right" width={20} />

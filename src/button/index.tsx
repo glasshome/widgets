@@ -18,14 +18,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import {
-  TILE_INNER_RADIUS,
-  Tile,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-} from "../common/tile/tile";
+import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -115,11 +108,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
               sub={lastPressed() ? "Last pressed" : "Never pressed"}
             />
             <TileControls>
-              <Button
-                variant="outline"
-                class={`tile-control-wide ${TILE_INNER_RADIUS}`}
-                onClick={handleTap}
-              >
+              <Button variant="outline" class="tile-control-wide" onClick={handleTap}>
                 <Icon icon="mdi:gesture-tap" width={18} />
                 Press
               </Button>

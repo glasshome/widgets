@@ -19,9 +19,6 @@ import {
 } from "solid-js";
 import "./tile.css";
 
-const INNER = "rounded-[var(--tile-radius-inner)]";
-const INNER_NESTED = "rounded-[var(--tile-radius-nested)]";
-
 export function Tile(props: {
   active?: boolean;
   backdrop?: boolean;
@@ -137,7 +134,7 @@ export function TileStepper(props: { label: string; onStep: (direction: -1 | 1) 
         variant="outline"
         size="icon"
         aria-label="Lower"
-        class={`tile-control ${INNER}`}
+        class="tile-control"
         onClick={() => props.onStep(-1)}
       >
         <Icon icon="mdi:minus" width={18} />
@@ -146,7 +143,7 @@ export function TileStepper(props: { label: string; onStep: (direction: -1 | 1) 
         variant="outline"
         size="icon"
         aria-label="Raise"
-        class={`tile-control ${INNER}`}
+        class="tile-control"
         onClick={() => props.onStep(1)}
       >
         <Icon icon="mdi:plus" width={18} />
@@ -168,14 +165,14 @@ export function TileChoice(props: {
       tone={props.tone}
       value={props.value}
       onChange={(v: string | null) => v && props.onChange(v)}
-      class={`tile-choice ${INNER}`}
+      class="tile-choice"
     >
       <For each={props.options}>
         {(o) => (
           <ToggleGroupItem
             value={o.value}
             aria-label={o.label}
-            class={`tile-control ${INNER_NESTED}`}
+            class="tile-control"
             data-optional={o.value === props.value ? undefined : ""}
           >
             <Icon icon={o.icon} width={18} />
@@ -206,5 +203,3 @@ export function TileGlyph(props: { icon: string }) {
     </div>
   );
 }
-
-export { INNER as TILE_INNER_RADIUS };

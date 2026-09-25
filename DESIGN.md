@@ -13,7 +13,7 @@ Built from `src/common/tile/tile.tsx`. Each zone appears only when the box has r
 | Zone | Component | Holds |
 |---|---|---|
 | Head | `TileHead` | icon (`WidgetIcon`, stacked for groups via `count`), a small line above the name, optional chips |
-| Controls | `TileControls` | one row at the bottom: beside the value from 520px wide, under it below that, with the art lifted above; `TileStepper`, `TileChoice`, transport buttons, chips. A ui control keeps its own radii, or takes both halves from the tile (`TileChoice`), never one of each |
+| Controls | `TileControls` | one row at the bottom: beside the value from 520px wide, under it below that, with the art lifted above; `TileStepper`, `TileChoice`, transport buttons, chips. Controls keep ui's own radii, so their corners match at every size |
 | Hero | `TileHero` | a small line above the big value, the value with its unit in the bottom-left corner on every tile, art behind it in the bottom-right |
 
 `Tile` is the frame, `TileBackdrop` a full-bleed image layer, `TileGlyph` the faint corner icon on compact tiles, `TileChip` a small fact.

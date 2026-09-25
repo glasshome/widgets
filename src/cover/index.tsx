@@ -21,14 +21,7 @@ import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
-import {
-  TILE_INNER_RADIUS,
-  Tile,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-} from "../common/tile/tile";
+import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { CoverControls } from "./controls";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
 
@@ -241,7 +234,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                     variant="outline"
                     size="icon"
                     aria-label="Open"
-                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    class="tile-control"
                     onClick={() =>
                       callService("cover", "open_cover", {}, { entity_id: entityIds() })
                     }
@@ -252,7 +245,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                     variant="outline"
                     size="icon"
                     aria-label="Stop"
-                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    class="tile-control"
                     onClick={() =>
                       callService("cover", "stop_cover", {}, { entity_id: entityIds() })
                     }
@@ -263,7 +256,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                     variant="outline"
                     size="icon"
                     aria-label="Close"
-                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    class="tile-control"
                     onClick={() =>
                       callService("cover", "close_cover", {}, { entity_id: entityIds() })
                     }
