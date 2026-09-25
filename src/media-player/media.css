@@ -25,13 +25,12 @@
   .media-tile .tile-controls {
     display: flex;
   }
-  .tile.media-tile {
-    grid-template-rows: auto auto minmax(0, 1fr);
-  }
-  .media-tile .tile-hero {
-    grid-row: 3;
-  }
   .media-tile .media-volume {
     display: none;
+  }
+}
+@container widget (max-height: 229px) and (min-height: 130px) and (max-width: 519px) {
+  .tile.media-tile {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
 }

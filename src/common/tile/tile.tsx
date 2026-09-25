@@ -100,6 +100,7 @@ export function TileHero(props: {
     <div
       class={props.class ? `tile-hero ${props.class}` : "tile-hero"}
       data-art={art() ? "" : undefined}
+      data-empty={props.value === "" && !sub() ? "" : undefined}
     >
       <div class="tile-reading">
         <Show when={sub()}>

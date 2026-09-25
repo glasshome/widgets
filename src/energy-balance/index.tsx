@@ -17,7 +17,6 @@ import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-j
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import {
-  TILE_INNER_RADIUS,
   Tile,
   TileBackdrop,
   TileControls,
@@ -270,7 +269,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
                 aria-label="Period"
                 value={mode()}
                 onChange={(v: string | null) => v && setMode(v as Mode)}
-                class={`balance-modes ${TILE_INNER_RADIUS}`}
+                class="balance-modes"
               >
                 <For each={MODES}>
                   {(m) => (

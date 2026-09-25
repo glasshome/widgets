@@ -12,3 +12,16 @@
     display: none;
   }
 }
+/* The period chooser spans the tile, so it always takes its own row under the value. */
+@container widget (min-width: 520px) and (min-height: 230px) {
+  .tile:has(.balance-modes) {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+  .tile:has(.balance-modes) > .tile-hero {
+    grid-column: 1 / -1;
+  }
+  .tile:has(.balance-modes) > .tile-controls {
+    grid-row: 4;
+    grid-column: 1 / -1;
+  }
+}

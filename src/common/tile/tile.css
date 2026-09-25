@@ -3,11 +3,13 @@
   --tile-pad: clamp(10px, min(6cqb, 7cqi), max(20px, 4cqmin));
   --tile-gap: clamp(6px, 3cqb, 12px);
   --tile-control-h: clamp(36px, 13cqb, max(44px, 8cqmin));
-  --tile-radius-inner: max(0px, calc(var(--radius-xl) - var(--tile-pad)));
+  /* Past a 4x4 box the padding grows; the inner radius keeps its 4x4 value instead of squaring off. */
+  --tile-radius-inner: max(0px, calc(var(--radius-xl) - min(var(--tile-pad), 20px)));
   --tile-radius-nested: max(0px, calc(var(--tile-radius-inner) - 4px));
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: var(--tile-gap);
   height: 100%;
   padding: var(--tile-pad);
@@ -181,24 +183,64 @@
   z-index: -1;
 }
 
-/* Controls sit under the name, so the value and its line keep the bottom-left corner on every tile. */
-.tile-controls {
-  grid-row: 2;
-  position: relative;
-  z-index: 1;
+/* Controls sit on the bottom row beside the value, or under it on a narrow tile; the art lifts above them. */
+.tile-head {
+  grid-column: 1 / -1;
 }
 .tile-hero {
   grid-row: 3;
+  grid-column: 1 / -1;
+}
+.tile:has(> .tile-controls) > .tile-hero {
+  grid-column: 1;
+}
+.tile-controls {
+  grid-row: 3;
+  grid-column: 2;
+  align-self: end;
+  position: relative;
+  z-index: 1;
+}
+.tile:has(> .tile-hero[data-empty]) > .tile-controls {
+  grid-column: 1 / -1;
+}
+@container widget (max-width: 519px) {
+  .tile:has(> .tile-controls) {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+  .tile:has(> .tile-controls) > .tile-hero {
+    grid-column: 1 / -1;
+  }
+  .tile-controls {
+    grid-row: 4;
+    grid-column: 1 / -1;
+  }
+  .tile:has(> .tile-controls) .tile-art {
+    bottom: calc(var(--tile-pad) + var(--tile-control-h) + var(--tile-gap));
+    height: min(
+      calc(
+        100% -
+        2 *
+        var(--tile-pad) -
+        var(--widget-icon-box) -
+        2 *
+        var(--tile-gap) -
+        var(--tile-control-h)
+      ),
+      48cqi
+    );
+  }
 }
 @container widget (max-height: 229px) {
   .tile-controls {
     display: none;
   }
-  .tile {
-    grid-template-rows: auto minmax(0, 1fr);
+  .tile:has(> .tile-controls) {
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
-  .tile-hero {
-    grid-row: 2;
+  .tile:has(> .tile-controls) .tile-art {
+    bottom: var(--tile-pad);
+    height: min(calc(100% - 2 * var(--tile-pad) - var(--widget-icon-box) - var(--tile-gap)), 48cqi);
   }
 }
 @container widget (max-width: 179px) {
@@ -319,7 +361,7 @@
 }
 
 .tile-controls {
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 .tile-control.tile-control {
