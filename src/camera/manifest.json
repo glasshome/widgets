@@ -12,10 +12,6 @@
   },
   "sdkVersion": "^1.16.0",
   "version": "0.8.2",
-  "defaultSize": {
-    "w": 3,
-    "h": 3
-  },
   "capabilities": [
     {
       "domain": "camera",
@@ -87,5 +83,9 @@
         "refreshInterval": 10
       }
     }
-  ]
+  ],
+  "defaultSize": {
+    "w": 3,
+    "h": 2
+  }
 }

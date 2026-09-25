@@ -308,7 +308,7 @@ export default defineWidget<CoverConfig>({
     description: "Control covers, blinds, and shutters",
     icon: "mdi:window-shutter",
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
     configVersion: 1,
     sdkVersion: "^1.0.0",
     examples: [

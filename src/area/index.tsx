@@ -176,7 +176,7 @@ export default defineWidget<AreaConfig>({
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 4, h: 6 },
+    maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
     examples: [
       {

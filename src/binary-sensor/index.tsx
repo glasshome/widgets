@@ -183,19 +183,20 @@ export default defineWidget<BinarySensorConfig>({
     description: "Motion, door, occupancy sensors",
     icon: "mdi:checkbox-marked-circle",
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
+    defaultSize: { w: 2, h: 2 },
     configVersion: 1,
     sdkVersion: "^1.0.0",
     examples: [
       {
-        label: "Door",
-        size: { w: 1, h: 1 },
-        config: { entityIds: ["binary_sensor.front_door"], title: "Front Door", art: "device" },
-      },
-      {
         label: "Door open",
         size: { w: 2, h: 2 },
         config: { entityIds: ["binary_sensor.patio_door"], title: "Patio Door", art: "door" },
+      },
+      {
+        label: "Door",
+        size: { w: 1, h: 1 },
+        config: { entityIds: ["binary_sensor.front_door"], title: "Front Door", art: "device" },
       },
       {
         label: "Window closed",

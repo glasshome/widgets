@@ -172,7 +172,7 @@ export default defineWidget<ElectricityGridConfig>({
     description: "Is now a good time to use power? Grid carbon intensity and price at a glance",
     icon: "mdi:transmission-tower",
     minSize: { w: 2, h: 1 },
-    maxSize: { w: 3, h: 3 },
+    maxSize: { w: 8, h: 8 },
     defaultSize: { w: 2, h: 2 },
     capabilities: [{ domain: "sensor", access: "read" }],
     sdkVersion: "^1.0.0",

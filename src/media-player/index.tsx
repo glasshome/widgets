@@ -237,14 +237,15 @@ export default defineWidget<MediaPlayerConfig>({
     description: "Media playback controls with album art and progress tracking",
     icon: "mdi:music",
     minSize: { w: 2, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
+    defaultSize: { w: 3, h: 3 },
     sdkVersion: "^1.0.0",
     examples: [
       {
         label: "Playing",
         size: {
           w: 3,
-          h: 2,
+          h: 3,
         },
         config: {
           entityIds: ["media_player.living_room_speaker"],

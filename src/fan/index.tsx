@@ -259,7 +259,7 @@ export default defineWidget<FanConfig>({
     icon: "mdi:fan",
     configVersion: 1,
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.4.0",
     examples: [
       {

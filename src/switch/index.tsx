@@ -139,20 +139,10 @@ export default defineWidget<SwitchConfig>({
     description: "Toggle switch entities",
     icon: "mdi:power-plug",
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
+    defaultSize: { w: 2, h: 2 },
     sdkVersion: "^1.0.0",
     examples: [
-      {
-        label: "Off",
-        size: {
-          w: 1,
-          h: 1,
-        },
-        config: {
-          entityIds: ["switch.coffee_machine"],
-          title: "Coffee Machine",
-        },
-      },
       {
         label: "On",
         size: {
@@ -162,6 +152,17 @@ export default defineWidget<SwitchConfig>({
         config: {
           entityIds: ["switch.fan_living_room"],
           title: "Living Room Fan",
+        },
+      },
+      {
+        label: "Off",
+        size: {
+          w: 1,
+          h: 1,
+        },
+        config: {
+          entityIds: ["switch.coffee_machine"],
+          title: "Coffee Machine",
         },
       },
       {

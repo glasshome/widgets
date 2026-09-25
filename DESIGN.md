@@ -33,6 +33,10 @@ A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout f
 
 The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 
+Past a 4×4 box the caps give way to the tile's short side (`cqmin`): value, name, icon, padding and control height keep their share, so a large tile scales instead of emptying. Up to 4×4 nothing changes. Tile widgets go to 8×8; clock, button, scene, batteries and energy-flow stay at 4×4 until their own layouts scale.
+
+A widget opens at its first example's size, and that size shows its whole face: a device tile with art opens at 2×2, the media player at 3×3 so its transport shows, the camera at 3×2.
+
 ## Words
 
 - The name heads the tile. Weather alone drops it unless one is set, since a forecast has no device to name.
