@@ -15,33 +15,6 @@
     );
   transition: --area-warmth 500ms ease;
 }
-.area-spacer {
-  min-height: 0;
-}
-.area-chips {
-  display: flex;
-  gap: 6px;
-  min-width: 0;
-}
-.area-chip.area-chip {
-  gap: 6px;
-  height: var(--tile-control-h);
-  padding: 0 12px 0 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--foreground);
-  white-space: nowrap;
-  --glass-tone: var(--foreground);
-  --glass-wash: 10%;
-}
-.area-more.area-more {
-  width: var(--tile-control-h);
-  padding: 0;
-  margin-left: auto;
-}
-.area-chip.area-chip {
-  --glass-base: color-mix(in srgb, var(--foreground) 10%, transparent);
-}
 .area-humidity {
   display: inline-flex;
   align-items: center;
