@@ -39,21 +39,85 @@
         "items": {
           "type": "string"
         }
+      },
+      "art": {
+        "default": "door",
+        "title": "Lock picture",
+        "labels": {
+          "door": "Front door",
+          "gate": "Garden gate",
+          "smart": "Smart lock"
+        },
+        "icons": {
+          "door": "mdi:door",
+          "gate": "mdi:gate",
+          "smart": "mdi:lock-smart"
+        },
+        "type": "string",
+        "enum": [
+          "door",
+          "gate",
+          "smart"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "art"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "art": "door"
   },
   "examples": [
     {
-      "label": "Locks",
+      "label": "Front door",
       "size": {
         "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "lock.front_door_lock"
+        ],
+        "title": "Front Door",
+        "art": "door"
+      }
+    },
+    {
+      "label": "Locked",
+      "size": {
+        "w": 1,
+        "h": 1
+      },
+      "config": {
+        "entityIds": [
+          "lock.front_door_lock"
+        ],
+        "title": "Front Door",
+        "art": "door"
+      }
+    },
+    {
+      "label": "Unlocked",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "lock.side_gate"
+        ],
+        "title": "Side Gate",
+        "art": "gate"
+      }
+    },
+    {
+      "label": "Locks",
+      "size": {
+        "w": 3,
         "h": 2
       },
       "config": {
@@ -61,8 +125,10 @@
           "lock.front_door_lock",
           "lock.back_door_lock"
         ],
-        "title": "Locks"
+        "title": "Locks",
+        "art": "smart"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

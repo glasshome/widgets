@@ -94,7 +94,7 @@ function SceneWidget(props: { config: SceneConfig }) {
               eyebrow={entities().length > 1 ? `${entities().length} scenes` : "Scene"}
               name={name()}
             />
-            <div class="scene-chips">
+            <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (
                   <Button
@@ -138,9 +138,37 @@ export default defineWidget<SceneConfig>({
     sdkVersion: "^1.0.0",
     examples: [
       {
+        label: "One scene",
+        size: {
+          w: 1,
+          h: 1,
+        },
+        config: {
+          entityIds: ["scene.movie_night"],
+          title: "Movie Night",
+        },
+      },
+      {
         label: "Scenes",
-        size: { w: 2, h: 2 },
-        config: { entityIds: ["scene.movie_night", "scene.good_morning"], title: "Scenes" },
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          entityIds: ["scene.movie_night", "scene.good_morning"],
+          title: "Scenes",
+        },
+      },
+      {
+        label: "Wide",
+        size: {
+          w: 4,
+          h: 1,
+        },
+        config: {
+          entityIds: ["scene.movie_night", "scene.good_morning"],
+          title: "Scenes",
+        },
       },
     ],
   },

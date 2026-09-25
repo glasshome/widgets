@@ -44,7 +44,11 @@ function GridBody(props: BodyProps): JSX.Element {
   const tint = () => TINT[props.verdict.band];
   const note = () => props.verdict.priceNote;
   return (
-    <Tile active={props.verdict.band === "clean"} accent={tint()} class="grid-tile">
+    <Tile
+      active={props.verdict.band === "clean"}
+      accent={tint()}
+      class={props.verdict.phrase.split(" ").length === 2 ? "grid-tile grid-two-words" : "grid-tile"}
+    >
       <TileGlyph icon="mdi:transmission-tower" />
       <TileHead
         icon="mdi:transmission-tower"
@@ -201,6 +205,28 @@ export default defineWidget<ElectricityGridConfig>({
           co2IntensityEntity: ["sensor.electricity_maps_co2_intensity"],
           fossilFuelEntity: ["sensor.electricity_maps_fossil_fuel_percentage"],
           priceEntity: [],
+        },
+      },
+      {
+        label: "Okay time, pricey",
+        size: { w: 2, h: 2 },
+        config: {
+          title: "Electricity Grid",
+          co2IntensityEntity: ["sensor.electricity_maps_co2_intensity_de"],
+          fossilFuelEntity: ["sensor.electricity_maps_fossil_fuel_percentage_de"],
+          priceEntity: ["sensor.nordpool_current_price"],
+          cheapBelow: 0.15,
+        },
+      },
+      {
+        label: "Wait if you can",
+        size: { w: 3, h: 3 },
+        config: {
+          title: "Electricity Grid",
+          co2IntensityEntity: ["sensor.electricity_maps_co2_intensity_pl"],
+          fossilFuelEntity: ["sensor.electricity_maps_fossil_fuel_percentage_pl"],
+          priceEntity: ["sensor.nordpool_current_price"],
+          cheapBelow: 0.2,
         },
       },
     ],

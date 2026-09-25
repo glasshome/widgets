@@ -1,8 +1,12 @@
 import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
+import { SAMPLES } from "./samples";
 
 export const configSchema = defineConfig({
   pictures: field.list(
-    field.group({ image: field.image({ title: "Picture" }) }, { title: "Picture" }),
+    field.group(
+      { image: field.image({ title: "Picture", presets: SAMPLES }) },
+      { title: "Picture" },
+    ),
     { title: "Pictures", max: 24, addLabel: "Add picture" },
   ),
   fit: field.choice(["cover", "contain"], { title: "Fit", default: "cover" }),

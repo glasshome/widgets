@@ -46,12 +46,12 @@ export function VinylRecord(props: VinylRecordProps) {
       <div
         class="absolute rounded-full"
         style={{
-          top: "43%",
-          left: "43%",
-          width: "14%",
-          height: "14%",
+          top: "47.5%",
+          left: "47.5%",
+          width: "5%",
+          height: "5%",
           background: "oklch(0.13 0 0)",
-          "box-shadow": "0 0 0 1px oklch(1 0 0 / 0.12), inset 0 1px 2px oklch(0 0 0 / 0.6)",
+          "box-shadow": "0 0 0 1.5px oklch(1 0 0 / 0.35)",
         }}
       />
 

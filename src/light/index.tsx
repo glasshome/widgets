@@ -20,7 +20,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { LampArt, lampKind } from "../common/art/lamp";
+import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { LightControls } from "./controls";
 import { brightnessToPercent, hsToCSS } from "./utils";
@@ -28,6 +28,12 @@ import { brightnessToPercent, hsToCSS } from "./utils";
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("light"),
+  lamp: field.choice(LAMP_KINDS, {
+    title: "Lamp picture",
+    default: "table",
+    labels: LAMP_LABELS,
+    icons: LAMP_ICONS,
+  }),
 });
 type LightConfig = Infer<typeof configSchema>;
 
@@ -179,7 +185,7 @@ function LightWidget(props: { config: LightConfig }) {
               unit={isOn() ? "%" : undefined}
               art={
                 <LampArt
-                  kind={lampKind(name())}
+                  kind={props.config.lamp}
                   on={isOn()}
                   brightness={uiBrightness()}
                   color={vividColor()}
@@ -212,6 +218,7 @@ export default defineWidget<LightConfig>({
     name: "Light",
     description: "Light control with brightness, color, and temperature",
     icon: "mdi:lightbulb",
+    configVersion: 1,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
@@ -219,7 +226,7 @@ export default defineWidget<LightConfig>({
       {
         label: "Single light",
         size: { w: 2, h: 2 },
-        config: { title: "Reading Lamp", entityIds: ["light.bedroom_ceiling"] },
+        config: { title: "Reading Lamp", entityIds: ["light.bedroom_ceiling"], lamp: "desk" },
       },
       {
         label: "Room group",
@@ -227,12 +234,13 @@ export default defineWidget<LightConfig>({
         config: {
           title: "Living Room",
           entityIds: ["light.living_room_main", "light.kitchen_counter", "light.hallway"],
+          lamp: "floor",
         },
       },
       {
         label: "Color",
         size: { w: 2, h: 2 },
-        config: { title: "Studio", entityIds: ["light.studio_rgb"] },
+        config: { title: "Studio", entityIds: ["light.studio_rgb"], lamp: "bulb" },
       },
       {
         label: "Colorful group",
@@ -240,12 +248,13 @@ export default defineWidget<LightConfig>({
         config: {
           title: "Party Mode",
           entityIds: ["light.studio_rgb", "light.desk_rgb", "light.hallway"],
+          lamp: "mushroom",
         },
       },
       {
         label: "Off",
         size: { w: 2, h: 2 },
-        config: { title: "Kitchen", entityIds: ["light.kitchen_counter"] },
+        config: { title: "Kitchen", entityIds: ["light.kitchen_counter"], lamp: "pendant" },
       },
     ],
   },

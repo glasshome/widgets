@@ -1,0 +1,63 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  min-width: 0;
+  padding: 0 clamp(12px, 2.5cqi, 16px);
+}
+.header-icon.header-icon {
+  --widget-icon-box: 44px;
+  --widget-icon-glyph: 24px;
+}
+.header-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.header-greeting {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-title {
+  font-size: clamp(16px, 3.4cqi, 20px);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-chips {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+.header-chip.header-chip {
+  height: 40px;
+  min-width: 40px;
+  gap: 6px;
+  padding: 0 12px;
+}
+.header-chip-value {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+@container widget (max-width: 219px) {
+  .header-icon,
+  .header-greeting {
+    display: none;
+  }
+}

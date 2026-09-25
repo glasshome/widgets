@@ -5,9 +5,25 @@
   --wx-play: paused;
 }
 .wx-sky {
+  --wx-corner: 30%;
   position: absolute;
   inset: 0;
   overflow: hidden;
+}
+/* The temperature sits top left; a pale sky needs a stronger card wash behind it. */
+.wx-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 75% 65% at 0% 0%,
+    color-mix(in oklch, var(--card) var(--wx-corner), transparent),
+    transparent
+  );
+}
+.wx-sky:is([data-sky="snowy"], [data-sky="snowy-rainy"], [data-sky="fog"]) {
+  --wx-corner: 65%;
 }
 
 .wx-sky-photo,

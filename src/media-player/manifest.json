@@ -52,10 +52,36 @@
   },
   "examples": [
     {
-      "label": "Living Room",
+      "label": "Playing",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "media_player.living_room_speaker"
+        ],
+        "title": "Living Room"
+      }
+    },
+    {
+      "label": "Wide",
       "size": {
         "w": 4,
         "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "media_player.living_room_speaker"
+        ],
+        "title": "Living Room"
+      }
+    },
+    {
+      "label": "Large",
+      "size": {
+        "w": 4,
+        "h": 4
       },
       "config": {
         "entityIds": [

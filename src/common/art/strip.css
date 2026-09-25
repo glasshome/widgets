@@ -1,0 +1,15 @@
+.art-strip {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.art-strip > img {
+  display: block;
+  height: 100%;
+  width: calc(var(--strip-frames) * 100%);
+  max-width: none;
+  transition: transform calc(var(--duration-morph) * 1.4) steps(var(--strip-frames), jump-none);
+}
+.art-strip[data-end] > img {
+  transform: translateX(calc((1 - var(--strip-frames)) * 100% / var(--strip-frames)));
+}

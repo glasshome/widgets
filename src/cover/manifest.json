@@ -39,17 +39,129 @@
         "items": {
           "type": "string"
         }
+      },
+      "art": {
+        "default": "device",
+        "title": "Cover picture",
+        "labels": {
+          "device": "Match Home Assistant",
+          "blind": "Window blind",
+          "curtain": "Curtains",
+          "shutter": "Roller shutter",
+          "garage": "Garage door"
+        },
+        "icons": {
+          "device": "mdi:home-assistant",
+          "blind": "mdi:blinds",
+          "curtain": "mdi:curtains",
+          "shutter": "mdi:window-shutter",
+          "garage": "mdi:garage"
+        },
+        "type": "string",
+        "enum": [
+          "device",
+          "blind",
+          "curtain",
+          "shutter",
+          "garage"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "art"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "art": "device"
   },
   "examples": [
+    {
+      "label": "Blind",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "cover.living_room_blinds"
+        ],
+        "title": "Living Room",
+        "art": "blind"
+      }
+    },
+    {
+      "label": "Curtains closed",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "cover.bedroom_curtains"
+        ],
+        "title": "Bedroom",
+        "art": "curtain"
+      }
+    },
+    {
+      "label": "Shutter half open",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "cover.living_room_shutters"
+        ],
+        "title": "Living Room",
+        "art": "shutter"
+      }
+    },
+    {
+      "label": "Garage door",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "entityIds": [
+          "cover.garage_door"
+        ],
+        "title": "Garage",
+        "art": "garage"
+      }
+    },
+    {
+      "label": "Blind open",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "entityIds": [
+          "cover.kitchen_blinds"
+        ],
+        "title": "Kitchen",
+        "art": "blind"
+      }
+    },
+    {
+      "label": "Gate open",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "cover.driveway_gate"
+        ],
+        "title": "Driveway",
+        "art": "garage"
+      }
+    },
     {
       "label": "Blinds",
       "size": {
@@ -61,8 +173,10 @@
           "cover.living_room_blinds",
           "cover.bedroom_curtains"
         ],
-        "title": "Blinds"
+        "title": "Blinds",
+        "art": "blind"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

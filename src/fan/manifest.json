@@ -39,15 +39,34 @@
         "items": {
           "type": "string"
         }
+      },
+      "art": {
+        "default": "pedestal",
+        "title": "Fan picture",
+        "labels": {
+          "pedestal": "Standing fan",
+          "purifier": "Air purifier"
+        },
+        "icons": {
+          "pedestal": "mdi:fan",
+          "purifier": "mdi:air-purifier"
+        },
+        "type": "string",
+        "enum": [
+          "pedestal",
+          "purifier"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "art"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "art": "pedestal"
   },
   "examples": [
     {
@@ -60,7 +79,8 @@
         "entityIds": [
           "fan.bedroom_ceiling"
         ],
-        "title": "Bedroom Fan"
+        "title": "Bedroom Fan",
+        "art": "pedestal"
       }
     },
     {
@@ -72,8 +92,10 @@
       "config": {
         "entityIds": [
           "fan.air_purifier"
-        ]
+        ],
+        "art": "purifier"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

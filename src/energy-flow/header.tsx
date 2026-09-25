@@ -5,8 +5,8 @@ import { energyIcons } from "../_energy-shared/icons";
 
 /**
  * Standard widget header for the energy-flow widget: SDK icon tile + title +
- * optional detail line. The title carries the live flow headline ("Solar is
- * powering your home"); empty states pass a static title instead so the widget
+ * optional detail line. The title carries the live flow headline ("Running on
+ * solar"); empty states pass a static title instead so the widget
  * keeps its identity. The tile picks up the shell's channel color (dominant
  * source) via the SDK's --widget-color.
  */

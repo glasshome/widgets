@@ -3,8 +3,6 @@ import {
   byDomain,
   defineWidget,
   Icon,
-  SectionIcon,
-  SectionTitle,
   useArea,
   useService,
   useStore,
@@ -16,12 +14,14 @@ import {
   useWidgetViewer,
   Widget,
   WidgetDialog,
+  WidgetIcon,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
 import { greetingForHour, hourIn } from "./greeting";
 import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
+import "./header.css";
 
 function HeaderWidget(props: { config: HeaderConfig }) {
   const ctx = useWidgetContext();
@@ -74,6 +74,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
           name: e.attributes?.friendly_name as string | undefined,
           unit: e.attributes?.unit_of_measurement as string | undefined,
           icon: e.attributes?.icon as string | undefined,
+          deviceClass: e.attributes?.device_class as string | undefined,
         },
       ];
     });
@@ -93,15 +94,15 @@ function HeaderWidget(props: { config: HeaderConfig }) {
       chips().slice(0, visibleCount(dimensions().width, chips().length)),
     );
     return (
-      <div class="flex shrink-0 items-center gap-1.5">
+      <div class="header-chips">
         <For each={shown()}>
           {(chip) => (
             <Button
               as={chip.service ? "button" : "span"}
-              variant="secondary"
+              variant="outline"
               size="none"
               type={chip.service ? "button" : undefined}
-              class={`h-10 min-w-10 gap-1.5 px-3 ${chip.service ? "" : "cursor-default"}`}
+              class={`header-chip ${chip.service ? "" : "cursor-default"}`}
               aria-label={chip.label}
               onClick={() => {
                 if (chip.service)
@@ -113,11 +114,9 @@ function HeaderWidget(props: { config: HeaderConfig }) {
                   );
               }}
             >
-              <Icon icon={chip.icon} width={16} height={16} class={chip.tone} />
+              <Icon icon={chip.icon} width={18} height={18} class={chip.tone} />
               <Show when={chip.value}>
-                <span class="font-semibold text-[15px] text-foreground tabular-nums">
-                  {chip.value}
-                </span>
+                <span class="header-chip-value">{chip.value}</span>
               </Show>
             </Button>
           )}
@@ -129,17 +128,18 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass">
-        <div class="flex h-full min-w-0 items-center gap-3 px-4">
-          <SectionIcon size="md">
-            <Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />
-          </SectionIcon>
-          <div class="flex min-w-0 flex-1 flex-col">
-            <SectionTitle class="truncate">
-              {props.config.title || dashboard().name || "Dashboard"}
-            </SectionTitle>
+        <div class="header">
+          <WidgetIcon
+            icon={<Icon icon={props.config.icon || dashboard().icon || "mdi:view-dashboard"} />}
+            class="header-icon"
+          />
+          <div class="header-text">
             <Show when={props.config.greeting}>
-              <span class="truncate text-[13px] text-foreground/55">{greeting()}</span>
+              <span class="header-greeting">{greeting()}</span>
             </Show>
+            <span class="header-title">
+              {props.config.title || dashboard().name || "Dashboard"}
+            </span>
           </div>
           <Chips />
         </div>

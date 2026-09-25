@@ -2,6 +2,7 @@
   font-size: clamp(20px, min(16cqb, 11cqi), 40px);
   white-space: normal;
   max-width: 60cqi;
+  text-wrap: balance;
   line-height: 1.05;
 }
 .grid-chips {
@@ -11,4 +12,44 @@
   gap: 6px;
   min-width: 0;
   overflow: hidden;
+}
+/* The phrase wraps beside the pylon instead of running under it. */
+@container widget (min-width: 180px) {
+  .grid-tile .tile-value {
+    max-width: calc(52cqi - var(--tile-pad));
+  }
+}
+/* A two-word phrase ("Good time", 4.7em on one line) shrinks to stay on one line beside the pylon. */
+@container widget (min-width: 180px) and (min-height: 130px) {
+  .grid-two-words .tile-value {
+    font-size: clamp(18px, min(16cqb, 11cqi, calc((52cqi - var(--tile-pad)) / 4.8)), 40px);
+    white-space: nowrap;
+  }
+}
+@container widget (max-width: 179px) {
+  .grid-tile .tile-sub {
+    display: none;
+  }
+  .grid-two-words .tile-value {
+    white-space: nowrap;
+    max-width: none;
+  }
+}
+@container widget ((max-height: 129px) or (max-width: 139px)) {
+  .grid-tile .tile-value {
+    font-size: clamp(14px, min(30cqb, 7.5cqi), 24px);
+    white-space: nowrap;
+    max-width: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@container widget (max-height: 129px) and (min-width: 260px) {
+  .grid-tile .tile-head {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .grid-tile .tile-hero {
+    flex: none;
+  }
 }

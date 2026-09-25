@@ -172,9 +172,56 @@ export default defineWidget<BatteriesConfig>({
     sdkVersion: "^1.0.0",
     examples: [
       {
+        label: "All good",
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          title: "Batteries",
+          threshold: 20,
+          whitelist: [],
+          blacklist: [],
+        },
+      },
+      {
+        label: "One running low",
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          title: "Batteries",
+          threshold: 70,
+          whitelist: [],
+          blacklist: [],
+        },
+      },
+      {
         label: "Batteries",
-        size: { w: 2, h: 3 },
-        config: { title: "Batteries", threshold: 20, whitelist: [], blacklist: [] },
+        size: {
+          w: 2,
+          h: 3,
+        },
+        config: {
+          title: "Batteries",
+          threshold: 20,
+          whitelist: [],
+          blacklist: [],
+        },
+      },
+      {
+        label: "Every battery",
+        size: {
+          w: 4,
+          h: 4,
+        },
+        config: {
+          title: "Batteries",
+          threshold: 70,
+          whitelist: [],
+          blacklist: [],
+        },
       },
     ],
   },

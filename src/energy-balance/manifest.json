@@ -20,6 +20,10 @@
     {
       "domain": "sensor",
       "access": "read"
+    },
+    {
+      "domain": "sun",
+      "access": "read"
     }
   ],
   "schema": {

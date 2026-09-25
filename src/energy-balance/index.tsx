@@ -226,8 +226,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     const unit = dataUnit();
     const fmt = (v: number) =>
       unit === "W" ? formatPower(v) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
-    const home = `Home ${fmt(consumed())}`;
-    return hasSolar() ? `Solar ${fmt(produced())} · ${home}` : home;
+    return hasSolar() ? `Solar ${fmt(produced())} · Home ${fmt(consumed())}` : undefined;
   };
 
   const daylight = useDaylight();

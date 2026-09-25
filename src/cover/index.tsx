@@ -19,6 +19,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
+import { CoverArt, type CoverKind } from "../common/art/cover";
 import {
   TILE_INNER_RADIUS,
   Tile,
@@ -28,14 +29,39 @@ import {
   TileHero,
 } from "../common/tile/tile";
 import { CoverControls } from "./controls";
-import { CoverArt } from "./cover-art";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
 
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("cover"),
+  art: field.choice(["device", "blind", "curtain", "shutter", "garage"], {
+    title: "Cover picture",
+    default: "device",
+    labels: {
+      device: "Match Home Assistant",
+      blind: "Window blind",
+      curtain: "Curtains",
+      shutter: "Roller shutter",
+      garage: "Garage door",
+    },
+    icons: {
+      device: "mdi:home-assistant",
+      blind: "mdi:blinds",
+      curtain: "mdi:curtains",
+      shutter: "mdi:window-shutter",
+      garage: "mdi:garage",
+    },
+  }),
 });
 type CoverConfig = Infer<typeof configSchema>;
+
+const KIND_BY_DEVICE_CLASS: Partial<Record<string, CoverKind>> = {
+  curtain: "curtain",
+  shutter: "shutter",
+  garage: "garage",
+  gate: "garage",
+  door: "garage",
+};
 
 // Minimum slide travel (in slide units, range 200 across the widget) before
 // a directional slide commits to open/close.
@@ -85,7 +111,11 @@ function CoverWidget(props: { config: CoverConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     "Cover";
-  const isWindowCover = () => !["garage", "gate", "door"].includes(primary()?.deviceClass ?? "");
+  const artKind = (): CoverKind => {
+    const art = props.config.art;
+    if (art !== "device") return art;
+    return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
+  };
   const heroValue = () => {
     const sliding = slidePosition();
     if (sliding !== null) return sliding;
@@ -193,7 +223,7 @@ function CoverWidget(props: { config: CoverConfig }) {
             <TileHero
               value={heroValue()}
               unit={supportsPosition() && count() === 1 ? "%" : undefined}
-              art={isWindowCover() ? <CoverArt closed={100 - fillValue()} /> : undefined}
+              art={<CoverArt kind={artKind()} closed={100 - fillValue()} />}
             />
             <TileControls>
               <ButtonGroup aria-label="Cover" class="tile-stepper">
@@ -264,14 +294,46 @@ export default defineWidget<CoverConfig>({
     icon: "mdi:window-shutter",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
+    configVersion: 1,
     sdkVersion: "^1.0.0",
     examples: [
+      {
+        label: "Blind",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["cover.living_room_blinds"], title: "Living Room", art: "blind" },
+      },
+      {
+        label: "Curtains closed",
+        size: { w: 3, h: 2 },
+        config: { entityIds: ["cover.bedroom_curtains"], title: "Bedroom", art: "curtain" },
+      },
+      {
+        label: "Shutter half open",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["cover.living_room_shutters"], title: "Living Room", art: "shutter" },
+      },
+      {
+        label: "Garage door",
+        size: { w: 3, h: 3 },
+        config: { entityIds: ["cover.garage_door"], title: "Garage", art: "garage" },
+      },
+      {
+        label: "Blind open",
+        size: { w: 3, h: 3 },
+        config: { entityIds: ["cover.kitchen_blinds"], title: "Kitchen", art: "blind" },
+      },
+      {
+        label: "Gate open",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["cover.driveway_gate"], title: "Driveway", art: "garage" },
+      },
       {
         label: "Blinds",
         size: { w: 3, h: 2 },
         config: {
           entityIds: ["cover.living_room_blinds", "cover.bedroom_curtains"],
           title: "Blinds",
+          art: "blind",
         },
       },
     ],

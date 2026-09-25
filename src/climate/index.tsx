@@ -30,13 +30,35 @@ import {
   TileStepper,
 } from "../common/tile/tile";
 import "../common/mode-transition.css";
+import acArt from "./assets/climate-ac.webp";
+import heatpumpArt from "./assets/climate-heatpump.webp";
+import radiatorArt from "./assets/climate-radiator.webp";
+import thermostatArt from "./assets/climate-thermostat.webp";
+import "./climate.css";
 import { ClimateControls } from "./controls";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("climate"),
+  art: field.choice(["thermostat", "radiator", "ac", "heatpump"], {
+    title: "Device picture",
+    default: "thermostat",
+    labels: {
+      thermostat: "Thermostat",
+      radiator: "Radiator",
+      ac: "Air conditioner",
+      heatpump: "Heat pump",
+    },
+    icons: {
+      thermostat: "mdi:thermostat",
+      radiator: "mdi:radiator",
+      ac: "mdi:air-conditioner",
+      heatpump: "mdi:heat-pump-outline",
+    },
+  }),
 });
+const ART = { thermostat: thermostatArt, radiator: radiatorArt, ac: acArt, heatpump: heatpumpArt };
 type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
@@ -135,6 +157,10 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     const v = setpoints.values();
     return v.length === 0 ? undefined : (Math.min(...v) + Math.max(...v)) / 2;
   };
+  const running = () => {
+    const action = hvacAction();
+    return !!action && action !== "idle" && action !== "off";
+  };
   const eyebrow = createMemo(() => {
     const action = hvacAction();
     if (action && action !== "idle" && action !== "off")
@@ -224,6 +250,15 @@ function ClimateWidget(props: { config: ClimateConfig }) {
               unit={hvacMode() === "off" ? undefined : "°"}
               class={isRange() && hvacMode() !== "off" ? "tile-hero-range" : undefined}
               sub={subLine()}
+              art={
+                <img
+                  src={ART[props.config.art]}
+                  alt=""
+                  class="climate-object"
+                  data-on={hvacMode() !== "off" || undefined}
+                  data-running={running() || undefined}
+                />
+              }
             />
             <TileControls>
               <TileStepper
@@ -268,6 +303,7 @@ export default defineWidget<ClimateConfig>({
     name: "Climate",
     description: "Climate control with temperature, HVAC modes, and fan control",
     icon: "mdi:thermostat",
+    configVersion: 1,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
@@ -275,7 +311,26 @@ export default defineWidget<ClimateConfig>({
       {
         label: "Thermostat",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["climate.living_room_thermostat"], title: "Thermostat" },
+        config: {
+          entityIds: ["climate.living_room_thermostat"],
+          title: "Thermostat",
+          art: "thermostat",
+        },
+      },
+      {
+        label: "Radiator heating",
+        size: { w: 3, h: 2 },
+        config: { entityIds: ["climate.living_room_thermostat"], title: "Living Room", art: "radiator" },
+      },
+      {
+        label: "Air conditioner off",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["climate.bedroom_ac"], title: "Bedroom", art: "ac" },
+      },
+      {
+        label: "Heat pump",
+        size: { w: 4, h: 3 },
+        config: { entityIds: ["climate.living_room_thermostat"], title: "Heat Pump", art: "heatpump" },
       },
     ],
   },

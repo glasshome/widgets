@@ -143,7 +143,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         <Show when={entity()}>
           {(e) => (
             <>
-              <Tile backdrop={!!albumArt()} active={isPlaying()}>
+              <Tile class="media-tile" backdrop={!!albumArt()} active={isPlaying()}>
                 <Show when={albumArt()}>
                   {(src) => (
                     <TileBackdrop>
@@ -241,9 +241,37 @@ export default defineWidget<MediaPlayerConfig>({
     sdkVersion: "^1.0.0",
     examples: [
       {
-        label: "Living Room",
-        size: { w: 4, h: 2 },
-        config: { entityIds: ["media_player.living_room_speaker"], title: "Living Room" },
+        label: "Playing",
+        size: {
+          w: 3,
+          h: 2,
+        },
+        config: {
+          entityIds: ["media_player.living_room_speaker"],
+          title: "Living Room",
+        },
+      },
+      {
+        label: "Wide",
+        size: {
+          w: 4,
+          h: 2,
+        },
+        config: {
+          entityIds: ["media_player.living_room_speaker"],
+          title: "Living Room",
+        },
+      },
+      {
+        label: "Large",
+        size: {
+          w: 4,
+          h: 4,
+        },
+        config: {
+          entityIds: ["media_player.living_room_speaker"],
+          title: "Living Room",
+        },
       },
     ],
   },

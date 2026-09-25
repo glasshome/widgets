@@ -27,7 +27,6 @@ import {
   TileGlyph,
   TileHead,
   TileHero,
-  TileStepper,
 } from "../common/tile/tile";
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
@@ -48,6 +47,12 @@ const PRESET_ICONS: Record<string, string> = {
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("fan"),
+  art: field.choice(["pedestal", "purifier"], {
+    title: "Fan picture",
+    default: "pedestal",
+    labels: { pedestal: "Standing fan", purifier: "Air purifier" },
+    icons: { pedestal: "mdi:fan", purifier: "mdi:air-purifier" },
+  }),
 });
 type FanConfig = Infer<typeof configSchema>;
 
@@ -170,11 +175,6 @@ function FanWidget(props: { config: FanConfig }) {
     if (isOn() && preset) return `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
     return count() > 1 ? `${count()} fans` : "Fan";
   };
-  const stepSpeed = (direction: -1 | 1) => {
-    const step = (firstEntity()?.attributes?.percentage_step as number | undefined) ?? 10;
-    const next = Math.min(100, Math.max(0, Math.round(uiPercentage() + direction * step)));
-    handleSpeedSlide(next);
-  };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
@@ -211,20 +211,16 @@ function FanWidget(props: { config: FanConfig }) {
               unit={isOn() && supportsSpeed() && count() === 1 ? "%" : undefined}
               art={
                 <img
-                  src={/purif|air/i.test(name()) ? purifierArt : pedestalArt}
+                  src={props.config.art === "purifier" ? purifierArt : pedestalArt}
                   alt=""
                   class="fan-object"
                   data-on={isOn() || undefined}
                 />
               }
             />
-            <Show when={supportsSpeed() || presets().length > 0}>
+            <Show when={presets().length > 0}>
               <TileControls>
-                <Show when={supportsSpeed()} fallback={<span />}>
-                  <TileStepper label="Fan speed" onStep={(d) => stepSpeed(d)} />
-                </Show>
-                <Show when={presets().length > 0}>
-                  <TileChoice
+                <TileChoice
                     label="Preset"
                     tone="var(--widget-color)"
                     value={firstEntity()?.attributes?.preset_mode as string}
@@ -240,7 +236,6 @@ function FanWidget(props: { config: FanConfig }) {
                       }
                     }}
                   />
-                </Show>
               </TileControls>
             </Show>
           </Tile>
@@ -269,6 +264,7 @@ export default defineWidget<FanConfig>({
     name: "Fan",
     description: "Fan control with speed, presets, oscillation, and direction",
     icon: "mdi:fan",
+    configVersion: 1,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.4.0",
@@ -276,12 +272,12 @@ export default defineWidget<FanConfig>({
       {
         label: "Ceiling fan",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["fan.bedroom_ceiling"], title: "Bedroom Fan" },
+        config: { entityIds: ["fan.bedroom_ceiling"], title: "Bedroom Fan", art: "pedestal" },
       },
       {
         label: "Purifier",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["fan.air_purifier"] },
+        config: { entityIds: ["fan.air_purifier"], art: "purifier" },
       },
     ],
   },

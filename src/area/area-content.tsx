@@ -3,13 +3,14 @@ import {
   type EntityView,
   hassMediaUrl,
   Icon,
+  imagePreset,
   imageUrl,
   Toggle,
   useDaylight,
   useWidgetDimensions,
 } from "@glasshome/widget-sdk";
 import { createMemo, For, type JSX, Show } from "solid-js";
-import { type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
+import { isRoomKind, type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
 import { TILE_INNER_RADIUS, Tile, TileBackdrop, TileChip, TileHead } from "../common/tile/tile";
 import "./area-content.css";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
@@ -136,9 +137,15 @@ function buildPills(m: AreaMetrics, g: EntityGroups): Pill[] {
 export function AreaContent(props: AreaContentProps) {
   const dims = useWidgetDimensions();
   const m = () => props.metrics;
+  const builtInRoom = () => {
+    const room = imagePreset(props.image);
+    return isRoomKind(room) ? room : undefined;
+  };
   const photos = (): RoomPhotos | undefined => {
-    const own = (props.image ? imageUrl(props.image) : undefined) ?? hassMediaUrl(props.picture);
-    return own ? { day: own } : roomPhotos(props.areaName);
+    const room = builtInRoom();
+    if (room) return roomPhotos(room);
+    const own = imageUrl(props.image) ?? hassMediaUrl(props.picture);
+    return own ? { day: own } : undefined;
   };
   const daylight = useDaylight();
   const scene = () => {
@@ -216,7 +223,7 @@ export function AreaContent(props: AreaContentProps) {
         </Show>
       </TileBackdrop>
       <TileHead
-        icon={props.areaIcon ?? roomIcon(props.areaName)}
+        icon={props.areaIcon ?? roomIcon(builtInRoom())}
         active={m().lightsOn > 0}
         eyebrow={summary()}
         name={props.areaName}

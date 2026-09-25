@@ -39,15 +39,52 @@
         "items": {
           "type": "string"
         }
+      },
+      "lamp": {
+        "default": "table",
+        "title": "Lamp picture",
+        "labels": {
+          "table": "Table lamp",
+          "floor": "Floor lamp",
+          "pendant": "Pendant",
+          "desk": "Desk lamp",
+          "mushroom": "Mushroom lamp",
+          "ceiling": "Ceiling light",
+          "sconce": "Wall light",
+          "bulb": "Bare bulb"
+        },
+        "icons": {
+          "table": "mdi:lamp",
+          "floor": "mdi:floor-lamp",
+          "pendant": "mdi:ceiling-light",
+          "desk": "mdi:desk-lamp",
+          "mushroom": "mdi:mushroom-outline",
+          "ceiling": "mdi:ceiling-light-flat",
+          "sconce": "mdi:wall-sconce-round",
+          "bulb": "mdi:lightbulb-filament"
+        },
+        "type": "string",
+        "enum": [
+          "table",
+          "floor",
+          "pendant",
+          "desk",
+          "mushroom",
+          "ceiling",
+          "sconce",
+          "bulb"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "lamp"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "lamp": "table"
   },
   "examples": [
     {
@@ -60,7 +97,8 @@
         "title": "Reading Lamp",
         "entityIds": [
           "light.bedroom_ceiling"
-        ]
+        ],
+        "lamp": "desk"
       }
     },
     {
@@ -75,7 +113,8 @@
           "light.living_room_main",
           "light.kitchen_counter",
           "light.hallway"
-        ]
+        ],
+        "lamp": "floor"
       }
     },
     {
@@ -88,7 +127,8 @@
         "title": "Studio",
         "entityIds": [
           "light.studio_rgb"
-        ]
+        ],
+        "lamp": "bulb"
       }
     },
     {
@@ -103,7 +143,8 @@
           "light.studio_rgb",
           "light.desk_rgb",
           "light.hallway"
-        ]
+        ],
+        "lamp": "mushroom"
       }
     },
     {
@@ -116,8 +157,10 @@
         "title": "Kitchen",
         "entityIds": [
           "light.kitchen_counter"
-        ]
+        ],
+        "lamp": "pendant"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

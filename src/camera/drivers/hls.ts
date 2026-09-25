@@ -37,7 +37,8 @@ export function createHlsDriver(): MediaDriver {
     el.addEventListener("playing", onPlaying);
 
     if (Hls.isSupported()) {
-      const instance = new Hls({ enableWorker: true, lowLatencyMode: true });
+      // The CSP's worker-src forbids hls.js's blob: worker; it would fall back to the main thread anyway.
+      const instance = new Hls({ enableWorker: false, lowLatencyMode: true });
       let mediaRecoveries = 0;
       let networkRecoveries = 0;
       instance.loadSource(url);

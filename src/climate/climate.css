@@ -1,0 +1,19 @@
+.climate-object {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0.7) saturate(0.85);
+  transition: filter 400ms ease;
+}
+.climate-object[data-on] {
+  filter: none;
+}
+/* Heating or cooling right now: the device glows in the mode's colour. */
+.climate-object[data-running] {
+  filter: drop-shadow(0 0 10px color-mix(in oklch, var(--widget-color) 55%, transparent));
+}
+@media (prefers-reduced-motion: reduce) {
+  .climate-object {
+    transition: none;
+  }
+}

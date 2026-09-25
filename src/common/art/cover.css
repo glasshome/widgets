@@ -1,0 +1,76 @@
+.cover-art {
+  position: relative;
+  height: 100%;
+}
+.cover-art > img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.cover-panel,
+.cover-rail,
+.cover-fold {
+  position: absolute;
+  inset: 0;
+  transition: clip-path var(--duration-morph) var(--ease-morph);
+}
+.cover-panel > svg {
+  width: 100%;
+  height: 100%;
+}
+.cover-seam {
+  stroke-width: 1;
+}
+
+.cover-art[data-kind="blind"] .cover-panel {
+  background: linear-gradient(
+    90deg,
+    oklch(0.84 0.02 80),
+    oklch(0.95 0.015 80) 70%,
+    oklch(0.9 0.02 80)
+  );
+}
+.cover-art[data-kind="blind"] .cover-seam {
+  stroke: oklch(0 0 0 / 0.1);
+}
+.cover-art[data-kind="blind"] .cover-rail {
+  background: oklch(0.74 0.02 80);
+}
+
+.cover-art[data-kind="shutter"] .cover-panel {
+  background: linear-gradient(
+    90deg,
+    oklch(0.62 0.01 250),
+    oklch(0.74 0.008 250) 70%,
+    oklch(0.68 0.01 250)
+  );
+}
+.cover-art[data-kind="shutter"] .cover-seam {
+  stroke: oklch(0.3 0.01 250 / 0.55);
+}
+.cover-art[data-kind="shutter"] .cover-rail {
+  background: oklch(0.32 0.005 250);
+}
+
+.cover-art[data-kind="garage"] .cover-panel {
+  background: linear-gradient(
+    90deg,
+    oklch(0.78 0.012 80),
+    oklch(0.88 0.01 80) 70%,
+    oklch(0.82 0.012 80)
+  );
+}
+.cover-art[data-kind="garage"] .cover-seam {
+  stroke: oklch(0.35 0.01 80 / 0.5);
+  stroke-width: 1.5;
+}
+.cover-art[data-kind="garage"] .cover-rail {
+  background: oklch(0.25 0.005 80);
+}
+
+.cover-fold {
+  background: linear-gradient(180deg, oklch(0.9 0.025 75), oklch(0.86 0.03 72));
+}
+.cover-fold:nth-child(even of .cover-fold) {
+  background: linear-gradient(180deg, oklch(0.8 0.03 72), oklch(0.76 0.03 70));
+}

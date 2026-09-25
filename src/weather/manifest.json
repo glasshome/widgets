@@ -20,6 +20,10 @@
     {
       "domain": "weather",
       "access": "read"
+    },
+    {
+      "domain": "sun",
+      "access": "read"
     }
   ],
   "schema": {

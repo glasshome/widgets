@@ -68,42 +68,42 @@ describe("formatMoney", () => {
 describe("describeFlow", () => {
   test("exporting from solar that covers home plus export", () => {
     expect(describeFlow({ solarW: 4000, homeW: 1000, gridExportW: 1500 })).toEqual({
-      headline: "Sending 1.5 kW to the grid",
+      headline: "1.5 kW to the grid",
       detail: "Solar is covering everything",
     });
   });
 
   test("exporting with no solar does not credit solar", () => {
     const desc = describeFlow({ gridExportW: 1500 });
-    expect(desc.headline).toBe("Sending 1.5 kW to the grid");
+    expect(desc.headline).toBe("1.5 kW to the grid");
     expect(desc.detail).toBe("Pushing power back to the grid");
     expect(desc.detail).not.toContain("Solar");
   });
 
   test("exporting from a discharging battery attributes the battery", () => {
     const desc = describeFlow({ batteryDischargeW: 1500, gridExportW: 1500 });
-    expect(desc.headline).toBe("Sending 1.5 kW to the grid");
+    expect(desc.headline).toBe("1.5 kW to the grid");
     expect(desc.detail).toBe("Discharging the battery to the grid");
     expect(desc.detail).not.toContain("Solar");
   });
 
   test("solar powering the home, grid untouched", () => {
     expect(describeFlow({ solarW: 2000, homeW: 1500 })).toEqual({
-      headline: "Solar is powering your home",
+      headline: "Running on solar",
       detail: "Grid untouched",
     });
   });
 
   test("solar powering the home while charging the battery", () => {
     expect(describeFlow({ solarW: 3000, homeW: 1500, batteryChargeW: 800 })).toEqual({
-      headline: "Solar is powering your home",
+      headline: "Running on solar",
       detail: "Charging the battery",
     });
   });
 
   test("solar and battery powering the home", () => {
     expect(describeFlow({ solarW: 1700, batteryDischargeW: 1000, homeW: 2700 })).toEqual({
-      headline: "Solar and battery are powering your home",
+      headline: "Solar and battery",
       detail: "Grid untouched",
     });
   });
@@ -117,21 +117,21 @@ describe("describeFlow", () => {
 
   test("solar and grid together", () => {
     expect(describeFlow({ solarW: 1000, gridImportW: 500, homeW: 2000 })).toEqual({
-      headline: "Solar and grid are powering your home",
+      headline: "Solar and grid",
       detail: "Solar is covering part of it",
     });
   });
 
   test("importing from the grid", () => {
     expect(describeFlow({ gridImportW: 600 })).toEqual({
-      headline: "Using 600 W from the grid",
+      headline: "600 W from the grid",
       detail: "",
     });
   });
 
   test("grid import notes resting solar at night", () => {
     expect(describeFlow({ gridImportW: 600, solarSleeping: true })).toEqual({
-      headline: "Using 600 W from the grid",
+      headline: "600 W from the grid",
       detail: "Solar is resting until sunrise",
     });
   });
@@ -149,7 +149,7 @@ describe("describeFlow", () => {
 
   test("export takes priority over solar-powering", () => {
     expect(describeFlow({ solarW: 3000, gridExportW: 1000, homeW: 1000 }).headline).toBe(
-      "Sending 1.0 kW to the grid",
+      "1.0 kW to the grid",
     );
   });
 

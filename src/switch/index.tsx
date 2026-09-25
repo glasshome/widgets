@@ -141,8 +141,33 @@ export default defineWidget<SwitchConfig>({
     sdkVersion: "^1.0.0",
     examples: [
       {
+        label: "Off",
+        size: {
+          w: 1,
+          h: 1,
+        },
+        config: {
+          entityIds: ["switch.coffee_machine"],
+          title: "Coffee Machine",
+        },
+      },
+      {
+        label: "On",
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          entityIds: ["switch.fan_living_room"],
+          title: "Living Room Fan",
+        },
+      },
+      {
         label: "Switches",
-        size: { w: 2, h: 2 },
+        size: {
+          w: 2,
+          h: 2,
+        },
         config: {
           entityIds: ["switch.coffee_machine", "switch.fan_living_room"],
           title: "Switches",

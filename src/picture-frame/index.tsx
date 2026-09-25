@@ -5,7 +5,8 @@ import {
   CarouselDots,
   CarouselItem,
   defineWidget,
-  imageUrl,
+  imageSrc,
+  presetValue,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -14,16 +15,27 @@ import {
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { Tile, TileChip } from "../common/tile/tile";
 import { FrameContent } from "./frame-content";
-import { FrameEmpty } from "./frame-empty";
+import { SAMPLES } from "./samples";
 import { resolveSlideshow } from "./slideshow";
 import { configSchema, type PictureFrameConfig } from "./types";
+import "./picture-frame.css";
+
+const SAMPLE_CONFIG: PictureFrameConfig = { pictures: [], fit: "cover", interval: "30s" };
+
+const picked = (...names: string[]): PictureFrameConfig => ({
+  ...SAMPLE_CONFIG,
+  pictures: names.map((name) => ({ image: presetValue(name) })),
+});
 
 function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
-  const sources = createMemo(() => props.config.pictures.map((p) => ({ src: imageUrl(p.image) })));
+  const sources = createMemo(() =>
+    props.config.pictures.map((p) => ({ src: imageSrc(p.image, SAMPLES) })),
+  );
 
   const [failed, setFailed] = createSignal<ReadonlySet<string>>(new Set());
   const chosenIds = createMemo(() => props.config.pictures.map((p) => p.image ?? "").join("|"));
@@ -35,20 +47,16 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const view = createMemo(() =>
     resolveSlideshow({
       pictures: sources(),
+      samples: Object.values(SAMPLES).map((sample) => sample.src),
       fit: props.config.fit,
       interval: props.config.interval,
       failed: failed(),
     }),
   );
 
-  const slideshow = createMemo(() => {
-    const v = view();
-    return v.kind === "slideshow" ? v : undefined;
-  });
-
   const [api, setApi] = createSignal<CarouselApi>();
   createEffect(() => {
-    const count = slideshow()?.slides.length ?? 0;
+    const count = view().slides.length;
     if (count > 0) api()?.reInit();
   });
 
@@ -62,58 +70,60 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
   onCleanup(gestures.dispose);
 
-  const empty = createMemo(() => {
-    const v = view();
-    return v.kind === "empty" ? v : undefined;
-  });
-
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass">
-        <Show when={empty()}>{(e) => <FrameEmpty title={e().title} message={e().message} />}</Show>
-        <Show when={slideshow()}>
-          {(show) => (
+        <Tile>
+          <div class="frame-layer">
             <Show
-              when={show().slides.length > 1}
+              when={view().slides.length > 1}
               fallback={
-                <Show when={show().slides[0]}>
+                <Show when={view().slides[0]}>
                   {(slide) => (
                     <FrameContent
                       src={slide().src}
-                      objectFit={show().objectFit}
+                      objectFit={view().objectFit}
                       onFailed={() => markFailed(slide().src)}
                     />
                   )}
                 </Show>
               }
             >
-              <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
-                <Carousel
-                  class="h-full"
-                  transition="fade"
-                  autoplay={show().autoplay}
-                  opts={{ loop: true }}
-                  setApi={setApi}
-                >
-                  <CarouselContent class="h-full">
-                    <For each={show().slides}>
-                      {(slide) => (
-                        <CarouselItem class="relative h-full">
-                          <FrameContent
-                            src={slide.src}
-                            objectFit={show().objectFit}
-                            onFailed={() => markFailed(slide.src)}
-                          />
-                        </CarouselItem>
-                      )}
-                    </For>
-                  </CarouselContent>
-                  <CarouselDots class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/70 to-transparent pt-6 pb-2" />
-                </Carousel>
-              </div>
+              <Carousel
+                class="h-full"
+                transition="fade"
+                autoplay={view().autoplay}
+                opts={{ loop: true }}
+                setApi={setApi}
+              >
+                <CarouselContent class="h-full">
+                  <For each={view().slides}>
+                    {(slide) => (
+                      <CarouselItem class="relative h-full">
+                        <FrameContent
+                          src={slide.src}
+                          objectFit={view().objectFit}
+                          onFailed={() => markFailed(slide.src)}
+                        />
+                      </CarouselItem>
+                    )}
+                  </For>
+                </CarouselContent>
+                <CarouselDots class="frame-dots absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/70 to-transparent pt-6 pb-2" />
+              </Carousel>
             </Show>
-          )}
-        </Show>
+          </div>
+          <Show when={view().note}>
+            {(note) => (
+              <div class="frame-note">
+                <TileChip icon="mdi:image-multiple-outline">
+                  {note().label}
+                  <span class="frame-note-hint"> · {note().hint}</span>
+                </TileChip>
+              </div>
+            )}
+          </Show>
+        </Tile>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
@@ -136,11 +146,24 @@ export default defineWidget<PictureFrameConfig>({
     name: "Picture Frame",
     description: "Your own photos on the dashboard, one at a time or as a slideshow",
     icon: "mdi:image-frame",
-    configVersion: 1,
+    configVersion: 2,
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 8, h: 6 },
+    maxSize: { w: 12, h: 12 },
     defaultSize: { w: 2, h: 2 },
     sdkVersion: "^1.11.2",
+    examples: [
+      { label: "Sample photos", size: { w: 2, h: 2 }, config: SAMPLE_CONFIG },
+      { label: "Your photo", size: { w: 3, h: 3 }, config: picked("dog") },
+      { label: "Wide", size: { w: 4, h: 2 }, config: picked("coast", "meadow") },
+      {
+        label: "Portrait, whole picture",
+        size: { w: 3, h: 3 },
+        config: { ...picked("forest"), fit: "contain" },
+      },
+      { label: "Tall", size: { w: 2, h: 4 }, config: picked("forest") },
+      { label: "Large", size: { w: 4, h: 4 }, config: picked("meadow", "dog") },
+      { label: "Small", size: { w: 1, h: 1 }, config: picked("dog") },
+    ],
   },
   configSchema,
   component: PictureFrameWidget,

@@ -84,19 +84,19 @@ export function describeFlow(state: FlowState, locale = "en-US"): FlowDescriptio
       detail = "Discharging the battery to the grid";
     }
     return {
-      headline: `Sending ${formatPower(gridExport, locale)} to the grid`,
+      headline: `${formatPower(gridExport, locale)} to the grid`,
       detail,
     };
   }
   if (solar >= home && solarActive && !batteryDischarging) {
     return {
-      headline: "Solar is powering your home",
+      headline: "Running on solar",
       detail: batteryCharging ? "Charging the battery" : "Grid untouched",
     };
   }
   if (solarActive && batteryDischarging && !importing) {
     return {
-      headline: "Solar and battery are powering your home",
+      headline: "Solar and battery",
       detail: "Grid untouched",
     };
   }
@@ -105,13 +105,13 @@ export function describeFlow(state: FlowState, locale = "en-US"): FlowDescriptio
   }
   if (solarActive && importing) {
     return {
-      headline: "Solar and grid are powering your home",
+      headline: "Solar and grid",
       detail: "Solar is covering part of it",
     };
   }
   if (importing) {
     return {
-      headline: `Using ${formatPower(gridImport, locale)} from the grid`,
+      headline: `${formatPower(gridImport, locale)} from the grid`,
       detail: state.solarSleeping ? "Solar is resting until sunrise" : "",
     };
   }

@@ -1,0 +1,40 @@
+.frame-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.frame-photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.frame-photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.frame-photo > .frame-fill {
+  object-fit: cover;
+  filter: blur(20px) saturate(1.3) brightness(0.85);
+  transform: scale(1.2);
+}
+.frame-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  pointer-events: none;
+}
+@container widget (max-width: 239px) {
+  .frame-note-hint {
+    display: none;
+  }
+}
+@container widget (max-width: 139px) or (max-height: 99px) {
+  .frame-note,
+  .frame-dots {
+    display: none;
+  }
+}

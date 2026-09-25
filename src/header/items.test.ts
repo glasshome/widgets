@@ -33,6 +33,21 @@ describe("resolveChip", () => {
     expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [kitchenOn])).toBeNull();
   });
 
+  test("doors, gates, garage doors and unclassed covers never join the covers chip's one-tap close", () => {
+    const covers = [
+      { id: "cover.blind", state: "open", deviceClass: "blind" },
+      { id: "cover.unclassed", state: "open" },
+      { id: "cover.garage", state: "open", deviceClass: "garage" },
+      { id: "cover.gate", state: "open", deviceClass: "gate" },
+      { id: "cover.patio", state: "open", deviceClass: "door" },
+    ];
+    expect(resolveChip({ shows: "covers" }, covers)).toMatchObject({
+      value: "1",
+      ids: ["cover.blind"],
+    });
+    expect(resolveChip({ shows: "covers" }, covers.slice(1))).toBeNull();
+  });
+
   test("every counting kind names a real domain", () => {
     for (const domain of Object.values(WATCH_DOMAIN)) {
       expect(DOMAIN_SPECS[domain]).toBeDefined();

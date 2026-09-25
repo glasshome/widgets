@@ -68,7 +68,7 @@ export function getSensorIcon(deviceClass: string | null): string {
 const COVER_ICONS: Record<string, [string, string]> = {
   // [open_icon, closed_icon]
   blind: ["mdi:blinds-open", "mdi:blinds"],
-  curtain: ["mdi:curtains-open", "mdi:curtains"],
+  curtain: ["mdi:curtains", "mdi:curtains-closed"],
   garage: ["mdi:garage-open", "mdi:garage"],
   gate: ["mdi:gate-open", "mdi:gate"],
   shutter: ["mdi:window-shutter-open", "mdi:window-shutter"],

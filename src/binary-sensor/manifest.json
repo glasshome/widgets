@@ -39,17 +39,115 @@
         "items": {
           "type": "string"
         }
+      },
+      "art": {
+        "default": "device",
+        "title": "Sensor picture",
+        "labels": {
+          "device": "Match Home Assistant",
+          "door": "Door",
+          "window": "Window",
+          "garage": "Garage door",
+          "none": "No picture"
+        },
+        "icons": {
+          "device": "mdi:home-assistant",
+          "door": "mdi:door",
+          "window": "mdi:window-open-variant",
+          "garage": "mdi:garage-variant",
+          "none": "mdi:image-off-outline"
+        },
+        "type": "string",
+        "enum": [
+          "device",
+          "door",
+          "window",
+          "garage",
+          "none"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "art"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "art": "device"
   },
   "examples": [
+    {
+      "label": "Door",
+      "size": {
+        "w": 1,
+        "h": 1
+      },
+      "config": {
+        "entityIds": [
+          "binary_sensor.front_door"
+        ],
+        "title": "Front Door",
+        "art": "device"
+      }
+    },
+    {
+      "label": "Door open",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "binary_sensor.patio_door"
+        ],
+        "title": "Patio Door",
+        "art": "door"
+      }
+    },
+    {
+      "label": "Window closed",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "binary_sensor.window_bedroom"
+        ],
+        "title": "Bedroom",
+        "art": "window"
+      }
+    },
+    {
+      "label": "Garage closed",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "entityIds": [
+          "binary_sensor.front_door"
+        ],
+        "title": "Garage",
+        "art": "garage"
+      }
+    },
+    {
+      "label": "Motion",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "binary_sensor.motion_kitchen"
+        ],
+        "title": "Kitchen",
+        "art": "device"
+      }
+    },
     {
       "label": "Contact & Motion",
       "size": {
@@ -62,8 +160,10 @@
           "binary_sensor.motion_hallway",
           "binary_sensor.window_bedroom"
         ],
-        "title": "Front Door"
+        "title": "Front Door",
+        "art": "device"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

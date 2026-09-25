@@ -45,7 +45,6 @@ interface Lamp {
   beams: Beam[];
   pool?: { x: number; y: number; rx: number };
   bloom: number;
-  flip?: boolean;
 }
 
 const LAMPS: Record<LampKind, Lamp> = {
@@ -81,16 +80,15 @@ const LAMPS: Record<LampKind, Lamp> = {
   },
   desk: {
     src: desk,
-    w: 295,
+    w: 293,
     h: 360,
-    emit: [{ x: 85, y: 24, rx: 12, ry: 10, core: 1 }],
-    beams: [{ x: 84, y: 26, angle: -36, spread: 46, half: 30, length: 300, floor: true }],
-    flip: true,
+    emit: [{ x: 15, y: 24, rx: 12, ry: 10, core: 1 }],
+    beams: [{ x: 16, y: 26, angle: 36, spread: 46, half: 30, length: 300, floor: true }],
     bloom: 1.2,
   },
   mushroom: {
     src: mushroom,
-    w: 378,
+    w: 256,
     h: 360,
     emit: [
       { x: 50, y: 22, rx: 46, ry: 22, core: 0.8 },
@@ -102,7 +100,7 @@ const LAMPS: Record<LampKind, Lamp> = {
   },
   ceiling: {
     src: ceiling,
-    w: 607,
+    w: 610,
     h: 360,
     emit: [
       { x: 50, y: 76, rx: 62, ry: 30, core: 1 },
@@ -115,10 +113,10 @@ const LAMPS: Record<LampKind, Lamp> = {
     src: sconce,
     w: 361,
     h: 360,
-    emit: [{ x: 73, y: 34, rx: 34, ry: 40 }],
+    emit: [{ x: 27, y: 34, rx: 34, ry: 40 }],
     beams: [
-      { x: 73, y: 3, angle: 180, spread: 34, half: 70, length: 170 },
-      { x: 72, y: 47, angle: 0, spread: 40, half: 26, length: 190 },
+      { x: 27, y: 3, angle: 180, spread: 34, half: 70, length: 170 },
+      { x: 28, y: 47, angle: 0, spread: 40, half: 26, length: 190 },
     ],
     bloom: 1.4,
   },
@@ -155,19 +153,29 @@ function beamGeometry(lamp: Lamp, b: Beam) {
   return { ax, ay, ex, ey, far, length, points: pts.map((p) => p.join(",")).join(" ") };
 }
 
-const KIND_WORDS: [LampKind, RegExp][] = [
-  ["desk", /desk|reading|study|office/i],
-  ["floor", /floor|living|lounge/i],
-  ["pendant", /pendant|kitchen|dining|island/i],
-  ["mushroom", /bedside|night|bedroom|nursery/i],
-  ["sconce", /wall|sconce|hall|entry|stair/i],
-  ["ceiling", /ceiling|main|overhead/i],
-  ["bulb", /bulb|strip|party|rgb|color|colour/i],
-];
+export const LAMP_LABELS: Record<LampKind, string> = {
+  table: "Table lamp",
+  floor: "Floor lamp",
+  pendant: "Pendant",
+  desk: "Desk lamp",
+  mushroom: "Mushroom lamp",
+  ceiling: "Ceiling light",
+  sconce: "Wall light",
+  bulb: "Bare bulb",
+};
 
-export function lampKind(name: string): LampKind {
-  return KIND_WORDS.find(([, re]) => re.test(name))?.[0] ?? "table";
-}
+export const LAMP_ICONS: Record<LampKind, string> = {
+  table: "mdi:lamp",
+  floor: "mdi:floor-lamp",
+  pendant: "mdi:ceiling-light",
+  desk: "mdi:desk-lamp",
+  mushroom: "mdi:mushroom-outline",
+  ceiling: "mdi:ceiling-light-flat",
+  sconce: "mdi:wall-sconce-round",
+  bulb: "mdi:lightbulb-filament",
+};
+
+export const LAMP_KINDS = Object.keys(LAMP_LABELS) as LampKind[];
 
 export function LampArt(props: { kind: LampKind; on: boolean; brightness: number; color: string }) {
   const lamp = () => LAMPS[props.kind];
@@ -178,11 +186,11 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
     <div
       class="lamp-art"
       data-on={props.on || undefined}
-      data-flip={lamp().flip || undefined}
       style={{
         "--lamp-color": props.color,
         "--lamp-level": level(),
         "--lamp-mask": `url("${lamp().src}")`,
+        "--art-aspect": lamp().w / lamp().h,
       }}
     >
       <Show when={main()}>
@@ -277,7 +285,19 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
             .join(", "),
         }}
       />
-      <div class="lamp-cast" />
+      <Show when={main()}>
+        {(e) => (
+          <div
+            class="lamp-cast"
+            style={{
+              "--cast-x": `${e().x}%`,
+              "--cast-y": `${e().y}%`,
+              "--cast-rx": `${e().rx * 1.5}%`,
+              "--cast-ry": `${e().ry * 1.5}%`,
+            }}
+          />
+        )}
+      </Show>
     </div>
   );
 }

@@ -183,8 +183,47 @@ export default defineWidget<SensorConfig>({
     sdkVersion: "^1.0.0",
     examples: [
       {
+        label: "Outdoor",
+        size: {
+          w: 2,
+          h: 1,
+        },
+        config: {
+          entityIds: ["sensor.temperature_outdoor"],
+          title: "Outside",
+          aggregationType: "mean",
+        },
+      },
+      {
+        label: "Temperature",
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          entityIds: ["sensor.temperature_living"],
+          title: "Living Room",
+          aggregationType: "mean",
+        },
+      },
+      {
+        label: "Power",
+        size: {
+          w: 2,
+          h: 2,
+        },
+        config: {
+          entityIds: ["sensor.power_consumption"],
+          title: "Power",
+          aggregationType: "mean",
+        },
+      },
+      {
         label: "Climate Sensors",
-        size: { w: 2, h: 2 },
+        size: {
+          w: 2,
+          h: 2,
+        },
         config: {
           entityIds: [
             "sensor.temperature_living",

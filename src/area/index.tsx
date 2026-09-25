@@ -4,6 +4,7 @@ import {
   defineWidget,
   field,
   type Infer,
+  presetValue,
   useArea,
   useService,
   useWidgetContext,
@@ -16,6 +17,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { ROOM_PRESETS } from "../common/art/room";
 import { type AreaAction, AreaContent } from "./area-content";
 import { AreaControls } from "./area-controls";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
@@ -25,7 +27,8 @@ const configSchema = defineConfig({
   areaId: field.area(),
   image: field.image({
     title: "Photo",
-    description: "Your own photo of the room, shown instead of the built-in one.",
+    description: "A room picture, or a photo of your own.",
+    presets: ROOM_PRESETS,
   }),
 });
 type AreaConfig = Infer<typeof configSchema>;
@@ -33,7 +36,7 @@ type AreaConfig = Infer<typeof configSchema>;
 function AreaWidget(props: { config: AreaConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
-  const { turnOn, turnOff } = useService();
+  const { turnOn, turnOff, callService } = useService();
 
   const area = useArea(() => props.config.areaId ?? "");
 
@@ -72,11 +75,19 @@ function AreaWidget(props: { config: AreaConfig }) {
     Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
   };
 
+  const toggleCovers = (covers: { id: string; state: string }[], open: boolean) => {
+    const ids = covers
+      .filter((c) => c.state !== "unavailable" && c.state !== "unknown")
+      .map((c) => c.id);
+    if (ids.length === 0) return;
+    void callService("cover", open ? "close_cover" : "open_cover", {}, { entity_id: ids });
+  };
+
   const onAction = (action: AreaAction) => {
     const g = groups();
     const m = metrics();
     if (action === "lights") toggleLights();
-    else if (action === "covers") toggleGroup(g.covers, m.coversOpen > 0);
+    else if (action === "covers") toggleCovers(g.covers, m.coversOpen > 0);
     else if (action === "switches")
       toggleGroup(
         g.switches,
@@ -161,7 +172,7 @@ function AreaWidget(props: { config: AreaConfig }) {
 export default defineWidget<AreaConfig>({
   manifest: {
     name: "Area",
-    configVersion: 2,
+    configVersion: 1,
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
@@ -171,12 +182,28 @@ export default defineWidget<AreaConfig>({
       {
         label: "Living Room",
         size: { w: 3, h: 3 },
-        config: { areaId: "living_room", title: "Living Room" },
+        config: { areaId: "living_room", title: "Living Room", image: presetValue("living") },
       },
-      { label: "Bedroom", size: { w: 3, h: 3 }, config: { areaId: "bedroom" } },
-      { label: "Kitchen", size: { w: 3, h: 3 }, config: { areaId: "kitchen" } },
-      { label: "Entry", size: { w: 3, h: 3 }, config: { areaId: "entry" } },
-      { label: "Garage", size: { w: 3, h: 3 }, config: { areaId: "garage" } },
+      {
+        label: "Bedroom",
+        size: { w: 3, h: 3 },
+        config: { areaId: "bedroom", image: presetValue("bedroom") },
+      },
+      {
+        label: "Kitchen",
+        size: { w: 3, h: 3 },
+        config: { areaId: "kitchen", image: presetValue("kitchen") },
+      },
+      {
+        label: "Entry",
+        size: { w: 3, h: 3 },
+        config: { areaId: "entry", image: presetValue("hallway") },
+      },
+      {
+        label: "Garage",
+        size: { w: 3, h: 3 },
+        config: { areaId: "garage", image: presetValue("garage") },
+      },
     ],
   },
   configSchema,

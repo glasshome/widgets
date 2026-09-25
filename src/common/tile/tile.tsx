@@ -7,7 +7,7 @@ import {
   ToggleGroupItem,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { children, For, type JSX, Show } from "solid-js";
+import { children, createEffect, createMemo, createSignal, For, type JSX, on, Show } from "solid-js";
 import "./tile.css";
 
 const INNER = "rounded-[var(--tile-radius-inner)]";
@@ -77,13 +77,19 @@ export function TileHero(props: {
 }) {
   const sub = children(() => props.sub);
   const art = children(() => props.art);
+  // A new state ("Locked" to "Unlocked", "Off" to "80%") rises in; a reading whose digits tick does not.
+  const wording = createMemo(() =>
+    typeof props.value === "string" ? props.value.replace(/[\d\s.,:/%°+\-−]/g, "") : undefined,
+  );
+  const [turn, setTurn] = createSignal<"a" | "b" | undefined>();
+  createEffect(on(wording, () => setTurn((t) => (t === "a" ? "b" : "a")), { defer: true }));
   return (
     <div class={props.class ? `tile-hero ${props.class}` : "tile-hero"}>
       <div class="tile-reading">
         <Show when={sub()}>
           <span class="tile-sub">{sub()}</span>
         </Show>
-        <span class="tile-value">
+        <span class="tile-value" data-turn={turn()}>
           {props.value}
           <Show when={props.unit}>
             <span class="tile-unit" data-degree={props.unit === "°" || undefined}>

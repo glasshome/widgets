@@ -17,11 +17,25 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import doorSwing from "../common/art/assets/door-swing.strip";
+import { ArtStrip } from "../common/art/strip";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import boltSlide from "./assets/bolt-slide.strip";
+import gateSwing from "./assets/gate-swing.strip";
+
+const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
+
+const ART = { door: doorSwing, gate: gateSwing, smart: boltSlide };
 
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("lock"),
+  art: field.choice(["door", "gate", "smart"], {
+    title: "Lock picture",
+    default: "door",
+    labels: { door: "Front door", gate: "Garden gate", smart: "Smart lock" },
+    icons: { door: "mdi:door", gate: "mdi:gate", smart: "mdi:lock-smart" },
+  }),
 });
 
 type LockConfig = Infer<typeof configSchema>;
@@ -50,6 +64,8 @@ function LockWidget(props: { config: LockConfig }) {
     if (ents.length === 0) return false;
     return ents.some((e) => e.state === "locked");
   });
+
+  const anyUnlocked = () => entities().some((e) => OPEN_STATES.has(e.state));
 
   const name = () =>
     props.config.title ||
@@ -108,7 +124,10 @@ function LockWidget(props: { config: LockConfig }) {
               active={isLocked()}
               count={entities().length}
             />
-            <TileHero value={heroValue()} />
+            <TileHero
+              value={heroValue()}
+              art={<ArtStrip strip={ART[props.config.art]} end={anyUnlocked()} />}
+            />
           </Tile>
         </Show>
       </Widget>
@@ -136,12 +155,32 @@ export default defineWidget<LockConfig>({
     icon: "mdi:lock",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
+    configVersion: 1,
     sdkVersion: "^1.0.0",
     examples: [
       {
-        label: "Locks",
+        label: "Front door",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["lock.front_door_lock", "lock.back_door_lock"], title: "Locks" },
+        config: { entityIds: ["lock.front_door_lock"], title: "Front Door", art: "door" },
+      },
+      {
+        label: "Locked",
+        size: { w: 1, h: 1 },
+        config: { entityIds: ["lock.front_door_lock"], title: "Front Door", art: "door" },
+      },
+      {
+        label: "Unlocked",
+        size: { w: 2, h: 2 },
+        config: { entityIds: ["lock.side_gate"], title: "Side Gate", art: "gate" },
+      },
+      {
+        label: "Locks",
+        size: { w: 3, h: 2 },
+        config: {
+          entityIds: ["lock.front_door_lock", "lock.back_door_lock"],
+          title: "Locks",
+          art: "smart",
+        },
       },
     ],
   },

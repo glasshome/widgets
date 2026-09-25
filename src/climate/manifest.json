@@ -39,15 +39,40 @@
         "items": {
           "type": "string"
         }
+      },
+      "art": {
+        "default": "thermostat",
+        "title": "Device picture",
+        "labels": {
+          "thermostat": "Thermostat",
+          "radiator": "Radiator",
+          "ac": "Air conditioner",
+          "heatpump": "Heat pump"
+        },
+        "icons": {
+          "thermostat": "mdi:thermostat",
+          "radiator": "mdi:radiator",
+          "ac": "mdi:air-conditioner",
+          "heatpump": "mdi:heat-pump-outline"
+        },
+        "type": "string",
+        "enum": [
+          "thermostat",
+          "radiator",
+          "ac",
+          "heatpump"
+        ]
       }
     },
     "required": [
-      "entityIds"
+      "entityIds",
+      "art"
     ],
     "additionalProperties": false
   },
   "defaultConfig": {
-    "entityIds": []
+    "entityIds": [],
+    "art": "thermostat"
   },
   "examples": [
     {
@@ -60,8 +85,52 @@
         "entityIds": [
           "climate.living_room_thermostat"
         ],
-        "title": "Thermostat"
+        "title": "Thermostat",
+        "art": "thermostat"
+      }
+    },
+    {
+      "label": "Radiator heating",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "climate.living_room_thermostat"
+        ],
+        "title": "Living Room",
+        "art": "radiator"
+      }
+    },
+    {
+      "label": "Air conditioner off",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "entityIds": [
+          "climate.bedroom_ac"
+        ],
+        "title": "Bedroom",
+        "art": "ac"
+      }
+    },
+    {
+      "label": "Heat pump",
+      "size": {
+        "w": 4,
+        "h": 3
+      },
+      "config": {
+        "entityIds": [
+          "climate.living_room_thermostat"
+        ],
+        "title": "Heat Pump",
+        "art": "heatpump"
       }
     }
-  ]
+  ],
+  "configVersion": 1
 }

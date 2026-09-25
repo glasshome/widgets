@@ -129,6 +129,46 @@
         ],
         "priceEntity": []
       }
+    },
+    {
+      "label": "Okay time, pricey",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "title": "Electricity Grid",
+        "co2IntensityEntity": [
+          "sensor.electricity_maps_co2_intensity_de"
+        ],
+        "fossilFuelEntity": [
+          "sensor.electricity_maps_fossil_fuel_percentage_de"
+        ],
+        "priceEntity": [
+          "sensor.nordpool_current_price"
+        ],
+        "cheapBelow": 0.15
+      }
+    },
+    {
+      "label": "Wait if you can",
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "config": {
+        "title": "Electricity Grid",
+        "co2IntensityEntity": [
+          "sensor.electricity_maps_co2_intensity_pl"
+        ],
+        "fossilFuelEntity": [
+          "sensor.electricity_maps_fossil_fuel_percentage_pl"
+        ],
+        "priceEntity": [
+          "sensor.nordpool_current_price"
+        ],
+        "cheapBelow": 0.2
+      }
     }
   ],
   "defaultSize": {
