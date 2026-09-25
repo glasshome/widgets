@@ -1,3 +1,5 @@
+import { coverJoinsBulk } from "../common/group";
+
 export interface EntitySnapshot {
   id: string;
   state: string;
@@ -14,8 +16,8 @@ export interface DomainSpec {
   tone: string;
   label: string;
   service: { domain: string; name: string };
-  /** Device classes left out, since doors, gates and garage doors never join a one-tap bulk action; an unclassed entity could be one, so it is left out too. */
-  skipClasses?: string[];
+  /** Members that may move in this one-tap bulk action; every member when unset. */
+  joinsBulk?: (entity: EntitySnapshot) => boolean;
 }
 
 /** A counting chip is named after what it counts. */
@@ -48,7 +50,7 @@ export const DOMAIN_SPECS: Record<string, DomainSpec> = {
     tone: "text-primary",
     label: "Close covers",
     service: { domain: "cover", name: "close_cover" },
-    skipClasses: ["door", "gate", "garage"],
+    joinsBulk: coverJoinsBulk,
   },
   switch: {
     activeState: "on",
@@ -102,7 +104,7 @@ export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): Resol
     const only = "only" in chip ? (chip.only ?? []) : [];
     const ids = entities
       .filter((e) => domainOf(e.id) === domain && e.state === spec.activeState)
-      .filter((e) => !spec.skipClasses || (!!e.deviceClass && !spec.skipClasses.includes(e.deviceClass)))
+      .filter((e) => spec.joinsBulk?.(e) ?? true)
       .filter((e) => only.length === 0 || only.includes(e.id))
       .map((e) => e.id);
     if (ids.length === 0) return null;

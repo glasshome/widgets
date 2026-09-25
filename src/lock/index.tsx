@@ -19,9 +19,11 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import { ArtStrip } from "../common/art/strip";
+import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
+import { LockControls } from "./controls";
 
 const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
 
@@ -59,13 +61,8 @@ function LockWidget(props: { config: LockConfig }) {
 
   const { callService } = useService();
 
-  const isLocked = createMemo(() => {
-    const ents = entities();
-    if (ents.length === 0) return false;
-    return ents.some((e) => e.state === "locked");
-  });
-
-  const anyUnlocked = () => entities().some((e) => OPEN_STATES.has(e.state));
+  const lockedCount = createMemo(() => entities().filter((e) => e.state === "locked").length);
+  const isLocked = createMemo(() => count() > 0 && lockedCount() === count());
 
   const name = () =>
     props.config.title ||
@@ -73,19 +70,27 @@ function LockWidget(props: { config: LockConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     "Lock";
-  const heroValue = () => {
-    if (count() > 1) return `${entities().filter((e) => e.state === "locked").length}/${count()}`;
-    return isLocked() ? "Locked" : "Unlocked";
-  };
+  const heroValue = () => (isLocked() ? "Locked" : "Unlocked");
+  const eyebrow = () =>
+    count() > 1
+      ? groupLine(count() - lockedCount(), count(), { active: "unlocked", rest: "locked" })
+      : "Lock";
 
+  // A group never unlocks in one tap: it locks what is open, and once all are locked the dialog unlocks one by one.
   const handleTap = async () => {
+    if (count() > 1 && isLocked()) {
+      openDialog();
+      return;
+    }
     if (isToggling()) return;
     setIsToggling(true);
     const timeout = setTimeout(() => setIsToggling(false), 5000);
     try {
-      const service = isLocked() ? "unlock" : "lock";
-      for (const e of entities()) {
-        await callService("lock", service, {}, { entity_id: e.id });
+      if (isLocked()) {
+        await callService("lock", "unlock", {}, { entity_id: entities().map((e) => e.id) });
+      } else {
+        const open = entities().filter((e) => e.state !== "locked");
+        await callService("lock", "lock", {}, { entity_id: open.map((e) => e.id) });
       }
     } finally {
       clearTimeout(timeout);
@@ -119,14 +124,19 @@ function LockWidget(props: { config: LockConfig }) {
             <TileGlyph icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />
             <TileHead
               icon={isLocked() ? "mdi:lock" : "mdi:lock-open-variant"}
-              eyebrow={count() > 1 ? "Locked" : "Lock"}
+              eyebrow={eyebrow()}
               name={name()}
               active={isLocked()}
               count={entities().length}
             />
             <TileHero
               value={heroValue()}
-              art={<ArtStrip strip={ART[props.config.art]} end={anyUnlocked()} />}
+              art={
+                <ArtStrip
+                  strip={ART[props.config.art]}
+                  end={entities().some((e) => OPEN_STATES.has(e.state))}
+                />
+              }
             />
           </Tile>
         </Show>
@@ -142,6 +152,11 @@ function LockWidget(props: { config: LockConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        controlsContent={
+          <Show when={hasEntities()}>
+            <LockControls entities={entities()} />
+          </Show>
+        }
         debugData={debugData()}
       />
     </>

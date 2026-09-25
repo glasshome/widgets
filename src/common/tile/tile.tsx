@@ -90,15 +90,22 @@ export function TileHero(props: {
   const wording = createMemo(() =>
     typeof props.value === "string" ? props.value.replace(/[\d\s.,:/%°+\-−]/g, "") : undefined,
   );
+  const length = () =>
+    typeof props.value === "string" || typeof props.value === "number"
+      ? String(props.value).length + (props.unit ? 0.5 : 0)
+      : undefined;
   const [turn, setTurn] = createSignal<"a" | "b" | undefined>();
   createEffect(on(wording, () => setTurn((t) => (t === "a" ? "b" : "a")), { defer: true }));
   return (
-    <div class={props.class ? `tile-hero ${props.class}` : "tile-hero"}>
+    <div
+      class={props.class ? `tile-hero ${props.class}` : "tile-hero"}
+      data-art={art() ? "" : undefined}
+    >
       <div class="tile-reading">
         <Show when={sub()}>
           <span class="tile-sub">{sub()}</span>
         </Show>
-        <span class="tile-value" data-turn={turn()}>
+        <span class="tile-value" data-turn={turn()} style={{ "--value-len": length() }}>
           {props.value}
           <Show when={props.unit}>
             <span class="tile-unit" data-degree={props.unit === "°" || undefined}>

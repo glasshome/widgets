@@ -131,6 +131,12 @@
   justify-content: flex-end;
   pointer-events: none;
 }
+/* Beside art a long word ("Unlocked") shrinks to end where the art starts, at about 50cqi; short values keep full size. */
+@container widget (min-width: 180px) and (min-height: 130px) {
+  .tile-hero[data-art] .tile-value {
+    font-size: clamp(18px, min(22cqb, 15cqi, calc(50cqi / (var(--value-len, 1) * 0.56))), 52px);
+  }
+}
 /* Art keeps its shape and clears a state word at its largest (15cqi, about 3.4em); each art sets --art-aspect. */
 .tile .tile-art > * {
   height: min(100%, calc((52cqi - 2 * var(--tile-pad) - var(--tile-gap)) / var(--art-aspect, 1)));

@@ -7,7 +7,6 @@ import {
   isEntityActive,
   useEntities,
   useService,
-  useToggle,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -21,6 +20,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
+import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { LightControls } from "./controls";
 import { brightnessToPercent, hsToCSS } from "./utils";
@@ -42,8 +42,7 @@ function LightWidget(props: { config: LightConfig }) {
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
-  const toggle = useToggle();
-  const { callService } = useService();
+  const { callService, turnOn, turnOff } = useService();
 
   const { emptyState, hasEntities, count, aggregatedData } = useWidgetEntityGroup({
     entities,
@@ -101,7 +100,7 @@ function LightWidget(props: { config: LightConfig }) {
   const handleTap = async () => {
     const ids = entities().map((e) => e.id);
     if (ids.length === 0) return;
-    await toggle(ids);
+    await (isOn() ? turnOff(ids) : turnOn(ids));
   };
 
   const gestures = useWidgetGestures(() => ({
@@ -147,7 +146,7 @@ function LightWidget(props: { config: LightConfig }) {
   const eyebrow = createMemo(() => {
     const total = count();
     if (total <= 1) return "Light";
-    return `${activeCount()} of ${total} on`;
+    return groupLine(activeCount(), total, { active: "on", rest: "off" });
   });
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {

@@ -39,7 +39,6 @@ The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 - Lead with the answer: a number with its unit, or a short verdict ("Good time", "Locked").
 - The small line explains it ("Now 21.8°C", "69% low-carbon").
 - Never show a value twice on one tile.
-- Groups read as a count ("2/3") or their shared state ("Closed").
 - States follow the device class: a door is Open or Closed, motion is Detected or Clear.
 - The degree sign sits raised; other units small at the baseline. No all-caps. Separator " · ".
 
@@ -49,9 +48,20 @@ The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 - A continuous value (brightness, setpoint, volume, speed, position) keeps the full-tile `WidgetSliderFill`. Buttons sit beside it.
 - A stepper never stands alone: sliding already sets the value, so plus and minus appear only next to other controls.
 - A selected segment wears the widget's colour.
-- Doors, gates and garage doors never join a one-tap bulk action.
 - Corners are concentric: shapes flush to the tile edge use `TILE_INNER_RADIUS`, inset shapes the theme corner.
 - Use theme token names (`--card`, `--foreground`, `--muted-foreground`, `--primary`); `--color-*` aliases do not exist in a widget's shadow root.
+
+## Groups
+
+One rule for every tile that holds several entities (`common/group.ts`):
+
+- The value is the state that needs attention when any member is in it ("Unlocked", "Open", "On"), else the resting one ("Locked", "Closed", "Off"). A number that only one member has (speed, position) shows for a single entity only; brightness averages the lights that are on.
+- The small line counts it: "All locked" when every member agrees, "1 of 2 unlocked" otherwise.
+- The tile's colour follows the value.
+- A tap brings every member to one state: towards rest while any is active (lock, close, off), otherwise on or open.
+- A group never unlocks in one tap; once all are locked, the tap opens the dialog, which unlocks door by door.
+- Doors, gates and garage doors never join a one-tap bulk action, and neither does a cover without a device class, since it may be one (`coverJoinsBulk`). A cover group holding one taps into the dialog and has no bulk buttons or slide.
+- A widget that controls one device (climate, media player) picks one entity.
 
 ## Art
 

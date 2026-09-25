@@ -7,7 +7,7 @@ import {
   type Infer,
   isEntityActive,
   useEntities,
-  useToggle,
+  useService,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -19,6 +19,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { groupLine } from "../common/group";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 
 const configSchema = defineConfig({
@@ -45,7 +46,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     },
   });
 
-  const toggle = useToggle();
+  const { turnOn, turnOff } = useService();
 
   const isOn = createMemo(() => {
     const ents = entities();
@@ -53,7 +54,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     return ents.some((e) => isEntityActive(e));
   });
 
-  const _activeCount = createMemo(() => countActiveEntities(entities()));
+  const activeCount = createMemo(() => countActiveEntities(entities()));
 
   const name = () =>
     props.config.title ||
@@ -61,10 +62,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     "Switch";
-  const heroValue = () => {
-    if (count() > 1) return `${entities().filter((e) => e.state === "on").length}/${count()}`;
-    return isOn() ? "On" : "Off";
-  };
+  const heroValue = () => (isOn() ? "On" : "Off");
 
   const handleTap = async () => {
     if (isToggling()) return;
@@ -72,7 +70,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     const timeout = setTimeout(() => setIsToggling(false), 5000);
     try {
       const ids = entities().map((e) => e.id);
-      await toggle(ids);
+      await (isOn() ? turnOff(ids) : turnOn(ids));
     } finally {
       clearTimeout(timeout);
       setIsToggling(false);
@@ -105,7 +103,11 @@ function SwitchWidget(props: { config: SwitchConfig }) {
             <TileGlyph icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />
             <TileHead
               icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"}
-              eyebrow={count() > 1 ? `${count()} switches` : "Switch"}
+              eyebrow={
+                count() > 1
+                  ? groupLine(activeCount(), count(), { active: "on", rest: "off" })
+                  : "Switch"
+              }
               name={name()}
               active={isOn()}
               count={entities().length}

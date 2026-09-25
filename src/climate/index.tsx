@@ -40,7 +40,7 @@ import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
-  entityIds: field.entities("climate"),
+  entityIds: field.entity("climate"),
   art: field.choice(["thermostat", "radiator", "ac", "heatpump"], {
     title: "Device picture",
     default: "thermostat",
@@ -303,7 +303,7 @@ export default defineWidget<ClimateConfig>({
     name: "Climate",
     description: "Climate control with temperature, HVAC modes, and fan control",
     icon: "mdi:thermostat",
-    configVersion: 1,
+    configVersion: 2,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 4, h: 4 },
     sdkVersion: "^1.0.0",
@@ -320,7 +320,11 @@ export default defineWidget<ClimateConfig>({
       {
         label: "Radiator heating",
         size: { w: 3, h: 2 },
-        config: { entityIds: ["climate.living_room_thermostat"], title: "Living Room", art: "radiator" },
+        config: {
+          entityIds: ["climate.living_room_thermostat"],
+          title: "Living Room",
+          art: "radiator",
+        },
       },
       {
         label: "Air conditioner off",
@@ -330,10 +334,19 @@ export default defineWidget<ClimateConfig>({
       {
         label: "Heat pump",
         size: { w: 4, h: 3 },
-        config: { entityIds: ["climate.living_room_thermostat"], title: "Heat Pump", art: "heatpump" },
+        config: {
+          entityIds: ["climate.living_room_thermostat"],
+          title: "Heat Pump",
+          art: "heatpump",
+        },
       },
     ],
   },
   configSchema,
+  // v2 picks one thermostat; a v1 group already showed only its first.
+  migrate: (config) => {
+    const ids = Array.isArray(config.entityIds) ? config.entityIds : [];
+    return { ...config, entityIds: ids.slice(0, 1) };
+  },
   component: ClimateWidget,
 });

@@ -20,6 +20,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
+import { coverJoinsBulk, groupLine } from "../common/group";
 import {
   TILE_INNER_RADIUS,
   Tile,
@@ -119,13 +120,13 @@ function CoverWidget(props: { config: CoverConfig }) {
   const heroValue = () => {
     const sliding = slidePosition();
     if (sliding !== null) return sliding;
-    if (count() > 1) return `${openCount()}/${count()}`;
+    if (count() > 1) return isOpen() ? "Open" : "Closed";
     const pos = position();
     if (pos !== null) return pos;
     return isOpen() ? "Open" : "Closed";
   };
   const eyebrow = () => {
-    if (count() > 1) return "Open";
+    if (count() > 1) return groupLine(openCount(), count(), { active: "open", rest: "closed" });
     const pos = position();
     if (pos === null) return undefined;
     return pos === 0 ? "Closed" : pos === 100 ? "Open" : "Partly open";
@@ -159,32 +160,40 @@ function CoverWidget(props: { config: CoverConfig }) {
     }, 250);
   };
 
-  // cover.toggle: HA picks per entity — closed opens, open/partial closes,
-  // moving with stop support stops.
+  const actsInBulk = () => count() <= 1 || entities().every(coverJoinsBulk);
+
+  // One cover: cover.toggle, which also stops a moving one. A group moves together, towards closed while any is open.
   const handleTap = () => {
+    if (!actsInBulk()) {
+      openDialog();
+      return;
+    }
     const targets = entityIds();
     if (targets.length === 0) return;
-    callService("cover", "toggle", {}, { entity_id: targets });
+    if (count() === 1) callService("cover", "toggle", {}, { entity_id: targets });
+    else callService("cover", isOpen() ? "close_cover" : "open_cover", {}, { entity_id: targets });
   };
 
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
     hold: { action: openDialog },
-    slide: supportsPosition()
-      ? {
-          value: displayPosition() ?? 0,
-          onChange: handlePositionSlide,
-          min: 0,
-          max: 100,
-          orientation: "auto" as const,
-        }
-      : {
-          value: slideDelta(),
-          onChange: handleDirectionalSlide,
-          min: -100,
-          max: 100,
-          orientation: "auto" as const,
-        },
+    slide: !actsInBulk()
+      ? undefined
+      : supportsPosition()
+        ? {
+            value: displayPosition() ?? 0,
+            onChange: handlePositionSlide,
+            min: 0,
+            max: 100,
+            orientation: "auto" as const,
+          }
+        : {
+            value: slideDelta(),
+            onChange: handleDirectionalSlide,
+            min: -100,
+            max: 100,
+            orientation: "auto" as const,
+          },
   }));
   onCleanup(() => {
     gestures.dispose();
@@ -225,39 +234,45 @@ function CoverWidget(props: { config: CoverConfig }) {
               unit={supportsPosition() && count() === 1 ? "%" : undefined}
               art={<CoverArt kind={artKind()} closed={100 - fillValue()} />}
             />
-            <TileControls>
-              <ButtonGroup aria-label="Cover" class="tile-stepper">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label="Open"
-                  class={`tile-control ${TILE_INNER_RADIUS}`}
-                  onClick={() => callService("cover", "open_cover", {}, { entity_id: entityIds() })}
-                >
-                  <Icon icon="mdi:arrow-up" width={18} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label="Stop"
-                  class={`tile-control ${TILE_INNER_RADIUS}`}
-                  onClick={() => callService("cover", "stop_cover", {}, { entity_id: entityIds() })}
-                >
-                  <Icon icon="mdi:stop" width={18} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label="Close"
-                  class={`tile-control ${TILE_INNER_RADIUS}`}
-                  onClick={() =>
-                    callService("cover", "close_cover", {}, { entity_id: entityIds() })
-                  }
-                >
-                  <Icon icon="mdi:arrow-down" width={18} />
-                </Button>
-              </ButtonGroup>
-            </TileControls>
+            <Show when={actsInBulk()}>
+              <TileControls>
+                <ButtonGroup aria-label="Cover" class="tile-stepper">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Open"
+                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    onClick={() =>
+                      callService("cover", "open_cover", {}, { entity_id: entityIds() })
+                    }
+                  >
+                    <Icon icon="mdi:arrow-up" width={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Stop"
+                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    onClick={() =>
+                      callService("cover", "stop_cover", {}, { entity_id: entityIds() })
+                    }
+                  >
+                    <Icon icon="mdi:stop" width={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Close"
+                    class={`tile-control ${TILE_INNER_RADIUS}`}
+                    onClick={() =>
+                      callService("cover", "close_cover", {}, { entity_id: entityIds() })
+                    }
+                  >
+                    <Icon icon="mdi:arrow-down" width={18} />
+                  </Button>
+                </ButtonGroup>
+              </TileControls>
+            </Show>
           </Tile>
         </Show>
       </Widget>

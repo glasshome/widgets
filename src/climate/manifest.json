@@ -34,7 +34,8 @@
       "entityIds": {
         "default": [],
         "domain": "climate",
-        "title": "Entities",
+        "title": "Entity",
+        "singleSelect": true,
         "type": "array",
         "items": {
           "type": "string"
@@ -132,5 +133,5 @@
       }
     }
   ],
-  "configVersion": 1
+  "configVersion": 2
 }

@@ -7,7 +7,6 @@ import {
   isEntityActive,
   useEntities,
   useService,
-  useToggle,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -20,14 +19,8 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import {
-  Tile,
-  TileChoice,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-} from "../common/tile/tile";
+import { groupLine } from "../common/group";
+import { Tile, TileChoice, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
 import { FanControls } from "./controls";
@@ -61,8 +54,7 @@ function FanWidget(props: { config: FanConfig }) {
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
-  const toggle = useToggle();
-  const { callService } = useService();
+  const { callService, turnOn, turnOff } = useService();
 
   const { emptyState, hasEntities, count } = useWidgetEntityGroup({
     entities,
@@ -132,7 +124,7 @@ function FanWidget(props: { config: FanConfig }) {
   const handleTap = async () => {
     const ids = entities().map((e) => e.id);
     if (ids.length === 0) return;
-    await toggle(ids);
+    await (isOn() ? turnOff(ids) : turnOn(ids));
   };
 
   const gestures = useWidgetGestures(() => ({
@@ -166,14 +158,15 @@ function FanWidget(props: { config: FanConfig }) {
   const heroValue = () => {
     if (isUnavailable()) return "--";
     if (!isOn()) return "Off";
-    if (count() > 1) return `${activeCount()}/${count()}`;
+    if (count() > 1) return "On";
     return supportsSpeed() ? Math.round(uiPercentage()) : "On";
   };
   const eyebrow = () => {
     if (isUnavailable()) return "Unavailable";
+    if (count() > 1) return groupLine(activeCount(), count(), { active: "on", rest: "off" });
     const preset = firstEntity()?.attributes?.preset_mode as string | undefined;
     if (isOn() && preset) return `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
-    return count() > 1 ? `${count()} fans` : "Fan";
+    return "Fan";
   };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -221,21 +214,21 @@ function FanWidget(props: { config: FanConfig }) {
             <Show when={presets().length > 0}>
               <TileControls>
                 <TileChoice
-                    label="Preset"
-                    tone="var(--widget-color)"
-                    value={firstEntity()?.attributes?.preset_mode as string}
-                    options={presets().map((p) => ({ value: p, icon: presetIcon(p), label: p }))}
-                    onChange={(p) => {
-                      for (const e of entities()) {
-                        callService(
-                          "fan",
-                          "set_preset_mode",
-                          { preset_mode: p },
-                          { entity_id: e.id },
-                        );
-                      }
-                    }}
-                  />
+                  label="Preset"
+                  tone="var(--widget-color)"
+                  value={firstEntity()?.attributes?.preset_mode as string}
+                  options={presets().map((p) => ({ value: p, icon: presetIcon(p), label: p }))}
+                  onChange={(p) => {
+                    for (const e of entities()) {
+                      callService(
+                        "fan",
+                        "set_preset_mode",
+                        { preset_mode: p },
+                        { entity_id: e.id },
+                      );
+                    }
+                  }}
+                />
               </TileControls>
             </Show>
           </Tile>
