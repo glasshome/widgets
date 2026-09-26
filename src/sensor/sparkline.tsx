@@ -15,18 +15,17 @@ interface SparklineProps {
 }
 
 const HOUR = 3600;
-const TICK_EVERY_H = 6;
-/** Below this box height the hour marks leave the line room to read. */
-const AXIS_MIN_H = 110;
+/** Whole-hour steps a column can take; the smallest that keeps labels apart wins. */
+const STEPS_H = [1, 2, 3, 4, 6, 8, 12];
+/** Below this box height the columns leave the line room to read. */
+const AXIS_MIN_H = 80;
+/** Where the line has faded in enough to carry a label, as a share of the width. */
+const VISIBLE_FROM = 0.42;
 
 const hourLabel = (seconds: number) =>
   new Date(seconds * 1000).toLocaleTimeString(undefined, { hour: "numeric" });
 
-const fmt = (v: number) => {
-  if (Math.abs(v) >= 100) return Math.round(v).toString();
-  if (Math.abs(v) >= 10) return v.toFixed(1).replace(/\.0$/, "");
-  return v.toFixed(1);
-};
+const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v).toString() : v.toFixed(1));
 
 export function Sparkline(props: SparklineProps): JSX.Element {
   const color = () => props.color ?? "var(--widget-color)";
@@ -61,7 +60,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
     // A reading holds until the next one, so the line runs level to now.
     const series = last.timestamp < to ? [...data, { value: last.value, timestamp: to }] : data;
 
-    const labelSize = Math.min(24, Math.max(11, h * 0.075));
+    const labelSize = Math.min(20, Math.max(11, h * 0.07));
     const showAxis = h >= AXIS_MIN_H;
     const top = labelSize + 8;
     const bottom = h - (showAxis ? labelSize + 10 : 2);
@@ -88,24 +87,35 @@ export function Sparkline(props: SparklineProps): JSX.Element {
     const first = points[0];
     const areaPath = `M ${first.x} ${h} L ${first.x} ${first.y} ${linePath.slice(linePath.indexOf("C"))} L ${w} ${h} Z`;
 
-    let peak = points[0];
-    for (const p of points) if (p.value > peak.value) peak = p;
-    const peakAnchor: "start" | "middle" | "end" =
-      peak.x < 40 ? "start" : peak.x > w - 40 ? "end" : "middle";
-
-    // Whole local hours on the 6-hour grid, only where the line has faded in.
-    const ticks: { x: number; label: string }[] = [];
+    // Columns like the weather curve: the reading above the line, its hour below, more as the tile widens.
+    const columns: { x: number; y: number; value: string; time: string }[] = [];
     if (showAxis) {
-      const start = new Date(from * 1000);
-      start.setMinutes(0, 0, 0);
-      start.setHours(Math.ceil(start.getHours() / TICK_EVERY_H) * TICK_EVERY_H);
-      for (let t = start.getTime() / 1000; t < to - HOUR; t += TICK_EVERY_H * HOUR) {
+      const pxPerHour = w / ((to - from) / HOUR);
+      const gap = 30 + labelSize * 1.6;
+      const step = STEPS_H.find((s) => s * pxPerHour >= gap) ?? 24;
+      const at = new Date((to - (step * HOUR) / 3) * 1000);
+      at.setMinutes(0, 0, 0);
+      at.setHours(Math.floor(at.getHours() / step) * step);
+      for (let t = at.getTime() / 1000; ; t -= step * HOUR) {
         const x = xAt(t);
-        if (x > w * 0.45 && x < w - 24) ticks.push({ x, label: hourLabel(t) });
+        if (x < w * VISIBLE_FROM) break;
+        if (x > w - gap / 2) continue;
+        const i = points.findIndex((p) => p.timestamp > t);
+        const a = points[Math.max(0, i - 1)];
+        // The label clears the line wherever it passes under the label, not just at its hour.
+        const half = labelSize * 1.2;
+        let top = a.y;
+        for (const p of points) if (Math.abs(p.x - x) <= half && p.y < top) top = p.y;
+        columns.unshift({
+          x,
+          y: top,
+          value: fmt(a.value),
+          time: hourLabel(t),
+        });
       }
     }
 
-    return { areaPath, linePath, points, peak, peakAnchor, ticks, labelSize, h };
+    return { areaPath, linePath, points, columns, labelSize, h };
   });
 
   const pathLength = createMemo(() => {
@@ -162,34 +172,34 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 style={{ transition: "stroke-dashoffset var(--duration-morph) var(--ease-morph)" }}
               />
 
-              <text
-                x={cd().peak.x}
-                y={cd().peak.y - 8}
-                text-anchor={cd().peakAnchor}
-                fill="var(--muted-foreground)"
-                font-size={`${cd().labelSize}`}
-                font-weight="600"
-                opacity={mounted() ? 1 : 0}
-                style={reveal(true)}
-              >
-                <tspan fill="var(--foreground)">{fmt(cd().peak.value)}</tspan>
-                {` · ${hourLabel(cd().peak.timestamp)}`}
-              </text>
-
-              <For each={cd().ticks}>
-                {(tick) => (
-                  <text
-                    x={tick.x}
-                    y={cd().h - 6}
-                    text-anchor="middle"
-                    fill="var(--muted-foreground)"
-                    font-size={`${cd().labelSize * 0.85}`}
-                    font-weight="500"
-                    opacity={mounted() ? 0.8 : 0}
-                    style={reveal(true)}
-                  >
-                    {tick.label}
-                  </text>
+              <For each={cd().columns}>
+                {(col) => (
+                  <>
+                    <text
+                      x={col.x}
+                      y={Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}
+                      text-anchor="middle"
+                      fill="var(--foreground)"
+                      font-size={`${cd().labelSize}`}
+                      font-weight="600"
+                      opacity={mounted() ? 0.9 : 0}
+                      style={reveal(true)}
+                    >
+                      {col.value}
+                    </text>
+                    <text
+                      x={col.x}
+                      y={cd().h - 6}
+                      text-anchor="middle"
+                      fill="var(--muted-foreground)"
+                      font-size={`${cd().labelSize * 0.85}`}
+                      font-weight="500"
+                      opacity={mounted() ? 0.85 : 0}
+                      style={reveal(true)}
+                    >
+                      {col.time}
+                    </text>
+                  </>
                 )}
               </For>
             </>
