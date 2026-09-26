@@ -130,7 +130,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(extras() ? { sheet: <SwitchSheet entities={entities()} name={name()} /> } : {})}
+        {...(extras() ? { sheet: () => <SwitchSheet entities={entities()} name={name()} /> } : {})}
         tile={{
           icon: isOn() ? "mdi:power-plug" : "mdi:power-plug-off",
           tone: isOn() ? "var(--tone-success)" : undefined,

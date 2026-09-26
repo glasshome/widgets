@@ -298,7 +298,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
         }}
         {...(extras()
           ? {
-              sheet: (
+              sheet: () => (
                 <Show when={entity()}>
                   {(e) => (
                     <ClimateSheet

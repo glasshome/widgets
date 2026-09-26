@@ -207,7 +207,7 @@ function LightWidget(props: { config: LightConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(extras() ? { sheet: <LightSheet entities={entities()} name={name()} /> } : {})}
+        {...(extras() ? { sheet: () => <LightSheet entities={entities()} name={name()} /> } : {})}
         tile={{
           icon: isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline",
           tone: isOn() ? vividColor() : undefined,

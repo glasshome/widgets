@@ -150,7 +150,7 @@ function LockWidget(props: { config: LockConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(count() > 1 ? { sheet: <LockSheet entities={entities()} /> } : {})}
+        {...(count() > 1 ? { sheet: () => <LockSheet entities={entities()} /> } : {})}
         tile={{
           icon: isLocked() ? "mdi:lock" : "mdi:lock-open-variant",
           tone: isLocked() ? "var(--tone-success)" : "var(--tone-warning)",

@@ -170,7 +170,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(count() > 1 ? { sheet: <BinarySensorSheet entities={entities()} /> } : {})}
+        {...(count() > 1 ? { sheet: () => <BinarySensorSheet entities={entities()} /> } : {})}
         tile={{ icon: iconName(), tone: isOn() ? "var(--tone-info)" : undefined }}
         debugData={debugData()}
       />

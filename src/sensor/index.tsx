@@ -172,7 +172,7 @@ function SensorWidget(props: { config: SensorConfig }) {
           setShowDialog(false);
         }}
         debugData={debugData()}
-        {...(extras() ? { sheet: <SensorSheet entities={entities()} /> } : {})}
+        {...(extras() ? { sheet: () => <SensorSheet entities={entities()} /> } : {})}
         tile={{ icon: iconName(), tone: "var(--tone-info)" }}
       />
     </>

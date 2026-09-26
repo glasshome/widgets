@@ -231,7 +231,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         tile={{ icon: "mdi:music", tone: "var(--tone-accent)", backdrop: albumArt() }}
         {...(extras()
           ? {
-              sheet: (
+              sheet: () => (
                 <Show when={entity()}>
                   {(e) => (
                     <MediaPlayerSheet

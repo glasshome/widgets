@@ -249,7 +249,7 @@ function FanWidget(props: { config: FanConfig }) {
         }}
         {...(extras()
           ? {
-              sheet: <FanSheet entities={entities()} name={name()} presetIcon={presetIcon} />,
+              sheet: () => <FanSheet entities={entities()} name={name()} presetIcon={presetIcon} />,
             }
           : {})}
         tile={{

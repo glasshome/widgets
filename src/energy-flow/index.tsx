@@ -129,7 +129,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(extras() ? { sheet: <EnergyFlowSheet flow={flow()} tariff={tariff()} /> } : {})}
+        {...(extras() ? { sheet: () => <EnergyFlowSheet flow={flow()} tariff={tariff()} /> } : {})}
         tile={{ icon: energyIcons.home, tone: channelColor() }}
       />
     </>

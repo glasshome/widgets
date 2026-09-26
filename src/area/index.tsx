@@ -4,9 +4,9 @@ import {
   defineWidget,
   field,
   hassMediaUrl,
+  type Infer,
   imagePreset,
   imageUrl,
-  type Infer,
   presetValue,
   useArea,
   useService,
@@ -179,9 +179,9 @@ function AreaWidget(props: { config: AreaConfig }) {
           tone: metrics().lightsOn > 0 ? "var(--tone-warning)" : undefined,
           backdrop: roomPicture(),
         }}
-        sheet={
+        sheet={() => (
           <Show when={area()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
-        }
+        )}
         debugData={debugData()}
       />
     </>

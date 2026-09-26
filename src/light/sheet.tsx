@@ -12,7 +12,7 @@ import {
   TemperatureBar,
   useService,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, on, Show } from "solid-js";
 import { ModeChips } from "../common/mode-chips";
 
 const COLOUR_MODES = ["hs", "rgb", "xy", "rgbw", "rgbww"];
@@ -66,7 +66,11 @@ const hsCss = (h: number, s: number) => parseColor(`hsb(${h}, ${s}%, 100%)`).toS
 function readRecent(): [number, number][] {
   try {
     const raw = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
-    return Array.isArray(raw) ? raw.filter((v) => Array.isArray(v) && v.length === 2) : [];
+    const hs = (v: unknown): v is [number, number] =>
+      Array.isArray(v) &&
+      v.length === 2 &&
+      v.every((n) => typeof n === "number" && Number.isFinite(n));
+    return Array.isArray(raw) ? raw.filter(hs).slice(0, RECENT_MAX) : [];
   } catch {
     return [];
   }
@@ -103,9 +107,8 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
 
   /** The lamps a change reaches: those in scope that can take it and are on, or all that can when none is. */
   const targets = (can: (e: EntityView) => boolean) => {
-    const capable = scope().filter(can);
-    const lit = capable.filter((e) => e.state === "on");
-    return lit.length ? lit : capable;
+    const anyOn = scope().some((e) => e.state === "on");
+    return scope().filter((e) => can(e) && (!anyOn || e.state === "on"));
   };
   const ids = (list: EntityView[]) => list.map((e) => e.id);
 
@@ -156,11 +159,14 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
   };
 
   const [dragged, setDragged] = createSignal<Color>();
+  const lampHs = () =>
+    scope().find((e) => takesColour(e) && e.state === "on")?.attributes.hs_color as
+      | [number, number]
+      | undefined;
   const shownColour = () => {
     const d = dragged();
     if (d) return d;
-    const lamp = scope().find((e) => takesColour(e) && e.state === "on");
-    const hs = lamp?.attributes.hs_color as [number, number] | undefined;
+    const hs = lampHs();
     return parseColor(`hsb(${Math.round(hs?.[0] ?? 36)}, ${Math.round(hs?.[1] ?? 42)}%, 100%)`);
   };
   const endDrag = (c: Color) => {
@@ -170,6 +176,15 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
 
   const [draggedKelvin, setDraggedKelvin] = createSignal<number>();
   const temperatureLamp = () => scope().find((e) => takesTemperature(e) && e.state === "on");
+  // A released drag stays shown until the lamp reports back, so the thumb never jumps to the old value.
+  createEffect(on(lampHs, () => setDragged(undefined), { defer: true }));
+  createEffect(
+    on(
+      () => temperatureLamp()?.attributes.color_temp_kelvin,
+      () => setDraggedKelvin(undefined),
+      { defer: true },
+    ),
+  );
   const kelvin = () =>
     draggedKelvin() ??
     (temperatureLamp()?.attributes.color_temp_kelvin as number | undefined) ??
@@ -245,7 +260,7 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
               max={kelvinRange().max}
               onChange={setDraggedKelvin}
               onChangeEnd={(k) => {
-                setDraggedKelvin(undefined);
+                setDraggedKelvin(k);
                 sendKelvin(k);
               }}
               aria-label="White"
@@ -258,7 +273,7 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
               value={shownColour()}
               onChange={setDragged}
               onChangeEnd={(c) => {
-                setDragged(undefined);
+                setDragged(c);
                 endDrag(c);
               }}
             />

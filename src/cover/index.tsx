@@ -282,7 +282,7 @@ function CoverWidget(props: { config: CoverConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
-        {...(extras() ? { sheet: <CoverSheet entities={entities()} name={name()} /> } : {})}
+        {...(extras() ? { sheet: () => <CoverSheet entities={entities()} name={name()} /> } : {})}
         tile={{ icon: iconName(), tone: isOpen() ? "var(--tone-info)" : undefined }}
         debugData={debugData()}
       />

@@ -113,7 +113,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
         }}
         {...(totalCount() > 0
           ? {
-              sheet: (
+              sheet: () => (
                 <BatteriesSheet batteries={batteries()} threshold={props.config.threshold ?? 20} />
               ),
             }

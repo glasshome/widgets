@@ -193,7 +193,9 @@ function WeatherWidget(props: { config: WeatherConfig }) {
         debugData={debugData()}
         {...(extras()
           ? {
-              sheet: <WeatherSheet hours={sheetHours()} days={sheetDays()} details={details()} />,
+              sheet: () => (
+                <WeatherSheet hours={sheetHours()} days={sheetDays()} details={details()} />
+              ),
             }
           : {})}
         tile={{
