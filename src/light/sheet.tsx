@@ -2,15 +2,14 @@ import {
   Button,
   type Color,
   ColorDisc,
-  type ColorDiscPin,
   type EntityView,
   Icon,
   PanelEntityRow,
   PanelRows,
   PanelSection,
   parseColor,
+  SwatchPicker,
   TemperatureBar,
-  type TemperaturePin,
   useService,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, For, Show } from "solid-js";
@@ -30,12 +29,18 @@ interface White {
   saturation: number;
 }
 
-/* The whites people reach for, warm to cool. Hue and saturation only place the pin on the disc, a pin
-   apart along the warm side; the lamp gets the Kelvin (or, colour-only, this hue and saturation). */
+/* The whites people reach for, warm to cool. A colour-only lamp gets this hue and saturation instead. */
 const WHITES: White[] = [
   { id: "warm", label: "Warm white", kelvin: 2200, color: "#ffb35a", hue: 25, saturation: 92 },
   { id: "soft", label: "Soft white", kelvin: 2700, color: "#ffd79a", hue: 36, saturation: 64 },
-  { id: "neutral", label: "Neutral white", kelvin: 4000, color: "#fff1dc", hue: 44, saturation: 36 },
+  {
+    id: "neutral",
+    label: "Neutral white",
+    kelvin: 4000,
+    color: "#fff1dc",
+    hue: 44,
+    saturation: 36,
+  },
   { id: "cool", label: "Cool white", kelvin: 6000, color: "#dfeeff", hue: 214, saturation: 28 },
 ];
 
@@ -133,29 +138,21 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
     setRecent((list) => rememberColour(hs, list));
   };
 
-  const pins = (): ColorDiscPin[] => [
-    ...WHITES.map((w) => ({
-      id: w.id,
-      color: w.color,
-      label: w.label,
-      hue: w.hue,
-      saturation: w.saturation,
-    })),
-    ...colours().map(([h, s]) => ({
-      id: `c:${h}:${s}`,
-      color: hsCss(h, s),
-      label: `Colour ${h}°, ${s}%`,
-      hue: h,
-      saturation: s,
+  const presets = () => [
+    ...WHITES.map((w) => ({ css: w.color, label: w.label, apply: () => sendWhite(w) })),
+    ...colours().map(([h, sat]) => ({
+      css: hsCss(h, sat),
+      label: `Colour ${h}°, ${sat}%`,
+      apply: () => sendColour([h, sat]),
     })),
   ];
-  const pick = (id: string) => {
-    setActive(id);
+  const pick = (css: string) => {
+    setActive(css);
     setDragged(undefined);
-    const white = WHITES.find((w) => w.id === id);
-    if (white) return sendWhite(white);
-    const [, h, s] = id.split(":");
-    sendColour([Number(h), Number(s)]);
+    setDraggedKelvin(undefined);
+    presets()
+      .find((p) => p.css === css)
+      ?.apply();
   };
 
   const [dragged, setDragged] = createSignal<Color>();
@@ -171,20 +168,20 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
     sendColour([Math.round(c.getChannelValue("hue")), Math.round(c.getChannelValue("saturation"))]);
   };
 
-  const whitePins = (): TemperaturePin[] =>
-    WHITES.map((w) => ({ id: w.id, color: w.color, label: w.label, kelvin: w.kelvin }));
   const [draggedKelvin, setDraggedKelvin] = createSignal<number>();
   const temperatureLamp = () => scope().find((e) => takesTemperature(e) && e.state === "on");
   const kelvin = () =>
     draggedKelvin() ??
     (temperatureLamp()?.attributes.color_temp_kelvin as number | undefined) ??
     2700;
+  /** The span the lamps can reach together: the warmest any goes to, the coolest any goes to. */
   const kelvinRange = () => {
-    const lamp = temperatureLamp() ?? scope().find(takesTemperature);
-    return {
-      min: (lamp?.attributes.min_color_temp_kelvin as number | undefined) ?? 2000,
-      max: (lamp?.attributes.max_color_temp_kelvin as number | undefined) ?? 6500,
-    };
+    const lamps = scope().filter(takesTemperature);
+    const lows = lamps.map((e) => e.attributes.min_color_temp_kelvin as number | undefined);
+    const highs = lamps.map((e) => e.attributes.max_color_temp_kelvin as number | undefined);
+    const min = Math.min(...lows.filter((v): v is number => typeof v === "number"));
+    const max = Math.max(...highs.filter((v): v is number => typeof v === "number"));
+    return { min: Number.isFinite(min) ? min : 2000, max: Number.isFinite(max) ? max : 6500 };
   };
   const sendKelvin = (k: number) => {
     setActive(undefined);
@@ -194,6 +191,7 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
   };
 
   const anyColour = () => scope().some(takesColour);
+  const anyTemperature = () => scope().some(takesTemperature);
   const anyWhite = () => scope().some(takesWhite);
   const reach = () => {
     const whiteCapable = scope().filter(takesWhite).length;
@@ -226,31 +224,31 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
       </Show>
       <Show when={anyWhite()}>
         <PanelSection label={focus() ? `Colour · ${focusedName()}` : "Colour"}>
-          <Show
-            when={anyColour()}
-            fallback={
-              <TemperatureBar
-                value={kelvin()}
-                min={kelvinRange().min}
-                max={kelvinRange().max}
-                pins={whitePins()}
-                activePin={active()}
-                onPin={pick}
-                onChange={setDraggedKelvin}
-                onChangeEnd={(k) => {
-                  setDraggedKelvin(undefined);
-                  sendKelvin(k);
-                }}
-              />
-            }
-          >
+          <SwatchPicker
+            value={active() ?? null}
+            colors={presets().map((p) => p.css)}
+            labelOf={(_, i) => presets()[i]?.label ?? ""}
+            onChange={pick}
+            aria-label="Presets"
+          />
+          <Show when={anyTemperature()}>
+            <TemperatureBar
+              value={kelvin()}
+              min={kelvinRange().min}
+              max={kelvinRange().max}
+              onChange={setDraggedKelvin}
+              onChangeEnd={(k) => {
+                setDraggedKelvin(undefined);
+                sendKelvin(k);
+              }}
+              aria-label="White"
+            />
+          </Show>
+          <Show when={anyColour()}>
             <ColorDisc
               class="mx-auto"
-              size={272}
+              size={240}
               value={shownColour()}
-              pins={pins()}
-              activePin={active()}
-              onPin={pick}
               onChange={setDragged}
               onChangeEnd={(c) => {
                 setDragged(undefined);
