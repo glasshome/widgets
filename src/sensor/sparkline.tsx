@@ -123,7 +123,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 d={cd().areaPath}
                 fill="url(#spark-area)"
                 opacity={mounted() ? 1 : 0}
-                style={{ transition: "opacity 0.5s ease-out" }}
+                style={{ transition: "opacity var(--duration-morph) var(--ease-morph)" }}
               />
 
               <path
@@ -136,7 +136,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 opacity="0.8"
                 stroke-dasharray={`${pathLength()}`}
                 stroke-dashoffset={mounted() ? 0 : pathLength()}
-                style={{ transition: "stroke-dashoffset 0.7s ease-out" }}
+                style={{ transition: "stroke-dashoffset var(--duration-morph) var(--ease-morph)" }}
               />
 
               {/* High label */}
@@ -148,7 +148,10 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 font-size="10"
                 font-weight="600"
                 opacity={mounted() ? 0.9 : 0}
-                style={{ transition: "opacity 0.3s ease-out 0.6s" }}
+                style={{
+                  transition:
+                    "opacity var(--duration-state) var(--ease-morph) var(--duration-morph)",
+                }}
               >
                 {fmt(cd().points[cd().maxIdx].value)}{" "}
               </text>
@@ -163,7 +166,10 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                   font-size="10"
                   font-weight="600"
                   opacity={mounted() ? 0.9 : 0}
-                  style={{ transition: "opacity 0.3s ease-out 0.6s" }}
+                  style={{
+                    transition:
+                      "opacity var(--duration-state) var(--ease-morph) var(--duration-morph)",
+                  }}
                 >
                   {fmt(cd().points[cd().minIdx].value)}{" "}
                 </text>

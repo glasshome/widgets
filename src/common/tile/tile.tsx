@@ -49,6 +49,14 @@ export function TileHead(props: {
   // Resolved once: reading a JSX prop twice (Show + body) rebuilds its DOM on every change.
   const eyebrow = children(() => props.eyebrow);
   const aside = children(() => props.aside);
+  const repeatsName = () => {
+    const e = eyebrow();
+    return (
+      typeof e === "string" &&
+      typeof props.name === "string" &&
+      e.trim().toLowerCase() === props.name.trim().toLowerCase()
+    );
+  };
   return (
     <div class="tile-head">
       <Show when={props.icon}>
@@ -62,7 +70,7 @@ export function TileHead(props: {
         )}
       </Show>
       <div class="tile-head-text">
-        <Show when={eyebrow()}>
+        <Show when={eyebrow() && !repeatsName()}>
           <span class="tile-eyebrow">{eyebrow()}</span>
         </Show>
         <span class="tile-name">{props.name}</span>
