@@ -119,6 +119,10 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             }
           : {})}
         debugData={debugData()}
+        tile={{
+          icon: hasLow() ? "mdi:battery-alert" : "mdi:battery",
+          tone: hasLow() ? "var(--tone-warning)" : "var(--tone-success)",
+        }}
       />
     </>
   );

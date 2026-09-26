@@ -151,6 +151,10 @@ function LockWidget(props: { config: LockConfig }) {
           setShowDialog(false);
         }}
         {...(count() > 1 ? { sheet: <LockSheet entities={entities()} /> } : {})}
+        tile={{
+          icon: isLocked() ? "mdi:lock" : "mdi:lock-open-variant",
+          tone: isLocked() ? "var(--tone-success)" : "var(--tone-warning)",
+        }}
         debugData={debugData()}
       />
     </>

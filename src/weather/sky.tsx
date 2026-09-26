@@ -177,7 +177,7 @@ const SKIES: Record<string, string> = {
 const FLASHES = new Set(["lightning", "lightning-rainy"]);
 
 /** The still photos for a sky: one lookup so the scene and its frosted copy never disagree. */
-function scenePhotos(condition: string, wintry: boolean, night: boolean) {
+export function scenePhotos(condition: string, wintry: boolean, night: boolean) {
   const moonlit = night && !wintry;
   return {
     sky: SKIES[condition] ?? skyOvercast,

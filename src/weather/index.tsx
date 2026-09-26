@@ -20,11 +20,13 @@ import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";
 import { type Detail, type Model, WeatherTile } from "./layout";
 import { WeatherSheet } from "./sheet";
+import { scenePhotos } from "./sky";
 import {
   formatDegrees,
   formatTemp,
   formatWindSpeed,
   getConditionLabel,
+  getWeatherIcon,
   getWeatherIconColor,
 } from "./utils";
 import "./weather.css";
@@ -37,6 +39,7 @@ const configSchema = defineConfig({
 type WeatherConfig = Infer<typeof configSchema>;
 
 const MAX_DAYS = 10;
+
 const SNOWY = new Set(["snowy", "snowy-rainy"]);
 
 const UV_WORDS: [number, string][] = [
@@ -193,6 +196,11 @@ function WeatherWidget(props: { config: WeatherConfig }) {
               sheet: <WeatherSheet hours={sheetHours()} days={sheetDays()} details={details()} />,
             }
           : {})}
+        tile={{
+          icon: getWeatherIcon(condition()),
+          tone: getWeatherIconColor(condition()),
+          backdrop: scenePhotos(condition(), false, false).sky,
+        }}
       />
     </>
   );

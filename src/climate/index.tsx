@@ -314,6 +314,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
             }
           : {})}
         debugData={debugData()}
+        tile={{ icon: iconName(), tone: hvacMode() !== "off" ? mode().color : undefined }}
       />
     </>
   );

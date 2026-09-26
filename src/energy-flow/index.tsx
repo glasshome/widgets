@@ -10,6 +10,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, onCleanup, Show } from "solid-js";
 import { describeFlow, EnergyEmptyState } from "../_energy-shared";
+import { energyIcons } from "../_energy-shared/icons";
 import { widgetDialogProps } from "../common";
 import { configSchema, type EnergyFlowConfig } from "./config";
 import { EnergyContent } from "./energy-content";
@@ -129,6 +130,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           setShowDialog(false);
         }}
         {...(extras() ? { sheet: <EnergyFlowSheet flow={flow()} tariff={tariff()} /> } : {})}
+        tile={{ icon: energyIcons.home, tone: channelColor() }}
       />
     </>
   );

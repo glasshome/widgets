@@ -252,6 +252,10 @@ function FanWidget(props: { config: FanConfig }) {
               sheet: <FanSheet entities={entities()} name={name()} presetIcon={presetIcon} />,
             }
           : {})}
+        tile={{
+          icon: isOn() ? "mdi:fan" : "mdi:fan-off",
+          tone: isOn() ? "var(--tone-success)" : undefined,
+        }}
         debugData={debugData()}
       />
     </>

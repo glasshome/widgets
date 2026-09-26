@@ -171,6 +171,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
           setShowDialog(false);
         }}
         {...(count() > 1 ? { sheet: <BinarySensorSheet entities={entities()} /> } : {})}
+        tile={{ icon: iconName(), tone: isOn() ? "var(--tone-info)" : undefined }}
         debugData={debugData()}
       />
     </>
