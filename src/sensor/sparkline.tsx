@@ -1,27 +1,35 @@
 import { monotoneCubicPath } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, For, type JSX, onCleanup, onMount, Show } from "solid-js";
 
 export interface SparklinePoint {
   value: number;
+  /** Unix seconds. */
   timestamp: number;
 }
 
 interface SparklineProps {
   data: SparklinePoint[];
+  /** Unix seconds the line starts at; the line always runs to now. */
+  from: number;
   color?: string;
 }
 
+const HOUR = 3600;
+const TICK_EVERY_H = 6;
+/** Below this box height the hour marks leave the line room to read. */
+const AXIS_MIN_H = 110;
+
+const hourLabel = (seconds: number) =>
+  new Date(seconds * 1000).toLocaleTimeString(undefined, { hour: "numeric" });
+
+const fmt = (v: number) => {
+  if (Math.abs(v) >= 100) return Math.round(v).toString();
+  if (Math.abs(v) >= 10) return v.toFixed(1).replace(/\.0$/, "");
+  return v.toFixed(1);
+};
+
 export function Sparkline(props: SparklineProps): JSX.Element {
   const color = () => props.color ?? "var(--widget-color)";
-  const fmt = (v: number) => {
-    // Compact label: drop decimals for large values, 1 decimal for small
-    if (Math.abs(v) >= 100) return Math.round(v).toString();
-    if (Math.abs(v) >= 10) return v.toFixed(1).replace(/\.0$/, "");
-    return v.toFixed(1);
-  };
-
-  const labelPad = 6;
-  const topPad = 18;
 
   let containerRef!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
@@ -43,44 +51,61 @@ export function Sparkline(props: SparklineProps): JSX.Element {
   });
 
   const chartData = createMemo(() => {
-    const data = props.data;
     const w = width();
     const h = height();
-    if (data.length < 2 || w === 0 || h === 0) return null;
+    const to = Date.now() / 1000;
+    const from = Math.min(props.from, to - HOUR);
+    const data = props.data.filter((d) => d.timestamp >= from);
+    const last = data.at(-1);
+    if (!last || data.length < 2 || w === 0 || h === 0) return null;
+    // A reading holds until the next one, so the line runs level to now.
+    const series = last.timestamp < to ? [...data, { value: last.value, timestamp: to }] : data;
 
-    const drawH = (h - topPad) * 0.8;
+    const labelSize = Math.min(24, Math.max(11, h * 0.075));
+    const showAxis = h >= AXIS_MIN_H;
+    const top = labelSize + 8;
+    const bottom = h - (showAxis ? labelSize + 10 : 2);
+    const drawH = (bottom - top) * 0.85;
 
-    const values = data.map((d) => d.value);
+    const values = series.map((d) => d.value);
     const rawMin = Math.min(...values);
     const rawMax = Math.max(...values);
-    const minRange = (rawMax + rawMin) * 0.05 || 1;
+    const minRange = Math.abs(rawMax + rawMin) * 0.05 || 1;
     const rawRange = rawMax - rawMin;
     const pad = rawRange < minRange ? (minRange - rawRange) / 2 : 0;
     const min = rawMin - pad;
     const range = rawMax + pad - min;
 
-    const points = data.map((d, i) => ({
-      x: (i / (data.length - 1)) * w,
-      y: topPad + drawH - ((d.value - min) / range) * drawH,
+    const xAt = (t: number) => ((t - from) / (to - from)) * w;
+    const points = series.map((d) => ({
+      x: xAt(d.timestamp),
+      y: bottom - ((d.value - min) / range) * drawH,
       value: d.value,
+      timestamp: d.timestamp,
     }));
 
     const linePath = monotoneCubicPath(points);
-    const areaPath = `M 0 ${h} L ${points[0].x} ${points[0].y} ${linePath.slice(linePath.indexOf("C"))} L ${w} ${h} Z`;
+    const first = points[0];
+    const areaPath = `M ${first.x} ${h} L ${first.x} ${first.y} ${linePath.slice(linePath.indexOf("C"))} L ${w} ${h} Z`;
 
-    let maxIdx = 0;
-    for (let i = 1; i < points.length; i++) {
-      if (points[i].value > points[maxIdx].value) maxIdx = i;
+    let peak = points[0];
+    for (const p of points) if (p.value > peak.value) peak = p;
+    const peakAnchor: "start" | "middle" | "end" =
+      peak.x < 40 ? "start" : peak.x > w - 40 ? "end" : "middle";
+
+    // Whole local hours on the 6-hour grid, only where the line has faded in.
+    const ticks: { x: number; label: string }[] = [];
+    if (showAxis) {
+      const start = new Date(from * 1000);
+      start.setMinutes(0, 0, 0);
+      start.setHours(Math.ceil(start.getHours() / TICK_EVERY_H) * TICK_EVERY_H);
+      for (let t = start.getTime() / 1000; t < to - HOUR; t += TICK_EVERY_H * HOUR) {
+        const x = xAt(t);
+        if (x > w * 0.45 && x < w - 24) ticks.push({ x, label: hourLabel(t) });
+      }
     }
 
-    const clampX = (x: number) => Math.max(labelPad, Math.min(w - labelPad, x));
-    const anchor = (x: number) => {
-      if (x < labelPad + 18) return "start";
-      if (x > w - labelPad - 18) return "end";
-      return "middle";
-    };
-
-    return { areaPath, linePath, points, maxIdx, clampX, anchor, h };
+    return { areaPath, linePath, points, peak, peakAnchor, ticks, labelSize, h };
   });
 
   const pathLength = createMemo(() => {
@@ -93,6 +118,10 @@ export function Sparkline(props: SparklineProps): JSX.Element {
       len += Math.sqrt(dx * dx + dy * dy);
     }
     return Math.ceil(len);
+  });
+
+  const reveal = (delay = false) => ({
+    transition: `opacity var(--duration-state) var(--ease-morph)${delay ? " var(--duration-morph)" : ""}`,
   });
 
   return (
@@ -125,7 +154,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
                 d={cd().linePath}
                 fill="none"
                 stroke={color()}
-                stroke-width="2"
+                stroke-width={Math.max(2, cd().labelSize / 6)}
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-dasharray={`${pathLength()}`}
@@ -134,20 +163,35 @@ export function Sparkline(props: SparklineProps): JSX.Element {
               />
 
               <text
-                x={cd().clampX(cd().points[cd().maxIdx].x)}
-                y={cd().points[cd().maxIdx].y - 4}
-                text-anchor={cd().anchor(cd().points[cd().maxIdx].x)}
+                x={cd().peak.x}
+                y={cd().peak.y - 8}
+                text-anchor={cd().peakAnchor}
                 fill="var(--muted-foreground)"
-                font-size="11"
+                font-size={`${cd().labelSize}`}
                 font-weight="600"
-                opacity={mounted() ? 0.9 : 0}
-                style={{
-                  transition:
-                    "opacity var(--duration-state) var(--ease-morph) var(--duration-morph)",
-                }}
+                opacity={mounted() ? 1 : 0}
+                style={reveal(true)}
               >
-                {fmt(cd().points[cd().maxIdx].value)}{" "}
+                <tspan fill="var(--foreground)">{fmt(cd().peak.value)}</tspan>
+                {` · ${hourLabel(cd().peak.timestamp)}`}
               </text>
+
+              <For each={cd().ticks}>
+                {(tick) => (
+                  <text
+                    x={tick.x}
+                    y={cd().h - 6}
+                    text-anchor="middle"
+                    fill="var(--muted-foreground)"
+                    font-size={`${cd().labelSize * 0.85}`}
+                    font-weight="500"
+                    opacity={mounted() ? 0.8 : 0}
+                    style={reveal(true)}
+                  >
+                    {tick.label}
+                  </text>
+                )}
+              </For>
             </>
           )}
         </Show>

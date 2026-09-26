@@ -1,6 +1,6 @@
 /* Caps hold up to a 4x4 box; past it they give way to the short side (cqmin), so a large tile scales instead of emptying. */
 .tile {
-  --tile-pad: clamp(10px, min(6cqb, 7cqi), max(20px, 4cqmin));
+  --tile-pad: clamp(10px, min(6cqb, 7cqi), max(20px, 6cqmin));
   --tile-gap: clamp(6px, 3cqb, 12px);
   --tile-control-h: clamp(36px, 13cqb, max(44px, 8cqmin));
   position: relative;
@@ -85,7 +85,7 @@
   z-index: 1;
 }
 .tile-value {
-  font-size: clamp(22px, min(22cqb, 15cqi), max(52px, 15cqmin));
+  font-size: clamp(22px, min(22cqb, 15cqi), max(52px, 16cqmin));
   font-weight: 650;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -120,7 +120,7 @@
   color: var(--muted-foreground);
 }
 .tile-sub {
-  font-size: clamp(12px, min(5cqb, 5.5cqi), max(14px, 3cqmin));
+  font-size: clamp(12px, min(5cqb, 5.5cqi), max(14px, 4.3cqmin));
   font-weight: 500;
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -145,7 +145,7 @@
     font-size: clamp(
       18px,
       min(22cqb, 15cqi, calc(50cqi / (var(--value-len, 1) * 0.56))),
-      max(52px, 15cqmin)
+      max(52px, 16cqmin)
     );
   }
 }
@@ -373,7 +373,7 @@
   margin: 0 0.25em;
 }
 .tile-hero-range .tile-value {
-  font-size: clamp(20px, min(20cqb, 13cqi), max(48px, 14cqmin));
+  font-size: clamp(20px, min(20cqb, 13cqi), max(48px, 14.6cqmin));
 }
 @container widget (max-width: 179px) and (min-height: 130px) {
   .tile:not([data-backdrop]) .tile-head-text {

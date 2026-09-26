@@ -46,12 +46,10 @@ function SensorWidget(props: { config: SensorConfig }) {
   const primaryEntityId = () => props.config.entityIds[0];
   const historyData = useEntityHistory(() => primaryEntityId() ?? "");
 
+  const historyFrom = Date.now() - 24 * 60 * 60 * 1000;
   onMount(() => {
     const id = primaryEntityId();
-    if (id) {
-      const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      trackEntityHistory(id, { startTime });
-    }
+    if (id) trackEntityHistory(id, { startTime: new Date(historyFrom) });
   });
   onCleanup(() => {
     const id = primaryEntityId();
@@ -149,7 +147,7 @@ function SensorWidget(props: { config: SensorConfig }) {
             <TileHero value={displayValue()} unit={displayUnit() || undefined} />
             <Show when={entities().length === 1 && dataPoints().length >= 2}>
               <div class="sensor-spark">
-                <Sparkline data={dataPoints()} />
+                <Sparkline data={dataPoints()} from={historyFrom / 1000} />
               </div>
             </Show>
           </Tile>
