@@ -1,6 +1,5 @@
 import {
   type Color,
-  ColorSlider,
   ColorWheel,
   type EntityView,
   PanelEntityRow,
@@ -94,18 +93,12 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
           <Show when={anyColour()}>
             <ColorWheel
               class="mx-auto"
-              size={200}
+              size={220}
+              saturationRing
               value={wheelColor()}
               onChange={(c) => setHs(colorToHs(c))}
               onChangeEnd={sendHs}
               aria-label="Hue"
-            />
-            <ColorSlider
-              channel="saturation"
-              value={wheelColor()}
-              onChange={(c) => setHs(colorToHs(c))}
-              onChangeEnd={sendHs}
-              aria-label="Saturation"
             />
           </Show>
         </PanelSection>
