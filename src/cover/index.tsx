@@ -274,7 +274,7 @@ function CoverWidget(props: { config: CoverConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Cover"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

@@ -103,7 +103,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Batteries"
+        title={props.config.title || "Batteries"}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

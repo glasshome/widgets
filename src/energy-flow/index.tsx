@@ -120,7 +120,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Energy Flow"
+        title={props.config.title || "Energy Flow"}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

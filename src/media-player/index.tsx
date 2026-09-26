@@ -220,7 +220,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Media Player"
+        title={props.config.title || entity()?.friendlyName || "Media"}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

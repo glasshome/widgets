@@ -163,7 +163,7 @@ function SensorWidget(props: { config: SensorConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Sensor"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

@@ -288,7 +288,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Climate"
+        title={props.config.title || entity()?.friendlyName || "Climate"}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

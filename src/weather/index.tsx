@@ -179,7 +179,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Weather"
+        title={props.config.title || "Weather"}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

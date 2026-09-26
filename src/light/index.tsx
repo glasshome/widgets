@@ -199,7 +199,7 @@ function LightWidget(props: { config: LightConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Light"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

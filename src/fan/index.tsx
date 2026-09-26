@@ -239,7 +239,7 @@ function FanWidget(props: { config: FanConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Fan"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

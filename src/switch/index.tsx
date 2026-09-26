@@ -122,7 +122,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Switch"
+        title={name()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
