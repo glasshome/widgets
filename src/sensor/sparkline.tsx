@@ -175,6 +175,21 @@ export function Sparkline(props: SparklineProps): JSX.Element {
               <For each={cd().columns}>
                 {(col) => (
                   <>
+                    <line
+                      x1={col.x}
+                      x2={col.x}
+                      y1={
+                        Math.max(cd().labelSize, col.y - cd().labelSize * 0.9) +
+                        cd().labelSize * 0.45
+                      }
+                      y2={cd().h - cd().labelSize * 0.85 - 10}
+                      stroke="var(--muted-foreground)"
+                      stroke-width="1"
+                      stroke-dasharray="2 4"
+                      stroke-linecap="round"
+                      opacity={mounted() ? 0.45 : 0}
+                      style={reveal(true)}
+                    />
                     <text
                       x={col.x}
                       y={Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}
