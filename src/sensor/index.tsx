@@ -146,17 +146,12 @@ function SensorWidget(props: { config: SensorConfig }) {
               name={name()}
               count={entities().length}
             />
-            <TileHero
-              value={displayValue()}
-              unit={displayUnit() || undefined}
-              art={
-                dataPoints().length >= 2 ? (
-                  <div class="sensor-spark-art">
-                    <Sparkline data={dataPoints()} />
-                  </div>
-                ) : undefined
-              }
-            />
+            <TileHero value={displayValue()} unit={displayUnit() || undefined} />
+            <Show when={entities().length === 1 && dataPoints().length >= 2}>
+              <div class="sensor-spark">
+                <Sparkline data={dataPoints()} />
+              </div>
+            </Show>
           </Tile>
         </Show>
       </Widget>

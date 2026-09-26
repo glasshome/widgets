@@ -1,5 +1,16 @@
-.sensor-spark-art {
-  width: 48cqi;
-  height: 100%;
-  opacity: 0.8;
+/* The day's line rises from the bottom right edge and fades in behind the value. */
+.sensor-spark {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 66%;
+  height: 58%;
+  pointer-events: none;
+  z-index: -1;
+  mask-image: linear-gradient(to right, transparent, #000 45%);
+}
+@container widget (max-width: 179px) or (max-height: 129px) {
+  .sensor-spark {
+    display: none;
+  }
 }
