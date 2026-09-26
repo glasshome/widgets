@@ -19,7 +19,7 @@ import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
-import { filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
+import { batteryName, filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -83,9 +83,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
                         width={16}
                         style={{ color: getBatteryColor(battery().level) }}
                       />
-                      <span class="batteries-name">
-                        {battery().entity.friendlyName || battery().entity.id}
-                      </span>
+                      <span class="batteries-name">{batteryName(battery().entity)}</span>
                       <span
                         class="batteries-level"
                         style={{ color: getBatteryColor(battery().level) }}

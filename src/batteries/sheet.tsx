@@ -6,7 +6,7 @@ import {
   PanelSection,
 } from "@glasshome/widget-sdk";
 import { For } from "solid-js";
-import { type BatteryDevice, getBatteryColor, getBatteryIcon } from "./utils";
+import { type BatteryDevice, batteryName, getBatteryColor, getBatteryIcon } from "./utils";
 
 /** Every battery in the home, lowest first, each row filled to its charge. */
 export function BatteriesSheet(props: { batteries: BatteryDevice[]; threshold: number }) {
@@ -37,7 +37,7 @@ export function BatteriesSheet(props: { batteries: BatteryDevice[]; threshold: n
             {(b) => (
               <PanelRow
                 icon={getBatteryIcon(b.level)}
-                name={b.entity.friendlyName || b.entity.id}
+                name={batteryName(b.entity)}
                 state={b.isAvailable ? `${b.level}%` : "Not reporting"}
                 tone={getBatteryColor(b.level)}
                 on={b.isAvailable}

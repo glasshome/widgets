@@ -1,5 +1,6 @@
 /* Whole rows only: the box holds one or two chip rows and sits on the bottom edge. */
 .scene-chips {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;

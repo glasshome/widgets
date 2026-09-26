@@ -65,6 +65,12 @@ function SceneWidget(props: { config: SceneConfig }) {
     props.config.title ||
     (entities().length === 1 ? entities()[0]?.friendlyName : undefined) ||
     "Scenes";
+  // A group named "Scenes" already says what the count would.
+  const eyebrow = () => {
+    const count = entities().length;
+    if (count === 1) return "Scene";
+    return name() === "Scenes" ? undefined : `${count} scenes`;
+  };
   const gestures = useWidgetGestures(() => ({ tap: handleTap }));
   onCleanup(gestures.dispose);
 
@@ -86,11 +92,7 @@ function SceneWidget(props: { config: SceneConfig }) {
         <Show when={hasEntities()}>
           <Tile>
             <TileGlyph icon="mdi:palette" />
-            <TileHead
-              icon="mdi:palette"
-              eyebrow={entities().length > 1 ? `${entities().length} scenes` : "Scene"}
-              name={name()}
-            />
+            <TileHead icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (

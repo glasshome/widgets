@@ -14,6 +14,13 @@ interface BatteriesConfig {
   blacklist?: string[];
 }
 
+/** "Motion Sensor Battery" reads as "Motion Sensor": on a battery list the word says nothing. */
+export function batteryName(entity: EntityView): string {
+  const full = entity.friendlyName || entity.id;
+  const short = full.replace(/\s*\bbattery( level)?\b\s*/gi, " ").trim();
+  return short || full;
+}
+
 export function getBatteryColor(level: number): string {
   if (level < 20) return "#ef4444";
   if (level < 40) return "#f97316";

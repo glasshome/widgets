@@ -3,7 +3,7 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 6px;
-  width: 48cqi;
+  width: 56cqi;
   height: 100%;
   overflow: hidden;
 }
@@ -29,6 +29,11 @@
 }
 @container widget (max-height: 199px) {
   .batteries-row:nth-child(n + 3) {
+    display: none;
+  }
+}
+@container widget (max-width: 259px) {
+  .batteries-list {
     display: none;
   }
 }
