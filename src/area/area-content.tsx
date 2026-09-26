@@ -228,13 +228,11 @@ export function AreaContent(props: AreaContentProps) {
         eyebrow={summary()}
         name={props.areaName}
         aside={
-          <>
-            <Show when={m().alertCount > 0}>
-              <TileChip icon="mdi:alert-circle" tone="var(--destructive)">
-                Alert
-              </TileChip>
-            </Show>
-          </>
+          <Show when={m().alertCount > 0}>
+            <TileChip icon="mdi:alert-circle" tone="var(--destructive)">
+              Alert
+            </TileChip>
+          </Show>
         }
       />
       <TileControls>

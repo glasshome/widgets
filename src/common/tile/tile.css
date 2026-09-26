@@ -149,6 +149,13 @@
     );
   }
 }
+.tile-backdrop > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 /* Art keeps its shape and clears a state word at its largest (15cqi, about 3.4em); each art sets --art-aspect. */
 .tile .tile-art > * {
   height: min(100%, calc((52cqi - 2 * var(--tile-pad) - var(--tile-gap)) / var(--art-aspect, 1)));
@@ -303,13 +310,6 @@
   inset: 0;
   z-index: -2;
   overflow: hidden;
-}
-.tile-backdrop > img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 .tile-backdrop > img.area-night {
   opacity: 0;
