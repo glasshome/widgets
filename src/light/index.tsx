@@ -208,6 +208,10 @@ function LightWidget(props: { config: LightConfig }) {
           setShowDialog(false);
         }}
         {...(extras() ? { sheet: <LightSheet entities={entities()} name={name()} /> } : {})}
+        tile={{
+          icon: isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline",
+          tone: isOn() ? vividColor() : undefined,
+        }}
         debugData={debugData()}
       />
     </>

@@ -228,6 +228,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           ctx.updateConfig(config);
           setShowDialog(false);
         }}
+        tile={{ icon: "mdi:music", tone: "var(--tone-accent)", backdrop: albumArt() }}
         {...(extras()
           ? {
               sheet: (

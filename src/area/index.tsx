@@ -3,6 +3,9 @@ import {
   defineConfig,
   defineWidget,
   field,
+  hassMediaUrl,
+  imagePreset,
+  imageUrl,
   type Infer,
   presetValue,
   useArea,
@@ -17,7 +20,7 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { ROOM_PRESETS } from "../common/art/room";
+import { isRoomKind, ROOM_PRESETS, roomIcon, roomPhotos } from "../common/art/room";
 import { type AreaAction, AreaContent } from "./area-content";
 import { AreaSheet } from "./sheet";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
@@ -56,6 +59,15 @@ function AreaWidget(props: { config: AreaConfig }) {
   });
 
   const metrics = createMemo(() => calculateMetrics(groups(), area()));
+  const room = () => {
+    const kind = imagePreset(props.config.image);
+    return isRoomKind(kind) ? kind : undefined;
+  };
+  const roomPicture = () => {
+    const kind = room();
+    if (kind) return roomPhotos(kind)?.day;
+    return imageUrl(props.config.image) ?? hassMediaUrl(area()?.picture);
+  };
 
   const areaName = createMemo(() => props.config.title || area()?.name || "Area");
   const isActive = createMemo(() => metrics().lightsOn > 0);
@@ -161,6 +173,11 @@ function AreaWidget(props: { config: AreaConfig }) {
         onConfigSave={(config) => {
           ctx.updateConfig(config);
           setShowDialog(false);
+        }}
+        tile={{
+          icon: area()?.icon ?? roomIcon(room()),
+          tone: metrics().lightsOn > 0 ? "var(--tone-warning)" : undefined,
+          backdrop: roomPicture(),
         }}
         sheet={
           <Show when={area()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
