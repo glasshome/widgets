@@ -210,20 +210,27 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
     void callService("light", "turn_on", { effect }, { entity_id: ids(lamps) });
   };
 
-  const focusedName = () => scope()[0]?.friendlyName;
-
   return (
     <>
       <Show when={focus()}>
-        <div class="glasshome-sheet-actions">
-          <Button variant="outline" size="sm" onClick={() => setFocus(undefined)}>
-            <Icon icon="mdi:chevron-left" />
-            All lamps
-          </Button>
-        </div>
+        {(id) => (
+          <>
+            <div class="glasshome-sheet-actions">
+              <Button variant="outline" size="sm" onClick={() => setFocus(undefined)}>
+                <Icon icon="mdi:chevron-left" />
+                All lamps
+              </Button>
+            </div>
+            <PanelSection label="Lamp">
+              <PanelRows>
+                <PanelEntityRow entityId={id()} within={props.name} />
+              </PanelRows>
+            </PanelSection>
+          </>
+        )}
       </Show>
       <Show when={anyWhite()}>
-        <PanelSection label={focus() ? `Colour · ${focusedName()}` : "Colour"}>
+        <PanelSection label="Colour">
           <SwatchPicker
             value={active() ?? null}
             colors={presets().map((p) => p.css)}
