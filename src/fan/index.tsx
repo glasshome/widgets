@@ -222,6 +222,8 @@ function FanWidget(props: { config: FanConfig }) {
                   options={presets().map((p) => ({ value: p, icon: presetIcon(p), label: p }))}
                   onChange={(p) => {
                     for (const e of entities()) {
+                      const offers = (e.attributes?.preset_modes as string[] | undefined) ?? [];
+                      if (!offers.includes(p)) continue;
                       callService(
                         "fan",
                         "set_preset_mode",

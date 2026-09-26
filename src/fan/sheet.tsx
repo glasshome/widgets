@@ -56,7 +56,16 @@ export function FanSheet(props: {
             value={preset() ?? null}
             onChange={(p: string | null) =>
               p &&
-              void callService("fan", "set_preset_mode", { preset_mode: p }, { entity_id: ids() })
+              void callService(
+                "fan",
+                "set_preset_mode",
+                { preset_mode: p },
+                {
+                  entity_id: props.entities
+                    .filter((e) => presetsOf(e).includes(p))
+                    .map((e) => e.id),
+                },
+              )
             }
           >
             <For each={presets()}>
