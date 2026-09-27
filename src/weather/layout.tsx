@@ -218,7 +218,6 @@ function HourChart(props: { hours: WeatherForecast[]; labelEvery: number }) {
   const x = (i: number) => 4 + (i / Math.max(1, props.hours.length - 1)) * 92;
   const y = (t: number) => 66 - ((t - range().min) / range().span) * 22;
   const line = () => smoothPath(props.hours.map((h, i) => ({ x: x(i), y: y(h.temperature ?? 0) })));
-  const changes = createMemo(() => new Set(skyChanges(props.hours)));
   // Rain falls under the line in two depths; each column repeats every `period` so the loop is seamless.
   const drops = createMemo(() => {
     const step = 92 / Math.max(1, props.hours.length - 1);
@@ -253,6 +252,11 @@ function HourChart(props: { hours: WeatherForecast[]; labelEvery: number }) {
     const last = props.hours.length - 1;
     return i % every === 0 || (i === last && i % every > every / 2);
   };
+  // Icons ride on the labelled hours only, so a sky that flips every hour cannot crowd the labels.
+  const changes = createMemo(() => {
+    const marked = props.hours.flatMap((h, i) => (labelled(i) ? [{ h, i }] : []));
+    return new Set(skyChanges(marked.map((m) => m.h)).map((k) => marked[k]?.i));
+  });
 
   return (
     <div class="wx-chart" role="img" aria-label="Temperature over the next hours">
@@ -315,7 +319,7 @@ function HourChart(props: { hours: WeatherForecast[]; labelEvery: number }) {
       <Index each={props.hours}>
         {(h, i) => (
           <>
-            <Show when={labelled(i) || changes().has(i)}>
+            <Show when={labelled(i)}>
               <span
                 class="wx-chart-point"
                 data-edge={edge(i)}
