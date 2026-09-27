@@ -10,8 +10,8 @@
     "w": 12,
     "h": 10
   },
-  "sdkVersion": "^1.17.0",
-  "version": "0.9.1",
+  "sdkVersion": "^1.17.1",
+  "version": "0.9.2",
   "capabilities": [
     {
       "domain": "camera",

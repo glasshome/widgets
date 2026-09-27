@@ -10,8 +10,8 @@
     "w": 8,
     "h": 8
   },
-  "sdkVersion": "^1.17.0",
-  "version": "0.2.1",
+  "sdkVersion": "^1.17.1",
+  "version": "0.2.2",
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
