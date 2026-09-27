@@ -75,12 +75,13 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             sub={hasLow() ? `${lowCount()} low` : "All good"}
             art={
               <div class="batteries-list">
-                <Index each={batteries().slice(0, 4)}>
+                <Index each={batteries().slice(0, 8)}>
                   {(battery) => (
                     <div class="batteries-row">
                       <Icon
                         icon={getBatteryIcon(battery().level)}
-                        width={16}
+                        width="1em"
+                        height="1em"
                         style={{ color: getBatteryColor(battery().level) }}
                       />
                       <span class="batteries-name">{batteryName(battery().entity)}</span>
@@ -132,7 +133,7 @@ export default defineWidget<BatteriesConfig>({
     description: "Auto-discover and monitor battery levels across all devices",
     icon: "mdi:battery",
     minSize: { w: 2, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
     examples: [
       {
