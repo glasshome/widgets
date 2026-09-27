@@ -147,9 +147,9 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                   )}
                 </Show>
                 <Show when={features()?.supportsVolume}>
-                  <div class="media-fill">
+                  <Widget.Layer>
                     <WidgetSliderFill value={uiVolume()} isDragging={isDragging()} />
-                  </div>
+                  </Widget.Layer>
                 </Show>
                 <Widget.Glyph icon={getMediaIcon(e().state)} />
                 <Widget.Head

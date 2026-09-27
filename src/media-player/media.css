@@ -14,12 +14,6 @@
   filter: blur(18px) saturate(1.2);
   opacity: 0.5;
 }
-.media-fill {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
 /* Transport is the point of this tile, so it stays at two rows tall. */
 @container widget (max-height: 229px) and (min-height: 130px) {
   .media-tile .glasshome-widget-controls {
