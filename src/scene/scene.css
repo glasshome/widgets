@@ -45,3 +45,7 @@
     min-width: 6em;
   }
 }
+.scene-chip.scene-chip[data-ran] {
+  --glass-base: color-mix(in srgb, var(--widget-color) 35%, transparent);
+  transition: background-color var(--duration-state) var(--ease-morph);
+}

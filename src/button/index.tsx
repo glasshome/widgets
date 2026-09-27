@@ -70,7 +70,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     const stamp = entities()[0]?.state;
     const date = stamp ? new Date(stamp) : undefined;
     if (!date || Number.isNaN(date.getTime())) return undefined;
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   };
 
   const gestures = useWidgetGestures(() => ({ tap: handleTap }));

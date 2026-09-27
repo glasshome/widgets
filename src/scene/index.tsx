@@ -28,6 +28,8 @@ const configSchema = defineConfig({
 
 type SceneConfig = Infer<typeof configSchema>;
 
+const RAN_MS = 1600;
+
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, dialogProps } = useWidgetDialog();
@@ -47,18 +49,39 @@ function SceneWidget(props: { config: SceneConfig }) {
 
   const turnOn = useTurnOn();
 
-  const handleTap = async () => {
+  // A scene has no on state to show, so a run is confirmed on the chip for a moment.
+  const [ran, setRan] = createSignal<ReadonlySet<string>>(new Set());
+  let clearRan: ReturnType<typeof setTimeout> | undefined;
+  const confirm = (ids: string[]) => {
+    setRan(new Set(ids));
+    clearTimeout(clearRan);
+    clearRan = setTimeout(() => setRan(new Set()), RAN_MS);
+  };
+  onCleanup(() => clearTimeout(clearRan));
+
+  const run = async (ids: string[]) => {
     if (isLoading()) return;
     setIsLoading(true);
-    const timeout = setTimeout(() => setIsLoading(false), 5000);
     try {
-      for (const e of entities()) {
-        await turnOn(e.id);
-      }
+      for (const id of ids) await turnOn(id);
+      confirm(ids);
     } finally {
-      clearTimeout(timeout);
       setIsLoading(false);
     }
+  };
+  const handleTap = () => run(entities().map((e) => e.id));
+
+  /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
+  const lastRan = () => {
+    const stamps = entities()
+      .map((e) => new Date(e.state).getTime())
+      .filter((t) => !Number.isNaN(t));
+    if (stamps.length === 0) return undefined;
+    const at = new Date(Math.max(...stamps));
+    const time = at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    return at.toDateString() === new Date().toDateString()
+      ? `Ran at ${time}`
+      : `Ran ${at.toLocaleDateString([], { weekday: "short" })} ${time}`;
   };
 
   const name = () =>
@@ -67,6 +90,8 @@ function SceneWidget(props: { config: SceneConfig }) {
     "Scenes";
   // A group named "Scenes" already says what the count would.
   const eyebrow = () => {
+    const ranLine = lastRan();
+    if (ranLine) return ranLine;
     const count = entities().length;
     if (count === 1) return "Scene";
     return name() === "Scenes" ? undefined : `${count} scenes`;
@@ -96,8 +121,17 @@ function SceneWidget(props: { config: SceneConfig }) {
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (
-                  <Button variant="outline" class="scene-chip" onClick={() => turnOn(e.id)}>
-                    <Icon icon="mdi:play" width="1em" height="1em" />
+                  <Button
+                    variant="outline"
+                    class="scene-chip"
+                    data-ran={ran().has(e.id) || undefined}
+                    onClick={() => void run([e.id])}
+                  >
+                    <Icon
+                      icon={ran().has(e.id) ? "mdi:check" : "mdi:play"}
+                      width="1em"
+                      height="1em"
+                    />
                     {entities().length > 1 ? e.friendlyName : "Activate"}
                   </Button>
                 )}
