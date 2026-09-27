@@ -91,7 +91,7 @@ export function EnergyContent(props: EnergyContentProps) {
           </>
         }
       >
-        <div class="flow-scene">
+        <div class="flow-scene" data-art-layer>
           <Spine flow={props.flow} tariff={props.tariff} onTap={() => props.onOpen()} />
         </div>
       </Show>
