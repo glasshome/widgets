@@ -15,6 +15,10 @@
   color: var(--foreground);
 }
 
+/* A child the tile does not place spans it; the max-content first column would collapse it to nothing. */
+.tile > * {
+  grid-column: 1 / -1;
+}
 .tile-head {
   display: flex;
   align-items: flex-start;
