@@ -78,12 +78,12 @@ function AreaWidget(props: { config: AreaConfig }) {
     );
     if (lights.length === 0) return;
     const action = isActive() ? turnOff : turnOn;
-    Promise.allSettled(lights.map((l) => action(l.id)));
+    void Promise.allSettled(lights.map((l) => action(l.id)));
   };
 
   const toggleGroup = (entities: { id: string; state: string }[], on: boolean) => {
     const live = entities.filter((e) => e.state !== "unavailable" && e.state !== "unknown");
-    Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
+    void Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
   };
 
   const toggleCovers = (covers: { id: string; state: string }[], open: boolean) => {

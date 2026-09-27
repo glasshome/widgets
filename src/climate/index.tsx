@@ -114,7 +114,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
         values.length === 2
           ? { target_temp_low: values[0], target_temp_high: values[1] }
           : { temperature: values[0] };
-      callService("climate", "set_temperature", data, { entity_id: id });
+      void callService("climate", "set_temperature", data, { entity_id: id });
     },
   });
   const modes = createMemo(() => {
@@ -129,7 +129,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   });
   const setMode = (m: string) => {
     const id = entity()?.id;
-    if (id) callService("climate", "set_hvac_mode", { hvac_mode: m }, { entity_id: id });
+    if (id) void callService("climate", "set_hvac_mode", { hvac_mode: m }, { entity_id: id });
   };
   const degrees = (t: number) => t.toFixed(t % 1 === 0 ? 0 : 1);
   const targetLabel = () => {

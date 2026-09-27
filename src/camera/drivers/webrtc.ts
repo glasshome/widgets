@@ -19,7 +19,7 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
     if (el && onPlaying) el.removeEventListener("playing", onPlaying);
     el = null;
     onPlaying = null;
-    unsubscribe?.();
+    unsubscribe?.().catch(() => {});
     unsubscribe = null;
     if (pc) {
       pc.close();
@@ -36,7 +36,7 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
     onPlaying = () => cb.onLive();
     el.addEventListener("playing", onPlaying);
 
-    (async () => {
+    void (async () => {
       try {
         let rtcConfig: RTCConfiguration;
         try {

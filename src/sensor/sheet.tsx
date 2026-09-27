@@ -51,7 +51,7 @@ export function SensorSheet(props: { entities: EntityView[] }) {
   createEffect(() => {
     const id = shownId();
     if (!id) return;
-    void trackEntityHistory(id, { startTime: new Date(Date.now() - 24 * HOUR_MS) });
+    trackEntityHistory(id, { startTime: new Date(Date.now() - 24 * HOUR_MS) }).catch(() => {});
     onCleanup(() => untrackEntityHistory(id));
   });
   const history = useEntityHistory(shownId);

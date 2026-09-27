@@ -91,7 +91,7 @@ function LightWidget(props: { config: LightConfig }) {
       setIsDragging(false);
       const ids = entities().map((e) => e.id);
       for (const id of ids) {
-        callService("light", "turn_on", { brightness_pct: value }, { entity_id: id });
+        void callService("light", "turn_on", { brightness_pct: value }, { entity_id: id });
       }
     }, 300);
   };

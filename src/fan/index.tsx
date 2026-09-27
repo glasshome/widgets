@@ -110,7 +110,7 @@ function FanWidget(props: { config: FanConfig }) {
     slideDebounce = setTimeout(() => {
       setIsDragging(false);
       for (const e of entities()) {
-        callService(
+        void callService(
           "fan",
           "set_percentage",
           { percentage: Math.round(value) },
@@ -222,7 +222,7 @@ function FanWidget(props: { config: FanConfig }) {
                     for (const e of entities()) {
                       const offers = (e.attributes?.preset_modes as string[] | undefined) ?? [];
                       if (!offers.includes(p)) continue;
-                      callService(
+                      void callService(
                         "fan",
                         "set_preset_mode",
                         { preset_mode: p },

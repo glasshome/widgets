@@ -74,7 +74,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 
   const call = (service: string, data: Record<string, unknown> = {}) => {
     const id = entityId();
-    if (id) callService("media_player", service, data, { entity_id: id });
+    if (id) void callService("media_player", service, data, { entity_id: id });
   };
 
   let volumeDebounce: ReturnType<typeof setTimeout> | undefined;

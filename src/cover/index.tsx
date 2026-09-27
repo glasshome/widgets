@@ -134,7 +134,12 @@ function CoverWidget(props: { config: CoverConfig }) {
         .filter((e) => getCoverCapabilities(e).canSetPosition)
         .map((e) => e.id);
       if (targets.length > 0) {
-        callService("cover", "set_cover_position", { position: value }, { entity_id: targets });
+        void callService(
+          "cover",
+          "set_cover_position",
+          { position: value },
+          { entity_id: targets },
+        );
       }
       setSlidePosition(null);
     }, 300);
@@ -146,7 +151,12 @@ function CoverWidget(props: { config: CoverConfig }) {
     slideDebounce = setTimeout(() => {
       const targets = entityIds();
       if (Math.abs(delta) >= DIRECTIONAL_SLIDE_THRESHOLD && targets.length > 0) {
-        callService("cover", delta > 0 ? "open_cover" : "close_cover", {}, { entity_id: targets });
+        void callService(
+          "cover",
+          delta > 0 ? "open_cover" : "close_cover",
+          {},
+          { entity_id: targets },
+        );
       }
       setSlideDelta(0);
     }, 250);
@@ -162,8 +172,14 @@ function CoverWidget(props: { config: CoverConfig }) {
     }
     const targets = entityIds();
     if (targets.length === 0) return;
-    if (count() === 1) callService("cover", "toggle", {}, { entity_id: targets });
-    else callService("cover", isOpen() ? "close_cover" : "open_cover", {}, { entity_id: targets });
+    if (count() === 1) void callService("cover", "toggle", {}, { entity_id: targets });
+    else
+      void callService(
+        "cover",
+        isOpen() ? "close_cover" : "open_cover",
+        {},
+        { entity_id: targets },
+      );
   };
 
   const extras = createMemo(() => coverHasExtras(entities()));

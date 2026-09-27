@@ -47,7 +47,7 @@ function SensorWidget(props: { config: SensorConfig }) {
   const historyFrom = Date.now() - 24 * 60 * 60 * 1000;
   onMount(() => {
     const id = primaryEntityId();
-    if (id) trackEntityHistory(id, { startTime: new Date(historyFrom) });
+    if (id) trackEntityHistory(id, { startTime: new Date(historyFrom) }).catch(() => {});
   });
   onCleanup(() => {
     const id = primaryEntityId();
