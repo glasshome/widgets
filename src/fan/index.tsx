@@ -50,7 +50,7 @@ type FanConfig = Infer<typeof configSchema>;
 
 function FanWidget(props: { config: FanConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService, turnOn, turnOff } = useService();
@@ -142,7 +142,6 @@ function FanWidget(props: { config: FanConfig }) {
           },
         }
       : {}),
-    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 

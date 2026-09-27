@@ -9,13 +9,12 @@ import {
   useForecast,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, onCleanup, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";
 import { type Detail, type Model, WeatherTile } from "./layout";
@@ -52,7 +51,7 @@ const UV_WORDS: [number, string][] = [
 
 function WeatherWidget(props: { config: WeatherConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -146,11 +145,6 @@ function WeatherWidget(props: { config: WeatherConfig }) {
   const extras = () =>
     !!entity() && (sheetHours().length > 1 || sheetDays().length > 0 || details().length > 0);
 
-  const gestures = useWidgetGestures(() => ({
-    hold: extras() ? { action: openDialog } : undefined,
-  }));
-  onCleanup(gestures.dispose);
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const e = entity();
     if (!e) return undefined;
@@ -162,7 +156,6 @@ function WeatherWidget(props: { config: WeatherConfig }) {
   return (
     <>
       <Widget
-        gestures={gestures}
         variant="classic-glass"
         color={getWeatherIconColor(condition())}
         emptyState={

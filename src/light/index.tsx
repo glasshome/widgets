@@ -38,7 +38,7 @@ type LightConfig = Infer<typeof configSchema>;
 
 function LightWidget(props: { config: LightConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService, turnOn, turnOff } = useService();
@@ -114,7 +114,6 @@ function LightWidget(props: { config: LightConfig }) {
       orientation: "auto" as const,
       activationDelay: 0,
     },
-    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 

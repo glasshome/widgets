@@ -105,7 +105,6 @@ function LockWidget(props: { config: LockConfig }) {
 
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
-    hold: count() > 1 ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 

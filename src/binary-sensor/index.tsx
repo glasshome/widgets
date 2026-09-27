@@ -11,13 +11,12 @@ import {
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
-  useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, type JSX, onCleanup, Show } from "solid-js";
+import { createMemo, type JSX, Show } from "solid-js";
 import { getBinarySensorIcon, widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import windowSash from "../common/art/assets/window-sash.strip";
@@ -67,7 +66,7 @@ type BinarySensorConfig = Infer<typeof configSchema>;
 
 function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -125,11 +124,6 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     return kind ? ART[kind](isOn) : undefined;
   };
 
-  const gestures = useWidgetGestures(() => ({
-    hold: count() > 1 ? { action: openDialog } : undefined,
-  }));
-  onCleanup(gestures.dispose);
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -138,12 +132,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
 
   return (
     <>
-      <Widget
-        gestures={gestures}
-        variant="classic-glass"
-        tone={isOn() ? "info" : "neutral"}
-        emptyState={emptyState()}
-      >
+      <Widget variant="classic-glass" tone={isOn() ? "info" : "neutral"} emptyState={emptyState()}>
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Glyph icon={iconName()} />

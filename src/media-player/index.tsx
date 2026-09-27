@@ -34,7 +34,7 @@ type MediaPlayerConfig = Infer<typeof configSchema>;
 
 function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -95,7 +95,6 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 
   const gestures = useWidgetGestures(() => ({
     tap: () => call("media_play_pause"),
-    hold: extras() ? { action: openDialog } : undefined,
     slide: features()?.supportsVolume
       ? {
           value: uiVolume(),

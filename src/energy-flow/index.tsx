@@ -4,11 +4,10 @@ import {
   useEntity,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetGestures,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, onCleanup, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { describeFlow, EnergyEmptyState } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
 import { widgetDialogProps } from "../common";
@@ -74,14 +73,9 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   const extras = () => !unconfigured() && !stale();
   const tariff = () => ({ currency: props.config.tariffCurrency, rate: props.config.tariffRate });
 
-  const gestures = useWidgetGestures(() => ({
-    hold: extras() ? { action: openDialog } : undefined,
-  }));
-  onCleanup(gestures.dispose);
-
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" color={channelColor()}>
+      <Widget variant="classic-glass" color={channelColor()}>
         <Show
           when={!unconfigured()}
           fallback={

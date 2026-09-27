@@ -170,7 +170,6 @@ function CoverWidget(props: { config: CoverConfig }) {
 
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
-    hold: extras() ? { action: openDialog } : undefined,
     slide: !actsInBulk()
       ? undefined
       : supportsPosition()

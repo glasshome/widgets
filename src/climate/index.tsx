@@ -54,7 +54,7 @@ type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -197,7 +197,6 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   });
 
   const gestures = useWidgetGestures(() => ({
-    hold: extras() ? { action: openDialog } : undefined,
     slide:
       hvacMode() === "off"
         ? undefined

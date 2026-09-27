@@ -31,7 +31,7 @@ type SwitchConfig = Infer<typeof configSchema>;
 
 function SwitchWidget(props: { config: SwitchConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
@@ -81,7 +81,6 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
   const gestures = useWidgetGestures(() => ({
     tap: handleTap,
-    hold: extras() ? { action: openDialog } : undefined,
   }));
   onCleanup(gestures.dispose);
 

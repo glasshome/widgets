@@ -13,7 +13,6 @@ import {
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
-  useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
@@ -38,7 +37,7 @@ type SensorConfig = Infer<typeof configSchema>;
 
 function SensorWidget(props: { config: SensorConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -118,11 +117,6 @@ function SensorWidget(props: { config: SensorConfig }) {
   const extras = () =>
     entities().length > 1 || !Number.isNaN(Number(entities()[0]?.state ?? Number.NaN));
 
-  const gestures = useWidgetGestures(() => ({
-    hold: extras() ? { action: openDialog } : undefined,
-  }));
-  onCleanup(gestures.dispose);
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
     if (ents.length === 0) return undefined;
@@ -133,7 +127,7 @@ function SensorWidget(props: { config: SensorConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" tone="info" emptyState={emptyState()}>
+      <Widget variant="classic-glass" tone="info" emptyState={emptyState()}>
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Glyph icon={iconName()} />

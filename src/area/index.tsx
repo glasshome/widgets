@@ -12,13 +12,12 @@ import {
   useService,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, onCleanup, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { isRoomKind, ROOM_PRESETS, roomIcon, roomPhotos } from "../common/art/room";
 import { type AreaAction, AreaContent } from "./area-content";
@@ -108,9 +107,6 @@ function AreaWidget(props: { config: AreaConfig }) {
     else openDialog();
   };
 
-  const gestures = useWidgetGestures(() => ({ hold: { action: openDialog } }));
-  onCleanup(gestures.dispose);
-
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const a = area();
     if (!a) return undefined;
@@ -131,7 +127,6 @@ function AreaWidget(props: { config: AreaConfig }) {
   return (
     <>
       <Widget
-        gestures={gestures}
         variant="classic-glass"
         tone="neutral"
         emptyState={

@@ -8,13 +8,12 @@ import {
   useEntities,
   useWidgetContext,
   useWidgetDialog,
-  useWidgetGestures,
   Widget,
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, Index, onCleanup } from "solid-js";
+import { createMemo, Index } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
@@ -30,7 +29,7 @@ type BatteriesConfig = Infer<typeof configSchema>;
 
 function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
-  const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
+  const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const sensorIds = createMemo(() => byDomain().sensor ?? []);
   const sensorEntities = useEntities(sensorIds);
@@ -40,11 +39,6 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   const lowCount = createMemo(() => batteries().filter((b) => b.isLow).length);
   const totalCount = createMemo(() => batteries().length);
   const hasLow = createMemo(() => lowCount() > 0);
-
-  const gestures = useWidgetGestures(() => ({
-    hold: totalCount() > 0 ? { action: openDialog } : undefined,
-  }));
-  onCleanup(gestures.dispose);
 
   const lowestLevel = () => batteries()[0]?.level;
 
@@ -59,7 +53,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 
   return (
     <>
-      <Widget gestures={gestures} variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
+      <Widget variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
         <Widget.Content>
           <Widget.Glyph icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />
           <Widget.Head
