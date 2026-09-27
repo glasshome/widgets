@@ -6,11 +6,10 @@ import {
   PanelFacts,
   PanelRows,
   PanelSection,
-  SwatchPicker,
   useService,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, Show } from "solid-js";
-import { LIGHT_SWATCHES, swatchService } from "../common/light-swatches";
+import { createMemo, For, Show } from "solid-js";
+import { LightColour } from "../common/light-colour";
 import type { AreaMetrics } from "./utils";
 
 const SECTIONS: { label: string; domains: string[] }[] = [
@@ -53,16 +52,6 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics }) {
   const byDomain = (domains: string[]) =>
     props.area.entities.filter((e) => domains.includes(e.domain) && live(e.state));
   const scenes = () => byDomain(["scene"]);
-
-  const [swatch, setSwatch] = createSignal<string | null>(null);
-  const colourRoom = (color: string) => {
-    setSwatch(color);
-    const ids = byDomain(["light"])
-      .filter((l) => l.state === "on")
-      .map((l) => l.id);
-    if (ids.length === 0) return;
-    void callService("light", "turn_on", swatchService(color), { entity_id: ids });
-  };
 
   const facts = createMemo((): PanelFact[] => {
     const out: PanelFact[] = [];
@@ -112,15 +101,10 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics }) {
                   {(e) => <PanelEntityRow entityId={e.id} within={props.area.name} />}
                 </For>
               </PanelRows>
-              <Show when={section.domains.includes("light")}>
-                <SwatchPicker
-                  value={swatch()}
-                  colors={LIGHT_SWATCHES}
-                  onChange={colourRoom}
-                  aria-label="Colour of the lights that are on"
-                />
-              </Show>
             </PanelSection>
+            <Show when={section.domains.includes("light")}>
+              <LightColour lamps={byDomain(["light"])} />
+            </Show>
           </Show>
         )}
       </For>
