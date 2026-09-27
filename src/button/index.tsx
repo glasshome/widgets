@@ -136,7 +136,7 @@ export default defineWidget<ButtonConfig>({
     description: "Press a button entity",
     icon: "mdi:gesture-tap-button",
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
     examples: [
       {
