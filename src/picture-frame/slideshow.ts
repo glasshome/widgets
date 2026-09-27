@@ -1,8 +1,8 @@
 import type { ChangeInterval, PictureFit } from "./types";
 
-export type Slide = { key: string; src: string };
+type Slide = { key: string; src: string };
 
-export type SlideshowNote = { label: string; hint: string };
+type SlideshowNote = { label: string; hint: string };
 
 export type SlideshowView = {
   slides: Slide[];

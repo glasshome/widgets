@@ -85,7 +85,7 @@ const COVERING_KINDS: Record<string, CoverKind> = {
   window: { one: "Window", many: "Windows", open: "mdi:window-open", closed: "mdi:window-closed" },
 };
 
-export function isDoorCover(entity: EntityView): boolean {
+function isDoorCover(entity: EntityView): boolean {
   return entity.deviceClass != null && entity.deviceClass in DOOR_KINDS;
 }
 
@@ -101,8 +101,6 @@ function sharedKind(
 
 export const coverKind = (covers: EntityView[]) => sharedKind(covers, COVERING_KINDS, BLINDS);
 export const doorKind = (doors: EntityView[]) => sharedKind(doors, DOOR_KINDS, MIXED_DOORS);
-export const coverIcon = (entity: EntityView) =>
-  (isDoorCover(entity) ? doorKind([entity]) : coverKind([entity])).closed;
 
 export function groupEntitiesByDomain(entities: EntityView[]): EntityGroups {
   const groups: EntityGroups = {

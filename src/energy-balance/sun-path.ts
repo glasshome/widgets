@@ -1,5 +1,5 @@
 /** Share of the backdrop's height where its horizon sits; the photo is pinned there. */
-export const HORIZON = 0.7;
+const HORIZON = 0.7;
 const APEX = 0.36;
 const LEFT = 0.52;
 const RIGHT = 0.94;

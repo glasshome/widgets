@@ -1,6 +1,6 @@
 import type { ClockPreset, ClockPresetTheme } from "./types";
 
-export const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
+const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   modern: {
     name: "Modern",
     description: "Clean, contemporary look with cyan glow",

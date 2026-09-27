@@ -13,12 +13,12 @@ interface NodePresentation {
   level: string[];
 }
 
-export interface InputNodeConfig extends NodePresentation {
+interface InputNodeConfig extends NodePresentation {
   kind: "input";
   entities: string[];
 }
 
-export interface OutputNodeConfig extends NodePresentation {
+interface OutputNodeConfig extends NodePresentation {
   kind: "output";
   entities: string[];
   /** Computed as inputs minus the other outputs; at most one per list. */

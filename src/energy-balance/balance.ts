@@ -2,7 +2,7 @@
 // hands plain numbers in.
 
 /** Live net at or below this magnitude reads as balanced (W). */
-export const NET_THRESHOLD_W = 50;
+const NET_THRESHOLD_W = 50;
 
 export interface BalanceInputs {
   producedKWh: number;

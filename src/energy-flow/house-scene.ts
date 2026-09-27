@@ -12,7 +12,7 @@ interface Point {
 
 export type LabelSide = "left" | "right" | "bottom";
 
-export interface SceneLabel {
+interface SceneLabel {
   id: string;
   side: LabelSide;
   /** Where the label meets its line: inner edge for columns, top centre for the bottom row. */
@@ -33,9 +33,9 @@ export interface HouseScene {
 }
 
 /** Width over height of the house art. */
-export const HOUSE_ASPECT = 520 / 358;
-export const LABEL_W = 96;
-export const BOTTOM_H = 36;
+const HOUSE_ASPECT = 520 / 358;
+const LABEL_W = 96;
+const BOTTOM_H = 36;
 const GAP = 16;
 const ROW_MIN = 40;
 

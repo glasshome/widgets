@@ -1,12 +1,8 @@
 import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
 
-export type ClockStyle = "digital" | "analog" | "square";
 export type ClockSize = "small" | "medium" | "large";
-export type TickType = "none" | "quarter" | "hour" | "minute";
 export type ClockPreset = "modern" | "classic" | "minimal" | "bold";
 export type DateFormat = "MM/DD/YYYY" | "DD/MM/YYYY" | "YYYY-MM-DD";
-export type ClockFontSize = "small" | "medium" | "large";
-export type ClockLayout = "auto" | "horizontal" | "stacked";
 
 export const configSchema = defineConfig({
   clockStyle: field.choice(["digital", "analog", "square"], {
@@ -50,7 +46,7 @@ export interface AnalogPresetTheme {
   tickColor: string;
 }
 
-export interface DigitalPresetTheme {
+interface DigitalPresetTheme {
   fontFamily: string;
   fontWeight: string;
   letterSpacing: string;

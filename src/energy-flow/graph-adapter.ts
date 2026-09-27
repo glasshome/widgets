@@ -236,7 +236,7 @@ export function dominantColor(flow: ResolvedFlow): string {
   return top ? top.color : energyColors.home;
 }
 
-export interface NodeView {
+interface NodeView {
   icon: string;
   label: string;
   value: string;

@@ -1,35 +1,15 @@
-/**
- * Domain-agnostic node/edge graph model + the geometry the layout engine emits.
- * No SolidJS, no DOM — everything here is pure data, unit-testable.
- */
-
-export interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
-/** The one geometry unit: a vertical span [top, bottom] at a single x. A node
- *  port is a band; a stacked lane is a band; a ribbon connects two bands. */
-export interface Band {
-  x: number;
-  top: number;
-  bottom: number;
-}
-
-export type PortSide = "left" | "right" | "top" | "bottom";
+type PortSide = "left" | "right" | "top" | "bottom";
 
 /** A named attach point on one side of a node. Minimal in the column layout
  *  (which is kind-driven); richer layouts can resolve ports geometrically. */
-export interface Port {
+interface Port {
   id: string;
   side: PortSide;
 }
 
 /** Column-layout role. `source` -> left column, `spend` -> right column, `hub`
  *  -> centered. A future free-form layout could read explicit coordinates. */
-export type NodeKind = "source" | "hub" | "spend";
+type NodeKind = "source" | "hub" | "spend";
 
 export interface FlowNode {
   id: string;
@@ -37,7 +17,7 @@ export interface FlowNode {
   ports?: Port[];
 }
 
-export interface PortRef {
+interface PortRef {
   node: string;
   port?: string;
 }
@@ -65,24 +45,4 @@ export interface FlowEdge {
 export interface FlowGraph {
   nodes: FlowNode[];
   edges: FlowEdge[];
-}
-
-/** A node placed in pixel space by the layout engine. */
-export interface PlacedNode {
-  node: FlowNode;
-  rect: Rect;
-}
-
-/** An edge resolved to a constant-width ribbon: a band at each endpoint. */
-export interface PlacedEdge {
-  edge: FlowEdge;
-  from: Band;
-  to: Band;
-}
-
-export interface PositionedGraph {
-  width: number;
-  height: number;
-  nodes: PlacedNode[];
-  edges: PlacedEdge[];
 }

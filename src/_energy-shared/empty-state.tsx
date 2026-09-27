@@ -1,7 +1,7 @@
 import { Badge, Button } from "@glasshome/widget-sdk";
 import { type JSX, Match, Show, Switch } from "solid-js";
 
-export type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
+type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
 
 export interface EnergyEmptyStateProps {
   kind: EnergyEmptyStateKind;

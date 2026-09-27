@@ -11,7 +11,7 @@ import type { FlowState } from "../_energy-shared/formatting";
 /** Flows at or below this read as idle everywhere in the widget (W). */
 export const ACTIVE_THRESHOLD = 50;
 
-export type NodeKind = "input" | "output" | "bidirectional";
+type NodeKind = "input" | "output" | "bidirectional";
 
 /** Which side of the hub the node's power is flowing right now. */
 export type FlowDirection = "in" | "out" | "idle";

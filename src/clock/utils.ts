@@ -1,7 +1,7 @@
 import type { ClockConfig, ClockPreset, DateFormat } from "./types";
 
 /** Each preset's two glass stops; the shell paints them at its own wash. */
-export const CLOCK_TONES: Record<ClockPreset, { color: string; colorTo: string }> = {
+const CLOCK_TONES: Record<ClockPreset, { color: string; colorTo: string }> = {
   modern: { color: "oklch(0.7 0.18 240)", colorTo: "oklch(0.7 0.18 200)" },
   classic: { color: "oklch(0.7 0.18 70)", colorTo: "oklch(0.7 0.18 40)" },
   minimal: { color: "oklch(0.7 0.02 250)", colorTo: "oklch(0.7 0.02 250)" },
