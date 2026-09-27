@@ -138,7 +138,9 @@ export function AnalogClock(props: AnalogClockProps) {
       d.width - 16 - (props.reserveX ?? 0),
       d.height - 16 - (props.reserve ?? 0),
     );
-    return Math.max(56, Math.min(SIZE_MAP[props.size] ?? 130, fit));
+    // Past a 4x4 box (short side 328px) the face grows with the tile, keeping its 4x4 share.
+    const grow = Math.max(1, Math.min(d.width, d.height) / 328);
+    return Math.max(56, Math.min((SIZE_MAP[props.size] ?? 130) * grow, fit));
   };
   const cx = () => size() / 2;
   const cy = () => size() / 2;

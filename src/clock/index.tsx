@@ -53,50 +53,13 @@ function ClockWidget(props: { config: ClockConfig }) {
   // Single accent drives the live seconds bar — same palette as the analog/square faces.
   const barColor = () => "var(--primary)";
 
-  // Responsive font classes
-  const timeClasses = () => {
-    switch (cfg().fontSize) {
-      case "small":
-        return "text-3xl @[150px]:text-4xl @[250px]:text-5xl @[350px]:text-6xl";
-      case "large":
-        return "text-5xl @[150px]:text-6xl @[250px]:text-7xl @[350px]:text-8xl";
-      default:
-        return "text-4xl @[150px]:text-5xl @[250px]:text-6xl @[350px]:text-7xl";
-    }
-  };
-
-  const secondsClasses = () => {
-    switch (cfg().fontSize) {
-      case "small":
-        return "text-lg @[150px]:text-xl @[250px]:text-2xl @[350px]:text-3xl";
-      case "large":
-        return "text-2xl @[150px]:text-3xl @[250px]:text-4xl @[350px]:text-5xl";
-      default:
-        return "text-xl @[150px]:text-2xl @[250px]:text-3xl @[350px]:text-4xl";
-    }
-  };
-
-  const dayClasses = () => {
-    switch (cfg().fontSize) {
-      case "small":
-        return "text-[10px] @[200px]:text-xs ";
-      case "large":
-        return "text-sm @[200px]:text-base ";
-      default:
-        return "text-xs @[200px]:text-sm ";
-    }
-  };
-
-  const dateClasses = () => {
-    switch (cfg().fontSize) {
-      case "small":
-        return "text-[10px] @[200px]:text-xs";
-      case "large":
-        return "text-sm @[200px]:text-base";
-      default:
-        return "text-xs @[200px]:text-sm";
-    }
-  };
+  // Sizes follow the tile, so a big clock keeps filling it; the setting scales them together.
+  const SCALE = { small: 0.8, medium: 1, large: 1.2 } as const;
+  const k = () => SCALE[cfg().fontSize as keyof typeof SCALE] ?? 1;
+  const timeSize = (stacked: boolean) =>
+    `calc(${k()} * clamp(28px, ${stacked ? "min(34cqi, 26cqb)" : "min(19cqi, 40cqb)"}, 420px))`;
+  const secondsSize = (stacked: boolean) => `calc(0.45 * ${timeSize(stacked)})`;
+  const metaSize = () => `calc(${k()} * clamp(11px, 3.4cqmin, 30px))`;
 
   const digital = () => presetTheme().digital;
 
@@ -121,8 +84,9 @@ function ClockWidget(props: { config: ClockConfig }) {
           /* Stacked layout */
           <div class="flex flex-col items-center justify-center leading-none">
             <div
-              class={`font-bold tabular-nums ${timeClasses()} text-foreground`}
+              class="font-bold text-foreground tabular-nums"
               style={{
+                "font-size": timeSize(true),
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
                 "letter-spacing": digital().letterSpacing,
@@ -132,8 +96,9 @@ function ClockWidget(props: { config: ClockConfig }) {
               {timeParts().hours}
             </div>
             <div
-              class={`font-bold tabular-nums opacity-70 ${timeClasses()} text-foreground`}
+              class="font-bold text-foreground tabular-nums opacity-70"
               style={{
+                "font-size": timeSize(true),
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
                 "letter-spacing": digital().letterSpacing,
@@ -145,8 +110,9 @@ function ClockWidget(props: { config: ClockConfig }) {
             <Show when={cfg().showSeconds}>
               <div class="@[200px]:mt-2 mt-1 flex items-center gap-1">
                 <div
-                  class={`font-bold tabular-nums ${secondsClasses()}`}
+                  class="font-bold tabular-nums"
                   style={{
+                    "font-size": secondsSize(true),
                     "font-family": digital().fontFamily,
                     "font-weight": digital().fontWeight,
                     color: "var(--primary)",
@@ -170,8 +136,9 @@ function ClockWidget(props: { config: ClockConfig }) {
         {/* Horizontal layout (default) */}
         <div class="flex items-baseline justify-center gap-0.5">
           <div
-            class={`font-bold tabular-nums ${timeClasses()} text-foreground`}
+            class="font-bold text-foreground tabular-nums"
             style={{
+              "font-size": timeSize(false),
               "font-family": digital().fontFamily,
               "font-weight": digital().fontWeight,
               "letter-spacing": digital().letterSpacing,
@@ -184,8 +151,9 @@ function ClockWidget(props: { config: ClockConfig }) {
 
           <Show when={cfg().showSeconds}>
             <div
-              class={`mb-[0.1em] self-end font-bold tabular-nums ${secondsClasses()}`}
+              class="mb-[0.1em] self-end font-bold tabular-nums"
               style={{
+                "font-size": secondsSize(false),
                 "font-family": digital().fontFamily,
                 "font-weight": digital().fontWeight,
                 color: "var(--primary)",
@@ -317,8 +285,12 @@ function ClockWidget(props: { config: ClockConfig }) {
   const DateBlock = () => (
     <div class="flex flex-col items-center @[200px]:gap-1 gap-0.5">
       <Show when={cfg().showDate}>
-        <span class={`font-medium text-foreground/60 ${dayClasses()}`}>{dayOfWeek()}</span>
-        <span class={`text-foreground opacity-50 ${dateClasses()}`}>{formattedDate()}</span>
+        <span class="font-medium text-foreground/60" style={{ "font-size": metaSize() }}>
+          {dayOfWeek()}
+        </span>
+        <span class="text-foreground opacity-50" style={{ "font-size": metaSize() }}>
+          {formattedDate()}
+        </span>
       </Show>
     </div>
   );
@@ -699,7 +671,7 @@ export default defineWidget<ClockConfig>({
     description: "Display current time with digital or analog styles, presets, and date",
     icon: "mdi:clock-outline",
     minSize: { w: 1, h: 1 },
-    maxSize: { w: 4, h: 4 },
+    maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
     examples: [
       {
