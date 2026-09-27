@@ -110,7 +110,7 @@ export function WeatherTile(props: { model: Model }) {
   // The picture gets its own region; small text only ever sits on the glass below it.
   const sceneShare = () => {
     if (!hasBand()) return 1;
-    if (tier() === "split") return 0.66;
+    if (tier() === "split") return 0.78;
     return dayCount() > 0 ? 0.5 : 0.66;
   };
 
@@ -132,6 +132,7 @@ export function WeatherTile(props: { model: Model }) {
         <div
           class="wx-scene"
           classList={{ dark: dark() }}
+          data-tier={tier()}
           data-side={sideScene() || undefined}
           style={
             sideScene()
