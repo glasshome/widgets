@@ -362,6 +362,29 @@ export default defineWidget<ClimateConfig>({
           art: "heatpump",
         },
       },
+      {
+        label: "Compact",
+        size: { w: 2, h: 1 },
+        config: {
+          entityIds: ["climate.living_room_thermostat"],
+          title: "Thermostat",
+          art: "thermostat",
+        },
+      },
+      {
+        label: "Air conditioner, wide",
+        size: { w: 4, h: 2 },
+        config: { entityIds: ["climate.bedroom_ac"], title: "Bedroom", art: "ac" },
+      },
+      {
+        label: "Large thermostat",
+        size: { w: 6, h: 6 },
+        config: {
+          entityIds: ["climate.living_room_thermostat"],
+          title: "Thermostat",
+          art: "thermostat",
+        },
+      },
     ],
   },
   configSchema,

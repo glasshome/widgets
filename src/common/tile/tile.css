@@ -422,7 +422,7 @@
 }
 /* A big tile with no art of its own carries its icon large and faint, so the glass is not an empty box. */
 @container widget (min-width: 300px) and (min-height: 260px) {
-  .tile:not(:has(> .tile-hero[data-art], > .tile-art, > [data-art-layer])) > .tile-glyph {
+  .tile:not([data-backdrop], :has(> .tile-hero[data-art], > .tile-art, > [data-art-layer])) > .tile-glyph {
     display: block;
     right: -3%;
     bottom: -12%;

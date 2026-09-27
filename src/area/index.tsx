@@ -223,6 +223,26 @@ export default defineWidget<AreaConfig>({
         size: { w: 3, h: 3 },
         config: { areaId: "garage", image: presetValue("garage") },
       },
+      {
+        label: "Small",
+        size: { w: 2, h: 2 },
+        config: { areaId: "living_room", title: "Living Room", image: presetValue("living") },
+      },
+      {
+        label: "Wide",
+        size: { w: 4, h: 2 },
+        config: { areaId: "bedroom", image: presetValue("bedroom") },
+      },
+      {
+        label: "Large",
+        size: { w: 6, h: 4 },
+        config: { areaId: "kitchen", image: presetValue("kitchen") },
+      },
+      {
+        label: "Plain glass",
+        size: { w: 3, h: 2 },
+        config: { areaId: "entry" },
+      },
     ],
   },
   configSchema,

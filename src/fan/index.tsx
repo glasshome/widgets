@@ -284,6 +284,25 @@ export default defineWidget<FanConfig>({
         size: { w: 2, h: 2 },
         config: { entityIds: ["fan.air_purifier"], art: "purifier" },
       },
+      {
+        label: "Fans",
+        size: { w: 3, h: 2 },
+        config: {
+          entityIds: ["fan.bedroom_ceiling", "fan.air_purifier"],
+          title: "Fans",
+          art: "pedestal",
+        },
+      },
+      {
+        label: "Compact",
+        size: { w: 1, h: 1 },
+        config: { entityIds: ["fan.bedroom_ceiling"], title: "Bedroom Fan", art: "pedestal" },
+      },
+      {
+        label: "Large purifier",
+        size: { w: 4, h: 4 },
+        config: { entityIds: ["fan.air_purifier"], art: "purifier" },
+      },
     ],
   },
   configSchema,

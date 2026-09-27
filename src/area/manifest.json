@@ -168,6 +168,50 @@
         "areaId": "garage",
         "image": "preset:garage"
       }
+    },
+    {
+      "label": "Small",
+      "size": {
+        "w": 2,
+        "h": 2
+      },
+      "config": {
+        "areaId": "living_room",
+        "title": "Living Room",
+        "image": "preset:living"
+      }
+    },
+    {
+      "label": "Wide",
+      "size": {
+        "w": 4,
+        "h": 2
+      },
+      "config": {
+        "areaId": "bedroom",
+        "image": "preset:bedroom"
+      }
+    },
+    {
+      "label": "Large",
+      "size": {
+        "w": 6,
+        "h": 4
+      },
+      "config": {
+        "areaId": "kitchen",
+        "image": "preset:kitchen"
+      }
+    },
+    {
+      "label": "Plain glass",
+      "size": {
+        "w": 3,
+        "h": 2
+      },
+      "config": {
+        "areaId": "entry"
+      }
     }
   ],
   "configVersion": 1
