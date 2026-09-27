@@ -26,42 +26,22 @@ const soundModes = (e: EntityView) =>
 const duration = (e: EntityView) => getEntityAttribute<number>(e, "media_duration") ?? 0;
 const seekable = (e: EntityView) => calculateFeatures(e).supportsSeek && duration(e) > 0;
 
-/** One pick among a few: a segmented row while it fits the sheet, wrapping chips past that. */
+/** One pick among a few; the row wraps onto more lines when it runs out of width. */
 function Choices(props: {
   label: string;
   items: string[];
   value: string | undefined;
   onPick: (value: string) => void;
 }) {
-  const fits = () => props.items.length <= 4 && props.items.reduce((n, c) => n + c.length, 0) <= 26;
   return (
-    <Show
-      when={fits()}
-      fallback={
-        <div class="glasshome-sheet-actions">
-          <For each={props.items}>
-            {(c) => (
-              <Toggle
-                variant="outline"
-                pressed={props.value === c}
-                onChange={(on) => on && props.onPick(c)}
-              >
-                {c}
-              </Toggle>
-            )}
-          </For>
-        </div>
-      }
+    <ToggleGroup
+      aria-label={props.label}
+      class="w-full"
+      value={props.value ?? null}
+      onChange={(v: string | null) => v && props.onPick(v)}
     >
-      <ToggleGroup
-        aria-label={props.label}
-        class="w-full"
-        value={props.value ?? null}
-        onChange={(v: string | null) => v && props.onPick(v)}
-      >
-        <For each={props.items}>{(c) => <ToggleGroupItem value={c}>{c}</ToggleGroupItem>}</For>
-      </ToggleGroup>
-    </Show>
+      <For each={props.items}>{(c) => <ToggleGroupItem value={c}>{c}</ToggleGroupItem>}</For>
+    </ToggleGroup>
   );
 }
 

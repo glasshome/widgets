@@ -3,7 +3,6 @@ import {
   isDark,
   PanelSection,
   Slider,
-  Toggle,
   ToggleGroup,
   ToggleGroupItem,
   useService,
@@ -29,7 +28,7 @@ interface Choice {
   icon?: string;
 }
 
-/** One pick among a few: a segmented row while it fits the sheet, wrapping chips past that. */
+/** One pick among a few; the row wraps onto more lines when it runs out of width. */
 function Choices(props: {
   label: string;
   items: Choice[];
@@ -37,50 +36,23 @@ function Choices(props: {
   tone: string;
   onPick: (value: string) => void;
 }) {
-  const fits = () =>
-    props.items.length <= 4 &&
-    props.items.reduce((n, c) => n + c.label.length + (c.icon ? 3 : 0), 0) <= 26;
-  const face = (c: Choice) => (
-    <>
-      <Show when={c.icon}>{(icon) => <Icon icon={icon()} width={18} />}</Show>
-      {c.label}
-    </>
-  );
   return (
-    <Show
-      when={fits()}
-      fallback={
-        <div class="glasshome-sheet-actions">
-          <For each={props.items}>
-            {(c) => (
-              <Toggle
-                variant="outline"
-                pressed={props.value === c.value}
-                onChange={(on) => on && props.onPick(c.value)}
-              >
-                {face(c)}
-              </Toggle>
-            )}
-          </For>
-        </div>
-      }
+    <ToggleGroup
+      aria-label={props.label}
+      class="w-full"
+      tone={props.tone}
+      value={props.value ?? null}
+      onChange={(v: string | null) => v && props.onPick(v)}
     >
-      <ToggleGroup
-        aria-label={props.label}
-        class="w-full"
-        tone={props.tone}
-        value={props.value ?? null}
-        onChange={(v: string | null) => v && props.onPick(v)}
-      >
-        <For each={props.items}>
-          {(c) => (
-            <ToggleGroupItem value={c.value} aria-label={c.label}>
-              {face(c)}
-            </ToggleGroupItem>
-          )}
-        </For>
-      </ToggleGroup>
-    </Show>
+      <For each={props.items}>
+        {(c) => (
+          <ToggleGroupItem value={c.value} aria-label={c.label}>
+            <Show when={c.icon}>{(icon) => <Icon icon={icon()} width={18} />}</Show>
+            {c.label}
+          </ToggleGroupItem>
+        )}
+      </For>
+    </ToggleGroup>
   );
 }
 
