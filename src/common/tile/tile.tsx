@@ -22,6 +22,8 @@ import "./tile.css";
 export function Tile(props: {
   active?: boolean;
   backdrop?: boolean;
+  /** A one-shot action just ran: the tile lights and its glyph reads clearly for a moment. */
+  confirmed?: boolean;
   accent?: string;
   class?: string;
   children: JSX.Element;
@@ -30,7 +32,8 @@ export function Tile(props: {
     <div
       class={props.class ? `tile ${props.class}` : "tile"}
       style={props.accent ? { "--widget-color": props.accent } : undefined}
-      data-active={props.active || undefined}
+      data-active={props.active || props.confirmed || undefined}
+      data-confirmed={props.confirmed || undefined}
       data-backdrop={props.backdrop || undefined}
     >
       {props.children}

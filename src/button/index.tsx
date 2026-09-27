@@ -19,6 +19,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { useConfirm } from "../common/use-confirm";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -46,19 +47,21 @@ function ButtonWidget(props: { config: ButtonConfig }) {
 
   const { callService } = useService();
 
+  const confirm = useConfirm();
   const handleTap = async () => {
     if (isLoading()) return;
     setIsLoading(true);
-    const timeout = setTimeout(() => setIsLoading(false), 5000);
     try {
-      for (const e of entities()) {
-        await callService("button", "press", {}, { entity_id: e.id });
-      }
+      await confirm.run(["press"], async () => {
+        for (const e of entities()) {
+          await callService("button", "press", {}, { entity_id: e.id });
+        }
+      });
     } finally {
-      clearTimeout(timeout);
       setIsLoading(false);
     }
   };
+  const buttonIcon = () => (confirm.any() ? "mdi:check" : "mdi:gesture-tap-button");
 
   const name = () =>
     props.config.title ||
@@ -92,10 +95,11 @@ function ButtonWidget(props: { config: ButtonConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile>
-            <TileGlyph icon="mdi:gesture-tap-button" />
+          <Tile confirmed={confirm.any()}>
+            <TileGlyph icon={buttonIcon()} />
             <TileHead
-              icon="mdi:gesture-tap-button"
+              icon={buttonIcon()}
+              active={confirm.any()}
               eyebrow="Button"
               name={name()}
               count={entities().length}
@@ -105,8 +109,17 @@ function ButtonWidget(props: { config: ButtonConfig }) {
               sub={lastPressed() ? "Last pressed" : "Never pressed"}
             />
             <TileControls>
-              <Button variant="outline" class="tile-control-wide" onClick={handleTap}>
-                <Icon icon="mdi:gesture-tap" width="1em" height="1em" />
+              <Button
+                variant="outline"
+                class="tile-control-wide"
+                data-confirmed={confirm.any() || undefined}
+                onClick={handleTap}
+              >
+                <Icon
+                  icon={confirm.any() ? "mdi:check" : "mdi:gesture-tap"}
+                  width="1em"
+                  height="1em"
+                />
                 Press
               </Button>
             </TileControls>

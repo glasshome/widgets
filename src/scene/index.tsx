@@ -20,6 +20,7 @@ import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead } from "../common/tile/tile";
+import { useConfirm } from "../common/use-confirm";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -27,8 +28,6 @@ const configSchema = defineConfig({
 });
 
 type SceneConfig = Infer<typeof configSchema>;
-
-const RAN_MS = 1600;
 
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();
@@ -49,29 +48,19 @@ function SceneWidget(props: { config: SceneConfig }) {
 
   const turnOn = useTurnOn();
 
-  // A scene has no on state to show, so a run is confirmed on the chip for a moment.
-  const [ran, setRan] = createSignal<ReadonlySet<string>>(new Set());
-  let clearRan: ReturnType<typeof setTimeout> | undefined;
-  const confirm = (ids: string[]) => {
-    setRan(new Set(ids));
-    clearTimeout(clearRan);
-    clearRan = setTimeout(() => setRan(new Set()), RAN_MS);
-  };
-  onCleanup(() => clearTimeout(clearRan));
-
+  const confirm = useConfirm();
   const run = async (ids: string[]) => {
     if (isLoading()) return;
     setIsLoading(true);
     try {
-      for (const id of ids) await turnOn(id);
-      confirm(ids);
+      await confirm.run(ids, async () => {
+        for (const id of ids) await turnOn(id);
+      });
     } finally {
       setIsLoading(false);
     }
   };
-  // The whole tile answers too, so a size that hides the chips still shows the run.
-  const justRan = () => ran().size > 0;
-  const sceneIcon = () => (justRan() ? "mdi:check" : "mdi:palette");
+  const sceneIcon = () => (confirm.any() ? "mdi:check" : "mdi:palette");
   const handleTap = () => run(entities().map((e) => e.id));
 
   /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
@@ -118,20 +107,20 @@ function SceneWidget(props: { config: SceneConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile active={justRan()}>
+          <Tile confirmed={confirm.any()}>
             <TileGlyph icon={sceneIcon()} />
-            <TileHead icon={sceneIcon()} eyebrow={eyebrow()} name={name()} active={justRan()} />
+            <TileHead icon={sceneIcon()} eyebrow={eyebrow()} name={name()} active={confirm.any()} />
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (
                   <Button
                     variant="outline"
                     class="scene-chip"
-                    data-ran={ran().has(e.id) || undefined}
+                    data-confirmed={confirm.has(e.id) || undefined}
                     onClick={() => void run([e.id])}
                   >
                     <Icon
-                      icon={ran().has(e.id) ? "mdi:check" : "mdi:play"}
+                      icon={confirm.has(e.id) ? "mdi:check" : "mdi:play"}
                       width="1em"
                       height="1em"
                     />

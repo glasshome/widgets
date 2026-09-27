@@ -22,6 +22,7 @@ import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
 import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
+import { useConfirm } from "../common/use-confirm";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
 import { CoverSheet, coverHasExtras } from "./sheet";
 
@@ -67,6 +68,8 @@ function CoverWidget(props: { config: CoverConfig }) {
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService } = useService();
+  // Stop leaves nothing to see when the cover was already still.
+  const stopped = useConfirm();
 
   const { emptyState, hasEntities, count } = useWidgetEntityGroup({
     entities,
@@ -248,11 +251,18 @@ function CoverWidget(props: { config: CoverConfig }) {
                     size="icon"
                     aria-label="Stop"
                     class="tile-control"
+                    data-confirmed={stopped.any() || undefined}
                     onClick={() =>
-                      callService("cover", "stop_cover", {}, { entity_id: entityIds() })
+                      void stopped.run(["stop"], () =>
+                        callService("cover", "stop_cover", {}, { entity_id: entityIds() }),
+                      )
                     }
                   >
-                    <Icon icon="mdi:stop" width="1em" height="1em" />
+                    <Icon
+                      icon={stopped.any() ? "mdi:check" : "mdi:stop"}
+                      width="1em"
+                      height="1em"
+                    />
                   </Button>
                   <Button
                     variant="outline"

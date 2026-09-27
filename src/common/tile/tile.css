@@ -431,3 +431,16 @@
     opacity: 0.1;
   }
 }
+/* A one-shot action confirms on its control and on the glyph, the one thing a compact tile shows. */
+.tile > .tile-glyph {
+  transition: opacity var(--duration-state) var(--ease-morph);
+}
+.tile[data-confirmed] > .tile-glyph {
+  opacity: 0.5;
+}
+.tile [data-confirmed].tile-control-wide,
+.tile [data-confirmed].tile-control,
+.tile [data-confirmed].scene-chip {
+  --glass-base: color-mix(in srgb, var(--widget-color) 35%, transparent);
+  transition: background-color var(--duration-state) var(--ease-morph);
+}

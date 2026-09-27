@@ -1,6 +1,7 @@
 import {
   type AreaView,
   Button,
+  Icon,
   PanelEntityRow,
   type PanelFact,
   PanelFacts,
@@ -10,6 +11,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, For, Show } from "solid-js";
 import { LightColour } from "../common/light-colour";
+import { useConfirm } from "../common/use-confirm";
 import type { AreaMetrics } from "./utils";
 
 const SECTIONS: { label: string; domains: string[] }[] = [
@@ -52,6 +54,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics }) {
   const byDomain = (domains: string[]) =>
     props.area.entities.filter((e) => domains.includes(e.domain) && live(e.state));
   const scenes = () => byDomain(["scene"]);
+  const ran = useConfirm();
 
   const facts = createMemo((): PanelFact[] => {
     const out: PanelFact[] = [];
@@ -82,9 +85,14 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics }) {
             <For each={scenes()}>
               {(s) => (
                 <Button
-                  variant="outline"
-                  onClick={() => void callService("scene", "turn_on", {}, { entity_id: s.id })}
+                  variant={ran.has(s.id) ? "default" : "outline"}
+                  onClick={() =>
+                    void ran.run([s.id], () =>
+                      callService("scene", "turn_on", {}, { entity_id: s.id }),
+                    )
+                  }
                 >
+                  <Icon icon={ran.has(s.id) ? "mdi:check" : "mdi:play"} />
                   {s.friendlyName}
                 </Button>
               )}
