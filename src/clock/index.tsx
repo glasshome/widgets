@@ -59,7 +59,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   const timeSize = (stacked: boolean) =>
     `calc(${k()} * clamp(28px, ${stacked ? "min(34cqi, 26cqb)" : "min(19cqi, 40cqb)"}, 420px))`;
   const secondsSize = (stacked: boolean) => `calc(0.45 * ${timeSize(stacked)})`;
-  const metaSize = () => `calc(${k()} * clamp(11px, 3.4cqmin, 30px))`;
+  const metaSize = () => `calc(${k()} * var(--widget-text-sub))`;
 
   const digital = () => presetTheme().digital;
 

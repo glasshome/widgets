@@ -21,7 +21,6 @@ import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-j
 import { widgetDialogProps } from "../common";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
 import { groupLine } from "../common/group";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { LightSheet, lightHasExtras } from "./sheet";
 import { brightnessToPercent, hsToCSS } from "./utils";
 
@@ -172,16 +171,16 @@ function LightWidget(props: { config: LightConfig }) {
       >
         <Show when={hasEntities()}>
           <WidgetSliderFill value={uiBrightness()} isDragging={isDragging()} />
-          <Tile active={isOn()} accent={isOn() ? vividColor() : undefined}>
-            <TileGlyph icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />
-            <TileHead
+          <Widget.Content accent={isOn() ? vividColor() : undefined}>
+            <Widget.Glyph icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />
+            <Widget.Head
               icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"}
               eyebrow={eyebrow()}
               name={name()}
               active={isOn()}
               count={count()}
             />
-            <TileHero
+            <Widget.Hero
               value={isOn() ? Math.round(uiBrightness()) : "Off"}
               unit={isOn() ? "%" : undefined}
               art={
@@ -193,7 +192,7 @@ function LightWidget(props: { config: LightConfig }) {
                 />
               }
             />
-          </Tile>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

@@ -8,10 +8,10 @@ import {
   Toggle,
   useDaylight,
   useWidgetDimensions,
+  Widget,
 } from "@glasshome/widget-sdk";
 import { createMemo, For, type JSX, Show } from "solid-js";
 import { isRoomKind, type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
-import { Tile, TileBackdrop, TileChip, TileControls, TileHead } from "../common/tile/tile";
 import "./area-content.css";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
 
@@ -185,8 +185,8 @@ export function AreaContent(props: AreaContentProps) {
   const warmth = () => (m().lightsTotal === 0 ? 0 : 12 + (m().lightsOn / m().lightsTotal) * 30);
 
   return (
-    <Tile backdrop active={m().lightsOn > 0} accent={WARM}>
-      <TileBackdrop>
+    <Widget.Content accent={WARM}>
+      <Widget.Backdrop>
         <Show
           when={photos()}
           fallback={<div class="area-ambient" style={{ "--area-warmth": `${warmth()}%` }} />}
@@ -215,27 +215,27 @@ export function AreaContent(props: AreaContentProps) {
                 )}
               </Show>
               <div
-                class="tile-backdrop-light"
+                class="glasshome-widget-backdrop-light"
                 style={{ "--backdrop-light": scene() === "day" ? warmth() / 42 : 0 }}
               />
             </>
           )}
         </Show>
-      </TileBackdrop>
-      <TileHead
+      </Widget.Backdrop>
+      <Widget.Head
         icon={props.areaIcon ?? roomIcon(builtInRoom())}
         active={m().lightsOn > 0}
         eyebrow={summary()}
         name={props.areaName}
         aside={
           <Show when={m().alertCount > 0}>
-            <TileChip icon="mdi:alert-circle" tone="var(--destructive)">
+            <Widget.Chip icon="mdi:alert-circle" tone="var(--destructive)">
               Alert
-            </TileChip>
+            </Widget.Chip>
           </Show>
         }
       />
-      <TileControls>
+      <Widget.Controls>
         <For each={visiblePills()}>
           {(pill) => (
             <Toggle
@@ -243,7 +243,7 @@ export function AreaContent(props: AreaContentProps) {
               pressed={pill.on}
               onChange={() => props.onAction(pill.action)}
               aria-label={`${pill.label}: ${pill.state}`}
-              class="tile-control-wide"
+              class="glasshome-widget-control-wide"
             >
               <Icon
                 icon={pill.icon}
@@ -258,12 +258,12 @@ export function AreaContent(props: AreaContentProps) {
           variant="outline"
           size="icon"
           aria-label="More"
-          class="tile-control"
+          class="glasshome-widget-control"
           onClick={() => props.onMore()}
         >
           <Icon icon="mdi:chevron-right" width={20} />
         </Button>
-      </TileControls>
-    </Tile>
+      </Widget.Controls>
+    </Widget.Content>
   );
 }

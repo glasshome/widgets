@@ -16,7 +16,6 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, Index, onCleanup } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
 import { batteryName, filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
@@ -61,15 +60,15 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
   return (
     <>
       <Widget gestures={gestures} variant="classic-glass" tone={hasLow() ? "warning" : "success"}>
-        <Tile active={hasLow()}>
-          <TileGlyph icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />
-          <TileHead
+        <Widget.Content>
+          <Widget.Glyph icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />
+          <Widget.Head
             icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"}
             eyebrow={`${totalCount()} batteries`}
             name={props.config.title || "Batteries"}
             active={hasLow()}
           />
-          <TileHero
+          <Widget.Hero
             value={lowestLevel() ?? "--"}
             unit={lowestLevel() === undefined ? undefined : "%"}
             sub={hasLow() ? `${lowCount()} low` : "All good"}
@@ -97,7 +96,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
               </div>
             }
           />
-        </Tile>
+        </Widget.Content>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}

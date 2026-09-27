@@ -4,7 +4,7 @@
   justify-content: flex-end;
   gap: 0.5em;
   width: 56cqi;
-  font-size: max(12px, 3.7cqmin);
+  font-size: var(--widget-text-caption);
   height: 100%;
   overflow: hidden;
 }
@@ -13,7 +13,7 @@
   align-items: center;
   gap: 0.5em;
   min-width: 0;
-  font-size: max(12px, 3.7cqmin);
+  font-size: var(--widget-text-caption);
 }
 .batteries-row > iconify-icon {
   font-size: 1.3em;

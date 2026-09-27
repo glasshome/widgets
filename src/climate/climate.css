@@ -17,3 +17,9 @@
     transition: none;
   }
 }
+.climate-range-sep {
+  margin: 0 0.25em;
+}
+.climate-range .glasshome-widget-reading-value {
+  font-size: calc(0.92 * var(--widget-text-value));
+}

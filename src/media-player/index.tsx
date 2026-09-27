@@ -21,14 +21,6 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import {
-  Tile,
-  TileBackdrop,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-} from "../common/tile/tile";
 import "./media.css";
 import { MediaPlayerSheet, mediaHasExtras } from "./sheet";
 import { calculateFeatures, getMediaIcon } from "./utils";
@@ -147,12 +139,12 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
         <Show when={entity()}>
           {(e) => (
             <>
-              <Tile class="media-tile" backdrop={!!albumArt()} active={isPlaying()}>
+              <Widget.Content class="media-tile">
                 <Show when={albumArt()}>
                   {(src) => (
-                    <TileBackdrop>
+                    <Widget.Backdrop>
                       <img src={src()} alt="" class="media-backdrop" />
-                    </TileBackdrop>
+                    </Widget.Backdrop>
                   )}
                 </Show>
                 <Show when={features()?.supportsVolume}>
@@ -160,25 +152,25 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                     <WidgetSliderFill value={uiVolume()} isDragging={isDragging()} />
                   </div>
                 </Show>
-                <TileGlyph icon={getMediaIcon(e().state)} />
-                <TileHead
+                <Widget.Glyph icon={getMediaIcon(e().state)} />
+                <Widget.Head
                   icon="mdi:music"
                   eyebrow={eyebrow()}
                   name={mediaTitle() || props.config.title || e().friendlyName || "Media"}
                   active={isPlaying()}
                 />
-                <TileHero
+                <Widget.Hero
                   value=""
                   art={<VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />}
                 />
-                <TileControls>
-                  <ButtonGroup aria-label="Playback" class="tile-stepper">
+                <Widget.Controls>
+                  <ButtonGroup aria-label="Playback" class="glasshome-widget-stepper">
                     <Show when={features()?.supportsPrevious}>
                       <Button
                         variant="outline"
                         size="icon"
                         aria-label="Previous track"
-                        class="tile-control"
+                        class="glasshome-widget-control"
                         onClick={() => call("media_previous_track")}
                       >
                         <Icon icon="mdi:skip-previous" width="1em" height="1em" />
@@ -188,7 +180,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                       variant="outline"
                       size="icon"
                       aria-label={isPlaying() ? "Pause" : "Play"}
-                      class="tile-control"
+                      class="glasshome-widget-control"
                       onClick={() => call("media_play_pause")}
                     >
                       <Icon
@@ -202,7 +194,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         variant="outline"
                         size="icon"
                         aria-label="Next track"
-                        class="tile-control"
+                        class="glasshome-widget-control"
                         onClick={() => call("media_next_track")}
                       >
                         <Icon icon="mdi:skip-next" width="1em" height="1em" />
@@ -215,8 +207,8 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                       {uiVolume()}%
                     </span>
                   </Show>
-                </TileControls>
-              </Tile>
+                </Widget.Controls>
+              </Widget.Content>
             </>
           )}
         </Show>

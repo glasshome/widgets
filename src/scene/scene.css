@@ -4,7 +4,7 @@
   flex-wrap: wrap;
   align-content: flex-start;
   align-self: end;
-  max-height: calc(2 * var(--tile-control-h) + 6px);
+  max-height: calc(2 * var(--widget-control-h) + 6px);
   gap: 6px;
   min-width: 0;
   min-height: 0;
@@ -12,7 +12,7 @@
 }
 .scene-chip.scene-chip {
   gap: 6px;
-  height: var(--tile-control-h);
+  height: var(--widget-control-h);
   padding: 0 12px 0 10px;
   font-size: inherit;
   font-weight: 600;
@@ -25,7 +25,7 @@
 }
 @container widget (max-height: 229px) and (max-width: 179px) {
   .scene-chips {
-    max-height: var(--tile-control-h);
+    max-height: var(--widget-control-h);
   }
 }
 @container widget (max-width: 139px) or ((max-height: 119px) and (max-width: 259px)) {
@@ -37,10 +37,10 @@
   .scene-chips {
     justify-content: flex-end;
     align-content: flex-start;
-    height: var(--tile-control-h);
+    height: var(--widget-control-h);
     flex: 1 1 0;
   }
-  .tile-head {
+  .glasshome-widget-head {
     flex: 0 1 auto;
     min-width: 6em;
   }

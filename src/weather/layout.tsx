@@ -1,7 +1,11 @@
-import { useDaylight, useWidgetDimensions, type WeatherForecast } from "@glasshome/widget-sdk";
+import {
+  useDaylight,
+  useWidgetDimensions,
+  type WeatherForecast,
+  Widget,
+} from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, Index, Show } from "solid-js";
-import { Tile } from "../common/tile/tile";
 import { dayHigh, skyChanges, smoothPath, tempColor, weekRange } from "./forecast";
 import { useMotionPaused, WeatherFrost, WeatherSky } from "./sky";
 import { formatTemp, getWeatherIcon, getWeatherIconColor, isStormy } from "./utils";
@@ -111,77 +115,78 @@ export function WeatherTile(props: { model: Model }) {
   };
 
   return (
-    <Tile
-      active
+    <Widget.Content
       accent={getWeatherIconColor(props.model.condition)}
       class={["weather", hasBand() || sideScene() ? "" : "wx-plain", paused() ? "wx-paused" : ""]
         .filter(Boolean)
         .join(" ")}
     >
-      <Show when={hasBand() || sideScene()}>
-        <WeatherFrost
-          condition={props.model.condition}
-          wintry={props.model.wintry}
-          night={daylight().phase === "night"}
-        />
-      </Show>
-      <div
-        class="wx-scene"
-        classList={{ dark: dark() }}
-        data-side={sideScene() || undefined}
-        style={
-          sideScene()
-            ? { width: `${Math.round(dims().width * 0.3)}px` }
-            : sceneShare() < 1
-              ? { height: `${Math.round(dims().height * sceneShare())}px` }
-              : undefined
-        }
-      >
-        <WeatherSky condition={props.model.condition} wintry={props.model.wintry} />
-      </div>
-      <div
-        ref={setLayoutEl}
-        class="wx-layout"
-        data-tier={tier()}
-        data-rich={(tier() === "stack" && hourCount() > 0) || undefined}
-        style={{ "--wx-s": scale(), "--wx-t": text() }}
-      >
-        <div class="wx-now" classList={{ dark: dark() }}>
-          <Show when={props.model.title}>
-            <span class="wx-title">{props.model.title}</span>
-          </Show>
-          <span class="wx-now-temp">
-            {props.model.temperature}
-            <span class="wx-degree">°</span>
-          </span>
-          <span class="wx-cond">{props.model.sub}</span>
-        </div>
-        <Show when={hourCount() > 0 || dayCount() > 0}>
-          <div class="wx-band">
-            <Show when={dayCount() > 0 && tier() === "stack"}>
-              <Days days={props.model.days.slice(0, dayCount())} />
-            </Show>
-            <Show when={hourCount() > 0}>
-              <Show
-                when={tier() !== "row"}
-                fallback={<HourRow hours={props.model.hours.slice(0, hourCount())} />}
-              >
-                <HourChart
-                  hours={props.model.hours.slice(0, hourCount())}
-                  labelEvery={labelEvery()}
-                />
-              </Show>
-            </Show>
-            <Show when={dayCount() > 0 && tier() === "split"}>
-              <Days days={props.model.days.slice(0, dayCount())} />
-            </Show>
-            <Show when={detailCount() > 0}>
-              <Details details={props.model.details.slice(0, detailCount())} />
-            </Show>
-          </div>
+      <Widget.Layer class="wx-layers">
+        <Show when={hasBand() || sideScene()}>
+          <WeatherFrost
+            condition={props.model.condition}
+            wintry={props.model.wintry}
+            night={daylight().phase === "night"}
+          />
         </Show>
-      </div>
-    </Tile>
+        <div
+          class="wx-scene"
+          classList={{ dark: dark() }}
+          data-side={sideScene() || undefined}
+          style={
+            sideScene()
+              ? { width: `${Math.round(dims().width * 0.3)}px` }
+              : sceneShare() < 1
+                ? { height: `${Math.round(dims().height * sceneShare())}px` }
+                : undefined
+          }
+        >
+          <WeatherSky condition={props.model.condition} wintry={props.model.wintry} />
+        </div>
+        <div
+          ref={setLayoutEl}
+          class="wx-layout"
+          data-tier={tier()}
+          data-rich={(tier() === "stack" && hourCount() > 0) || undefined}
+          style={{ "--wx-s": scale(), "--wx-t": text() }}
+        >
+          <div class="wx-now" classList={{ dark: dark() }}>
+            <Show when={props.model.title}>
+              <span class="wx-title">{props.model.title}</span>
+            </Show>
+            <span class="wx-now-temp">
+              {props.model.temperature}
+              <span class="wx-degree">°</span>
+            </span>
+            <span class="wx-cond">{props.model.sub}</span>
+          </div>
+          <Show when={hourCount() > 0 || dayCount() > 0}>
+            <div class="wx-band">
+              <Show when={dayCount() > 0 && tier() === "stack"}>
+                <Days days={props.model.days.slice(0, dayCount())} />
+              </Show>
+              <Show when={hourCount() > 0}>
+                <Show
+                  when={tier() !== "row"}
+                  fallback={<HourRow hours={props.model.hours.slice(0, hourCount())} />}
+                >
+                  <HourChart
+                    hours={props.model.hours.slice(0, hourCount())}
+                    labelEvery={labelEvery()}
+                  />
+                </Show>
+              </Show>
+              <Show when={dayCount() > 0 && tier() === "split"}>
+                <Days days={props.model.days.slice(0, dayCount())} />
+              </Show>
+              <Show when={detailCount() > 0}>
+                <Details details={props.model.details.slice(0, detailCount())} />
+              </Show>
+            </div>
+          </Show>
+        </div>
+      </Widget.Layer>
+    </Widget.Content>
   );
 }
 

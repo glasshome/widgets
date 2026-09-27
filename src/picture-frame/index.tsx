@@ -14,7 +14,6 @@ import {
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { Tile, TileChip } from "../common/tile/tile";
 import { FrameContent } from "./frame-content";
 import { SAMPLES } from "./samples";
 import { resolveSlideshow } from "./slideshow";
@@ -69,8 +68,8 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   return (
     <>
       <Widget variant="classic-glass">
-        <Tile>
-          <div class="frame-layer">
+        <Widget.Content>
+          <Widget.Layer class="frame-layer">
             <Show
               when={view().slides.length > 1}
               fallback={
@@ -108,18 +107,18 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
                 <CarouselDots class="frame-dots absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/70 to-transparent pt-6 pb-2" />
               </Carousel>
             </Show>
-          </div>
+          </Widget.Layer>
           <Show when={view().note}>
             {(note) => (
               <div class="frame-note">
-                <TileChip icon="mdi:image-multiple-outline">
+                <Widget.Chip icon="mdi:image-multiple-outline">
                   {note().label}
                   <span class="frame-note-hint"> · {note().hint}</span>
-                </TileChip>
+                </Widget.Chip>
               </div>
             )}
           </Show>
-        </Tile>
+        </Widget.Content>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}

@@ -23,7 +23,6 @@ import doorSwing from "../common/art/assets/door-swing.strip";
 import windowSash from "../common/art/assets/window-sash.strip";
 import { CoverArt } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { BinarySensorSheet } from "./sheet";
 import { getBinarySensorStateText } from "./utils";
 
@@ -146,17 +145,17 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile active={isOn()}>
-            <TileGlyph icon={iconName()} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={iconName()} />
+            <Widget.Head
               icon={iconName()}
               eyebrow={eyebrow()}
               name={name()}
               active={isOn()}
               count={entities().length}
             />
-            <TileHero value={heroValue()} art={art()} />
-          </Tile>
+            <Widget.Hero value={heroValue()} art={art()} />
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

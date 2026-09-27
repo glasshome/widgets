@@ -20,7 +20,6 @@ import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
-import { Tile, TileChoice, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
 import "./fan.css";
@@ -192,16 +191,16 @@ function FanWidget(props: { config: FanConfig }) {
           <Show when={supportsSpeed()}>
             <WidgetSliderFill value={uiPercentage()} isDragging={isDragging()} />
           </Show>
-          <Tile active={isOn()}>
-            <TileGlyph icon={isOn() ? "mdi:fan" : "mdi:fan-off"} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={isOn() ? "mdi:fan" : "mdi:fan-off"} />
+            <Widget.Head
               icon={isOn() ? "mdi:fan" : "mdi:fan-off"}
               eyebrow={eyebrow()}
               name={name()}
               active={isOn()}
               count={entities().length}
             />
-            <TileHero
+            <Widget.Hero
               value={heroValue()}
               unit={isOn() && supportsSpeed() && count() === 1 ? "%" : undefined}
               art={
@@ -214,8 +213,8 @@ function FanWidget(props: { config: FanConfig }) {
               }
             />
             <Show when={presets().length > 0}>
-              <TileControls>
-                <TileChoice
+              <Widget.Controls>
+                <Widget.Choice
                   label="Preset"
                   tone="var(--widget-color)"
                   value={firstEntity()?.attributes?.preset_mode as string}
@@ -233,9 +232,9 @@ function FanWidget(props: { config: FanConfig }) {
                     }
                   }}
                 />
-              </TileControls>
+              </Widget.Controls>
             </Show>
-          </Tile>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

@@ -75,23 +75,23 @@
 }
 .flow-label-icon {
   flex-shrink: 0;
-  font-size: max(20px, 4.4cqmin);
+  font-size: calc(1.35 * var(--widget-text-sub));
 }
 .flow-label-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-width: max(72px, 24cqmin);
+  max-width: calc(7 * var(--widget-text-sub));
   line-height: 1.15;
 }
 .flow-label-value {
-  font-size: max(15px, 3.4cqmin);
+  font-size: var(--widget-text-sub);
   white-space: nowrap;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 .flow-label-name {
-  font-size: max(11px, 2.5cqmin);
+  font-size: var(--widget-text-caption);
   color: var(--muted-foreground);
   white-space: nowrap;
   overflow: hidden;
@@ -102,14 +102,14 @@
   width: 100%;
   height: 100%;
 }
-.tile-art > .flow-house-art {
+.glasshome-widget-art > .flow-house-art {
   aspect-ratio: 520 / 358;
   height: auto;
   width: 40cqi;
   max-height: 100%;
   align-self: flex-end;
 }
-.tile.flow-tile-full {
+.glasshome-widget-grid.flow-tile-full {
   grid-template-rows: auto minmax(0, 1fr);
 }
 .flow-scene {
@@ -125,7 +125,7 @@
   overflow: hidden;
 }
 @container widget (max-width: 299px) {
-  .tile-art > .flow-house-art {
+  .glasshome-widget-art > .flow-house-art {
     display: none;
   }
 }

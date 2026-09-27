@@ -20,15 +20,6 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { formatTemperature, shiftBand, useSetpoints, widgetDialogProps } from "../common";
-import {
-  Tile,
-  TileChoice,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-  TileStepper,
-} from "../common/tile/tile";
 import "../common/mode-transition.css";
 import acArt from "./assets/climate-ac.webp";
 import heatpumpArt from "./assets/climate-heatpump.webp";
@@ -148,7 +139,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     return (
       <>
         {degrees(low)}
-        <span class="tile-unit tile-range-sep">to</span>
+        <span class="glasshome-widget-unit climate-range-sep">to</span>
         {degrees(high)}
       </>
     );
@@ -241,19 +232,19 @@ function ClimateWidget(props: { config: ClimateConfig }) {
           <Show when={hvacMode() !== "off"}>
             <WidgetSliderFill value={fillPercent()} isDragging={dragging()} />
           </Show>
-          <Tile active={hvacMode() !== "off"}>
-            <TileGlyph icon={iconName()} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={iconName()} />
+            <Widget.Head
               icon={iconName()}
               eyebrow={eyebrow()}
               name={props.config.title || entity()?.friendlyName || "Climate"}
               active={hvacMode() !== "off"}
               count={entities().length}
             />
-            <TileHero
+            <Widget.Hero
               value={hvacMode() === "off" ? "Off" : targetLabel()}
               unit={hvacMode() === "off" ? undefined : "°"}
-              class={isRange() && hvacMode() !== "off" ? "tile-hero-range" : undefined}
+              class={isRange() && hvacMode() !== "off" ? "climate-range" : undefined}
               sub={subLine()}
               art={
                 <img
@@ -265,12 +256,12 @@ function ClimateWidget(props: { config: ClimateConfig }) {
                 />
               }
             />
-            <TileControls>
-              <TileStepper
+            <Widget.Controls>
+              <Widget.Stepper
                 label="Target temperature"
                 onStep={(d) => setpoints.shiftValues(d * step())}
               />
-              <TileChoice
+              <Widget.Choice
                 label="Mode"
                 tone={mode().color}
                 value={hvacMode()}
@@ -281,8 +272,8 @@ function ClimateWidget(props: { config: ClimateConfig }) {
                 }))}
                 onChange={setMode}
               />
-            </TileControls>
-          </Tile>
+            </Widget.Controls>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

@@ -7,11 +7,11 @@ import {
   PanelFacts,
   PanelRows,
   PanelSection,
+  useConfirm,
   useService,
 } from "@glasshome/widget-sdk";
 import { createMemo, For, Show } from "solid-js";
 import { LightColour } from "../common/light-colour";
-import { useConfirm } from "../common/use-confirm";
 import type { AreaMetrics } from "./utils";
 
 const SECTIONS: { label: string; domains: string[] }[] = [

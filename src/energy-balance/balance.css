@@ -2,7 +2,7 @@
   width: 100%;
 }
 .balance-mode.balance-mode {
-  height: calc(var(--tile-control-h) - 8px);
+  height: calc(var(--widget-control-h) - 8px);
   padding: 0 8px;
   font-size: 12px;
   font-weight: 600;
@@ -14,13 +14,13 @@
 }
 /* The period chooser spans the tile, so it always takes its own row under the value. */
 @container widget (min-width: 520px) and (min-height: 230px) {
-  .tile:has(.balance-modes) {
+  .glasshome-widget-grid:has(.balance-modes) {
     grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
-  .tile:has(.balance-modes) > .tile-hero {
+  .glasshome-widget-grid:has(.balance-modes) > .glasshome-widget-hero {
     grid-column: 1 / -1;
   }
-  .tile:has(.balance-modes) > .tile-controls {
+  .glasshome-widget-grid:has(.balance-modes) > .glasshome-widget-controls {
     grid-row: 4;
     grid-column: 1 / -1;
   }

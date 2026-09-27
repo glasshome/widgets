@@ -1,6 +1,6 @@
 # Widget design
 
-How the official GlassHome widgets look and behave. Values live in code: layout in `src/common/tile/`, tokens in `@glasshome/ui` `theme.css`.
+How the official GlassHome widgets look and behave. Values live in code: the anatomy and its scale in widget-sdk (`framework/components/anatomy.tsx`, `framework/theming/tokens.css`), colour tokens in `@glasshome/ui` `theme.css`. Official and community widgets use the same parts.
 
 ## Principle
 
@@ -8,19 +8,19 @@ Every widget is the same anatomy filled differently, so a dashboard reads as one
 
 ## Anatomy
 
-Built from `src/common/tile/tile.tsx`. Each zone appears only when the box has room for it.
+Built from the SDK's `Widget.*` parts inside `Widget.Content`. Each zone appears only when the box has room for it.
 
 | Zone | Component | Holds |
 |---|---|---|
-| Head | `TileHead` | icon (`WidgetIcon`, stacked for groups via `count`), a small line above the name, optional chips |
-| Controls | `TileControls` | one row at the bottom: beside the value from 520px wide, under it below that, with the art lifted above; `TileStepper`, `TileChoice`, transport buttons, chips. Controls keep ui's own radii, so their corners match at every size |
-| Hero | `TileHero` | a small line above the big value, the value with its unit in the bottom-left corner on every tile, art behind it in the bottom-right |
+| Head | `Widget.Head` | icon (`WidgetIcon`, stacked for groups via `count`), a small line above the name, optional chips |
+| Controls | `Widget.Controls` | one row at the bottom: beside the value from 520px wide, under it below that, with the art lifted above; `Widget.Stepper`, `Widget.Choice`, `Widget.Action`, transport buttons, chips. Controls keep ui's own radii, so their corners match at every size |
+| Hero | `Widget.Hero` | a small line above the big value, the value with its unit in the bottom-left corner on every tile, art behind it in the bottom-right |
 
-`Tile` is the frame, `TileBackdrop` a full-bleed image layer, `TileGlyph` the faint corner icon on compact tiles, `TileChip` a small fact.
+`Widget.Content` is the frame, `Widget.Backdrop` a full-bleed picture under a scrim, `Widget.Layer` a widget's own full-bleed layer (photo, scene, chart band), `Widget.Glyph` the faint corner icon, `Widget.Chip` a small fact.
 
 ## Size
 
-A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout follows the measured box (container queries in `tile.css`):
+A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout follows the measured box (container queries in the SDK's `tokens.css`):
 
 | Box | Change |
 |---|---|
@@ -33,7 +33,7 @@ A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout f
 
 The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 
-Past a 4×4 box the caps give way to the tile's short side (`cqmin`): value, name, icon, padding and control height keep their share, so a large tile scales instead of emptying. Up to 4×4 nothing changes. Every tile widget goes to 8×8, and control glyphs and words follow the control height. A big tile with no art of its own (no picture, object or line) shows its icon large and faint in the corner; mark a widget's own art layer with `data-art-layer` so it does not get one.
+One scale: `--widget-unit` is 1% of the tile's short side and every size token (`--widget-text-*`, `--widget-control-h`, spacing, icon box) is fitted to the designed 2×2 and 4×4 sizes and keeps growing to 8×8. Widget CSS sizes with the tokens, never pixels. Every tile widget goes to 8×8. A big tile with no art of its own (no hero art, backdrop or layer) shows its icon large and faint in the corner.
 
 A widget opens at its first example's size, and that size shows its whole face: a device tile with art opens at 2×2, the media player at 3×3 so its transport shows, the camera at 3×2.
 

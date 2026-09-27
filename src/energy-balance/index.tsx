@@ -16,14 +16,6 @@ import {
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
-import {
-  Tile,
-  TileBackdrop,
-  TileControls,
-  TileGlyph,
-  TileHead,
-  TileHero,
-} from "../common/tile/tile";
 import { deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
 import { SkyScene } from "./sky";
@@ -244,27 +236,23 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
             </Widget.Content>
           }
         >
-          <Tile
-            backdrop
-            active={readout().color === AMBER}
-            class={skyScene(daylight().phase) === "day" ? undefined : "dark"}
-          >
-            <TileBackdrop>
+          <Widget.Content class={skyScene(daylight().phase) === "day" ? undefined : "dark"}>
+            <Widget.Backdrop>
               <SkyScene glow={Math.min(1, liveSolarW() / 4000)} />
-            </TileBackdrop>
-            <TileGlyph icon={headIcon()} />
-            <TileHead
+            </Widget.Backdrop>
+            <Widget.Glyph icon={headIcon()} />
+            <Widget.Head
               icon={headIcon()}
               eyebrow={eyebrow()}
               name={props.config.title || "Energy balance"}
               active={readout().color === AMBER}
             />
-            <TileHero
+            <Widget.Hero
               value={readout().value}
               unit={readout().unit ? ` ${readout().unit}` : undefined}
               sub={subLine()}
             />
-            <TileControls>
+            <Widget.Controls>
               <ToggleGroup
                 aria-label="Period"
                 value={mode()}
@@ -279,8 +267,8 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
                   )}
                 </For>
               </ToggleGroup>
-            </TileControls>
-          </Tile>
+            </Widget.Controls>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

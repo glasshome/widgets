@@ -10,7 +10,6 @@ import {
 import { createMemo, type JSX, Show } from "solid-js";
 import { EnergyEmptyState } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
-import { Tile, TileChip, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { configSchema, type ElectricityGridConfig } from "./config";
 import { PylonArt } from "./pylon-art";
 import "./grid.css";
@@ -43,15 +42,14 @@ function GridBody(props: BodyProps): JSX.Element {
   const tint = () => TINT[props.verdict.band];
   const note = () => props.verdict.priceNote;
   return (
-    <Tile
-      active={props.verdict.band === "clean"}
+    <Widget.Content
       accent={tint()}
       class={
         props.verdict.phrase.split(" ").length === 2 ? "grid-tile grid-two-words" : "grid-tile"
       }
     >
-      <TileGlyph icon="mdi:transmission-tower" />
-      <TileHead
+      <Widget.Glyph icon="mdi:transmission-tower" />
+      <Widget.Head
         icon="mdi:transmission-tower"
         eyebrow={
           note() ? `${note().charAt(0).toUpperCase()}${note().slice(1)}` : "Electricity grid"
@@ -59,25 +57,25 @@ function GridBody(props: BodyProps): JSX.Element {
         name={props.title}
         active={props.verdict.band === "clean"}
       />
-      <TileHero
+      <Widget.Hero
         value={props.verdict.phrase}
         sub={`${Math.round(props.verdict.lowCarbonPct)}% low-carbon`}
         art={<PylonArt lowCarbonPct={props.verdict.lowCarbonPct} tint={tint()} />}
       />
-      <TileControls>
+      <Widget.Controls>
         <div class="grid-chips">
           <Show when={props.co2 !== null}>
-            <TileChip icon="mdi:molecule-co2">{fmt(props.co2 ?? 0)} g/kWh</TileChip>
+            <Widget.Chip icon="mdi:molecule-co2">{fmt(props.co2 ?? 0)} g/kWh</Widget.Chip>
           </Show>
           <Show when={props.showPrice && props.price !== null}>
-            <TileChip icon="mdi:cash">
+            <Widget.Chip icon="mdi:cash">
               {fmt(props.price ?? 0)}
               {props.priceUnit ? ` ${props.priceUnit}` : ""}
-            </TileChip>
+            </Widget.Chip>
           </Show>
         </div>
-      </TileControls>
-    </Tile>
+      </Widget.Controls>
+    </Widget.Content>
   );
 }
 

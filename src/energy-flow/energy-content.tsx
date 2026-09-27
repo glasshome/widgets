@@ -1,9 +1,8 @@
-import { useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
+import { useDaylight, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import { createMemo, Index, Show } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
-import { Tile, TileChip, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import houseDay from "./assets/house-clay.webp";
 import houseNight from "./assets/house-clay-night.webp";
 import type { Tariff } from "./cost";
@@ -58,9 +57,11 @@ export function EnergyContent(props: EnergyContentProps) {
   );
 
   return (
-    <Tile active={!idle()} class={tier() === "full" ? "flow-tile-full" : undefined}>
-      <TileGlyph icon={energyIcons.home} />
-      <TileHead
+    <Widget.Content class={tier() === "full" ? "flow-tile-full" : undefined}>
+      <Show when={tier() !== "full"}>
+        <Widget.Glyph icon={energyIcons.home} />
+      </Show>
+      <Widget.Head
         icon={energyIcons.home}
         eyebrow={props.description.headline}
         name={props.title}
@@ -70,31 +71,31 @@ export function EnergyContent(props: EnergyContentProps) {
         when={tier() === "full"}
         fallback={
           <>
-            <TileHero
+            <Widget.Hero
               value={reading().value}
               unit={` ${reading().unit}`}
               sub="Home now"
               art={house()}
             />
-            <TileControls>
+            <Widget.Controls>
               <div class="flow-chips">
                 <Index each={activeNodes()}>
                   {(n) => (
-                    <TileChip icon={n().icon} tone={n().color}>
+                    <Widget.Chip icon={n().icon} tone={n().color}>
                       {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
                       {formatPower(n().watts)}
-                    </TileChip>
+                    </Widget.Chip>
                   )}
                 </Index>
               </div>
-            </TileControls>
+            </Widget.Controls>
           </>
         }
       >
-        <div class="flow-scene" data-art-layer>
+        <div class="flow-scene">
           <Spine flow={props.flow} tariff={props.tariff} onTap={() => props.onOpen()} />
         </div>
       </Show>
-    </Tile>
+    </Widget.Content>
   );
 }

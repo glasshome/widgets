@@ -1,10 +1,10 @@
 import {
-  Button,
   buildDebugData,
   defineConfig,
   defineWidget,
   field,
   type Infer,
+  useConfirm,
   useEntities,
   useTurnOn,
   useWidgetContext,
@@ -19,8 +19,6 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
-import { Tile, TileGlyph, TileHead } from "../common/tile/tile";
-import { useConfirm } from "../common/use-confirm";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -60,7 +58,6 @@ function SceneWidget(props: { config: SceneConfig }) {
       setIsLoading(false);
     }
   };
-  const sceneIcon = () => (confirm.any() ? "mdi:check" : "mdi:palette");
   const handleTap = () => run(entities().map((e) => e.id));
 
   /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
@@ -105,31 +102,28 @@ function SceneWidget(props: { config: SceneConfig }) {
         tone="accent"
         loading={isLoading()}
         emptyState={emptyState()}
+        confirmed={confirm.any()}
       >
         <Show when={hasEntities()}>
-          <Tile confirmed={confirm.any()}>
-            <TileGlyph icon={sceneIcon()} />
-            <TileHead icon={sceneIcon()} eyebrow={eyebrow()} name={name()} active={confirm.any()} />
+          <Widget.Content>
+            <Widget.Glyph icon="mdi:palette" />
+            <Widget.Head icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (
-                  <Button
-                    variant="outline"
+                  <Widget.Action
+                    icon="mdi:play"
                     class="scene-chip"
-                    data-confirmed={confirm.has(e.id) || undefined}
-                    onClick={() => void run([e.id])}
+                    confirm={confirm}
+                    id={e.id}
+                    run={() => turnOn(e.id)}
                   >
-                    <Icon
-                      icon={confirm.has(e.id) ? "mdi:check" : "mdi:play"}
-                      width="1em"
-                      height="1em"
-                    />
                     {entities().length > 1 ? e.friendlyName : "Activate"}
-                  </Button>
+                  </Widget.Action>
                 )}
               </For>
             </div>
-          </Tile>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

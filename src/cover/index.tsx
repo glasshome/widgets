@@ -21,8 +21,6 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
-import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { useConfirm } from "../common/use-confirm";
 import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
 import { CoverSheet, coverHasExtras } from "./sheet";
 
@@ -68,8 +66,6 @@ function CoverWidget(props: { config: CoverConfig }) {
 
   const entities = useEntities(() => props.config.entityIds);
   const { callService } = useService();
-  // Stop leaves nothing to see when the cover was already still.
-  const stopped = useConfirm();
 
   const { emptyState, hasEntities, count } = useWidgetEntityGroup({
     entities,
@@ -218,57 +214,44 @@ function CoverWidget(props: { config: CoverConfig }) {
       >
         <Show when={hasEntities()}>
           <Widget.SliderFill value={fillValue()} isDragging={slidePosition() !== null} />
-          <Tile active={isOpen()}>
-            <TileGlyph icon={iconName()} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={iconName()} />
+            <Widget.Head
               icon={iconName()}
               eyebrow={eyebrow()}
               name={name()}
               active={isOpen()}
               count={entities().length}
             />
-            <TileHero
+            <Widget.Hero
               value={heroValue()}
               unit={supportsPosition() && count() === 1 ? "%" : undefined}
               art={<CoverArt kind={artKind()} closed={100 - fillValue()} />}
             />
             <Show when={actsInBulk()}>
-              <TileControls>
-                <ButtonGroup aria-label="Cover" class="tile-stepper">
+              <Widget.Controls>
+                <ButtonGroup aria-label="Cover" class="glasshome-widget-stepper">
                   <Button
                     variant="outline"
                     size="icon"
                     aria-label="Open"
-                    class="tile-control"
+                    class="glasshome-widget-control"
                     onClick={() =>
                       callService("cover", "open_cover", {}, { entity_id: entityIds() })
                     }
                   >
                     <Icon icon="mdi:arrow-up" width="1em" height="1em" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
+                  <Widget.Action
+                    icon="mdi:stop"
                     aria-label="Stop"
-                    class="tile-control"
-                    data-confirmed={stopped.any() || undefined}
-                    onClick={() =>
-                      void stopped.run(["stop"], () =>
-                        callService("cover", "stop_cover", {}, { entity_id: entityIds() }),
-                      )
-                    }
-                  >
-                    <Icon
-                      icon={stopped.any() ? "mdi:check" : "mdi:stop"}
-                      width="1em"
-                      height="1em"
-                    />
-                  </Button>
+                    run={() => callService("cover", "stop_cover", {}, { entity_id: entityIds() })}
+                  />
                   <Button
                     variant="outline"
                     size="icon"
                     aria-label="Close"
-                    class="tile-control"
+                    class="glasshome-widget-control"
                     onClick={() =>
                       callService("cover", "close_cover", {}, { entity_id: entityIds() })
                     }
@@ -276,9 +259,9 @@ function CoverWidget(props: { config: CoverConfig }) {
                     <Icon icon="mdi:arrow-down" width="1em" height="1em" />
                   </Button>
                 </ButtonGroup>
-              </TileControls>
+              </Widget.Controls>
             </Show>
-          </Tile>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

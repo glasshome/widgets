@@ -1,11 +1,11 @@
-.tile-backdrop > .sky-photo {
+.glasshome-widget-backdrop > .sky-photo {
   object-position: center 70%;
 }
-.tile-backdrop > .sky-layer {
+.glasshome-widget-backdrop > .sky-layer {
   opacity: 0;
   transition: opacity 900ms ease;
 }
-.tile-backdrop > .sky-layer[data-visible] {
+.glasshome-widget-backdrop > .sky-layer[data-visible] {
   opacity: 1;
 }
 .sky-arc {
@@ -36,7 +36,7 @@
   fill: oklch(0.95 0.02 250);
 }
 @media (prefers-reduced-motion: reduce) {
-  .tile-backdrop > .sky-layer {
+  .glasshome-widget-backdrop > .sky-layer {
     transition: none;
   }
 }
@@ -56,6 +56,6 @@
       transparent 32%
     );
 }
-.dark .tile-backdrop > .sky-photo {
+.dark .glasshome-widget-backdrop > .sky-photo {
   filter: brightness(0.72);
 }

@@ -21,7 +21,6 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { SensorSheet } from "./sheet";
 import { type SparklinePoint, TileSparkline } from "./sparkline";
 import "./sensor.css";
@@ -136,19 +135,19 @@ function SensorWidget(props: { config: SensorConfig }) {
     <>
       <Widget gestures={gestures} variant="classic-glass" tone="info" emptyState={emptyState()}>
         <Show when={hasEntities()}>
-          <Tile>
-            <TileGlyph icon={iconName()} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={iconName()} />
+            <Widget.Head
               icon={iconName()}
               eyebrow={eyebrow()}
               name={name()}
               count={entities().length}
             />
-            <TileHero value={displayValue()} unit={displayUnit() || undefined} />
+            <Widget.Hero value={displayValue()} unit={displayUnit() || undefined} />
             <Show when={entities().length === 1 && dataPoints().length >= 2}>
               <TileSparkline data={dataPoints()} from={historyFrom / 1000} />
             </Show>
-          </Tile>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

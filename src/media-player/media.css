@@ -7,7 +7,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--muted-foreground);
 }
-.tile-backdrop > img.media-backdrop {
+.glasshome-widget-backdrop > img.media-backdrop {
   inset: -12%;
   width: 124%;
   height: 124%;
@@ -22,7 +22,7 @@
 }
 /* Transport is the point of this tile, so it stays at two rows tall. */
 @container widget (max-height: 229px) and (min-height: 130px) {
-  .media-tile .tile-controls {
+  .media-tile .glasshome-widget-controls {
     display: flex;
   }
   .media-tile .media-volume {
@@ -30,7 +30,7 @@
   }
 }
 @container widget (max-height: 229px) and (min-height: 130px) and (max-width: 519px) {
-  .tile.media-tile {
+  .glasshome-widget-grid.media-tile {
     grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
 }

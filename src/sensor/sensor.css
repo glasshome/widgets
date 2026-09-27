@@ -11,10 +11,10 @@
 }
 /* A big tile gives the line its own band, edge to edge between the head and the value. */
 .sensor-spark[data-full] {
-  left: var(--tile-pad);
-  right: var(--tile-pad);
-  top: calc(var(--tile-pad) + var(--widget-icon-box) + 2 * var(--tile-gap));
-  bottom: calc(var(--tile-pad) + 1.15 * max(52px, 16cqmin) + var(--tile-gap));
+  left: var(--widget-grid-pad);
+  right: var(--widget-grid-pad);
+  top: calc(var(--widget-grid-pad) + var(--widget-icon-box) + 2 * var(--widget-grid-gap));
+  bottom: calc(var(--widget-grid-pad) + 1.15 * var(--widget-text-value) + var(--widget-grid-gap));
   width: auto;
   height: auto;
   mask-image: none;

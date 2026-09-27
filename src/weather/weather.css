@@ -1,4 +1,4 @@
-.tile.weather {
+.glasshome-widget-grid.weather {
   grid-template-rows: minmax(0, 1fr);
 }
 .wx-layout {
@@ -15,7 +15,7 @@
   gap: calc(10px * var(--wx-s));
   /* The tile's height is not definite to a percentage, so the layout pins to its padding box. */
   position: absolute;
-  inset: var(--tile-pad);
+  inset: var(--widget-grid-pad);
 }
 
 /* Now: always the top-left corner, the first thing read at every size. */
@@ -63,14 +63,14 @@
   flex-direction: column;
   gap: calc(8px * var(--wx-s));
   min-width: 0;
-  margin: 0 calc(-1 * var(--tile-pad)) calc(-1 * var(--tile-pad));
-  padding: 0 var(--tile-pad) calc(var(--tile-pad) * 0.6);
+  margin: 0 calc(-1 * var(--widget-grid-pad)) calc(-1 * var(--widget-grid-pad));
+  padding: 0 var(--widget-grid-pad) calc(var(--widget-grid-pad) * 0.6);
 }
 
 .wx-chart {
   position: relative;
   min-width: 0;
-  margin: 0 calc(-1 * var(--tile-pad));
+  margin: 0 calc(-1 * var(--widget-grid-pad));
 }
 .wx-days {
   display: grid;
@@ -90,7 +90,7 @@
 .wx-layout:is([data-rich], [data-tier="split"]) > .wx-band {
   grid-row: 2;
   align-self: end;
-  max-height: calc(100% + var(--tile-pad));
+  max-height: calc(100% + var(--widget-grid-pad));
 }
 .wx-layout[data-rich] .wx-chart {
   flex: 0 1 clamp(92px, 44cqb, 150px);
@@ -398,5 +398,5 @@
 }
 /* On a strip the photo is the left 30%: the temperature holds that width so hours start on glass. */
 .wx-layout[data-tier="row"] .wx-now {
-  min-width: calc(30cqi - var(--tile-pad));
+  min-width: calc(30cqi - var(--widget-grid-pad));
 }

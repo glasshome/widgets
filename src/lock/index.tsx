@@ -20,7 +20,6 @@ import { widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import { ArtStrip } from "../common/art/strip";
 import { groupLine } from "../common/group";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
 import { LockSheet } from "./sheet";
@@ -126,17 +125,17 @@ function LockWidget(props: { config: LockConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile active={isLocked()}>
-            <TileGlyph icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />
+            <Widget.Head
               icon={isLocked() ? "mdi:lock" : "mdi:lock-open-variant"}
               eyebrow={eyebrow()}
               name={name()}
               active={isLocked()}
               count={entities().length}
             />
-            <TileHero value={heroValue()} art={art()} />
-          </Tile>
+            <Widget.Hero value={heroValue()} art={art()} />
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

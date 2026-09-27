@@ -20,7 +20,6 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
-import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { SwitchSheet } from "./sheet";
 
 const configSchema = defineConfig({
@@ -102,9 +101,9 @@ function SwitchWidget(props: { config: SwitchConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile active={isOn()}>
-            <TileGlyph icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />
-            <TileHead
+          <Widget.Content>
+            <Widget.Glyph icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />
+            <Widget.Head
               icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"}
               eyebrow={
                 count() > 1
@@ -115,8 +114,8 @@ function SwitchWidget(props: { config: SwitchConfig }) {
               active={isOn()}
               count={entities().length}
             />
-            <TileHero value={heroValue()} />
-          </Tile>
+            <Widget.Hero value={heroValue()} />
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

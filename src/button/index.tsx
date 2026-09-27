@@ -1,10 +1,10 @@
 import {
-  Button,
   buildDebugData,
   defineConfig,
   defineWidget,
   field,
   type Infer,
+  useConfirm,
   useEntities,
   useService,
   useWidgetContext,
@@ -18,8 +18,6 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { Tile, TileControls, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
-import { useConfirm } from "../common/use-confirm";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -48,20 +46,20 @@ function ButtonWidget(props: { config: ButtonConfig }) {
   const { callService } = useService();
 
   const confirm = useConfirm();
+  const press = async () => {
+    for (const e of entities()) {
+      await callService("button", "press", {}, { entity_id: e.id });
+    }
+  };
   const handleTap = async () => {
     if (isLoading()) return;
     setIsLoading(true);
     try {
-      await confirm.run(["press"], async () => {
-        for (const e of entities()) {
-          await callService("button", "press", {}, { entity_id: e.id });
-        }
-      });
+      await confirm.run(["press"], press);
     } finally {
       setIsLoading(false);
     }
   };
-  const buttonIcon = () => (confirm.any() ? "mdi:check" : "mdi:gesture-tap-button");
 
   const name = () =>
     props.config.title ||
@@ -93,37 +91,27 @@ function ButtonWidget(props: { config: ButtonConfig }) {
         tone="accent"
         loading={isLoading()}
         emptyState={emptyState()}
+        confirmed={confirm.any()}
       >
         <Show when={hasEntities()}>
-          <Tile confirmed={confirm.any()}>
-            <TileGlyph icon={buttonIcon()} />
-            <TileHead
-              icon={buttonIcon()}
-              active={confirm.any()}
+          <Widget.Content>
+            <Widget.Glyph icon="mdi:gesture-tap-button" />
+            <Widget.Head
+              icon="mdi:gesture-tap-button"
               eyebrow="Button"
               name={name()}
               count={entities().length}
             />
-            <TileHero
+            <Widget.Hero
               value={lastPressed() ?? ""}
               sub={lastPressed() ? "Last pressed" : "Never pressed"}
             />
-            <TileControls>
-              <Button
-                variant="outline"
-                class="tile-control-wide"
-                data-confirmed={confirm.any() || undefined}
-                onClick={handleTap}
-              >
-                <Icon
-                  icon={confirm.any() ? "mdi:check" : "mdi:gesture-tap"}
-                  width="1em"
-                  height="1em"
-                />
+            <Widget.Controls>
+              <Widget.Action icon="mdi:gesture-tap" confirm={confirm} id="press" run={press}>
                 Press
-              </Button>
-            </TileControls>
-          </Tile>
+              </Widget.Action>
+            </Widget.Controls>
+          </Widget.Content>
         </Show>
       </Widget>
       <WidgetDialog

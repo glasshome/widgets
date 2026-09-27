@@ -1,4 +1,4 @@
-import { monotoneCubicPath, useWidgetDimensions } from "@glasshome/widget-sdk";
+import { monotoneCubicPath, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import {
   createMemo,
   createSignal,
@@ -47,9 +47,11 @@ export function TileSparkline(props: { data: SparklinePoint[]; from: number }): 
   const tile = useWidgetDimensions();
   const full = () => tile().width >= FULL_MIN.width && tile().height >= FULL_MIN.height;
   return (
-    <div class="sensor-spark" data-art-layer data-full={full() || undefined}>
-      <SparkChart data={props.data} from={props.from} labelFrom={full() ? 0 : VISIBLE_FROM} />
-    </div>
+    <Widget.Layer>
+      <div class="sensor-spark" data-full={full() || undefined}>
+        <SparkChart data={props.data} from={props.from} labelFrom={full() ? 0 : VISIBLE_FROM} />
+      </div>
+    </Widget.Layer>
   );
 }
 
