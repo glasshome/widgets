@@ -75,22 +75,23 @@
 }
 .flow-label-icon {
   flex-shrink: 0;
-  font-size: 20px;
+  font-size: max(20px, 4.4cqmin);
 }
 .flow-label-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-width: 72px;
+  max-width: max(72px, 24cqmin);
   line-height: 1.15;
 }
 .flow-label-value {
-  font-size: 15px;
+  font-size: max(15px, 3.4cqmin);
+  white-space: nowrap;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 .flow-label-name {
-  font-size: 11px;
+  font-size: max(11px, 2.5cqmin);
   color: var(--muted-foreground);
   white-space: nowrap;
   overflow: hidden;
