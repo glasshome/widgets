@@ -1,4 +1,4 @@
-import { monotoneCubicPath } from "@glasshome/widget-sdk";
+import { monotoneCubicPath, useWidgetDimensions } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, For, type JSX, onCleanup, onMount, Show } from "solid-js";
 
 export interface SparklinePoint {
@@ -21,6 +21,8 @@ const STEPS_H = [1, 2, 3, 4, 6, 8, 12];
 const AXIS_MIN_H = 80;
 /** Where the line has faded in enough to carry a label, as a share of the width. */
 const VISIBLE_FROM = 0.42;
+/** From this tile size the line gets its own full-width band between the head and the value. */
+const FULL_MIN = { width: 300, height: 320 };
 
 const hourLabel = (seconds: number) =>
   new Date(seconds * 1000).toLocaleTimeString(undefined, { hour: "numeric" });
@@ -29,6 +31,8 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v).toString() : v.to
 
 export function Sparkline(props: SparklineProps): JSX.Element {
   const color = () => props.color ?? "var(--widget-color)";
+  const tile = useWidgetDimensions();
+  const full = () => tile().width >= FULL_MIN.width && tile().height >= FULL_MIN.height;
 
   let containerRef!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
@@ -98,7 +102,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
       at.setHours(Math.floor(at.getHours() / step) * step);
       for (let t = at.getTime() / 1000; ; t -= step * HOUR) {
         const x = xAt(t);
-        if (x < w * VISIBLE_FROM) break;
+        if (x < (full() ? gap / 2 : w * VISIBLE_FROM)) break;
         if (x > w - gap / 2) continue;
         const i = points.findIndex((p) => p.timestamp > t);
         const a = points[Math.max(0, i - 1)];
@@ -135,92 +139,96 @@ export function Sparkline(props: SparklineProps): JSX.Element {
   });
 
   return (
-    <div ref={containerRef} class="h-full w-full">
-      <svg
-        width={width()}
-        height={height()}
-        viewBox={`0 0 ${width()} ${height()}`}
-        class="block"
-        aria-hidden="true"
-      >
-        <Show when={chartData()}>
-          {(cd) => (
-            <>
-              <defs>
-                <linearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color={color()} stop-opacity="0.32" />
-                  <stop offset="100%" stop-color={color()} stop-opacity="0" />
-                </linearGradient>
-              </defs>
+    <div class="sensor-spark" data-full={full() || undefined}>
+      <div ref={containerRef} class="h-full w-full">
+        <svg
+          width={width()}
+          height={height()}
+          viewBox={`0 0 ${width()} ${height()}`}
+          class="block"
+          aria-hidden="true"
+        >
+          <Show when={chartData()}>
+            {(cd) => (
+              <>
+                <defs>
+                  <linearGradient id="spark-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color={color()} stop-opacity="0.32" />
+                    <stop offset="100%" stop-color={color()} stop-opacity="0" />
+                  </linearGradient>
+                </defs>
 
-              <path
-                d={cd().areaPath}
-                fill="url(#spark-area)"
-                opacity={mounted() ? 1 : 0}
-                style={{ transition: "opacity var(--duration-morph) var(--ease-morph)" }}
-              />
+                <path
+                  d={cd().areaPath}
+                  fill="url(#spark-area)"
+                  opacity={mounted() ? 1 : 0}
+                  style={{ transition: "opacity var(--duration-morph) var(--ease-morph)" }}
+                />
 
-              <path
-                d={cd().linePath}
-                fill="none"
-                stroke={color()}
-                stroke-width={Math.max(2, cd().labelSize / 6)}
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-dasharray={`${pathLength()}`}
-                stroke-dashoffset={mounted() ? 0 : pathLength()}
-                style={{ transition: "stroke-dashoffset var(--duration-morph) var(--ease-morph)" }}
-              />
+                <path
+                  d={cd().linePath}
+                  fill="none"
+                  stroke={color()}
+                  stroke-width={Math.max(2, cd().labelSize / 6)}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-dasharray={`${pathLength()}`}
+                  stroke-dashoffset={mounted() ? 0 : pathLength()}
+                  style={{
+                    transition: "stroke-dashoffset var(--duration-morph) var(--ease-morph)",
+                  }}
+                />
 
-              <For each={cd().columns}>
-                {(col) => (
-                  <>
-                    <line
-                      x1={col.x}
-                      x2={col.x}
-                      y1={
-                        Math.max(cd().labelSize, col.y - cd().labelSize * 0.9) +
-                        cd().labelSize * 0.45
-                      }
-                      y2={cd().h - cd().labelSize * 0.85 - 10}
-                      stroke="var(--muted-foreground)"
-                      stroke-width="1"
-                      stroke-dasharray="2 4"
-                      stroke-linecap="round"
-                      opacity={mounted() ? 0.45 : 0}
-                      style={reveal(true)}
-                    />
-                    <text
-                      x={col.x}
-                      y={Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}
-                      text-anchor="middle"
-                      fill="var(--foreground)"
-                      font-size={`${cd().labelSize}`}
-                      font-weight="600"
-                      opacity={mounted() ? 0.9 : 0}
-                      style={reveal(true)}
-                    >
-                      {col.value}
-                    </text>
-                    <text
-                      x={col.x}
-                      y={cd().h - 6}
-                      text-anchor="middle"
-                      fill="var(--muted-foreground)"
-                      font-size={`${cd().labelSize * 0.85}`}
-                      font-weight="500"
-                      opacity={mounted() ? 0.85 : 0}
-                      style={reveal(true)}
-                    >
-                      {col.time}
-                    </text>
-                  </>
-                )}
-              </For>
-            </>
-          )}
-        </Show>
-      </svg>
+                <For each={cd().columns}>
+                  {(col) => (
+                    <>
+                      <line
+                        x1={col.x}
+                        x2={col.x}
+                        y1={
+                          Math.max(cd().labelSize, col.y - cd().labelSize * 0.9) +
+                          cd().labelSize * 0.45
+                        }
+                        y2={cd().h - cd().labelSize * 0.85 - 10}
+                        stroke="var(--muted-foreground)"
+                        stroke-width="1"
+                        stroke-dasharray="2 4"
+                        stroke-linecap="round"
+                        opacity={mounted() ? 0.45 : 0}
+                        style={reveal(true)}
+                      />
+                      <text
+                        x={col.x}
+                        y={Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}
+                        text-anchor="middle"
+                        fill="var(--foreground)"
+                        font-size={`${cd().labelSize}`}
+                        font-weight="600"
+                        opacity={mounted() ? 0.9 : 0}
+                        style={reveal(true)}
+                      >
+                        {col.value}
+                      </text>
+                      <text
+                        x={col.x}
+                        y={cd().h - 6}
+                        text-anchor="middle"
+                        fill="var(--muted-foreground)"
+                        font-size={`${cd().labelSize * 0.85}`}
+                        font-weight="500"
+                        opacity={mounted() ? 0.85 : 0}
+                        style={reveal(true)}
+                      >
+                        {col.time}
+                      </text>
+                    </>
+                  )}
+                </For>
+              </>
+            )}
+          </Show>
+        </svg>
+      </div>
     </div>
   );
 }
