@@ -241,7 +241,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                       callService("cover", "open_cover", {}, { entity_id: entityIds() })
                     }
                   >
-                    <Icon icon="mdi:arrow-up" width={18} />
+                    <Icon icon="mdi:arrow-up" width="1em" height="1em" />
                   </Button>
                   <Button
                     variant="outline"
@@ -252,7 +252,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                       callService("cover", "stop_cover", {}, { entity_id: entityIds() })
                     }
                   >
-                    <Icon icon="mdi:stop" width={18} />
+                    <Icon icon="mdi:stop" width="1em" height="1em" />
                   </Button>
                   <Button
                     variant="outline"
@@ -263,7 +263,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                       callService("cover", "close_cover", {}, { entity_id: entityIds() })
                     }
                   >
-                    <Icon icon="mdi:arrow-down" width={18} />
+                    <Icon icon="mdi:arrow-down" width="1em" height="1em" />
                   </Button>
                 </ButtonGroup>
               </TileControls>

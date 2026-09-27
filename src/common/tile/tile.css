@@ -405,3 +405,14 @@
 .tile[data-backdrop] :is(.tile-sub, .tile-eyebrow) {
   color: color-mix(in oklch, var(--foreground) 82%, transparent);
 }
+/* Control glyphs and words keep their share of a control as it grows past 4x4. */
+.tile .tile-controls :is(iconify-icon, svg),
+.tile .scene-chip.scene-chip :is(iconify-icon, svg) {
+  font-size: calc(var(--tile-control-h) * 0.43);
+  width: 1em;
+  height: 1em;
+}
+.tile-controls,
+.scene-chip.scene-chip {
+  font-size: clamp(13px, calc(var(--tile-control-h) * 0.3), 20px);
+}

@@ -181,7 +181,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         class="tile-control"
                         onClick={() => call("media_previous_track")}
                       >
-                        <Icon icon="mdi:skip-previous" width={20} />
+                        <Icon icon="mdi:skip-previous" width="1em" height="1em" />
                       </Button>
                     </Show>
                     <Button
@@ -191,7 +191,11 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                       class="tile-control"
                       onClick={() => call("media_play_pause")}
                     >
-                      <Icon icon={isPlaying() ? "mdi:pause" : "mdi:play"} width={20} />
+                      <Icon
+                        icon={isPlaying() ? "mdi:pause" : "mdi:play"}
+                        width="1em"
+                        height="1em"
+                      />
                     </Button>
                     <Show when={features()?.supportsNext}>
                       <Button
@@ -201,13 +205,13 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                         class="tile-control"
                         onClick={() => call("media_next_track")}
                       >
-                        <Icon icon="mdi:skip-next" width={20} />
+                        <Icon icon="mdi:skip-next" width="1em" height="1em" />
                       </Button>
                     </Show>
                   </ButtonGroup>
                   <Show when={features()?.supportsVolume}>
                     <span class="media-volume">
-                      <Icon icon="mdi:volume-high" width={16} />
+                      <Icon icon="mdi:volume-high" width="1em" height="1em" />
                       {uiVolume()}%
                     </span>
                   </Show>

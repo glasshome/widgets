@@ -145,7 +145,7 @@ export function TileStepper(props: { label: string; onStep: (direction: -1 | 1) 
         class="tile-control"
         onClick={() => props.onStep(-1)}
       >
-        <Icon icon="mdi:minus" width={18} />
+        <Icon icon="mdi:minus" width="1em" height="1em" />
       </Button>
       <Button
         variant="outline"
@@ -154,7 +154,7 @@ export function TileStepper(props: { label: string; onStep: (direction: -1 | 1) 
         class="tile-control"
         onClick={() => props.onStep(1)}
       >
-        <Icon icon="mdi:plus" width={18} />
+        <Icon icon="mdi:plus" width="1em" height="1em" />
       </Button>
     </ButtonGroup>
   );
@@ -183,7 +183,7 @@ export function TileChoice(props: {
             class="tile-control"
             data-optional={o.value === props.value ? undefined : ""}
           >
-            <Icon icon={o.icon} width={18} />
+            <Icon icon={o.icon} width="1em" height="1em" />
           </ToggleGroupItem>
         )}
       </For>

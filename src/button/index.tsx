@@ -106,7 +106,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
             />
             <TileControls>
               <Button variant="outline" class="tile-control-wide" onClick={handleTap}>
-                <Icon icon="mdi:gesture-tap" width={18} />
+                <Icon icon="mdi:gesture-tap" width="1em" height="1em" />
                 Press
               </Button>
             </TileControls>

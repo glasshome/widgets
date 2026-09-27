@@ -97,7 +97,7 @@ function SceneWidget(props: { config: SceneConfig }) {
               <For each={entities()}>
                 {(e) => (
                   <Button variant="outline" class="scene-chip" onClick={() => turnOn(e.id)}>
-                    <Icon icon="mdi:play" width={16} />
+                    <Icon icon="mdi:play" width="1em" height="1em" />
                     {entities().length > 1 ? e.friendlyName : "Activate"}
                   </Button>
                 )}
