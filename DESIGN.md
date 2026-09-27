@@ -33,7 +33,7 @@ A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout f
 
 The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 
-Past a 4×4 box the caps give way to the tile's short side (`cqmin`): value, name, icon, padding and control height keep their share, so a large tile scales instead of emptying. Up to 4×4 nothing changes. Tile widgets go to 8×8; clock, button, scene, batteries and energy-flow stay at 4×4 until their own layouts scale.
+Past a 4×4 box the caps give way to the tile's short side (`cqmin`): value, name, icon, padding and control height keep their share, so a large tile scales instead of emptying. Up to 4×4 nothing changes. Every tile widget goes to 8×8, and control glyphs and words follow the control height. A big tile with no art of its own (no picture, object or line) shows its icon large and faint in the corner; mark a widget's own art layer with `data-art-layer` so it does not get one.
 
 A widget opens at its first example's size, and that size shows its whole face: a device tile with art opens at 2×2, the media player at 3×3 so its transport shows, the camera at 3×2.
 
