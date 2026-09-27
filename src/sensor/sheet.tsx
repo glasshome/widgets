@@ -1,7 +1,6 @@
 import {
   type EntityView,
   getEntityAttribute,
-  monotoneCubicPath,
   type PanelFact,
   PanelFacts,
   PanelRow,
@@ -14,16 +13,9 @@ import {
   useEntityHistory,
   useEntityStatistics,
 } from "@glasshome/widget-sdk";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  onCleanup,
-  Show,
-} from "solid-js";
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { getSensorIcon } from "../common";
+import { SparkChart } from "./sparkline";
 import { downsample, formatSensorValue, type Reading, readingsWithin, summarize } from "./utils";
 
 type Range = "6h" | "24h" | "7d";
@@ -36,7 +28,7 @@ const RANGES: { id: Range; label: string; hours: number; words: string }[] = [
 
 const HOUR_MS = 3_600_000;
 const CHART_POINTS = 120;
-const CHART_HEIGHT = 112;
+const CHART_HEIGHT = 168;
 const INK = "var(--tone-info)";
 
 const deviceClassOf = (e: EntityView) =>
@@ -47,60 +39,6 @@ function readingText(e: EntityView): string {
   if (Number.isNaN(n)) return e.state;
   const value = formatSensorValue(n, deviceClassOf(e));
   return e.unitOfMeasurement ? `${value} ${e.unitOfMeasurement}` : value;
-}
-
-function HistoryChart(props: { readings: Reading[] }) {
-  const id = createUniqueId();
-  const shape = createMemo(() => {
-    const pts = props.readings;
-    const first = pts[0];
-    const last = pts.at(-1);
-    if (!first || !last || pts.length < 2) return undefined;
-    const values = pts.map((p) => p.value);
-    const lo = Math.min(...values);
-    const hi = Math.max(...values);
-    const span = hi - lo || Math.abs(hi) * 0.1 || 1;
-    const dt = last.t - first.t || 1;
-    const line = monotoneCubicPath(
-      pts.map((p) => ({ x: ((p.t - first.t) / dt) * 100, y: 90 - ((p.value - lo) / span) * 80 })),
-    );
-    return { line, area: `${line} L 100 100 L 0 100 Z` };
-  });
-  return (
-    <Show when={shape()}>
-      {(s) => (
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          role="img"
-          aria-label="Reading over the chosen range"
-          style={{
-            width: "100%",
-            height: `${CHART_HEIGHT}px`,
-            display: "block",
-            overflow: "visible",
-          }}
-        >
-          <defs>
-            <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" style={{ "stop-color": INK, "stop-opacity": 0.3 }} />
-              <stop offset="1" style={{ "stop-color": INK, "stop-opacity": 0 }} />
-            </linearGradient>
-          </defs>
-          <path d={s().area} fill={`url(#${id})`} />
-          <path
-            d={s().line}
-            fill="none"
-            vector-effect="non-scaling-stroke"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            style={{ stroke: INK }}
-          />
-        </svg>
-      )}
-    </Show>
-  );
 }
 
 /** What the sensor tile cannot show: the first sensor's history over a chosen range, and every sensor's reading. */
@@ -190,7 +128,16 @@ export function SensorSheet(props: { entities: EntityView[] }) {
             {(r) => <ToggleGroupItem value={r.id}>{r.label}</ToggleGroupItem>}
           </For>
         </ToggleGroup>
-        <HistoryChart readings={downsample(readings(), CHART_POINTS)} />
+        <div style={{ height: `${CHART_HEIGHT}px` }}>
+          <SparkChart
+            data={downsample(readings(), CHART_POINTS).map((r) => ({
+              value: r.value,
+              timestamp: r.t / 1000,
+            }))}
+            from={(Date.now() - spec().hours * HOUR_MS) / 1000}
+            color={INK}
+          />
+        </div>
         <PanelFacts items={facts()} />
       </PanelSection>
       <Show when={props.entities.length > 1}>

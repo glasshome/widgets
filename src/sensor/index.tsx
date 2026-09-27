@@ -23,7 +23,7 @@ import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
 import { Tile, TileGlyph, TileHead, TileHero } from "../common/tile/tile";
 import { SensorSheet } from "./sheet";
-import { Sparkline, type SparklinePoint } from "./sparkline";
+import { type SparklinePoint, TileSparkline } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
 
@@ -146,7 +146,7 @@ function SensorWidget(props: { config: SensorConfig }) {
             />
             <TileHero value={displayValue()} unit={displayUnit() || undefined} />
             <Show when={entities().length === 1 && dataPoints().length >= 2}>
-              <Sparkline data={dataPoints()} from={historyFrom / 1000} />
+              <TileSparkline data={dataPoints()} from={historyFrom / 1000} />
             </Show>
           </Tile>
         </Show>
