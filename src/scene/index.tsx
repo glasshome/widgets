@@ -69,6 +69,9 @@ function SceneWidget(props: { config: SceneConfig }) {
       setIsLoading(false);
     }
   };
+  // The whole tile answers too, so a size that hides the chips still shows the run.
+  const justRan = () => ran().size > 0;
+  const sceneIcon = () => (justRan() ? "mdi:check" : "mdi:palette");
   const handleTap = () => run(entities().map((e) => e.id));
 
   /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
@@ -115,9 +118,9 @@ function SceneWidget(props: { config: SceneConfig }) {
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Tile>
-            <TileGlyph icon="mdi:palette" />
-            <TileHead icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
+          <Tile active={justRan()}>
+            <TileGlyph icon={sceneIcon()} />
+            <TileHead icon={sceneIcon()} eyebrow={eyebrow()} name={name()} active={justRan()} />
             <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
               <For each={entities()}>
                 {(e) => (

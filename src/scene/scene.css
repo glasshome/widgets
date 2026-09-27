@@ -49,3 +49,10 @@
   --glass-base: color-mix(in srgb, var(--widget-color) 35%, transparent);
   transition: background-color var(--duration-state) var(--ease-morph);
 }
+/* A run confirms on the glyph too, the one thing a compact tile shows. */
+.tile[data-active] > .tile-glyph {
+  opacity: 0.5;
+}
+.tile > .tile-glyph {
+  transition: opacity var(--duration-state) var(--ease-morph);
+}
