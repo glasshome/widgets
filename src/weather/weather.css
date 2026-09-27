@@ -116,10 +116,10 @@
   flex: 38;
 }
 .wx-layout[data-tier="split"] .wx-now-temp {
-  font-size: calc(72px * var(--wx-s));
+  font-size: calc(104px * var(--wx-s));
 }
 .wx-layout[data-tier="split"] .wx-cond {
-  font-size: calc(15px * var(--wx-s));
+  font-size: calc(18px * var(--wx-s));
 }
 
 .wx-layout:is([data-tier="compact"], [data-tier="row"]),
@@ -369,6 +369,9 @@
   overflow: hidden;
 
   mask-image: linear-gradient(to bottom, black 45%, transparent);
+}
+.wx-scene[data-tier="split"] {
+  mask-image: linear-gradient(to bottom, black 58%, transparent);
 }
 .wx-plain .wx-scene {
   bottom: 0;
