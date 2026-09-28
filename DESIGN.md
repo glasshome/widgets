@@ -1,6 +1,6 @@
 # Widget design
 
-How the official GlassHome widgets look and behave. Values live in code: the anatomy and its scale in widget-sdk (`framework/components/anatomy.tsx`, `framework/theming/tokens.css`), colour tokens in `@glasshome/ui` `theme.css`. Official and community widgets use the same parts.
+How the official GlassHome widgets look and behave. Rules for every widget, official or community, live in widget-sdk `guide/widgets.md`; this file holds what is specific to the official set. Values live in code: the anatomy and its scale in widget-sdk (`framework/components/anatomy.tsx`, `framework/theming/tokens.css`), colour tokens in `@glasshome/ui` `theme.css`. Official and community widgets use the same parts.
 
 ## Principle
 
