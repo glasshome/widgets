@@ -16,7 +16,7 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
         {/* No glyph: the widget header above already carries the house icon. */}
         <div class="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
           <div class="flex flex-col gap-1">
-            <p class="font-medium text-foreground text-sm">Set up your energy sensors</p>
+            <p class="text-foreground text-sm font-medium">Set up your energy sensors</p>
             <p class="text-muted-foreground text-xs">
               Connect your solar, grid, and battery to see your home's energy at a glance.
             </p>
@@ -31,7 +31,7 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
 
       <Match when={props.kind === "unavailable"}>
         <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
-          <span class="font-medium text-foreground text-sm opacity-60">{props.lastKnownValue}</span>
+          <span class="text-foreground text-sm font-medium opacity-60">{props.lastKnownValue}</span>
           <Badge>Reconnecting...</Badge>
         </div>
       </Match>
@@ -39,7 +39,7 @@ export function EnergyEmptyState(props: EnergyEmptyStateProps): JSX.Element {
       <Match when={props.kind === "first-day"}>
         <div class="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
           <div class="flex flex-col gap-1">
-            <p class="font-medium text-foreground text-sm">Check back tomorrow</p>
+            <p class="text-foreground text-sm font-medium">Check back tomorrow</p>
             <p class="text-muted-foreground text-xs">Your energy history is being recorded</p>
           </div>
         </div>

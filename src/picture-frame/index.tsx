@@ -104,7 +104,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
                     )}
                   </For>
                 </CarouselContent>
-                <CarouselDots class="frame-dots absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/70 to-transparent pt-6 pb-2" />
+                <CarouselDots class="frame-dots from-background/70 absolute inset-x-0 bottom-0 bg-gradient-to-t to-transparent pt-6 pb-2" />
               </Carousel>
             </Show>
           </Widget.Layer>

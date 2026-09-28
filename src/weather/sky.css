@@ -316,8 +316,7 @@
   left: 0;
   right: auto;
   width: 200%;
-  background:
-    linear-gradient(
+  background: linear-gradient(
       to right,
       transparent,
       oklch(1 0 0 / 0.5) 20%,

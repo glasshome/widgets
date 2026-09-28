@@ -84,7 +84,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           /* Stacked layout */
           <div class="flex flex-col items-center justify-center leading-none">
             <div
-              class="font-bold text-foreground tabular-nums"
+              class="text-foreground font-bold tabular-nums"
               style={{
                 "font-size": timeSize(true),
                 "font-family": digital().fontFamily,
@@ -96,7 +96,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               {timeParts().hours}
             </div>
             <div
-              class="font-bold text-foreground tabular-nums opacity-70"
+              class="text-foreground font-bold tabular-nums opacity-70"
               style={{
                 "font-size": timeSize(true),
                 "font-family": digital().fontFamily,
@@ -108,7 +108,7 @@ function ClockWidget(props: { config: ClockConfig }) {
               {timeParts().minutes}
             </div>
             <Show when={cfg().showSeconds}>
-              <div class="@[200px]:mt-2 mt-1 flex items-center gap-1">
+              <div class="mt-1 flex items-center gap-1 @[200px]:mt-2">
                 <div
                   class="font-bold tabular-nums"
                   style={{
@@ -120,13 +120,13 @@ function ClockWidget(props: { config: ClockConfig }) {
                 >
                   {timeParts().seconds}
                 </div>
-                <span class="font-medium @[200px]:text-xs text-[10px] text-foreground opacity-50">
+                <span class="text-foreground text-[10px] font-medium opacity-50 @[200px]:text-xs">
                   sec
                 </span>
               </div>
             </Show>
             <Show when={timeParts().period && !cfg().showSeconds}>
-              <span class={"mt-1 font-medium @[200px]:text-sm text-foreground text-xs opacity-50"}>
+              <span class={"text-foreground mt-1 text-xs font-medium opacity-50 @[200px]:text-sm"}>
                 {timeParts().period}
               </span>
             </Show>
@@ -136,7 +136,7 @@ function ClockWidget(props: { config: ClockConfig }) {
         {/* Horizontal layout (default) */}
         <div class="flex items-baseline justify-center gap-0.5">
           <div
-            class="font-bold text-foreground tabular-nums"
+            class="text-foreground font-bold tabular-nums"
             style={{
               "font-size": timeSize(false),
               "font-family": digital().fontFamily,
@@ -166,7 +166,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={timeParts().period}>
             <span
               class={
-                "mt-[0.2em] ml-1 self-start font-medium @[200px]:text-sm text-foreground text-xs opacity-50"
+                "text-foreground mt-[0.2em] ml-1 self-start text-xs font-medium opacity-50 @[200px]:text-sm"
               }
             >
               {timeParts().period}
@@ -181,7 +181,7 @@ function ClockWidget(props: { config: ClockConfig }) {
   const BannerFace = () => (
     <div class="flex items-center justify-center gap-3 leading-none">
       <div
-        class="font-bold text-foreground tabular-nums"
+        class="text-foreground font-bold tabular-nums"
         style={{
           "font-size": "clamp(20px, min(48cqb, 17cqi), 34px)",
           "font-family": digital().fontFamily,
@@ -193,13 +193,13 @@ function ClockWidget(props: { config: ClockConfig }) {
         <span class="mx-0.5">:</span>
         {timeParts().minutes}
         <Show when={timeParts().period}>
-          <span class="ml-1 font-medium text-foreground text-xs opacity-50">
+          <span class="text-foreground ml-1 text-xs font-medium opacity-50">
             {timeParts().period}
           </span>
         </Show>
       </div>
       <Show when={cfg().showDate}>
-        <span class="@[240px]:inline hidden text-[11px] text-foreground/50">{formattedDate()}</span>
+        <span class="text-foreground/50 hidden text-[11px] @[240px]:inline">{formattedDate()}</span>
       </Show>
     </div>
   );
@@ -208,7 +208,7 @@ function ClockWidget(props: { config: ClockConfig }) {
     <>
       <DigitalTime />
       <Show when={cfg().showDate}>
-        <div class="@[200px]:mt-3 mt-2">
+        <div class="mt-2 @[200px]:mt-3">
           <DateBlock />
         </div>
       </Show>
@@ -254,7 +254,7 @@ function ClockWidget(props: { config: ClockConfig }) {
           analogOptions={cfg().analogOptions}
         />
         <Show when={cfg().showDate}>
-          <div class={beside() ? "" : "@[200px]:mt-3 mt-2"}>
+          <div class={beside() ? "" : "mt-2 @[200px]:mt-3"}>
             <DateBlock />
           </div>
         </Show>
@@ -283,9 +283,9 @@ function ClockWidget(props: { config: ClockConfig }) {
 
   // Day + date. Uniform foreground palette across all three faces.
   const DateBlock = () => (
-    <div class="flex flex-col items-center @[200px]:gap-1 gap-0.5">
+    <div class="flex flex-col items-center gap-0.5 @[200px]:gap-1">
       <Show when={cfg().showDate}>
-        <span class="font-medium text-foreground/60" style={{ "font-size": metaSize() }}>
+        <span class="text-foreground/60 font-medium" style={{ "font-size": metaSize() }}>
           {dayOfWeek()}
         </span>
         <span class="text-foreground opacity-50" style={{ "font-size": metaSize() }}>

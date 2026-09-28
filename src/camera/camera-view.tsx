@@ -86,13 +86,13 @@ export function CameraView(props: {
         >
           <div class="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
             <Icon icon={overlay()?.icon ?? "mdi:cctv-off"} width={16} class="text-white/90" />
-            <span class="font-medium text-[11px] text-white/90">{overlay()?.label}</span>
+            <span class="text-[11px] font-medium text-white/90">{overlay()?.label}</span>
           </div>
         </div>
       </Show>
 
       <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
-        <span class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 font-medium text-white text-xs [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
+        <span class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 text-xs font-medium text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
           {props.name()}
         </span>
         <Badge tone={badge().tone}>{badge().label}</Badge>
