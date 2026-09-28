@@ -1,10 +1,7 @@
 {
   "name": "@glasshome/widgets",
-  "private": true,
-  "exports": {
-    "./tailwind-sources": "./tailwind-sources.css"
-  },
   "version": "0.3.6",
+  "private": true,
   "description": "Reference implementation of built-in GlassHome dashboard widgets",
   "license": "MIT",
   "repository": {
@@ -12,27 +9,34 @@
     "url": "https://github.com/glasshome/widgets.git"
   },
   "type": "module",
+  "exports": {
+    "./tailwind-sources": "./tailwind-sources.css"
+  },
   "scripts": {
     "build": "tsc --noEmit && vite build",
     "test": "bun test",
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123",
-    "check:dead": "fallow dead-code --fail-on-issues"
-  },
-  "devDependencies": {
-    "@glasshome/widget-sdk": "1.17.1",
-    "@types/bun": "^1.4.0",
-    "fallow": "3.17.0",
-    "typescript": "^7.0.2",
-    "vite": "^8.1.0",
-    "vite-plugin-solid": "^2.11.12"
+    "check:dead": "fallow dead-code --fail-on-issues",
+    "lint": "oxlint --type-aware . && oxfmt --check ."
   },
   "dependencies": {
     "@iconify-icon/solid": "^3.0.3",
     "hls.js": "^1.6.15"
   },
-  "peerDependencies": {
-    "solid-js": "^1.9.11",
+  "devDependencies": {
     "@glasshome/widget-sdk": "1.17.1",
-    "@glasshome/ui": "1.20.0"
+    "@types/bun": "^1.4.0",
+    "fallow": "3.17.0",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.81.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.0",
+    "vite-plugin-solid": "^2.11.12"
+  },
+  "peerDependencies": {
+    "@glasshome/ui": "1.20.0",
+    "@glasshome/widget-sdk": "1.17.1",
+    "solid-js": "^1.9.11"
   }
 }

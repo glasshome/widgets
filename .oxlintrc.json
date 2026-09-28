@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrors": "none"
+      }
+    ],
+    "no-param-reassign": "error",
+    "import/no-cycle": "error",
+    "typescript/await-thenable": "off",
+    "no-unassigned-vars": "off",
+    "typescript/restrict-template-expressions": "error",
+    "typescript/require-array-sort-compare": "error",
+    "typescript/no-base-to-string": "error",
+    "no-else-return": "error",
+    "default-param-last": "error",
+    "typescript/no-inferrable-types": "error",
+    "typescript/prefer-enum-initializers": "error",
+    "typescript/prefer-as-const": "error"
+  },
+  "ignorePatterns": ["**/dist/**", "**/node_modules/**"]
+}
