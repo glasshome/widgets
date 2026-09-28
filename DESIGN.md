@@ -1,22 +1,14 @@
 # Widget design
 
-How the official GlassHome widgets look and behave. Rules for every widget, official or community, live in widget-sdk `guide/widgets.md`; this file holds what is specific to the official set. Values live in code: the anatomy and its scale in widget-sdk (`framework/components/anatomy.tsx`, `framework/theming/tokens.css`), colour tokens in `@glasshome/ui` `theme.css`. Official and community widgets use the same parts.
+What is specific to the official GlassHome widgets. Rules for every widget (the loop, the parts, sizes, words, controls, sheets, groups, motion) live in widget-sdk `guide/widgets.md`: read it first, and put a rule there when it applies to any widget. Values live in code: the anatomy and its scale in widget-sdk (`framework/components/anatomy.tsx`, `framework/theming/tokens.css`), colour tokens in `@glasshome/ui` `theme.css`.
 
 ## Principle
 
-Every widget is the same anatomy filled differently, so a dashboard reads as one product. Each widget answers one question a homeowner asks ("is the living room lit?", "how did today go?", "is now a good time to run the dishwasher?") and leads with the answer: a few words or one big number. A picture shows the answer where it can; a list of numbers is the last resort.
+Every widget is the same anatomy filled differently, so a dashboard reads as one product. Each widget answers one question a homeowner asks ("is the living room lit?", "how did today go?", "is now a good time to run the dishwasher?").
 
 ## Anatomy
 
-Built from the SDK's `Widget.*` parts inside `Widget.Content`. Each zone appears only when the box has room for it.
-
-| Zone | Component | Holds |
-|---|---|---|
-| Head | `Widget.Head` | icon (`WidgetIcon`, stacked for groups via `count`), a small line above the name, optional chips |
-| Controls | `Widget.Controls` | one row at the bottom: beside the value from 520px wide, under it below that, with the art lifted above; `Widget.Stepper`, `Widget.Choice`, `Widget.Action`, transport buttons, chips. Controls keep ui's own radii, so their corners match at every size |
-| Hero | `Widget.Hero` | a small line above the big value, the value with its unit in the bottom-left corner on every tile, art behind it in the bottom-right |
-
-`Widget.Content` is the frame, `Widget.Backdrop` a full-bleed picture under a scrim, `Widget.Layer` a widget's own full-bleed layer (photo, scene, chart band), `Widget.Glyph` the faint corner icon, `Widget.Chip` a small fact.
+The parts are in the guide. Placement: the Hero's value with its unit sits bottom-left on every tile, art bottom-right behind it; the Controls row sits beside the value from 520px wide, under it below that, with the art lifted above. Controls keep ui's own radii, so their corners match at every size.
 
 ## Size
 
@@ -28,42 +20,33 @@ A "2x2" is 156px tall and 150 to 370px wide depending on the screen, so layout f
 | under 170px tall or 260px wide | head chips hide |
 | under 240px wide | a choice row keeps only the selected segment |
 | under 180px wide | art hides; head stacks icon over name; photo tiles drop the icon |
-| under 130px tall or 140px wide | compact: name on top, value at the bottom, faint glyph in the corner |
+| under 130px tall or 140px wide | compact: name on top, value at the bottom, faint glyph in the corner; eyebrow and small line hide |
 | under 130px tall, 260px wide or more | one row: name left, value right |
 
 The icon uses the SDK's `--widget-icon-box`; head text scales from it.
 
-One scale: `--widget-unit` is 1% of the tile's short side and every size token (`--widget-text-*`, `--widget-control-h`, spacing, icon box) is fitted to the designed 2×2 and 4×4 sizes and keeps growing to 8×8. Widget CSS sizes with the tokens, never pixels. Every tile widget goes to 8×8. A big tile with no art of its own (no hero art, backdrop or layer) shows its icon large and faint in the corner.
+One scale: `--widget-unit` is 1% of the tile's short side and every size token (`--widget-text-*`, `--widget-control-h`, spacing, icon box) is fitted to the designed 2×2 and 4×4 sizes and keeps growing to 8×8. Every official tile widget goes to 8×8. A big tile with no art of its own (no hero art, backdrop or layer) shows its icon large and faint in the corner.
 
 A widget opens at its first example's size, and that size shows its whole face: a device tile with art opens at 2×2, the media player at 3×3 so its transport shows, the camera at 3×2.
 
 ## Words
 
 - The name heads the tile. Weather alone drops it unless one is set, since a forecast has no device to name.
-- Lead with the answer: a number with its unit, or a short verdict ("Good time", "Locked").
-- The small line explains it ("Now 21.8°C", "69% low-carbon").
-- Never show a value twice on one tile.
-- States follow the device class: a door is Open or Closed, motion is Detected or Clear.
-- The degree sign sits raised; other units small at the baseline. No all-caps. Separator " · ".
+- Small lines: "Now 21.8°C", "69% low-carbon".
+- The degree sign sits raised; other units small at the baseline.
 
 ## Controls
 
-- `@glasshome/ui` components through the SDK only: `Button`, `ButtonGroup`, `ToggleGroup`, `Toggle`, `Badge`, `Icon`.
-- A continuous value (brightness, setpoint, volume, speed, position) keeps the full-tile `WidgetSliderFill`. Buttons sit beside it.
-- A stepper never stands alone: sliding already sets the value, so plus and minus appear only next to other controls.
+- Continuous values with a full-tile slider: brightness, setpoint, volume, speed, position.
 - A selected segment wears the widget's colour.
 - Corners are concentric: shapes flush to the tile edge use `TILE_INNER_RADIUS`, inset shapes the theme corner.
-- Use theme token names (`--card`, `--foreground`, `--muted-foreground`, `--primary`); `--color-*` aliases do not exist in a widget's shadow root.
 
 ## Sheet
 
-Holding a tile opens its sheet: only what the tile cannot show, beside the tile (from the bottom on a phone), sized to its content. Edit mode opens the settings alone, and Debug shows only in Developer Mode.
+The sheet opens beside the tile (from the bottom on a phone), sized to its content. Edit mode opens the settings alone, and Debug shows only in Developer Mode. The SDK gives it a small title; the widget fills it with `PanelSection`s.
 
-- Never draw the tile again: no art, no big value, no repeated name or state. The SDK gives the sheet a small title; the widget fills it with `PanelSection`s.
-- What belongs: a group's members (`PanelEntityRow`: tap switches one, a drag across sets its level), a light's colour (a row of presets, the whites and this screen's recent colours, one tap each; a `TemperatureBar` over the Kelvin span the lamps reach; a `ColorDisc` for the colour lamps, free to drag anywhere; the sheet says when colour reaches only some lamps), modes, presets, sources, the days ahead, history, readings (`PanelFacts`). A row that only reads takes `fill` and is not a button.
-- A widget, or a configuration of it, with nothing the tile lacks passes no `sheet` and drops its hold gesture: holding shows no fill and opens nothing.
-- Controls in a sheet are ui components; rows are button glass with the tile's slider fill and icon box, so nothing changes look between a tile and its sheet.
-- The sheet renders outside the widget's shadow root: style it only through the SDK's sheet parts, never with a widget's own classes.
+- What the official widgets put there: a group's members (`PanelEntityRow`: tap switches one, a drag across sets its level), a light's colour (a row of presets, the whites and this screen's recent colours, one tap each; a `TemperatureBar` over the Kelvin span the lamps reach; a `ColorDisc` for the colour lamps, free to drag anywhere; the sheet says when colour reaches only some lamps), modes, presets, sources, the days ahead, history, readings (`PanelFacts`). A row that only reads takes `fill` and is not a button.
+- Rows are button glass with the tile's slider fill and icon box, so nothing changes look between a tile and its sheet.
 
 ## Groups
 
@@ -72,9 +55,8 @@ One rule for every tile that holds several entities (`common/group.ts`):
 - The value is the state that needs attention when any member is in it ("Unlocked", "Open", "On"), else the resting one ("Locked", "Closed", "Off"). A number that only one member has (speed, position) shows for a single entity only; brightness averages the lights that are on.
 - The small line counts it: "All locked" when every member agrees, "1 of 2 unlocked" otherwise.
 - The tile's colour follows the value.
-- A tap brings every member to one state: towards rest while any is active (lock, close, off), otherwise on or open.
-- A group never unlocks in one tap; once all are locked, the tap opens the dialog, which unlocks door by door.
-- Doors, gates and garage doors never join a one-tap bulk action, and neither does a cover without a device class, since it may be one (`coverJoinsBulk`). A cover group holding one taps into the dialog and has no bulk buttons or slide.
+- The one-tap state goes towards rest while any member is active (lock, close, off), otherwise on or open. Once all locks are locked, the tap opens the dialog, which unlocks door by door.
+- A cover without a device class never joins a bulk action either, since it may be a door (`coverJoinsBulk`). A cover group holding one taps into the dialog and has no bulk buttons or slide.
 - A widget that controls one device (climate, media player) picks one entity.
 
 ## Art
@@ -100,10 +82,9 @@ Media is the exception: the album cover sharp on the vinyl, blurred behind the t
 
 ## Live data
 
-A new reading changes text and attributes in place; it never rebuilds DOM. A change of state moves: the big value rises in when its words change ("Locked" to "Unlocked", "Off" to "80%"), and rendered art steps to its other state; a reading whose digits tick stays still. Timing comes from the theme's motion tokens, so reduced motion stops it everywhere.
+A change of state moves: the big value rises in when its words change ("Locked" to "Unlocked", "Off" to "80%"), and rendered art steps to its other state; a reading whose digits tick stays still. Timing comes from the theme's motion tokens, so reduced motion stops it everywhere.
 
 - JSX passed as a prop is read once through `children()` (`TileHead` and `TileHero` do this).
-- Lists that update with readings use `Index`.
 - Layout that depends on which things exist is memoised on that set, not on readings.
 - Animation durations move in a few fixed steps, since a new duration restarts the animation.
 - Ambient motion is composite-only and pauses offscreen, when hidden, and with reduced motion.
@@ -111,11 +92,7 @@ A new reading changes text and attributes in place; it never rebuilds DOM. A cha
 
 ## Checking a change
 
-Look at pixels, in both themes, at real sizes.
-
-- `bun widget preview <widget> --sizes grid` renders every example across common sizes into `preview/sweep/`, with one contact sheet per example and theme. Narrow it with `--sizes 150x156,340x242`, `--theme dark` and `--example 0`; change the state with `--config '<json>'`, `--service 'domain.service|entity_id|<json>'`, `--at <iso time>` and `--click <selector>`; `--eval '<expr>'` prints a value per render (`root` is the widget's shadow root). `bun widget help` lists them all.
-- Over 20 seconds of changing demo data, a widget adds and removes no DOM nodes.
-- Regenerate previews after a visual change.
+The loop in the guide. Official widgets also regenerate their committed previews after a visual change.
 
 ## The widgets
 
@@ -145,4 +122,4 @@ Look at pixels, in both themes, at real sizes.
 
 ## Keeping this current
 
-This document describes the widgets as they are today. When a direction changes, update the rule here in the same change as the code, and delete a rule nothing follows anymore. A new widget adds its row to the table above. When a rule turns out wrong on a real dashboard, fix the rule; a genuine exception (like media's two images) is named in the section it breaks. Keep it short: a rule that needs a paragraph of reasons is usually two rules or none.
+This document describes the widgets as they are today. When a direction changes, update the rule here in the same change as the code, and delete a rule nothing follows anymore. A rule that holds for any widget moves to widget-sdk `guide/widgets.md` and leaves this file. A new widget adds its row to the table above. When a rule turns out wrong on a real dashboard, fix the rule; a genuine exception (like media's two images) is named in the section it breaks. Keep it short: a rule that needs a paragraph of reasons is usually two rules or none.
