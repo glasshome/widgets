@@ -9,6 +9,9 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  /* Chip glow shows past the box; a margin of one gap stops short of the next, hidden row. */
+  overflow: clip;
+  overflow-clip-margin: 6px;
 }
 .scene-chip.scene-chip {
   gap: 6px;
