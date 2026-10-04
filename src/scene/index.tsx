@@ -108,7 +108,7 @@ function SceneWidget(props: { config: SceneConfig }) {
           <Widget.Content>
             <Widget.Glyph icon="mdi:palette" />
             <Widget.Head icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
-            <div class="scene-chips" on:pointerdown={(e) => e.stopPropagation()}>
+            <div class="scene-chips">
               <For each={entities()}>
                 {(e) => (
                   <Widget.Action
