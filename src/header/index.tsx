@@ -169,7 +169,7 @@ export default defineWidget<HeaderConfig>({
       "Your dashboard's name, with chips for what is on, an entity to watch, or a scene to run",
     icon: "mdi:format-header-1",
     minSize: { w: 2, h: 1 },
-    maxSize: { w: 12, h: 1 },
+    maxSize: { w: 16, h: 1 },
     defaultSize: { w: 6, h: 1 },
     sdkVersion: "^1.15.0",
     capabilities: [
