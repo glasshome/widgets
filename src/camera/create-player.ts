@@ -13,9 +13,16 @@ import { createSnapshotDriver } from "./drivers/snapshot";
 import type { DriverCallbacks, MediaDriver } from "./drivers/types";
 import { createWebRtcDriver } from "./drivers/webrtc";
 import { initialState, type PlayerEvent, type PlayerStatus, transition } from "./player";
+import { reasonOf } from "./reason";
 import type { CameraSource, SourceKind } from "./sources";
 
-const DEFAULT_WATCHDOG_MS = 8000;
+// WebRTC waits out HA's own 15s offer timeout, so its driver reports the real reason first.
+const WATCHDOG_MS: Record<SourceKind, number> = {
+  webrtc: 20000,
+  hls: 8000,
+  mjpeg: 8000,
+  snapshot: 8000,
+};
 
 export interface CameraPlayer {
   status: Accessor<PlayerStatus>;
@@ -38,7 +45,6 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const [state, setState] = createSignal(initialState);
   const [boundEl, setBoundEl] = createSignal<HTMLVideoElement | HTMLImageElement | null>(null);
   const [bindVersion, setBindVersion] = createSignal(0);
-  const watchdogMs = opts.watchdogMs ?? DEFAULT_WATCHDOG_MS;
 
   const bindEl = (el: HTMLVideoElement | HTMLImageElement | null) => {
     setBoundEl(el);
@@ -93,8 +99,10 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     if (wantsVideo(source.kind) !== el instanceof HTMLVideoElement) return;
 
     const attempt = ++attemptId;
-    const live = (event: PlayerEvent) => {
-      if (attempt === attemptId) dispatch(event);
+    const fail = (t: "error" | "watchdog" | "stale", reason: string) => {
+      if (attempt !== attemptId) return;
+      console.warn(`[camera] ${untrack(opts.entityId)} ${source.kind} ${t}: ${reason}`);
+      dispatch({ t });
     };
     const cb: DriverCallbacks = {
       onLive: () => {
@@ -102,10 +110,14 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         clearWatchdog();
         dispatch({ t: "live" });
       },
-      onError: () => live({ t: "error" }),
-      onStale: () => live({ t: "stale" }),
+      onError: (reason) => fail("error", reason),
+      onStale: (reason) => fail("stale", reason),
     };
-    watchdog = setTimeout(() => live({ t: "watchdog" }), watchdogMs);
+    const watchdogMs = opts.watchdogMs ?? WATCHDOG_MS[source.kind];
+    watchdog = setTimeout(() => {
+      const where = driver?.describe?.();
+      fail("watchdog", `no picture within ${watchdogMs / 1000}s${where ? ` (${where})` : ""}`);
+    }, watchdogMs);
 
     const launch = (resolved: CameraSource) => {
       if (attempt !== attemptId) return;
@@ -118,12 +130,12 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         .then((data) => {
           if (attempt !== attemptId) return;
           if (!data.stream.url) {
-            dispatch({ t: "error" });
+            fail("error", "home assistant returned no hls url");
             return;
           }
           launch({ ...source, url: data.stream.url });
         })
-        .catch(() => live({ t: "error" }));
+        .catch((err: unknown) => fail("error", `hls stream request: ${reasonOf(err)}`));
     } else {
       launch(source);
     }

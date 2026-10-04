@@ -43,9 +43,23 @@ describe("resolveSources", () => {
     expect(list.find((s) => s.kind === "hls")?.needsFetch).toBe(true);
   });
 
-  test("manual engine yields a single source", () => {
-    expect(resolveSources(RING, "webrtc")).toHaveLength(1);
-    expect(resolveSources(RING, "webrtc")[0]?.kind).toBe("webrtc");
+  test("a pinned engine leads and falls only to the lighter kinds below it", () => {
+    const kinds = (engine: Parameters<typeof resolveSources>[1]) =>
+      resolveSources(RING, engine).map((s) => s.kind);
+    expect(kinds("webrtc")).toEqual(["webrtc", "hls", "mjpeg", "snapshot"]);
+    expect(kinds("hls")).toEqual(["hls", "mjpeg", "snapshot"]);
+    expect(kinds("mjpeg")).toEqual(["mjpeg", "snapshot"]);
+    expect(kinds("snapshot")).toEqual(["snapshot"]);
+  });
+
+  test("an engine value the schema no longer has reads as auto", () => {
+    const stale = "webrtc2" as Parameters<typeof resolveSources>[1];
+    expect(resolveSources(RING, stale).map((s) => s.kind)).toEqual([
+      "webrtc",
+      "hls",
+      "mjpeg",
+      "snapshot",
+    ]);
   });
 
   test("no entity id and no token yields nothing", () => {
