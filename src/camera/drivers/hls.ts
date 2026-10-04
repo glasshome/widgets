@@ -45,13 +45,15 @@ export function createHlsDriver(): MediaDriver {
       instance.attachMedia(el);
       instance.on(Hls.Events.ERROR, (_event, data) => {
         if (!data.fatal) return;
+        const code = data.response?.code;
+        const detail = code ? `${data.details} (http ${code})` : data.details;
         switch (data.type) {
           case Hls.ErrorTypes.MEDIA_ERROR:
             if (mediaRecoveries++ < MAX_RECOVERIES) {
               instance.recoverMediaError();
             } else {
               instance.destroy();
-              cb.onError("hls media error");
+              cb.onError(`hls media error: ${detail}`);
             }
             break;
           case Hls.ErrorTypes.NETWORK_ERROR:
@@ -59,18 +61,19 @@ export function createHlsDriver(): MediaDriver {
               setTimeout(() => instance.startLoad(), 2000);
             } else {
               instance.destroy();
-              cb.onError("hls network error");
+              cb.onError(`hls network error: ${detail}`);
             }
             break;
           default:
             instance.destroy();
-            cb.onError("hls fatal error");
+            cb.onError(`hls fatal error: ${detail}`);
         }
       });
       hls = instance;
     } else if (el.canPlayType("application/vnd.apple.mpegurl")) {
       el.src = url;
-      onNativeError = () => cb.onError("native hls error");
+      onNativeError = () =>
+        cb.onError(`native hls error: media error code ${el?.error?.code ?? "unknown"}`);
       el.addEventListener("error", onNativeError, { once: true });
     } else {
       cb.onError("hls unsupported");

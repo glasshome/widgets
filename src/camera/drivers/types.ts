@@ -3,7 +3,7 @@ import type { CameraSource, SourceKind } from "../sources";
 export interface DriverCallbacks {
   onLive: () => void;
   onError: (reason: string) => void;
-  onStale: () => void;
+  onStale: (reason: string) => void;
 }
 
 export interface MediaDriver {
@@ -14,4 +14,5 @@ export interface MediaDriver {
     cb: DriverCallbacks,
   ) => void;
   stop: () => void;
+  describe?: () => string;
 }

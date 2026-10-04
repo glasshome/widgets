@@ -43,10 +43,10 @@ function build(kind: SourceKind, input: CameraInput): CameraSource | null {
   }
 }
 
+// A pinned engine is where the cascade starts; a failure falls to the lighter kinds below it, never up.
 export function resolveSources(input: CameraInput, engine: StreamEngine): CameraSource[] {
-  if (engine !== "auto") {
-    const only = build(engine, input);
-    return only ? [only] : [];
-  }
-  return CASCADE.map((kind) => build(kind, input)).filter((s): s is CameraSource => s !== null);
+  const from = Math.max(CASCADE.indexOf(engine as SourceKind), 0);
+  return CASCADE.slice(from)
+    .map((kind) => build(kind, input))
+    .filter((s): s is CameraSource => s !== null);
 }
