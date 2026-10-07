@@ -134,25 +134,46 @@ function buildPills(m: AreaMetrics, g: EntityGroups): Pill[] {
   return pills;
 }
 
-export function AreaContent(props: AreaContentProps) {
-  const dims = useWidgetDimensions();
-  const m = () => props.metrics;
-  const builtInRoom = () => {
-    const room = imagePreset(props.image);
-    return isRoomKind(room) ? room : undefined;
-  };
+export function builtInRoom(image: string | undefined) {
+  const room = imagePreset(image);
+  return isRoomKind(room) ? room : undefined;
+}
+
+export function useRoomScene(
+  source: () => { image?: string; picture: string | null | undefined; lightsOn: number },
+) {
+  const daylight = useDaylight();
   const photos = (): RoomPhotos | undefined => {
-    const room = builtInRoom();
+    const { image, picture } = source();
+    const room = builtInRoom(image);
     if (room) return roomPhotos(room);
-    const own = imageUrl(props.image) ?? hassMediaUrl(props.picture);
+    const own = imageUrl(image) ?? hassMediaUrl(picture);
     return own ? { day: own } : undefined;
   };
-  const daylight = useDaylight();
   const scene = () => {
     const p = photos();
     if (!daylight().isNight || !p?.nightOff || !p.nightOn) return "day";
-    return m().lightsOn > 0 ? "night-on" : "night-off";
+    return source().lightsOn > 0 ? "night-on" : "night-off";
   };
+  const shown = () => {
+    const p = photos();
+    if (!p) return undefined;
+    const s = scene();
+    if (s === "night-on") return p.nightOn;
+    if (s === "night-off") return p.nightOff;
+    return p.day;
+  };
+  return { photos, scene, shown };
+}
+
+export function AreaContent(props: AreaContentProps) {
+  const dims = useWidgetDimensions();
+  const m = () => props.metrics;
+  const { photos, scene } = useRoomScene(() => ({
+    image: props.image,
+    picture: props.picture,
+    lightsOn: m().lightsOn,
+  }));
   const pills = createMemo(() => buildPills(m(), props.groups));
 
   const chipWidth = (p: Pill) => 46 + p.short.length * 7.6 + 6;
@@ -223,7 +244,7 @@ export function AreaContent(props: AreaContentProps) {
         </Show>
       </Widget.Backdrop>
       <Widget.Head
-        icon={props.areaIcon ?? roomIcon(builtInRoom())}
+        icon={props.areaIcon ?? roomIcon(builtInRoom(props.image))}
         active={m().lightsOn > 0}
         eyebrow={summary()}
         name={props.areaName}

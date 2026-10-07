@@ -3,10 +3,7 @@ import {
   defineConfig,
   defineWidget,
   field,
-  hassMediaUrl,
   type Infer,
-  imagePreset,
-  imageUrl,
   presetValue,
   useArea,
   useService,
@@ -19,8 +16,8 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { isRoomKind, ROOM_PRESETS, roomIcon, roomPhotos } from "../common/art/room";
-import { type AreaAction, AreaContent } from "./area-content";
+import { ROOM_PRESETS, roomIcon } from "../common/art/room";
+import { type AreaAction, AreaContent, builtInRoom, useRoomScene } from "./area-content";
 import { AreaSheet } from "./sheet";
 import { calculateMetrics, groupEntitiesByDomain } from "./utils";
 
@@ -58,15 +55,11 @@ function AreaWidget(props: { config: AreaConfig }) {
   });
 
   const metrics = createMemo(() => calculateMetrics(groups(), area()));
-  const room = () => {
-    const kind = imagePreset(props.config.image);
-    return isRoomKind(kind) ? kind : undefined;
-  };
-  const roomPicture = () => {
-    const kind = room();
-    if (kind) return roomPhotos(kind)?.day;
-    return imageUrl(props.config.image) ?? hassMediaUrl(area()?.picture);
-  };
+  const { shown: roomPicture } = useRoomScene(() => ({
+    image: props.config.image,
+    picture: area()?.picture,
+    lightsOn: metrics().lightsOn,
+  }));
 
   const areaName = createMemo(() => props.config.title || area()?.name || "Area");
   const isActive = createMemo(() => metrics().lightsOn > 0);
@@ -170,7 +163,7 @@ function AreaWidget(props: { config: AreaConfig }) {
           setShowDialog(false);
         }}
         tile={{
-          icon: area()?.icon ?? roomIcon(room()),
+          icon: area()?.icon ?? roomIcon(builtInRoom(props.config.image)),
           tone: metrics().lightsOn > 0 ? "var(--tone-warning)" : undefined,
           backdrop: roomPicture(),
         }}
