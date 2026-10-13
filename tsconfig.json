@@ -11,8 +11,8 @@
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "rootDir": "src",
-    "outDir": "dist"
+    "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "dist"]
 }
