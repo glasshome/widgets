@@ -27,6 +27,7 @@ const WATCHDOG_MS: Record<SourceKind, number> = {
 export interface CameraPlayer {
   status: Accessor<PlayerStatus>;
   activeKind: Accessor<SourceKind | null>;
+  hasAudio: Accessor<boolean>;
   nonce: Accessor<number>;
   retry: () => void;
   bindEl: (el: HTMLVideoElement | HTMLImageElement | null) => void;
@@ -45,6 +46,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const [state, setState] = createSignal(initialState);
   const [boundEl, setBoundEl] = createSignal<HTMLVideoElement | HTMLImageElement | null>(null);
   const [bindVersion, setBindVersion] = createSignal(0);
+  const [hasAudio, setHasAudio] = createSignal(false);
 
   const bindEl = (el: HTMLVideoElement | HTMLImageElement | null) => {
     setBoundEl(el);
@@ -86,6 +88,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const activate = () => {
     stopDriver();
     clearWatchdog();
+    setHasAudio(false);
     const s = untrack(state);
     const el = untrack(boundEl);
     if (s.status === "offline" || s.status === "no-signal") return;
@@ -109,6 +112,9 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         if (attempt !== attemptId) return;
         clearWatchdog();
         dispatch({ t: "live" });
+      },
+      onAudio: () => {
+        if (attempt === attemptId) setHasAudio(true);
       },
       onError: (reason) => fail("error", reason),
       onStale: (reason) => fail("stale", reason),
@@ -168,6 +174,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     if (key === "stop") {
       stopDriver();
       clearWatchdog();
+      setHasAudio(false);
       return;
     }
     activate();
@@ -176,6 +183,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const dispose = () => {
     stopDriver();
     clearWatchdog();
+    setHasAudio(false);
   };
   onCleanup(dispose);
 
@@ -186,6 +194,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       if (s.status === "offline" || s.status === "no-signal") return null;
       return opts.sources()[s.index]?.kind ?? null;
     }),
+    hasAudio,
     nonce: () => state().nonce,
     retry: () => dispatch({ t: "retry" }),
     bindEl,

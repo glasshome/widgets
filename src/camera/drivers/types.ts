@@ -2,6 +2,7 @@ import type { CameraSource, SourceKind } from "../sources";
 
 export interface DriverCallbacks {
   onLive: () => void;
+  onAudio: () => void;
   onError: (reason: string) => void;
   onStale: (reason: string) => void;
 }

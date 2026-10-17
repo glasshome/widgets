@@ -59,6 +59,7 @@ export function createWebRtcDriver(entityId: string): MediaDriver {
         pc = peer;
 
         peer.ontrack = (event) => {
+          if (event.track.kind === "audio") cb.onAudio();
           if (event.streams[0] && el) el.srcObject = event.streams[0];
         };
         peer.onconnectionstatechange = () => {

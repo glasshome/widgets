@@ -4,6 +4,10 @@ import type { DriverCallbacks, MediaDriver } from "./types";
 
 const MAX_RECOVERIES = 2;
 
+// Native HLS (Safari) exposes audioTracks; lib.dom does not type it.
+const audioTrackCount = (el: HTMLVideoElement) =>
+  (el as HTMLVideoElement & { audioTracks?: { length: number } }).audioTracks?.length ?? 0;
+
 export function createHlsDriver(): MediaDriver {
   let hls: Hls | null = null;
   let el: HTMLVideoElement | null = null;
@@ -33,7 +37,10 @@ export function createHlsDriver(): MediaDriver {
       cb.onError("no hls url");
       return;
     }
-    onPlaying = () => cb.onLive();
+    onPlaying = () => {
+      if (el && audioTrackCount(el) > 0) cb.onAudio();
+      cb.onLive();
+    };
     el.addEventListener("playing", onPlaying);
 
     if (Hls.isSupported()) {
@@ -43,6 +50,9 @@ export function createHlsDriver(): MediaDriver {
       let networkRecoveries = 0;
       instance.loadSource(url);
       instance.attachMedia(el);
+      instance.on(Hls.Events.BUFFER_CODECS, (_event, data) => {
+        if (data.audio || data.audiovideo) cb.onAudio();
+      });
       instance.on(Hls.Events.ERROR, (_event, data) => {
         if (!data.fatal) return;
         const code = data.response?.code;

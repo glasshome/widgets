@@ -1,4 +1,4 @@
-import { Badge } from "@glasshome/widget-sdk";
+import { Badge, Button } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { type Accessor, createMemo, createSignal, Match, onMount, Show, Switch } from "solid-js";
 import noFeedArt from "./assets/no-feed.webp";
@@ -6,10 +6,19 @@ import type { CameraPlayer } from "./create-player";
 
 const MEDIA_CLASS = "absolute inset-0 h-full w-full object-cover";
 
-function BoundVideo(props: { player: CameraPlayer; poster?: string }) {
+function BoundVideo(props: { player: CameraPlayer; poster?: string; muted: boolean }) {
   let ref!: HTMLVideoElement;
   onMount(() => props.player.bindEl(ref));
-  return <video ref={ref} autoplay muted playsinline poster={props.poster} class={MEDIA_CLASS} />;
+  return (
+    <video
+      ref={ref}
+      autoplay
+      muted={props.muted}
+      playsinline
+      poster={props.poster}
+      class={MEDIA_CLASS}
+    />
+  );
 }
 
 function BoundImage(props: { player: CameraPlayer; poster?: string }) {
@@ -28,6 +37,8 @@ export function CameraView(props: {
 
   // Hidden until it loads: a failed poster otherwise paints the broken-image glyph.
   const [posterLoaded, setPosterLoaded] = createSignal(false);
+  // Browsers refuse autoplay with sound, so every stream starts muted until a tap.
+  const [muted, setMuted] = createSignal(true);
 
   const streaming = () =>
     status() === "connecting" || status() === "reconnecting" || status() === "live";
@@ -76,7 +87,21 @@ export function CameraView(props: {
       </Show>
 
       <Show when={props.active() && streaming()}>
-        <StreamElement player={props.player} poster={props.poster()} />
+        <StreamElement player={props.player} poster={props.poster()} muted={muted()} />
+      </Show>
+
+      <Show when={props.active() && status() === "live" && props.player.hasAudio()}>
+        <div class="absolute right-3 bottom-3">
+          <Button
+            variant={muted() ? "outline" : "default"}
+            size="icon"
+            aria-label={muted() ? "Turn sound on" : "Turn sound off"}
+            aria-pressed={!muted()}
+            onClick={() => setMuted((m) => !m)}
+          >
+            <Icon icon={muted() ? "mdi:volume-off" : "mdi:volume-high"} width={18} />
+          </Button>
+        </div>
       </Show>
 
       <Show when={props.active()}>
@@ -101,12 +126,12 @@ export function CameraView(props: {
   );
 }
 
-function StreamElement(props: { player: CameraPlayer; poster?: string }) {
+function StreamElement(props: { player: CameraPlayer; poster?: string; muted: boolean }) {
   const kind = props.player.activeKind;
   return (
     <Switch>
       <Match when={kind() === "webrtc" || kind() === "hls"}>
-        <BoundVideo player={props.player} poster={props.poster} />
+        <BoundVideo player={props.player} poster={props.poster} muted={props.muted} />
       </Match>
       <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
         <BoundImage player={props.player} />
