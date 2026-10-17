@@ -1,12 +1,32 @@
 import { Badge, Button } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { type Accessor, createMemo, createSignal, Match, onMount, Show, Switch } from "solid-js";
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  type JSX,
+  Match,
+  onMount,
+  type Setter,
+  Show,
+  Switch,
+} from "solid-js";
 import noFeedArt from "./assets/no-feed.webp";
 import type { CameraPlayer } from "./create-player";
 
-const MEDIA_CLASS = "absolute inset-0 h-full w-full object-cover";
+export type CameraVariant = "tile" | "live";
 
-function BoundVideo(props: { player: CameraPlayer; poster?: string; muted: boolean }) {
+const MEDIA_CLASS: Record<CameraVariant, string> = {
+  tile: "absolute inset-0 h-full w-full object-cover",
+  live: "absolute inset-0 h-full w-full object-contain",
+};
+
+function BoundVideo(props: {
+  player: CameraPlayer;
+  poster?: string;
+  muted: boolean;
+  class: string;
+}) {
   let ref!: HTMLVideoElement;
   onMount(() => props.player.bindEl(ref));
   return (
@@ -16,29 +36,38 @@ function BoundVideo(props: { player: CameraPlayer; poster?: string; muted: boole
       muted={props.muted}
       playsinline
       poster={props.poster}
-      class={MEDIA_CLASS}
+      class={props.class}
     />
   );
 }
 
-function BoundImage(props: { player: CameraPlayer; poster?: string }) {
+function BoundImage(props: { player: CameraPlayer; poster?: string; class: string }) {
   let ref!: HTMLImageElement;
   onMount(() => props.player.bindEl(ref));
-  return <img ref={ref} src={props.poster} alt="" class={MEDIA_CLASS} />;
+  return <img ref={ref} src={props.poster} alt="" class={props.class} />;
 }
+
+const RETRY_HINT: Record<CameraVariant, string> = {
+  tile: "No signal · tap to retry",
+  live: "No signal",
+};
 
 export function CameraView(props: {
   player: CameraPlayer;
   poster: Accessor<string | undefined>;
   name: Accessor<string>;
   active: Accessor<boolean>;
+  muted: Accessor<boolean>;
+  setMuted: Setter<boolean>;
+  variant?: CameraVariant;
+  actions?: JSX.Element;
 }) {
   const status = props.player.status;
+  const variant = () => props.variant ?? "tile";
+  const mediaClass = () => MEDIA_CLASS[variant()];
 
   // Hidden until it loads: a failed poster otherwise paints the broken-image glyph.
   const [posterLoaded, setPosterLoaded] = createSignal(false);
-  // Browsers refuse autoplay with sound, so every stream starts muted until a tap.
-  const [muted, setMuted] = createSignal(true);
 
   const streaming = () =>
     status() === "connecting" || status() === "reconnecting" || status() === "live";
@@ -63,7 +92,7 @@ export function CameraView(props: {
   const overlay = createMemo(() => {
     switch (status()) {
       case "no-signal":
-        return { icon: "mdi:cctv-off", label: "No signal · tap to retry" };
+        return { icon: "mdi:cctv-off", label: RETRY_HINT[variant()] };
       case "offline":
         return { icon: "mdi:cctv-off", label: "Camera offline" };
       default:
@@ -71,15 +100,23 @@ export function CameraView(props: {
     }
   });
 
+  const sound = () => props.active() && status() === "live" && props.player.hasAudio();
+
   return (
     <div class="absolute inset-0 overflow-hidden rounded-[inherit]">
-      <img src={noFeedArt} alt="" class={`${MEDIA_CLASS} ${connecting() ? "animate-pulse" : ""}`} />
+      <Show when={variant() === "tile" || status() !== "live"}>
+        <img
+          src={noFeedArt}
+          alt=""
+          class={`${MEDIA_CLASS.tile} ${connecting() ? "animate-pulse" : ""}`}
+        />
+      </Show>
 
       <Show when={props.poster() !== undefined}>
         <img
           src={props.poster()}
           alt=""
-          class={MEDIA_CLASS}
+          class={mediaClass()}
           style={{ visibility: posterLoaded() ? "visible" : "hidden" }}
           onLoad={() => setPosterLoaded(true)}
           onError={() => setPosterLoaded(false)}
@@ -87,21 +124,12 @@ export function CameraView(props: {
       </Show>
 
       <Show when={props.active() && streaming()}>
-        <StreamElement player={props.player} poster={props.poster()} muted={muted()} />
-      </Show>
-
-      <Show when={props.active() && status() === "live" && props.player.hasAudio()}>
-        <div class="absolute right-3 bottom-3">
-          <Button
-            variant={muted() ? "outline" : "default"}
-            size="icon"
-            aria-label={muted() ? "Turn sound on" : "Turn sound off"}
-            aria-pressed={!muted()}
-            onClick={() => setMuted((m) => !m)}
-          >
-            <Icon icon={muted() ? "mdi:volume-off" : "mdi:volume-high"} width={18} />
-          </Button>
-        </div>
+        <StreamElement
+          player={props.player}
+          poster={props.poster()}
+          muted={props.muted()}
+          class={mediaClass()}
+        />
       </Show>
 
       <Show when={props.active()}>
@@ -116,25 +144,59 @@ export function CameraView(props: {
         </div>
       </Show>
 
-      <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
-        <span class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 text-xs font-medium text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
-          {props.name()}
-        </span>
-        <Badge tone={badge().tone}>{badge().label}</Badge>
+      <Show
+        when={variant() === "tile"}
+        fallback={
+          <div class="pointer-events-none absolute top-3 right-3">
+            <Badge tone={badge().tone}>{badge().label}</Badge>
+          </div>
+        }
+      >
+        <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
+          <span class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 text-xs font-medium text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
+            {props.name()}
+          </span>
+          <Badge tone={badge().tone}>{badge().label}</Badge>
+        </div>
+      </Show>
+
+      <div class="absolute right-3 bottom-3 flex items-center gap-2">
+        {props.actions}
+        <Show when={sound()}>
+          <Button
+            variant={props.muted() ? "outline" : "default"}
+            size="icon"
+            aria-label={props.muted() ? "Turn sound on" : "Turn sound off"}
+            aria-pressed={!props.muted()}
+            onClick={() => props.setMuted((m) => !m)}
+          >
+            <Icon icon={props.muted() ? "mdi:volume-off" : "mdi:volume-high"} width={18} />
+          </Button>
+        </Show>
       </div>
     </div>
   );
 }
 
-function StreamElement(props: { player: CameraPlayer; poster?: string; muted: boolean }) {
+function StreamElement(props: {
+  player: CameraPlayer;
+  poster?: string;
+  muted: boolean;
+  class: string;
+}) {
   const kind = props.player.activeKind;
   return (
     <Switch>
       <Match when={kind() === "webrtc" || kind() === "hls"}>
-        <BoundVideo player={props.player} poster={props.poster} muted={props.muted} />
+        <BoundVideo
+          player={props.player}
+          poster={props.poster}
+          muted={props.muted}
+          class={props.class}
+        />
       </Match>
       <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
-        <BoundImage player={props.player} />
+        <BoundImage player={props.player} class={props.class} />
       </Match>
     </Switch>
   );

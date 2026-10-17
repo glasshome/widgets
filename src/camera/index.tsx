@@ -15,10 +15,11 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { CameraView } from "./camera-view";
 import { createCameraPlayer } from "./create-player";
+import { type CameraFacts, CameraLiveView } from "./live-view";
 import { resolveSources, type StreamEngine } from "./sources";
 
 const configSchema = defineConfig({
@@ -34,7 +35,7 @@ type CameraConfig = Infer<typeof configSchema>;
 
 function CameraWidget(props: { config: CameraConfig }) {
   const ctx = useWidgetContext();
-  const { showDialog, setShowDialog, dialogProps } = useWidgetDialog();
+  const { showDialog, setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -78,7 +79,24 @@ function CameraWidget(props: { config: CameraConfig }) {
     return n > 0 ? `${url}${url.includes("?") ? "&" : "?"}_f=${n}` : url;
   });
 
-  const gestures = useWidgetGestures(() => ({ tap: player.retry }));
+  // Browsers refuse autoplay with sound, so every stream starts muted until a tap.
+  const [muted, setMuted] = createSignal(true);
+
+  const facts = createMemo<CameraFacts>(() => {
+    const e = entity();
+    const brand = e ? getEntityAttribute<string>(e, "brand") : undefined;
+    const model = e ? getEntityAttribute<string>(e, "model_name") : undefined;
+    const motion = e ? getEntityAttribute<boolean>(e, "motion_detection") : undefined;
+    return {
+      model: [brand, model].filter(Boolean).join(" ") || null,
+      motionDetection: typeof motion === "boolean" ? motion : null,
+    };
+  });
+
+  const gestures = useWidgetGestures(() => ({
+    tap: player.retry,
+    hold: { action: () => openDialog(entity() ? "controls" : "edit") },
+  }));
   onCleanup(gestures.dispose);
 
   // Only the unconfigured case is empty; a configured camera that cannot be
@@ -107,14 +125,31 @@ function CameraWidget(props: { config: CameraConfig }) {
     <>
       <Widget gestures={gestures} variant="classic-glass" emptyState={emptyState()}>
         <Show when={entity()}>
-          <CameraView player={player} poster={poster} name={name} active={() => !showDialog()} />
+          <CameraView
+            player={player}
+            poster={poster}
+            name={name}
+            active={() => !showDialog()}
+            muted={muted}
+            setMuted={setMuted}
+          />
         </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Camera"
-        maxWidth="xl"
+        title={name()}
+        maxWidth="full"
+        controlsContent={
+          <CameraLiveView
+            player={player}
+            poster={poster}
+            name={name}
+            muted={muted}
+            setMuted={setMuted}
+            facts={facts}
+          />
+        }
         configSchema={configSchema}
         config={props.config}
         onConfigSave={(config) => {
