@@ -10,7 +10,7 @@ import {
   useWidgetDimensions,
   Widget,
 } from "@glasshome/widget-sdk";
-import { createMemo, For, type JSX, Show } from "solid-js";
+import { createMemo, Index, type JSX, Show } from "solid-js";
 import { isRoomKind, type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
 import "./area-content.css";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
@@ -187,22 +187,34 @@ export function AreaContent(props: AreaContentProps) {
     }
     return out;
   };
-  const summary = () => {
-    const temperature = m().temperature;
-    const humidity = m().humidity;
-    const parts: JSX.Element[] = [];
-    const presence = occupancy(m());
-    if (presence) parts.push(presence);
-    if (temperature !== null) parts.push(`${temperature.toFixed(1)}°`);
-    if (humidity !== null)
-      parts.push(
+  const presence = createMemo(() => occupancy(m()));
+  const temperature = createMemo(() => {
+    const t = m().temperature;
+    return t === null ? undefined : `${t.toFixed(1)}°`;
+  });
+  const humidity = createMemo(() => {
+    const h = m().humidity;
+    return h === null ? undefined : Math.round(h);
+  });
+  // Built once: a sensor tick updates its text, never swaps its nodes.
+  const summary: JSX.Element = (
+    <>
+      {presence()}
+      <Show when={temperature()}>
+        {presence() ? " · " : ""}
+        {temperature()}
+      </Show>
+      <Show when={humidity() !== undefined}>
+        {presence() || temperature() ? " · " : ""}
         <span class="area-humidity">
           <Icon icon="mdi:water-percent" width={14} />
-          {Math.round(humidity)}%<span class="sr-only"> humidity</span>
-        </span>,
-      );
-    return parts.length === 0 ? undefined : parts.flatMap((p, i) => (i === 0 ? [p] : [" · ", p]));
-  };
+          {humidity()}%<span class="sr-only"> humidity</span>
+        </span>
+      </Show>
+    </>
+  );
+  const hasSummary = () =>
+    presence() !== undefined || temperature() !== undefined || humidity() !== undefined;
   const warmth = () => (m().lightsTotal === 0 ? 0 : 12 + (m().lightsOn / m().lightsTotal) * 30);
 
   return (
@@ -246,7 +258,7 @@ export function AreaContent(props: AreaContentProps) {
       <Widget.Head
         icon={props.areaIcon ?? roomIcon(builtInRoom(props.image))}
         active={m().lightsOn > 0}
-        eyebrow={summary()}
+        eyebrow={hasSummary() ? summary : undefined}
         name={props.areaName}
         aside={
           <Show when={m().alertCount > 0}>
@@ -257,24 +269,25 @@ export function AreaContent(props: AreaContentProps) {
         }
       />
       <Widget.Controls>
-        <For each={visiblePills()}>
+        {/* By position: a tick rebuilds every pill object, and For would remount them all. */}
+        <Index each={visiblePills()}>
           {(pill) => (
             <Toggle
               variant="outline"
-              pressed={pill.on}
-              onChange={() => props.onAction(pill.action)}
-              aria-label={`${pill.label}: ${pill.state}`}
+              pressed={pill().on}
+              onChange={() => props.onAction(pill().action)}
+              aria-label={`${pill().label}: ${pill().state}`}
               class="glasshome-widget-control-wide"
             >
               <Icon
-                icon={pill.icon}
+                icon={pill().icon}
                 width={18}
-                style={pill.on ? { color: pill.color } : undefined}
+                style={pill().on ? { color: pill().color } : undefined}
               />
-              <span>{pill.short}</span>
+              <span>{pill().short}</span>
             </Toggle>
           )}
-        </For>
+        </Index>
         <Button
           variant="outline"
           size="icon"
