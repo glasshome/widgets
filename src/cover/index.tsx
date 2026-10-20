@@ -19,7 +19,9 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
+import gateStrip from "../common/art/assets/cover-gate.strip";
 import { CoverArt, type CoverKind } from "../common/art/cover";
+import { ArtStrip } from "../common/art/strip";
 import { coverJoinsBulk, groupLine } from "../common/group";
 import {
   getCoverCapabilities,
@@ -57,7 +59,9 @@ const configSchema = defineConfig({
 });
 type CoverConfig = Infer<typeof configSchema>;
 
-const KIND_BY_DEVICE_CLASS: Partial<Record<string, CoverKind>> = {
+type CoverPicture = CoverKind | "gate";
+
+const KIND_BY_DEVICE_CLASS: Partial<Record<string, CoverPicture>> = {
   curtain: "curtain",
   shutter: "shutter",
   garage: "garage",
@@ -113,7 +117,11 @@ function CoverWidget(props: { config: CoverConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     "Cover";
-  const artKind = (): CoverKind => {
+  const stillKind = (): CoverKind | undefined => {
+    const kind = artKind();
+    return kind === "gate" ? undefined : kind;
+  };
+  const artKind = (): CoverPicture => {
     const art = props.config.art;
     if (art !== "device") return art;
     return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
@@ -258,7 +266,15 @@ function CoverWidget(props: { config: CoverConfig }) {
             <Widget.Hero
               value={heroValue()}
               unit={typeof heroValue() === "number" ? "%" : undefined}
-              art={<CoverArt kind={artKind()} closed={100 - fillValue()} />}
+              art={
+                <Show
+                  when={stillKind()}
+                  keyed
+                  fallback={<ArtStrip strip={gateStrip} end={fillValue() > 50} />}
+                >
+                  {(kind) => <CoverArt kind={kind} closed={100 - fillValue()} />}
+                </Show>
+              }
             />
             <Show when={actsInBulk()}>
               <Widget.Controls>

@@ -1,16 +1,14 @@
 import { For, Show } from "solid-js";
 import curtainArt from "./assets/cover-curtain.art";
 import garageArt from "./assets/cover-garage.art";
-import gateStrip from "./assets/cover-gate.strip";
 import shutterArt from "./assets/cover-shutter.art";
 import windowArt from "./assets/cover-window.art";
 import "./cover.css";
-import { ArtStrip } from "./strip";
 
 type Point = readonly [number, number];
 type Quad = { tl: Point; tr: Point; br: Point; bl: Point };
 
-export type CoverKind = "blind" | "curtain" | "shutter" | "garage" | "gate";
+export type CoverKind = "blind" | "curtain" | "shutter" | "garage";
 
 /** Maps the unit square onto the quad the Blender script projected, in percent of the image. */
 function projector(quad: Quad) {
@@ -60,7 +58,7 @@ const roller = (art: Still, lines: number[], rail: number, headrail = false): Ro
   headrail,
 });
 
-const ROLLERS: Record<Exclude<CoverKind, "curtain" | "gate">, Roller> = {
+const ROLLERS: Record<Exclude<CoverKind, "curtain">, Roller> = {
   blind: roller(windowArt, seams(22), 0.025, true),
   shutter: roller(shutterArt, seams(16), 0.03),
   garage: roller(garageArt, seams(4), 0.02),
@@ -73,21 +71,10 @@ const CLOSED_PANEL = 0.52;
 const GATHERED_PANEL = 0.13;
 
 export function CoverArt(props: { kind: CoverKind; closed: number }) {
-  return (
-    <Show
-      when={props.kind !== "gate"}
-      fallback={<ArtStrip strip={gateStrip} end={props.closed < 50} />}
-    >
-      <StillCover kind={props.kind} closed={props.closed} />
-    </Show>
-  );
-}
-
-function StillCover(props: { kind: CoverKind; closed: number }) {
   const share = () => Math.min(100, Math.max(0, props.closed)) / 100;
   const rollerFor = () => {
     const kind = props.kind;
-    return kind === "curtain" || kind === "gate" ? undefined : ROLLERS[kind];
+    return kind === "curtain" ? undefined : ROLLERS[kind];
   };
   const art = () => rollerFor()?.art ?? curtainArt;
   return (
