@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "oxc", "import"],
+  "plugins": ["typescript", "oxc", "import", "vitest"],
   "categories": {
     "correctness": "error"
   },
@@ -26,7 +26,15 @@
     "default-param-last": "error",
     "typescript/no-inferrable-types": "error",
     "typescript/prefer-enum-initializers": "error",
-    "typescript/prefer-as-const": "error"
+    "typescript/prefer-as-const": "error",
+    "vitest/no-focused-tests": "error",
+    "vitest/no-disabled-tests": "error",
+    "vitest/no-commented-out-tests": "error",
+    "vitest/no-standalone-expect": "error",
+    "vitest/no-conditional-expect": "error",
+    "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expect*", "assert*"] }],
+    "vitest/valid-expect": ["error", { "maxArgs": 2 }],
+    "vitest/require-mock-type-parameters": "off"
   },
   "ignorePatterns": ["**/dist/**", "**/node_modules/**"]
 }
