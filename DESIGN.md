@@ -104,7 +104,7 @@ The loop in the guide. Official widgets also regenerate their committed previews
 | clock | what time is it | the chosen face | none |
 | media-player | what is playing | title, artist, transport | album cover |
 | fan | running, how fast | speed | stand fan or purifier |
-| cover | how open | position | window with a blind, curtains, roller shutter or garage door, rendered still; the moving part is drawn in code inside the corners the render exports and follows the position continuously |
+| cover | how open | position | window with a blind, curtains, roller shutter or garage door, rendered still; the moving part is drawn in code inside the corners the render exports and follows the position continuously. A driveway gate is a swing strip that steps between closed and open; curtains and gates get sideways arrows, the rest up and down |
 | switch | on or off | the state | none |
 | lock | locked | the state | front door, garden gate or smart lock, rendered; unlocking swings the door and gate open and slides the bolt in |
 | button | last pressed | the time | none |

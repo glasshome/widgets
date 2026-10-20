@@ -52,3 +52,21 @@ export function getCoverTiltPosition(entity: EntityView | undefined): number | n
 export function isCoverOpen(entity: EntityView): boolean {
   return entity.state !== "closed" && entity.state !== "unavailable" && entity.state !== "unknown";
 }
+
+export function isCoverFullyOpen(entity: EntityView): boolean {
+  const position = getCoverPosition(entity);
+  return position === null ? entity.state === "open" : position === 100;
+}
+
+export function isCoverFullyClosed(entity: EntityView): boolean {
+  const position = getCoverPosition(entity);
+  return position === null ? entity.state === "closed" : position === 0;
+}
+
+export type CoverMovement = "opening" | "closing";
+
+export function getCoverMovement(entities: EntityView[]): CoverMovement | null {
+  if (entities.some((e) => e.state === "opening")) return "opening";
+  if (entities.some((e) => e.state === "closing")) return "closing";
+  return null;
+}

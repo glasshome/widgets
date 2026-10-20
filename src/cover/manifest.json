@@ -48,14 +48,16 @@
           "blind": "Window blind",
           "curtain": "Curtains",
           "shutter": "Roller shutter",
-          "garage": "Garage door"
+          "garage": "Garage door",
+          "gate": "Driveway gate"
         },
         "icons": {
           "device": "mdi:home-assistant",
           "blind": "mdi:blinds",
           "curtain": "mdi:curtains",
           "shutter": "mdi:window-shutter",
-          "garage": "mdi:garage"
+          "garage": "mdi:garage",
+          "gate": "mdi:gate"
         },
         "type": "string",
         "enum": [
@@ -63,7 +65,8 @@
           "blind",
           "curtain",
           "shutter",
-          "garage"
+          "garage",
+          "gate"
         ]
       }
     },
@@ -159,7 +162,7 @@
           "cover.driveway_gate"
         ],
         "title": "Driveway",
-        "art": "garage"
+        "art": "gate"
       }
     },
     {
@@ -178,5 +181,5 @@
       }
     }
   ],
-  "configVersion": 1
+  "configVersion": 2
 }

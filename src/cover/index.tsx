@@ -5,6 +5,7 @@ import {
   defineConfig,
   defineWidget,
   field,
+  Icon,
   type Infer,
   useEntities,
   useService,
@@ -16,18 +17,24 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { getCoverIcon, widgetDialogProps } from "../common";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { coverJoinsBulk, groupLine } from "../common/group";
-import { getCoverCapabilities, getCoverPosition, isCoverOpen } from "./cover-entity";
+import {
+  getCoverCapabilities,
+  getCoverMovement,
+  getCoverPosition,
+  isCoverFullyClosed,
+  isCoverFullyOpen,
+  isCoverOpen,
+} from "./cover-entity";
 import { CoverSheet, coverHasExtras } from "./sheet";
 
 const configSchema = defineConfig({
   title: field.title(),
   entityIds: field.entities("cover"),
-  art: field.choice(["device", "blind", "curtain", "shutter", "garage"], {
+  art: field.choice(["device", "blind", "curtain", "shutter", "garage", "gate"], {
     title: "Cover picture",
     default: "device",
     labels: {
@@ -36,6 +43,7 @@ const configSchema = defineConfig({
       curtain: "Curtains",
       shutter: "Roller shutter",
       garage: "Garage door",
+      gate: "Driveway gate",
     },
     icons: {
       device: "mdi:home-assistant",
@@ -43,6 +51,7 @@ const configSchema = defineConfig({
       curtain: "mdi:curtains",
       shutter: "mdi:window-shutter",
       garage: "mdi:garage",
+      gate: "mdi:gate",
     },
   }),
 });
@@ -52,7 +61,7 @@ const KIND_BY_DEVICE_CLASS: Partial<Record<string, CoverKind>> = {
   curtain: "curtain",
   shutter: "shutter",
   garage: "garage",
-  gate: "garage",
+  gate: "gate",
   door: "garage",
 };
 
@@ -109,20 +118,28 @@ function CoverWidget(props: { config: CoverConfig }) {
     if (art !== "device") return art;
     return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
   };
-  const heroValue = () => {
+  const heroValue = (): string | number => {
     const sliding = slidePosition();
     if (sliding !== null) return sliding;
-    if (count() > 1) return isOpen() ? "Open" : "Closed";
-    const pos = position();
-    if (pos !== null) return pos;
+    const pos = count() === 1 ? position() : null;
+    if (pos !== null && pos > 0 && pos < 100) return pos;
     return isOpen() ? "Open" : "Closed";
   };
+  const movement = createMemo(() => getCoverMovement(entities()));
   const eyebrow = () => {
+    const moving = movement();
+    if (moving) return moving === "opening" ? "Opening" : "Closing";
     if (count() > 1) return groupLine(openCount(), count(), { active: "open", rest: "closed" });
-    const pos = position();
-    if (pos === null) return undefined;
-    return pos === 0 ? "Closed" : pos === 100 ? "Open" : "Partly open";
+    return typeof heroValue() === "number" ? "Open" : undefined;
   };
+
+  const sideways = () => artKind() === "curtain" || artKind() === "gate";
+  const caps = createMemo(() => entities().map(getCoverCapabilities));
+  const canOpen = () => caps().some((c) => c.canOpen);
+  const canClose = () => caps().some((c) => c.canClose);
+  const canStop = () => caps().some((c) => c.canStop);
+  const allOpen = () => !movement() && entities().every(isCoverFullyOpen);
+  const allClosed = () => !movement() && entities().every(isCoverFullyClosed);
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
 
@@ -240,39 +257,55 @@ function CoverWidget(props: { config: CoverConfig }) {
             />
             <Widget.Hero
               value={heroValue()}
-              unit={supportsPosition() && count() === 1 ? "%" : undefined}
+              unit={typeof heroValue() === "number" ? "%" : undefined}
               art={<CoverArt kind={artKind()} closed={100 - fillValue()} />}
             />
             <Show when={actsInBulk()}>
               <Widget.Controls>
                 <ButtonGroup aria-label="Cover" class="glasshome-widget-stepper">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="Open"
-                    class="glasshome-widget-control"
-                    onClick={() =>
-                      callService("cover", "open_cover", {}, { entity_id: entityIds() })
-                    }
-                  >
-                    <Icon icon="mdi:arrow-up" width="1em" height="1em" />
-                  </Button>
-                  <Widget.Action
-                    icon="mdi:stop"
-                    aria-label="Stop"
-                    run={() => callService("cover", "stop_cover", {}, { entity_id: entityIds() })}
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="Close"
-                    class="glasshome-widget-control"
-                    onClick={() =>
-                      callService("cover", "close_cover", {}, { entity_id: entityIds() })
-                    }
-                  >
-                    <Icon icon="mdi:arrow-down" width="1em" height="1em" />
-                  </Button>
+                  <Show when={canOpen()}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Open"
+                      class="glasshome-widget-control"
+                      disabled={allOpen()}
+                      onClick={() =>
+                        callService("cover", "open_cover", {}, { entity_id: entityIds() })
+                      }
+                    >
+                      <Icon
+                        icon={sideways() ? "mdi:arrow-expand-horizontal" : "mdi:arrow-up"}
+                        width="1em"
+                        height="1em"
+                      />
+                    </Button>
+                  </Show>
+                  <Show when={canStop()}>
+                    <Widget.Action
+                      icon="mdi:stop"
+                      aria-label="Stop"
+                      run={() => callService("cover", "stop_cover", {}, { entity_id: entityIds() })}
+                    />
+                  </Show>
+                  <Show when={canClose()}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Close"
+                      class="glasshome-widget-control"
+                      disabled={allClosed()}
+                      onClick={() =>
+                        callService("cover", "close_cover", {}, { entity_id: entityIds() })
+                      }
+                    >
+                      <Icon
+                        icon={sideways() ? "mdi:arrow-collapse-horizontal" : "mdi:arrow-down"}
+                        width="1em"
+                        height="1em"
+                      />
+                    </Button>
+                  </Show>
                 </ButtonGroup>
               </Widget.Controls>
             </Show>
@@ -305,7 +338,7 @@ export default defineWidget<CoverConfig>({
     icon: "mdi:window-shutter",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 8 },
-    configVersion: 1,
+    configVersion: 2,
     sdkVersion: "^1.0.0",
     examples: [
       {
@@ -336,7 +369,7 @@ export default defineWidget<CoverConfig>({
       {
         label: "Gate open",
         size: { w: 2, h: 2 },
-        config: { entityIds: ["cover.driveway_gate"], title: "Driveway", art: "garage" },
+        config: { entityIds: ["cover.driveway_gate"], title: "Driveway", art: "gate" },
       },
       {
         label: "Blinds",

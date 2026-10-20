@@ -2,8 +2,11 @@ import { describe, expect, it } from "bun:test";
 import type { EntityView } from "@glasshome/widget-sdk";
 import {
   getCoverCapabilities,
+  getCoverMovement,
   getCoverPosition,
   getCoverTiltPosition,
+  isCoverFullyClosed,
+  isCoverFullyOpen,
   isCoverOpen,
 } from "./cover-entity";
 
@@ -109,5 +112,35 @@ describe("isCoverOpen", () => {
 
   it("moving states count as open", () => {
     expect(isCoverOpen(makeCover({ state: "opening" }))).toBe(true);
+  });
+});
+
+describe("isCoverFullyOpen / isCoverFullyClosed", () => {
+  it("reads the position when the cover reports one", () => {
+    const half = makeCover({ state: "open", attributes: { current_position: 40 } });
+    expect(isCoverFullyOpen(half)).toBe(false);
+    expect(isCoverFullyClosed(half)).toBe(false);
+    expect(
+      isCoverFullyOpen(makeCover({ state: "open", attributes: { current_position: 100 } })),
+    ).toBe(true);
+    expect(
+      isCoverFullyClosed(makeCover({ state: "closed", attributes: { current_position: 0 } })),
+    ).toBe(true);
+  });
+
+  it("falls back to the state for position-less covers", () => {
+    expect(isCoverFullyOpen(makeCover({ state: "open" }))).toBe(true);
+    expect(isCoverFullyClosed(makeCover({ state: "closed" }))).toBe(true);
+    expect(isCoverFullyOpen(makeCover({ state: "opening" }))).toBe(false);
+  });
+});
+
+describe("getCoverMovement", () => {
+  it("names the movement of any moving member", () => {
+    expect(
+      getCoverMovement([makeCover({ state: "closed" }), makeCover({ state: "opening" })]),
+    ).toBe("opening");
+    expect(getCoverMovement([makeCover({ state: "closing" })])).toBe("closing");
+    expect(getCoverMovement([makeCover({ state: "open" })])).toBeNull();
   });
 });
