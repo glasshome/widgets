@@ -120,7 +120,7 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
 
     const linePath = monotoneCubicPath(points);
     const first = points[0];
-    const areaPath = `M ${first.x} ${h} L ${first.x} ${first.y} ${linePath.slice(linePath.indexOf("C"))} L ${w} ${h} Z`;
+    const areaPath = `${linePath} L ${w} ${h} L ${first.x} ${h} Z`;
 
     // Columns like the weather curve: the reading above the line, its hour below, more as the tile widens.
     const columns: { x: number; y: number; value: string; time: string }[] = [];
