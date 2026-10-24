@@ -102,6 +102,52 @@ function sharedKind(
 export const coverKind = (covers: EntityView[]) => sharedKind(covers, COVERING_KINDS, BLINDS);
 export const doorKind = (doors: EntityView[]) => sharedKind(doors, DOOR_KINDS, MIXED_DOORS);
 
+export const HIDEABLE_DOMAINS = [
+  "light",
+  "switch",
+  "cover",
+  "climate",
+  "sensor",
+  "binary_sensor",
+] as const;
+
+export interface AreaExclusions {
+  domains: (typeof HIDEABLE_DOMAINS)[number][];
+  lights: string[];
+  switches: string[];
+  covers: string[];
+  climate: string[];
+  sensors: string[];
+  binarySensors: string[];
+}
+
+export const NO_EXCLUSIONS: AreaExclusions = {
+  domains: [],
+  lights: [],
+  switches: [],
+  covers: [],
+  climate: [],
+  sensors: [],
+  binarySensors: [],
+};
+
+export function excludeEntities<E extends { id: string; domain: string }>(
+  entities: E[],
+  exclude: Partial<AreaExclusions> | undefined,
+): E[] {
+  const all = { ...NO_EXCLUSIONS, ...exclude };
+  const hiddenDomains = new Set<string>(all.domains);
+  const hiddenIds = new Set([
+    ...all.lights,
+    ...all.switches,
+    ...all.covers,
+    ...all.climate,
+    ...all.sensors,
+    ...all.binarySensors,
+  ]);
+  return entities.filter((e) => !hiddenDomains.has(e.domain) && !hiddenIds.has(e.id));
+}
+
 export function groupEntitiesByDomain(entities: EntityView[]): EntityGroups {
   const groups: EntityGroups = {
     lights: [],
