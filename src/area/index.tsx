@@ -19,7 +19,13 @@ import { widgetDialogProps } from "../common";
 import { ROOM_PRESETS, roomIcon } from "../common/art/room";
 import { type AreaAction, AreaContent, builtInRoom, useRoomScene } from "./area-content";
 import { AreaSheet } from "./sheet";
-import { calculateMetrics, groupEntitiesByDomain } from "./utils";
+import {
+  calculateMetrics,
+  excludeEntities,
+  groupEntitiesByDomain,
+  HIDEABLE_DOMAINS,
+  NO_EXCLUSIONS,
+} from "./utils";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -29,6 +35,29 @@ const configSchema = defineConfig({
     description: "A room picture, or a photo of your own.",
     presets: ROOM_PRESETS,
   }),
+  exclude: field.group(
+    {
+      domains: field.choices(HIDEABLE_DOMAINS, {
+        title: "Hide whole groups",
+        description: "Ignore every entity of these kinds in this area.",
+        labels: {
+          light: "Lights",
+          switch: "Switches",
+          cover: "Covers and doors",
+          climate: "Climate",
+          sensor: "Sensors",
+          binary_sensor: "Binary sensors",
+        },
+      }),
+      lights: field.entities("light", { title: "Ignore lights" }),
+      switches: field.entities("switch", { title: "Ignore switches" }),
+      covers: field.entities("cover", { title: "Ignore covers and doors" }),
+      climate: field.entities("climate", { title: "Ignore climate" }),
+      sensors: field.entities("sensor", { title: "Ignore sensors" }),
+      binarySensors: field.entities("binary_sensor", { title: "Ignore binary sensors" }),
+    },
+    { title: "Exclude" },
+  ),
 });
 type AreaConfig = Infer<typeof configSchema>;
 
@@ -39,22 +68,18 @@ function AreaWidget(props: { config: AreaConfig }) {
 
   const area = useArea(() => props.config.areaId ?? "");
 
-  const groups = createMemo(() => {
+  const visibleArea = createMemo(() => {
     const a = area();
-    if (!a)
-      return {
-        lights: [],
-        switches: [],
-        covers: [],
-        doors: [],
-        climate: [],
-        sensors: [],
-        binarySensors: [],
-      };
-    return groupEntitiesByDomain(a.entities);
+    if (!a) return undefined;
+    return {
+      ...a,
+      entities: excludeEntities(a.entities, props.config.exclude),
+    };
   });
 
-  const metrics = createMemo(() => calculateMetrics(groups(), area()));
+  const groups = createMemo(() => groupEntitiesByDomain(visibleArea()?.entities ?? []));
+
+  const metrics = createMemo(() => calculateMetrics(groups(), visibleArea()));
   const { shown: roomPicture } = useRoomScene(() => ({
     image: props.config.image,
     picture: area()?.picture,
@@ -101,7 +126,7 @@ function AreaWidget(props: { config: AreaConfig }) {
   };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
-    const a = area();
+    const a = visibleArea();
     if (!a) return undefined;
     return buildDebugData(props.config as unknown as Record<string, unknown>, a.entities, {
       metrics: metrics(),
@@ -168,7 +193,7 @@ function AreaWidget(props: { config: AreaConfig }) {
           backdrop: roomPicture(),
         }}
         sheet={() => (
-          <Show when={area()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
+          <Show when={visibleArea()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
         )}
         debugData={debugData()}
       />
@@ -179,7 +204,7 @@ function AreaWidget(props: { config: AreaConfig }) {
 export default defineWidget<AreaConfig>({
   manifest: {
     name: "Area",
-    configVersion: 1,
+    configVersion: 2,
     description: "Area overview with entity grouping and batch controls",
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
@@ -189,47 +214,57 @@ export default defineWidget<AreaConfig>({
       {
         label: "Living Room",
         size: { w: 3, h: 3 },
-        config: { areaId: "living_room", title: "Living Room", image: presetValue("living") },
+        config: {
+          areaId: "living_room",
+          title: "Living Room",
+          image: presetValue("living"),
+          exclude: NO_EXCLUSIONS,
+        },
       },
       {
         label: "Bedroom",
         size: { w: 3, h: 3 },
-        config: { areaId: "bedroom", image: presetValue("bedroom") },
+        config: { areaId: "bedroom", image: presetValue("bedroom"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Kitchen",
         size: { w: 3, h: 3 },
-        config: { areaId: "kitchen", image: presetValue("kitchen") },
+        config: { areaId: "kitchen", image: presetValue("kitchen"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Entry",
         size: { w: 3, h: 3 },
-        config: { areaId: "entry", image: presetValue("hallway") },
+        config: { areaId: "entry", image: presetValue("hallway"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Garage",
         size: { w: 3, h: 3 },
-        config: { areaId: "garage", image: presetValue("garage") },
+        config: { areaId: "garage", image: presetValue("garage"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Small",
         size: { w: 2, h: 2 },
-        config: { areaId: "living_room", title: "Living Room", image: presetValue("living") },
+        config: {
+          areaId: "living_room",
+          title: "Living Room",
+          image: presetValue("living"),
+          exclude: NO_EXCLUSIONS,
+        },
       },
       {
         label: "Wide",
         size: { w: 4, h: 2 },
-        config: { areaId: "bedroom", image: presetValue("bedroom") },
+        config: { areaId: "bedroom", image: presetValue("bedroom"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Large",
         size: { w: 6, h: 4 },
-        config: { areaId: "kitchen", image: presetValue("kitchen") },
+        config: { areaId: "kitchen", image: presetValue("kitchen"), exclude: NO_EXCLUSIONS },
       },
       {
         label: "Plain glass",
         size: { w: 3, h: 2 },
-        config: { areaId: "entry" },
+        config: { areaId: "entry", exclude: NO_EXCLUSIONS },
       },
     ],
   },

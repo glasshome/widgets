@@ -10,8 +10,8 @@
     "w": 8,
     "h": 8
   },
-  "sdkVersion": "^1.17.1",
-  "version": "1.0.2",
+  "sdkVersion": "^1.17.0",
+  "version": "1.1.0",
   "defaultSize": {
     "w": 3,
     "h": 3
@@ -107,11 +107,128 @@
             "thumb": "data:image/webp;base64,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"
           }
         }
+      },
+      "exclude": {
+        "default": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        },
+        "title": "Exclude",
+        "type": "object",
+        "properties": {
+          "domains": {
+            "default": [],
+            "title": "Hide whole groups",
+            "description": "Ignore every entity of these kinds in this area.",
+            "labels": {
+              "light": "Lights",
+              "switch": "Switches",
+              "cover": "Covers and doors",
+              "climate": "Climate",
+              "sensor": "Sensors",
+              "binary_sensor": "Binary sensors"
+            },
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "light",
+                "switch",
+                "cover",
+                "climate",
+                "sensor",
+                "binary_sensor"
+              ]
+            }
+          },
+          "lights": {
+            "default": [],
+            "domain": "light",
+            "title": "Ignore lights",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "switches": {
+            "default": [],
+            "domain": "switch",
+            "title": "Ignore switches",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "covers": {
+            "default": [],
+            "domain": "cover",
+            "title": "Ignore covers and doors",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "climate": {
+            "default": [],
+            "domain": "climate",
+            "title": "Ignore climate",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sensors": {
+            "default": [],
+            "domain": "sensor",
+            "title": "Ignore sensors",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "binarySensors": {
+            "default": [],
+            "domain": "binary_sensor",
+            "title": "Ignore binary sensors",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "domains",
+          "lights",
+          "switches",
+          "covers",
+          "climate",
+          "sensors",
+          "binarySensors"
+        ],
+        "additionalProperties": false
       }
     },
+    "required": [
+      "exclude"
+    ],
     "additionalProperties": false
   },
-  "defaultConfig": {},
+  "defaultConfig": {
+    "exclude": {
+      "domains": [],
+      "lights": [],
+      "switches": [],
+      "covers": [],
+      "climate": [],
+      "sensors": [],
+      "binarySensors": []
+    }
+  },
   "examples": [
     {
       "label": "Living Room",
@@ -122,7 +239,16 @@
       "config": {
         "areaId": "living_room",
         "title": "Living Room",
-        "image": "preset:living"
+        "image": "preset:living",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -133,7 +259,16 @@
       },
       "config": {
         "areaId": "bedroom",
-        "image": "preset:bedroom"
+        "image": "preset:bedroom",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -144,7 +279,16 @@
       },
       "config": {
         "areaId": "kitchen",
-        "image": "preset:kitchen"
+        "image": "preset:kitchen",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -155,7 +299,16 @@
       },
       "config": {
         "areaId": "entry",
-        "image": "preset:hallway"
+        "image": "preset:hallway",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -166,7 +319,16 @@
       },
       "config": {
         "areaId": "garage",
-        "image": "preset:garage"
+        "image": "preset:garage",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -178,7 +340,16 @@
       "config": {
         "areaId": "living_room",
         "title": "Living Room",
-        "image": "preset:living"
+        "image": "preset:living",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -189,7 +360,16 @@
       },
       "config": {
         "areaId": "bedroom",
-        "image": "preset:bedroom"
+        "image": "preset:bedroom",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -200,7 +380,16 @@
       },
       "config": {
         "areaId": "kitchen",
-        "image": "preset:kitchen"
+        "image": "preset:kitchen",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     },
     {
@@ -210,9 +399,18 @@
         "h": 2
       },
       "config": {
-        "areaId": "entry"
+        "areaId": "entry",
+        "exclude": {
+          "domains": [],
+          "lights": [],
+          "switches": [],
+          "covers": [],
+          "climate": [],
+          "sensors": [],
+          "binarySensors": []
+        }
       }
     }
   ],
-  "configVersion": 1
+  "configVersion": 2
 }
