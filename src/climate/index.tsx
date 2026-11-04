@@ -7,7 +7,6 @@ import {
   isDark,
   useEntities,
   useService,
-  useTemperatureUnit,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -19,7 +18,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
-import { formatTemperature, shiftBand, useSetpoints, widgetDialogProps } from "../common";
+import { formatTemperature, shiftBand, useThermostat, widgetDialogProps } from "../common";
 import "../common/mode-transition.css";
 import acArt from "./assets/climate-ac.webp";
 import heatpumpArt from "./assets/climate-heatpump.webp";
@@ -74,49 +73,14 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   const currentTemp = createMemo(
     () => entity()?.attributes?.current_temperature as number | undefined,
   );
-  const stateSetpoints = createMemo(() => {
-    const a = entity()?.attributes;
-    const low = a?.target_temp_low as number | undefined;
-    const high = a?.target_temp_high as number | undefined;
-    if (low != null && high != null) return [low, high];
-    const t = a?.temperature as number | undefined;
-    return t == null ? [] : [t];
-  });
-  const isRange = () => stateSetpoints().length === 2;
+  const thermostat = useThermostat(entity);
+  const { setpoints, min: minTemp, max: maxTemp, step, unit: tempUnit, isRange } = thermostat;
   const hvacAction = createMemo(() => entity()?.attributes?.hvac_action as string | undefined);
-  const temperatureUnit = useTemperatureUnit();
-  const tempUnit = createMemo(() => {
-    const unit = entity()?.attributes?.temperature_unit as string | undefined;
-    return (unit ?? temperatureUnit()).replace("°", "");
-  });
 
   const iconName = createMemo(() => getHvacModeIcon(hvacMode()));
-  // isDark() is called inside the memo so re-evaluation on mode() change
-  // also re-reads the theme; live theme-toggle without a mode change picks up
-  // on next memo invalidation (acceptable per CONTEXT D-10 / T-29-04).
   const mode = createMemo(() => getModeColors(hvacMode(), isDark()));
 
   const { callService } = useService();
-  const step = () =>
-    (entity()?.attributes?.target_temp_step as number | undefined) ??
-    (tempUnit() === "F" ? 1 : 0.5);
-  const minTemp = () => (entity()?.attributes?.min_temp as number | undefined) ?? 7;
-  const maxTemp = () => (entity()?.attributes?.max_temp as number | undefined) ?? 35;
-  const setpoints = useSetpoints({
-    stateValues: stateSetpoints,
-    min: minTemp,
-    max: maxTemp,
-    step,
-    commit: (values) => {
-      const id = entity()?.id;
-      if (!id) return;
-      const data =
-        values.length === 2
-          ? { target_temp_low: values[0], target_temp_high: values[1] }
-          : { temperature: values[0] };
-      void callService("climate", "set_temperature", data, { entity_id: id });
-    },
-  });
   const modes = createMemo(() => {
     const offered = (entity()?.attributes?.hvac_modes as string[] | undefined) ?? [];
     const quick = offered
@@ -290,15 +254,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
           ? {
               sheet: () => (
                 <Show when={entity()}>
-                  {(e) => (
-                    <ClimateSheet
-                      entity={e()}
-                      setpoints={setpoints}
-                      min={minTemp()}
-                      max={maxTemp()}
-                      step={step()}
-                    />
-                  )}
+                  {(e) => <ClimateSheet entity={e()} thermostat={thermostat} />}
                 </Show>
               ),
             }
