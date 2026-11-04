@@ -11,15 +11,15 @@ import {
   useConfirm,
   useService,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, Show, untrack } from "solid-js";
+import { createMemo, For, Show, untrack } from "solid-js";
 import { ClimateSheet } from "../climate/sheet";
 import { useThermostat } from "../common";
 import { LightColour } from "../common/light-colour";
 import type { AreaMetrics } from "./utils";
 
-const SECTIONS: { label: string; domains: string[] }[] = [
+const SECTIONS: { label: string; domains: string[]; thermostats?: true }[] = [
   { label: "Lights", domains: ["light"] },
-  { label: "Climate and air", domains: ["climate", "fan", "humidifier"] },
+  { label: "Climate and air", domains: ["fan", "humidifier"], thermostats: true },
   { label: "Blinds and doors", domains: ["cover", "lock"] },
   { label: "Media", domains: ["media_player"] },
   { label: "Switches", domains: ["switch", "input_boolean"] },
@@ -50,33 +50,25 @@ const FACT_ICON: Record<string, string> = {
 
 const live = (s: string) => s !== "unavailable" && s !== "unknown";
 
-/** One thermostat of the room with everything it can set. */
-function ThermostatFocus(props: { entity: () => EntityView | undefined; onBack: () => void }) {
+/** One thermostat with everything it can set, its name and target heading the first section. */
+function Thermostat(props: { entity: () => EntityView | undefined }) {
   const thermostat = useThermostat(props.entity);
   return (
-    <>
-      <div class="glasshome-sheet-actions">
-        <Button variant="outline" size="sm" onClick={() => props.onBack()}>
-          <Icon icon="mdi:chevron-left" />
-          Whole room
-        </Button>
-      </div>
-      <Show when={props.entity()}>
-        {(e) => (
-          <ClimateSheet
-            entity={e()}
-            thermostat={thermostat}
-            targetLabel={e().friendlyName ?? "Thermostat"}
-          />
-        )}
-      </Show>
-    </>
+    <Show when={props.entity()}>
+      {(e) => (
+        <ClimateSheet
+          entity={e()}
+          thermostat={thermostat}
+          targetLabel={e().friendlyName ?? "Thermostat"}
+        />
+      )}
+    </Show>
   );
 }
 
 /**
  * What the area tile cannot show: its scenes, every device in the room, the lights' colour, its sensors.
- * `entry` names a thermostat to open on, read once when the sheet mounts.
+ * `entry` names a thermostat to show alone, read once when the sheet mounts.
  */
 export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?: string }) {
   const { callService } = useService();
@@ -85,15 +77,12 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
     props.area.entities.filter((e) => domains.includes(e.domain) && live(e.state));
   const scenes = () => byDomain(["scene"]);
   const ran = useConfirm();
-  const [focus, setFocus] = createSignal(untrack(() => props.entry));
-  const focused = () => {
-    const id = focus();
-    return id === undefined ? undefined : byDomain(["climate"]).find((e) => e.id === id);
-  };
-  const hint = (section: (typeof SECTIONS)[number]) =>
-    section.domains.includes("climate") && byDomain(["climate"]).length > 0
-      ? `${section.label} · hold a thermostat to set it`
-      : section.label;
+  const thermostatIds = createMemo(() => byDomain(["climate"]).map((e) => e.id), undefined, {
+    equals: (a, b) => a.length === b.length && a.every((id, i) => id === b[i]),
+  });
+  const thermostat = (id: string) => () => byDomain(["climate"]).find((e) => e.id === id);
+  const entry = untrack(() => props.entry);
+  const alone = () => (entry === undefined ? undefined : thermostat(entry)());
 
   const facts = createMemo((): PanelFact[] => {
     const out: PanelFact[] = [];
@@ -117,10 +106,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
   });
 
   return (
-    <Show
-      when={focused() === undefined}
-      fallback={<ThermostatFocus entity={focused} onBack={() => setFocus(undefined)} />}
-    >
+    <Show when={alone() === undefined} fallback={<Thermostat entity={alone} />}>
       <Show when={scenes().length}>
         <PanelSection label="Scenes">
           <div class="glasshome-sheet-actions">
@@ -144,24 +130,23 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
       </Show>
       <For each={SECTIONS}>
         {(section) => (
-          <Show when={byDomain(section.domains).length}>
-            <PanelSection label={hint(section)}>
-              <PanelRows>
-                <For each={byDomain(section.domains)}>
-                  {(e) => (
-                    <PanelEntityRow
-                      entityId={e.id}
-                      within={props.area.name}
-                      onHold={e.domain === "climate" ? () => setFocus(e.id) : undefined}
-                    />
-                  )}
-                </For>
-              </PanelRows>
-            </PanelSection>
-            <Show when={section.domains.includes("light")}>
-              <LightColour lamps={byDomain(["light"])} />
+          <>
+            <Show when={section.thermostats}>
+              <For each={thermostatIds()}>{(id) => <Thermostat entity={thermostat(id)} />}</For>
             </Show>
-          </Show>
+            <Show when={byDomain(section.domains).length}>
+              <PanelSection label={section.label}>
+                <PanelRows>
+                  <For each={byDomain(section.domains)}>
+                    {(e) => <PanelEntityRow entityId={e.id} within={props.area.name} />}
+                  </For>
+                </PanelRows>
+              </PanelSection>
+              <Show when={section.domains.includes("light")}>
+                <LightColour lamps={byDomain(["light"])} />
+              </Show>
+            </Show>
+          </>
         )}
       </For>
       <Show when={facts().length}>
