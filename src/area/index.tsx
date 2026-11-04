@@ -14,7 +14,7 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { createMemo, Show } from "solid-js";
+import { createMemo, createSignal, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { ROOM_PRESETS, roomIcon } from "../common/art/room";
 import { type AreaAction, AreaContent, builtInRoom, useRoomScene } from "./area-content";
@@ -112,17 +112,33 @@ function AreaWidget(props: { config: AreaConfig }) {
     void callService("cover", open ? "close_cover" : "open_cover", {}, { entity_id: ids });
   };
 
+  const [entry, setEntry] = createSignal<string>();
+  const openOn = (thermostat?: string) => {
+    setEntry(thermostat);
+    openDialog();
+  };
+  const closeDialog = () => {
+    setEntry(undefined);
+    setShowDialog(false);
+  };
+
   const onAction = (action: AreaAction) => {
     const g = groups();
-    const m = metrics();
-    if (action === "lights") toggleLights();
-    else if (action === "covers") toggleCovers(g.covers, m.coversOpen > 0);
-    else if (action === "switches")
-      toggleGroup(
-        g.switches,
-        g.switches.some((s) => s.state === "on"),
-      );
-    else openDialog();
+    switch (action) {
+      case "lights":
+        return toggleLights();
+      case "covers":
+        return toggleCovers(g.covers, metrics().coversOpen > 0);
+      case "switches":
+        return toggleGroup(
+          g.switches,
+          g.switches.some((s) => s.state === "on"),
+        );
+      case "climate":
+        return openOn(g.climate[0]?.id);
+      case "doors":
+        return openOn();
+    }
   };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -172,20 +188,21 @@ function AreaWidget(props: { config: AreaConfig }) {
             picture={area()?.picture}
             image={props.config.image}
             onAction={onAction}
-            onMore={openDialog}
+            onMore={() => openOn()}
           />
         </Show>
       </Widget>
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
+        onOpenChange={(open) => (open ? setShowDialog(true) : closeDialog())}
         title={areaName()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
         onConfigSave={(config) => {
           ctx.updateConfig(config);
-          setShowDialog(false);
+          closeDialog();
         }}
         tile={{
           icon: area()?.icon ?? roomIcon(builtInRoom(props.config.image)),
@@ -193,7 +210,9 @@ function AreaWidget(props: { config: AreaConfig }) {
           backdrop: roomPicture(),
         }}
         sheet={() => (
-          <Show when={visibleArea()}>{(a) => <AreaSheet area={a()} metrics={metrics()} />}</Show>
+          <Show when={visibleArea()}>
+            {(a) => <AreaSheet area={a()} metrics={metrics()} entry={entry()} />}
+          </Show>
         )}
         debugData={debugData()}
       />
@@ -210,6 +229,21 @@ export default defineWidget<AreaConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
+    capabilities: [
+      { domain: "light", access: "control" },
+      { domain: "switch", access: "control" },
+      { domain: "input_boolean", access: "control" },
+      { domain: "cover", access: "control" },
+      { domain: "lock", access: "control" },
+      { domain: "climate", access: "control" },
+      { domain: "fan", access: "control" },
+      { domain: "humidifier", access: "control" },
+      { domain: "media_player", access: "control" },
+      { domain: "scene", access: "control" },
+      { domain: "sensor", access: "read" },
+      { domain: "binary_sensor", access: "read" },
+      { domain: "sun", access: "read" },
+    ],
     examples: [
       {
         label: "Living Room",

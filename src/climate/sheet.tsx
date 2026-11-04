@@ -9,7 +9,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
-import type { useSetpoints } from "../common";
+import type { Thermostat } from "../common";
 import { FAN_MODES, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
 const words = (raw: string) => {
@@ -62,13 +62,14 @@ export const climateHasExtras = (e: EntityView) =>
   list(e, "fan_modes").length > 0 ||
   isRange(e);
 
-/** What the climate tile cannot show: every mode, presets, fan speed, both ends of a range. */
+/**
+ * What the climate tile cannot show: every mode, presets, fan speed, both ends of a range.
+ * A sheet with no climate tile beside it passes `targetLabel` to get the single setpoint too.
+ */
 export function ClimateSheet(props: {
   entity: EntityView;
-  setpoints: ReturnType<typeof useSetpoints>;
-  min: number;
-  max: number;
-  step: number;
+  thermostat: Thermostat;
+  targetLabel?: string;
 }) {
   const { callService } = useService();
   const call = (service: string, data: Record<string, unknown>) =>
@@ -79,9 +80,14 @@ export function ClimateSheet(props: {
   const hvacModes = () => list(props.entity, "hvac_modes");
   const presets = () => list(props.entity, "preset_modes");
   const fanModes = () => list(props.entity, "fan_modes");
+  const setpoints = () => props.thermostat.setpoints;
   const band = () => {
-    const v = props.setpoints.values();
+    const v = setpoints().values();
     return v.length === 2 ? v : undefined;
+  };
+  const target = () => {
+    const v = setpoints().values();
+    return props.targetLabel !== undefined && v.length === 1 ? v[0] : undefined;
   };
   const reading = () => {
     const t = props.entity.attributes.current_temperature;
@@ -94,6 +100,21 @@ export function ClimateSheet(props: {
 
   return (
     <>
+      <Show when={target() !== undefined}>
+        <PanelSection label={`${props.targetLabel} · ${degrees(target() ?? 0)}°`}>
+          <Slider
+            value={[target() ?? 0]}
+            min={props.thermostat.min()}
+            max={props.thermostat.max()}
+            step={props.thermostat.step()}
+            fillTone={tone()}
+            markers={reading()}
+            onChange={(next) => setpoints().setPending(next)}
+            onChangeEnd={(next) => setpoints().commitValues(next)}
+            aria-label="Target temperature"
+          />
+        </PanelSection>
+      </Show>
       <Show when={hvacModes().length > 1}>
         <PanelSection label="Mode">
           <Choices
@@ -114,15 +135,15 @@ export function ClimateSheet(props: {
           <PanelSection label={`Heats below ${degrees(v()[0])}°, cools above ${degrees(v()[1])}°`}>
             <Slider
               value={v()}
-              min={props.min}
-              max={props.max}
-              step={props.step}
+              min={props.thermostat.min()}
+              max={props.thermostat.max()}
+              step={props.thermostat.step()}
               minStepsBetweenThumbs={1}
               thumbColors={ends()}
               fillTone={ends()}
               markers={reading()}
-              onChange={(next) => props.setpoints.setPending(next)}
-              onChangeEnd={(next) => props.setpoints.commitValues(next)}
+              onChange={(next) => setpoints().setPending(next)}
+              onChangeEnd={(next) => setpoints().commitValues(next)}
               aria-label="Comfort range"
             />
           </PanelSection>

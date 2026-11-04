@@ -26,12 +26,36 @@
       "access": "control"
     },
     {
+      "domain": "input_boolean",
+      "access": "control"
+    },
+    {
       "domain": "cover",
       "access": "control"
     },
     {
+      "domain": "lock",
+      "access": "control"
+    },
+    {
       "domain": "climate",
-      "access": "read"
+      "access": "control"
+    },
+    {
+      "domain": "fan",
+      "access": "control"
+    },
+    {
+      "domain": "humidifier",
+      "access": "control"
+    },
+    {
+      "domain": "media_player",
+      "access": "control"
+    },
+    {
+      "domain": "scene",
+      "access": "control"
     },
     {
       "domain": "sensor",
