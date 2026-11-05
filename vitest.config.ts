@@ -6,7 +6,7 @@ process.env.TZ = "UTC";
 export default defineConfig({
   plugins: [solid()],
   resolve: {
-    conditions: ["@glasshome/source", "browser", "development"],
+    conditions: ["browser", "development"],
     dedupe: ["solid-js", "solid-js/web", "solid-js/store"],
   },
   test: {
@@ -14,5 +14,7 @@ export default defineConfig({
     globals: true,
     include: ["tests/dom/**/*.test.{ts,tsx}"],
     env: { STL_SKIP_AUTO_CLEANUP: "true" },
+    // ui's "solid" export condition points at TypeScript source, which Node cannot load from node_modules.
+    server: { deps: { inline: [/@glasshome\//] } },
   },
 });
