@@ -13,6 +13,7 @@ function fakePlayer(hasAudio: boolean) {
     activeKind: () => "webrtc",
     hasAudio: () => hasAudio,
     nonce: () => 0,
+    // test-change-ok retry is the player double's method, not a test retry
     retry: () => {},
     bindEl: () => {},
     dispose: () => {},
