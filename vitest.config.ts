@@ -13,7 +13,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     include: ["tests/dom/**/*.test.{ts,tsx}"],
-    env: { STL_SKIP_AUTO_CLEANUP: "true" },
+    setupFiles: ["tests/dom/setup.ts"],
     // ui's "solid" export condition points at TypeScript source, which Node cannot load from node_modules.
     server: { deps: { inline: [/@glasshome\//] } },
   },
