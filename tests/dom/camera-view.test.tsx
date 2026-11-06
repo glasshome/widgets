@@ -20,7 +20,7 @@ function fakePlayer(hasAudio: boolean) {
       onAudio: () => {},
       onError: () => {},
       onStale: () => {},
-      mounted: () => {},
+      mounted: () => () => {},
     }),
     // test-change-ok retry is the player double's method, not a test retry
     retry: () => {},
@@ -94,7 +94,7 @@ describe("camera player", () => {
   test("a second view of a live stream reconnects with a fresh attempt", () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
-    first?.mounted();
+    first?.mounted()();
     first?.onLive();
     expect(player.status()).toBe("live");
 
@@ -106,14 +106,39 @@ describe("camera player", () => {
     dispose();
   });
 
-  test("a second view of a connecting stream starts a fresh attempt on the same source", () => {
+  test("a later view of a connecting stream no view holds starts a fresh attempt on the same source", () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
-    first?.mounted();
+    first?.mounted()();
     first?.mounted();
     expect(player.status()).toBe("connecting");
     expect(player.video()).not.toBe(first);
     expect(player.video()?.kind).toBe("webrtc");
+    dispose();
+  });
+
+  test("a view joining a connecting stream another view holds starts nothing", () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted();
+    first?.mounted();
+    expect(player.video()).toBe(first);
+    dispose();
+  });
+
+  test("two views that both remount on the fresh attempt restart it once", () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted();
+    first?.onLive();
+    first?.mounted();
+    const second = player.video();
+    expect(second).not.toBe(first);
+
+    second?.mounted();
+    second?.mounted();
+    expect(player.video()).toBe(second);
+    expect(player.status()).toBe("reconnecting");
     dispose();
   });
 

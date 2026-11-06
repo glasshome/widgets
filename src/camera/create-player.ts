@@ -21,15 +21,15 @@ const WATCHDOG_MS: Record<SourceKind, number> = {
 };
 
 /** One attempt at a video kind: what `CameraStream` plays and the callbacks it reports to. */
-export interface VideoAttempt {
+interface VideoAttempt {
   entityId: string;
   kind: VideoKind;
   onLive: () => void;
   onAudio: (has: boolean) => void;
   onError: (reason: string) => void;
   onStale: (reason: string) => void;
-  /** A view showed this attempt's stream; a second view starts a fresh attempt for its own stream. */
-  mounted: () => void;
+  /** A view showed this attempt's stream; returns its release. A later view restarts a live attempt, or one no view holds. */
+  mounted: () => () => void;
 }
 
 export interface CameraPlayer {
@@ -122,6 +122,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
 
     if (source.kind === "webrtc" || source.kind === "hls") {
       let shown = false;
+      let views = 0;
       setVideo({
         entityId: untrack(opts.entityId),
         kind: source.kind,
@@ -132,13 +133,20 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         onError: cb.onError,
         onStale: cb.onStale,
         mounted: () => {
-          if (attempt !== attemptId) return;
+          const release = () => {
+            views--;
+          };
+          if (attempt !== attemptId) return release;
+          const alone = views === 0;
+          views++;
           if (!shown) {
             shown = true;
-            return;
+            return release;
           }
+          // Views sharing a connecting attempt join it; restarting there would loop them.
           if (untrack(state).status === "live") dispatch({ t: "stale" });
-          else setBindVersion((v) => v + 1);
+          else if (alone) setBindVersion((v) => v + 1);
+          return release;
         },
       });
     } else if (el) {

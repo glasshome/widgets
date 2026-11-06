@@ -6,6 +6,7 @@ import {
   createSignal,
   type JSX,
   Match,
+  onCleanup,
   onMount,
   type Setter,
   Show,
@@ -176,7 +177,7 @@ function StreamElement(props: {
     <Switch>
       <Match when={props.player.video()} keyed>
         {(attempt) => {
-          onMount(attempt.mounted);
+          onMount(() => onCleanup(attempt.mounted()));
           return (
             <CameraStream
               entityId={attempt.entityId}
