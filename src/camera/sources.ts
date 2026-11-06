@@ -1,10 +1,10 @@
 export type SourceKind = "webrtc" | "hls" | "mjpeg" | "snapshot";
+export type VideoKind = Extract<SourceKind, "webrtc" | "hls">;
 export type StreamEngine = "auto" | SourceKind;
 
 export interface CameraSource {
   kind: SourceKind;
   url?: string | null;
-  needsFetch?: boolean;
 }
 
 export interface CameraInput {
@@ -29,9 +29,8 @@ function proxyPath(input: CameraInput, streaming: boolean): string | null {
 function build(kind: SourceKind, input: CameraInput): CameraSource | null {
   switch (kind) {
     case "webrtc":
-      return input.entityId ? { kind } : null;
     case "hls":
-      return input.entityId ? { kind, needsFetch: true } : null;
+      return input.entityId ? { kind } : null;
     case "mjpeg": {
       const url = proxyPath(input, true);
       return url ? { kind, url } : null;

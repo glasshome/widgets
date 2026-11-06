@@ -13,6 +13,14 @@ function fakePlayer(hasAudio: boolean) {
     activeKind: () => "webrtc",
     hasAudio: () => hasAudio,
     nonce: () => 0,
+    video: () => ({
+      entityId: "camera.front_door",
+      kind: "webrtc",
+      onLive: () => {},
+      onAudio: () => {},
+      onError: () => {},
+      onStale: () => {},
+    }),
     // test-change-ok retry is the player double's method, not a test retry
     retry: () => {},
     bindEl: () => {},

@@ -1,4 +1,4 @@
-import { Badge, Button } from "@glasshome/widget-sdk";
+import { Badge, Button, CameraStream } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import {
   type Accessor,
@@ -21,25 +21,7 @@ const MEDIA_CLASS: Record<CameraVariant, string> = {
   live: "absolute inset-0 h-full w-full object-contain",
 };
 
-function BoundVideo(props: {
-  player: CameraPlayer;
-  poster?: string;
-  muted: boolean;
-  class: string;
-}) {
-  let ref!: HTMLVideoElement;
-  onMount(() => props.player.bindEl(ref));
-  return (
-    <video
-      ref={ref}
-      autoplay
-      muted={props.muted}
-      playsinline
-      poster={props.poster}
-      class={props.class}
-    />
-  );
-}
+const FIT: Record<CameraVariant, "cover" | "contain"> = { tile: "cover", live: "contain" };
 
 function BoundImage(props: { player: CameraPlayer; poster?: string; class: string }) {
   let ref!: HTMLImageElement;
@@ -60,6 +42,7 @@ export function CameraView(props: {
   muted: Accessor<boolean>;
   setMuted: Setter<boolean>;
   variant?: CameraVariant;
+  fullscreen?: boolean;
   actions?: JSX.Element;
 }) {
   const status = props.player.status;
@@ -128,6 +111,8 @@ export function CameraView(props: {
           player={props.player}
           poster={props.poster()}
           muted={props.muted()}
+          fit={FIT[variant()]}
+          fullscreen={props.fullscreen ?? false}
           class={mediaClass()}
         />
       </Show>
@@ -182,18 +167,29 @@ function StreamElement(props: {
   player: CameraPlayer;
   poster?: string;
   muted: boolean;
+  fit: "cover" | "contain";
+  fullscreen: boolean;
   class: string;
 }) {
   const kind = props.player.activeKind;
   return (
     <Switch>
-      <Match when={kind() === "webrtc" || kind() === "hls"}>
-        <BoundVideo
-          player={props.player}
-          poster={props.poster}
-          muted={props.muted}
-          class={props.class}
-        />
+      <Match when={props.player.video()} keyed>
+        {(attempt) => (
+          <CameraStream
+            entityId={attempt.entityId}
+            kind={attempt.kind}
+            muted={props.muted}
+            poster={props.poster}
+            fit={props.fit}
+            fullscreen={props.fullscreen}
+            class={props.class}
+            onLive={attempt.onLive}
+            onAudio={attempt.onAudio}
+            onError={attempt.onError}
+            onStale={attempt.onStale}
+          />
+        )}
       </Match>
       <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
         <BoundImage player={props.player} class={props.class} />

@@ -1,4 +1,3 @@
-import { getStream } from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,
@@ -7,14 +6,11 @@ import {
   onCleanup,
   untrack,
 } from "solid-js";
-import { createHlsDriver } from "./drivers/hls";
 import { createMjpegDriver } from "./drivers/mjpeg";
 import { createSnapshotDriver } from "./drivers/snapshot";
 import type { DriverCallbacks, MediaDriver } from "./drivers/types";
-import { createWebRtcDriver } from "./drivers/webrtc";
 import { initialState, type PlayerEvent, type PlayerStatus, transition } from "./player";
-import { reasonOf } from "./reason";
-import type { CameraSource, SourceKind } from "./sources";
+import type { CameraSource, SourceKind, VideoKind } from "./sources";
 
 // WebRTC waits out HA's own 15s offer timeout, so its driver reports the real reason first.
 const WATCHDOG_MS: Record<SourceKind, number> = {
@@ -24,13 +20,24 @@ const WATCHDOG_MS: Record<SourceKind, number> = {
   snapshot: 8000,
 };
 
+/** One attempt at a video kind: what `CameraStream` plays and the callbacks it reports to. */
+export interface VideoAttempt {
+  entityId: string;
+  kind: VideoKind;
+  onLive: () => void;
+  onAudio: (has: boolean) => void;
+  onError: (reason: string) => void;
+  onStale: (reason: string) => void;
+}
+
 export interface CameraPlayer {
   status: Accessor<PlayerStatus>;
   activeKind: Accessor<SourceKind | null>;
   hasAudio: Accessor<boolean>;
   nonce: Accessor<number>;
+  video: Accessor<VideoAttempt | null>;
   retry: () => void;
-  bindEl: (el: HTMLVideoElement | HTMLImageElement | null) => void;
+  bindEl: (el: HTMLImageElement | null) => void;
   dispose: () => void;
 }
 
@@ -44,16 +51,15 @@ export interface CameraPlayerOptions {
 
 export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const [state, setState] = createSignal(initialState);
-  const [boundEl, setBoundEl] = createSignal<HTMLVideoElement | HTMLImageElement | null>(null);
+  const [boundEl, setBoundEl] = createSignal<HTMLImageElement | null>(null);
   const [bindVersion, setBindVersion] = createSignal(0);
   const [hasAudio, setHasAudio] = createSignal(false);
+  const [video, setVideo] = createSignal<VideoAttempt | null>(null);
 
-  const bindEl = (el: HTMLVideoElement | HTMLImageElement | null) => {
+  const bindEl = (el: HTMLImageElement | null) => {
     setBoundEl(el);
     setBindVersion((v) => v + 1);
   };
-
-  const wantsVideo = (kind: SourceKind) => kind === "webrtc" || kind === "hls";
 
   let driver: MediaDriver | null = null;
   let watchdog: ReturnType<typeof setTimeout> | null = null;
@@ -70,19 +76,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const stopDriver = () => {
     driver?.stop();
     driver = null;
-  };
-
-  const makeDriver = (kind: SourceKind): MediaDriver => {
-    switch (kind) {
-      case "webrtc":
-        return createWebRtcDriver(untrack(opts.entityId));
-      case "hls":
-        return createHlsDriver();
-      case "mjpeg":
-        return createMjpegDriver();
-      case "snapshot":
-        return createSnapshotDriver(untrack(opts.refreshMs));
-    }
+    setVideo(null);
   };
 
   const activate = () => {
@@ -90,16 +84,15 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     clearWatchdog();
     setHasAudio(false);
     const s = untrack(state);
-    const el = untrack(boundEl);
     if (s.status === "offline" || s.status === "no-signal") return;
-    if (!el) return;
     const source = untrack(opts.sources)[s.index];
     if (!source) {
       dispatch({ t: "error" });
       return;
     }
-    // Wait until the mounted element type matches the source (video vs img).
-    if (wantsVideo(source.kind) !== el instanceof HTMLVideoElement) return;
+    const el = untrack(boundEl);
+    // An image kind waits for its <img>; a video kind renders its own.
+    if (source.kind !== "webrtc" && source.kind !== "hls" && !el) return;
 
     const attempt = ++attemptId;
     const fail = (t: "error" | "watchdog" | "stale", reason: string) => {
@@ -125,25 +118,23 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       fail("watchdog", `no picture within ${watchdogMs / 1000}s${where ? ` (${where})` : ""}`);
     }, watchdogMs);
 
-    const launch = (resolved: CameraSource) => {
-      if (attempt !== attemptId) return;
-      driver = makeDriver(source.kind);
-      driver.start(el, resolved, cb);
-    };
-
-    if (source.needsFetch) {
-      getStream(untrack(opts.entityId), { format: "hls", autoRefresh: true })
-        .then((data) => {
-          if (attempt !== attemptId) return;
-          if (!data.stream.url) {
-            fail("error", "home assistant returned no hls url");
-            return;
-          }
-          launch({ ...source, url: data.stream.url });
-        })
-        .catch((err: unknown) => fail("error", `hls stream request: ${reasonOf(err)}`));
-    } else {
-      launch(source);
+    if (source.kind === "webrtc" || source.kind === "hls") {
+      setVideo({
+        entityId: untrack(opts.entityId),
+        kind: source.kind,
+        onLive: cb.onLive,
+        onAudio: (has) => {
+          if (has) cb.onAudio();
+        },
+        onError: cb.onError,
+        onStale: cb.onStale,
+      });
+    } else if (el) {
+      driver =
+        source.kind === "mjpeg"
+          ? createMjpegDriver()
+          : createSnapshotDriver(untrack(opts.refreshMs));
+      driver.start(el, source, cb);
     }
   };
 
@@ -196,6 +187,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     }),
     hasAudio,
     nonce: () => state().nonce,
+    video,
     retry: () => dispatch({ t: "retry" }),
     bindEl,
     dispose,
