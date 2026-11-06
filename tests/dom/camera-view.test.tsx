@@ -4,11 +4,7 @@ import { useFakeTime } from "@glasshome/ui/testing";
 import { describe, expect, test, vi } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
 import { CameraLiveView } from "../../src/camera/live-view";
-import {
-  type CameraPlayer,
-  createCameraPlayer,
-  WATCHDOG_MS,
-} from "../../src/camera/create-player";
+import { type CameraPlayer, createCameraPlayer, WATCHDOG_MS } from "../../src/camera/create-player";
 import type { PlayerStatus } from "../../src/camera/player";
 
 function fakePlayer(hasAudio: boolean) {
@@ -19,17 +15,19 @@ function fakePlayer(hasAudio: boolean) {
     hasAudio: () => hasAudio,
     nonce: () => 0,
     video: () => ({
+      id: 1,
       entityId: "camera.front_door",
       kind: "webrtc",
+      src: () => undefined,
       onLive: () => {},
       onAudio: () => {},
       onError: () => {},
       onStale: () => {},
+      onStage: () => {},
       mounted: () => () => {},
     }),
     // test-change-ok retry is the player double's method, not a test retry
     retry: () => {},
-    bindEl: () => {},
     dispose: () => {},
   };
   return { player, setStatus };
@@ -200,7 +198,10 @@ describe("camera full screen", () => {
 
   test("a snapshot camera refreshes its picture in place, on the same stream", async () => {
     useFakeTime();
-    const { player, dispose } = imagePlayer("snapshot", "/api/camera_proxy/camera.front_door?token=t");
+    const { player, dispose } = imagePlayer(
+      "snapshot",
+      "/api/camera_proxy/camera.front_door?token=t",
+    );
     const stream = player.video();
     const first = stream?.src();
     expect(first).toBe("/api/camera_proxy/camera.front_door?token=t");
