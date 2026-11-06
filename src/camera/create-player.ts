@@ -28,6 +28,8 @@ export interface VideoAttempt {
   onAudio: (has: boolean) => void;
   onError: (reason: string) => void;
   onStale: (reason: string) => void;
+  /** A view showed this attempt's stream; a second view starts a fresh attempt for its own stream. */
+  mounted: () => void;
 }
 
 export interface CameraPlayer {
@@ -119,6 +121,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     }, watchdogMs);
 
     if (source.kind === "webrtc" || source.kind === "hls") {
+      let shown = false;
       setVideo({
         entityId: untrack(opts.entityId),
         kind: source.kind,
@@ -128,6 +131,15 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         },
         onError: cb.onError,
         onStale: cb.onStale,
+        mounted: () => {
+          if (attempt !== attemptId) return;
+          if (!shown) {
+            shown = true;
+            return;
+          }
+          if (untrack(state).status === "live") dispatch({ t: "stale" });
+          else setBindVersion((v) => v + 1);
+        },
       });
     } else if (el) {
       driver =

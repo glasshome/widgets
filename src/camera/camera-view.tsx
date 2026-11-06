@@ -175,21 +175,24 @@ function StreamElement(props: {
   return (
     <Switch>
       <Match when={props.player.video()} keyed>
-        {(attempt) => (
-          <CameraStream
-            entityId={attempt.entityId}
-            kind={attempt.kind}
-            muted={props.muted}
-            poster={props.poster}
-            fit={props.fit}
-            fullscreen={props.fullscreen}
-            class={props.class}
-            onLive={attempt.onLive}
-            onAudio={attempt.onAudio}
-            onError={attempt.onError}
-            onStale={attempt.onStale}
-          />
-        )}
+        {(attempt) => {
+          onMount(attempt.mounted);
+          return (
+            <CameraStream
+              entityId={attempt.entityId}
+              kind={attempt.kind}
+              muted={props.muted}
+              poster={props.poster}
+              fit={props.fit}
+              fullscreen={props.fullscreen}
+              class={props.class}
+              onLive={attempt.onLive}
+              onAudio={attempt.onAudio}
+              onError={attempt.onError}
+              onStale={attempt.onStale}
+            />
+          );
+        }}
       </Match>
       <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
         <BoundImage player={props.player} class={props.class} />
