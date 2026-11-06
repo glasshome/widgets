@@ -2,15 +2,14 @@ import { Badge, Button, CameraStream } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import {
   type Accessor,
+  createEffect,
   createMemo,
   createSignal,
   type JSX,
-  Match,
+  on,
   onCleanup,
-  onMount,
   type Setter,
   Show,
-  Switch,
 } from "solid-js";
 import noFeedArt from "./assets/no-feed.webp";
 import type { CameraPlayer } from "./create-player";
@@ -23,12 +22,6 @@ const MEDIA_CLASS: Record<CameraVariant, string> = {
 };
 
 const FIT: Record<CameraVariant, "cover" | "contain"> = { tile: "cover", live: "contain" };
-
-function BoundImage(props: { player: CameraPlayer; poster?: string; class: string }) {
-  let ref!: HTMLImageElement;
-  onMount(() => props.player.bindEl(ref));
-  return <img ref={ref} src={props.poster} alt="" class={props.class} />;
-}
 
 const RETRY_HINT: Record<CameraVariant, string> = {
   tile: "No signal · tap to retry",
@@ -112,6 +105,8 @@ export function CameraView(props: {
           player={props.player}
           poster={props.poster()}
           muted={props.muted()}
+          setMuted={props.setMuted}
+          sound={sound()}
           fit={FIT[variant()]}
           fullscreen={props.fullscreen ?? false}
           class={mediaClass()}
@@ -168,36 +163,37 @@ function StreamElement(props: {
   player: CameraPlayer;
   poster?: string;
   muted: boolean;
+  setMuted: Setter<boolean>;
+  sound: boolean;
   fit: "cover" | "contain";
   fullscreen: boolean;
   class: string;
 }) {
-  const kind = props.player.activeKind;
   return (
-    <Switch>
-      <Match when={props.player.video()} keyed>
-        {(attempt) => {
-          onMount(() => onCleanup(attempt.mounted()));
-          return (
-            <CameraStream
-              entityId={attempt.entityId}
-              kind={attempt.kind}
-              muted={props.muted}
-              poster={props.poster}
-              fit={props.fit}
-              fullscreen={props.fullscreen}
-              class={props.class}
-              onLive={attempt.onLive}
-              onAudio={attempt.onAudio}
-              onError={attempt.onError}
-              onStale={attempt.onStale}
-            />
-          );
-        }}
-      </Match>
-      <Match when={kind() === "mjpeg" || kind() === "snapshot"}>
-        <BoundImage player={props.player} class={props.class} />
-      </Match>
-    </Switch>
+    <Show when={props.player.video()}>
+      {(attempt) => {
+        createEffect(on(attempt, (shown) => onCleanup(shown.mounted())));
+        return (
+          <CameraStream
+            entityId={attempt().entityId}
+            kind={attempt().kind}
+            src={attempt().src()}
+            session={attempt().id}
+            muted={props.muted}
+            poster={props.poster}
+            fit={props.fit}
+            fullscreen={props.fullscreen}
+            sound={props.sound}
+            class={props.class}
+            onLive={attempt().onLive}
+            onAudio={attempt().onAudio}
+            onError={attempt().onError}
+            onStale={attempt().onStale}
+            onStage={attempt().onStage}
+            onMutedChange={(muted) => props.setMuted(muted)}
+          />
+        );
+      }}
+    </Show>
   );
 }

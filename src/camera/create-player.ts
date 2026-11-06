@@ -1,3 +1,4 @@
+import { hassMediaUrl } from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,
@@ -6,28 +7,29 @@ import {
   onCleanup,
   untrack,
 } from "solid-js";
-import { createMjpegDriver } from "./drivers/mjpeg";
-import { createSnapshotDriver } from "./drivers/snapshot";
-import type { DriverCallbacks, MediaDriver } from "./drivers/types";
 import { initialState, type PlayerEvent, type PlayerStatus, transition } from "./player";
-import type { CameraSource, SourceKind, VideoKind } from "./sources";
+import type { CameraSource, SourceKind } from "./sources";
 
-// WebRTC waits out HA's own 15s offer timeout, so its driver reports the real reason first.
-const WATCHDOG_MS: Record<SourceKind, number> = {
+// WebRTC waits out HA's own 15s offer timeout, so its stream reports the real reason first.
+export const WATCHDOG_MS: Record<SourceKind, number> = {
   webrtc: 20000,
   hls: 8000,
   mjpeg: 8000,
   snapshot: 8000,
 };
 
-/** One attempt at a video kind: what `CameraStream` plays and the callbacks it reports to. */
-interface VideoAttempt {
+/** One attempt at a source: what `CameraStream` plays and the callbacks it reports to. */
+interface StreamAttempt {
+  /** The `CameraStream` session; a new attempt restarts the stream in place. */
+  id: number;
   entityId: string;
-  kind: VideoKind;
+  kind: "webrtc" | "hls" | "image";
+  src: Accessor<string | undefined>;
   onLive: () => void;
   onAudio: (has: boolean) => void;
   onError: (reason: string) => void;
   onStale: (reason: string) => void;
+  onStage: (stage: string) => void;
   /** A view showed this attempt's stream; returns its release. A later view gets a fresh attempt once it plays alone. */
   mounted: () => () => void;
 }
@@ -37,9 +39,8 @@ export interface CameraPlayer {
   activeKind: Accessor<SourceKind | null>;
   hasAudio: Accessor<boolean>;
   nonce: Accessor<number>;
-  video: Accessor<VideoAttempt | null>;
+  video: Accessor<StreamAttempt | null>;
   retry: () => void;
-  bindEl: (el: HTMLImageElement | null) => void;
   dispose: () => void;
 }
 
@@ -49,42 +50,64 @@ export interface CameraPlayerOptions {
   offline: Accessor<boolean>;
   refreshMs: Accessor<number>;
   watchdogMs?: number;
+  warn?: (message: string) => void;
 }
 
 export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const [state, setState] = createSignal(initialState);
-  const [boundEl, setBoundEl] = createSignal<HTMLImageElement | null>(null);
-  const [bindVersion, setBindVersion] = createSignal(0);
+  const [restarts, setRestarts] = createSignal(0);
   const [hasAudio, setHasAudio] = createSignal(false);
-  const [video, setVideo] = createSignal<VideoAttempt | null>(null);
+  const [video, setVideo] = createSignal<StreamAttempt | null>(null);
+  const warn = opts.warn ?? ((message: string) => console.warn(message));
 
-  const bindEl = (el: HTMLImageElement | null) => {
-    setBoundEl(el);
-    setBindVersion((v) => v + 1);
-  };
-
-  let driver: MediaDriver | null = null;
   let watchdog: ReturnType<typeof setTimeout> | null = null;
+  let refresh: ReturnType<typeof setInterval> | null = null;
   let attemptId = 0;
   let started = false;
 
   const dispatch = (event: PlayerEvent) =>
     setState((s) => transition(s, event, untrack(opts.sources)));
 
-  const clearWatchdog = () => {
+  const stop = () => {
     if (watchdog) clearTimeout(watchdog);
     watchdog = null;
-  };
-  const stopDriver = () => {
-    driver?.stop();
-    driver = null;
+    if (refresh) clearInterval(refresh);
+    refresh = null;
     setVideo(null);
+    setHasAudio(false);
+  };
+
+  const viewsOf = (attempt: number, restart: () => void) => {
+    let shown = false;
+    let views = 0;
+    let joined = false;
+    // Views that remount in the flush that made this attempt are its first views, never late ones.
+    let fresh = true;
+    queueMicrotask(() => {
+      fresh = false;
+    });
+    return () => {
+      const alone = views === 0;
+      views++;
+      const release = () => {
+        views--;
+        if (attempt !== attemptId || !joined || views === 0) return;
+        joined = false;
+        restart();
+      };
+      if (attempt !== attemptId) return release;
+      if (!shown || fresh) {
+        shown = true;
+        return release;
+      }
+      if (alone || untrack(state).status === "live") restart();
+      else joined = true;
+      return release;
+    };
   };
 
   const activate = () => {
-    stopDriver();
-    clearWatchdog();
-    setHasAudio(false);
+    stop();
     const s = untrack(state);
     if (s.status === "offline" || s.status === "no-signal") return;
     const source = untrack(opts.sources)[s.index];
@@ -92,82 +115,71 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       dispatch({ t: "error" });
       return;
     }
-    const el = untrack(boundEl);
-    // An image kind waits for its <img>; a video kind renders its own.
-    if (source.kind !== "webrtc" && source.kind !== "hls" && !el) return;
 
     const attempt = ++attemptId;
+    let stage: string | undefined;
     const fail = (t: "error" | "watchdog" | "stale", reason: string) => {
       if (attempt !== attemptId) return;
-      console.warn(`[camera] ${untrack(opts.entityId)} ${source.kind} ${t}: ${reason}`);
+      warn(`[camera] ${untrack(opts.entityId)} ${source.kind} ${t}: ${reason}`);
       dispatch({ t });
     };
-    const cb: DriverCallbacks = {
+    const watchdogMs = opts.watchdogMs ?? WATCHDOG_MS[source.kind];
+    let played = false;
+    // The watchdog runs once a view shows the stream: with none on screen, nothing can play.
+    const arm = () => {
+      if (watchdog || played || attempt !== attemptId) return;
+      watchdog = setTimeout(
+        () =>
+          fail("watchdog", `no picture within ${watchdogMs / 1000}s${stage ? ` (${stage})` : ""}`),
+        watchdogMs,
+      );
+    };
+
+    const kind = source.kind === "webrtc" || source.kind === "hls" ? source.kind : "image";
+    const isVideo = kind !== "image";
+    const url = !isVideo && source.url ? hassMediaUrl(source.url) : undefined;
+    const [src, setSrc] = createSignal(url);
+    if (!isVideo && !url) {
+      fail("error", `no ${source.kind} url`);
+      return;
+    }
+    const refreshMs = untrack(opts.refreshMs);
+    if (source.kind === "snapshot" && url && refreshMs > 0) {
+      const separator = url.includes("?") ? "&" : "?";
+      refresh = setInterval(() => setSrc(`${url}${separator}_ts=${Date.now()}`), refreshMs);
+    }
+
+    const restart = () => {
+      if (untrack(state).status === "live") dispatch({ t: "stale" });
+      else setRestarts((v) => v + 1);
+    };
+    const views = isVideo ? viewsOf(attempt, restart) : () => () => {};
+    setVideo({
+      id: attempt,
+      entityId: untrack(opts.entityId),
+      kind,
+      src,
       onLive: () => {
         if (attempt !== attemptId) return;
-        clearWatchdog();
+        played = true;
+        if (watchdog) clearTimeout(watchdog);
+        watchdog = null;
         dispatch({ t: "live" });
       },
-      onAudio: () => {
-        if (attempt === attemptId) setHasAudio(true);
+      onAudio: (has) => {
+        if (has && attempt === attemptId) setHasAudio(true);
       },
       onError: (reason) => fail("error", reason),
       onStale: (reason) => fail("stale", reason),
-    };
-    const watchdogMs = opts.watchdogMs ?? WATCHDOG_MS[source.kind];
-    watchdog = setTimeout(() => {
-      const where = driver?.describe?.();
-      fail("watchdog", `no picture within ${watchdogMs / 1000}s${where ? ` (${where})` : ""}`);
-    }, watchdogMs);
-
-    if (source.kind === "webrtc" || source.kind === "hls") {
-      const restart = () => {
-        if (untrack(state).status === "live") dispatch({ t: "stale" });
-        else setBindVersion((v) => v + 1);
-      };
-      let shown = false;
-      let views = 0;
-      let joined = false;
-      // Views that remount in the flush that made this attempt are its first views, never late ones.
-      let fresh = true;
-      queueMicrotask(() => {
-        fresh = false;
-      });
-      setVideo({
-        entityId: untrack(opts.entityId),
-        kind: source.kind,
-        onLive: cb.onLive,
-        onAudio: (has) => {
-          if (has) cb.onAudio();
-        },
-        onError: cb.onError,
-        onStale: cb.onStale,
-        mounted: () => {
-          const alone = views === 0;
-          views++;
-          const release = () => {
-            views--;
-            if (attempt !== attemptId || !joined || views === 0) return;
-            joined = false;
-            restart();
-          };
-          if (attempt !== attemptId) return release;
-          if (!shown || fresh) {
-            shown = true;
-            return release;
-          }
-          if (alone || untrack(state).status === "live") restart();
-          else joined = true;
-          return release;
-        },
-      });
-    } else if (el) {
-      driver =
-        source.kind === "mjpeg"
-          ? createMjpegDriver()
-          : createSnapshotDriver(untrack(opts.refreshMs));
-      driver.start(el, source, cb);
-    }
+      onStage: (at) => {
+        if (attempt === attemptId) stage = at;
+      },
+      mounted: () => {
+        arm();
+        // Each view of an image loads its own picture; a WebRTC or HLS session plays to one view.
+        return views();
+      },
+    });
   };
 
   // Drive start/restart from connection state; never start twice for one session.
@@ -187,28 +199,17 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
 
   const attemptKey = createMemo(() => {
     const s = state();
-    const version = bindVersion();
+    const version = restarts();
     if (s.status === "offline" || s.status === "no-signal") return "stop";
     return `${s.gen}:${version}`;
   });
 
   createEffect(() => {
-    const key = attemptKey();
-    if (key === "stop") {
-      stopDriver();
-      clearWatchdog();
-      setHasAudio(false);
-      return;
-    }
-    activate();
+    if (attemptKey() === "stop") stop();
+    else activate();
   });
 
-  const dispose = () => {
-    stopDriver();
-    clearWatchdog();
-    setHasAudio(false);
-  };
-  onCleanup(dispose);
+  onCleanup(stop);
 
   return {
     status: () => state().status,
@@ -221,7 +222,6 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     nonce: () => state().nonce,
     video,
     retry: () => dispatch({ t: "retry" }),
-    bindEl,
-    dispose,
+    dispose: stop,
   };
 }

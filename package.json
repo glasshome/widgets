@@ -24,7 +24,7 @@
     "@iconify-icon/solid": "^3.0.3"
   },
   "devDependencies": {
-    "@glasshome/widget-sdk": "1.31.1",
+    "@glasshome/widget-sdk": "1.32.1",
     "@solidjs/testing-library": "^0.8.10",
     "@types/bun": "^1.4.0",
     "fallow": "3.17.0",
@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "@glasshome/ui": "1.37.0",
-    "@glasshome/widget-sdk": "1.31.1",
+    "@glasshome/widget-sdk": "1.32.1",
     "solid-js": "^1.9.11"
   }
 }

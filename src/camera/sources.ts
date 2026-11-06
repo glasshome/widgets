@@ -1,5 +1,4 @@
 export type SourceKind = "webrtc" | "hls" | "mjpeg" | "snapshot";
-export type VideoKind = Extract<SourceKind, "webrtc" | "hls">;
 export type StreamEngine = "auto" | SourceKind;
 
 export interface CameraSource {

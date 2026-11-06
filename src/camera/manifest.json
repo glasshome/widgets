@@ -10,7 +10,7 @@
     "w": 12,
     "h": 10
   },
-  "sdkVersion": "^1.31.1",
+  "sdkVersion": "^1.32.0",
   "version": "1.2.0",
   "capabilities": [
     {
