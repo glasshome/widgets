@@ -124,11 +124,16 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       dispatch({ t });
     };
     const watchdogMs = opts.watchdogMs ?? WATCHDOG_MS[source.kind];
-    watchdog = setTimeout(
-      () =>
-        fail("watchdog", `no picture within ${watchdogMs / 1000}s${stage ? ` (${stage})` : ""}`),
-      watchdogMs,
-    );
+    let played = false;
+    // The watchdog runs once a view shows the stream: with none on screen, nothing can play.
+    const arm = () => {
+      if (watchdog || played || attempt !== attemptId) return;
+      watchdog = setTimeout(
+        () =>
+          fail("watchdog", `no picture within ${watchdogMs / 1000}s${stage ? ` (${stage})` : ""}`),
+        watchdogMs,
+      );
+    };
 
     const kind = source.kind === "webrtc" || source.kind === "hls" ? source.kind : "image";
     const isVideo = kind !== "image";
@@ -148,6 +153,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       if (untrack(state).status === "live") dispatch({ t: "stale" });
       else setRestarts((v) => v + 1);
     };
+    const views = isVideo ? viewsOf(attempt, restart) : () => () => {};
     setVideo({
       id: attempt,
       entityId: untrack(opts.entityId),
@@ -155,6 +161,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       src,
       onLive: () => {
         if (attempt !== attemptId) return;
+        played = true;
         if (watchdog) clearTimeout(watchdog);
         watchdog = null;
         dispatch({ t: "live" });
@@ -167,8 +174,11 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
       onStage: (at) => {
         if (attempt === attemptId) stage = at;
       },
-      // Each view of an image loads its own picture; a WebRTC or HLS session plays to one view.
-      mounted: isVideo ? viewsOf(attempt, restart) : () => () => {},
+      mounted: () => {
+        arm();
+        // Each view of an image loads its own picture; a WebRTC or HLS session plays to one view.
+        return views();
+      },
     });
   };
 
