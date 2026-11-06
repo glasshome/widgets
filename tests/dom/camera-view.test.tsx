@@ -1,9 +1,9 @@
 import { fireEvent, render } from "@solidjs/testing-library";
-import { createSignal } from "solid-js";
+import { createRoot, createSignal } from "solid-js";
 import { describe, expect, test } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
 import { CameraLiveView } from "../../src/camera/live-view";
-import type { CameraPlayer } from "../../src/camera/create-player";
+import { type CameraPlayer, createCameraPlayer } from "../../src/camera/create-player";
 import type { PlayerStatus } from "../../src/camera/player";
 
 function fakePlayer(hasAudio: boolean) {
@@ -13,6 +13,15 @@ function fakePlayer(hasAudio: boolean) {
     activeKind: () => "webrtc",
     hasAudio: () => hasAudio,
     nonce: () => 0,
+    video: () => ({
+      entityId: "camera.front_door",
+      kind: "webrtc",
+      onLive: () => {},
+      onAudio: () => {},
+      onError: () => {},
+      onStale: () => {},
+      mounted: () => () => {},
+    }),
     // test-change-ok retry is the player double's method, not a test retry
     retry: () => {},
     bindEl: () => {},
@@ -66,6 +75,95 @@ describe("camera sound", () => {
     expect(sound()).not.toBeNull();
     setStatus("no-signal");
     expect(sound()).toBeNull();
+  });
+});
+
+describe("camera player", () => {
+  function videoPlayer() {
+    return createRoot((dispose) => {
+      const player = createCameraPlayer({
+        entityId: () => "camera.front_door",
+        sources: () => [{ kind: "webrtc" }, { kind: "hls" }],
+        offline: () => false,
+        refreshMs: () => 10_000,
+      });
+      return { player, dispose };
+    });
+  }
+
+  const settled = () => Promise.resolve();
+
+  test("a second view of a live stream reconnects with a fresh attempt", async () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted()();
+    first?.onLive();
+    expect(player.status()).toBe("live");
+    await settled();
+
+    first?.mounted();
+    expect(player.status()).toBe("reconnecting");
+    const second = player.video();
+    expect(second).not.toBe(first);
+    expect(second?.kind).toBe("webrtc");
+    dispose();
+  });
+
+  test("a later view of a connecting stream no view holds starts a fresh attempt on the same source", async () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted()();
+    await settled();
+    first?.mounted();
+    expect(player.status()).toBe("connecting");
+    expect(player.video()).not.toBe(first);
+    expect(player.video()?.kind).toBe("webrtc");
+    dispose();
+  });
+
+  test("a view joining a connecting stream gets a fresh attempt once the other view leaves", async () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    const sheet = first?.mounted();
+    await settled();
+    first?.mounted();
+    expect(player.video()).toBe(first);
+
+    sheet?.();
+    expect(player.status()).toBe("connecting");
+    expect(player.video()).not.toBe(first);
+    dispose();
+  });
+
+  test("two views remounting a live stream restart it once, and the closing view leaves it alone", async () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted();
+    first?.onLive();
+    await settled();
+    first?.mounted();
+    const second = player.video();
+    expect(second).not.toBe(first);
+
+    const sheet = second?.mounted();
+    second?.mounted();
+    await settled();
+    sheet?.();
+    expect(player.video()).toBe(second);
+    expect(player.status()).toBe("reconnecting");
+    dispose();
+  });
+
+  test("a stale attempt's view changes nothing", () => {
+    const { player, dispose } = videoPlayer();
+    const first = player.video();
+    first?.mounted();
+    first?.onError("no route");
+    const second = player.video();
+    expect(second?.kind).toBe("hls");
+    first?.mounted();
+    expect(player.video()).toBe(second);
+    dispose();
   });
 });
 

@@ -37,10 +37,9 @@ describe("resolveSources", () => {
     );
   });
 
-  test("hls source is fetch-deferred, webrtc needs only an entity id", () => {
+  test("webrtc and hls need only an entity id", () => {
     const list = resolveSources({ entityId: "camera.cam" }, "auto");
     expect(list.map((s) => s.kind)).toEqual(["webrtc", "hls"]);
-    expect(list.find((s) => s.kind === "hls")?.needsFetch).toBe(true);
   });
 
   test("a pinned engine leads and falls only to the lighter kinds below it", () => {

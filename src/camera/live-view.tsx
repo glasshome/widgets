@@ -1,6 +1,6 @@
 import { Button, type PanelFact, PanelFacts } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { type Accessor, createSignal, onCleanup, onMount, type Setter, Show } from "solid-js";
+import { type Accessor, type Setter, Show } from "solid-js";
 import { CameraView } from "./camera-view";
 import type { CameraPlayer } from "./create-player";
 import type { SourceKind } from "./sources";
@@ -25,24 +25,6 @@ export function CameraLiveView(props: {
   setMuted: Setter<boolean>;
   facts: Accessor<CameraFacts>;
 }) {
-  let stage!: HTMLDivElement;
-  const [fullscreen, setFullscreen] = createSignal(false);
-  const canFullscreen = typeof document !== "undefined" && document.fullscreenEnabled;
-
-  onMount(() => {
-    const sync = () => setFullscreen(document.fullscreenElement === stage);
-    document.addEventListener("fullscreenchange", sync);
-    onCleanup(() => {
-      document.removeEventListener("fullscreenchange", sync);
-      if (document.fullscreenElement === stage) void document.exitFullscreen();
-    });
-  });
-
-  const toggleFullscreen = () => {
-    if (fullscreen()) void document.exitFullscreen();
-    else void stage.requestFullscreen();
-  };
-
   const lost = () => {
     const s = props.player.status();
     return s === "no-signal" || s === "offline";
@@ -73,10 +55,7 @@ export function CameraLiveView(props: {
 
   return (
     <div class="flex flex-col gap-4">
-      <div
-        ref={stage}
-        class="relative aspect-video w-full overflow-hidden rounded-xl bg-black [&:fullscreen]:rounded-none"
-      >
+      <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
         <CameraView
           player={props.player}
           poster={props.poster}
@@ -85,29 +64,13 @@ export function CameraLiveView(props: {
           muted={props.muted}
           setMuted={props.setMuted}
           variant="live"
+          fullscreen
           actions={
-            <>
-              <Show when={lost()}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label="Retry"
-                  onClick={props.player.retry}
-                >
-                  <Icon icon="mdi:refresh" width={18} />
-                </Button>
-              </Show>
-              <Show when={canFullscreen}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={fullscreen() ? "Exit full screen" : "Full screen"}
-                  onClick={toggleFullscreen}
-                >
-                  <Icon icon={fullscreen() ? "mdi:fullscreen-exit" : "mdi:fullscreen"} width={18} />
-                </Button>
-              </Show>
-            </>
+            <Show when={lost()}>
+              <Button variant="outline" size="icon" aria-label="Retry" onClick={props.player.retry}>
+                <Icon icon="mdi:refresh" width={18} />
+              </Button>
+            </Show>
           }
         />
       </div>

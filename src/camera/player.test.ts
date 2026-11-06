@@ -10,7 +10,7 @@ import type { CameraSource } from "./sources";
 
 const SOURCES: CameraSource[] = [
   { kind: "webrtc" },
-  { kind: "hls", needsFetch: true },
+  { kind: "hls" },
   { kind: "mjpeg", url: "/m" },
   { kind: "snapshot", url: "/s" },
 ];
