@@ -40,7 +40,6 @@ const WHITES: White[] = [
   { id: "cool", label: "Cool white", kelvin: 6000, color: "#dfeeff", hue: 214, saturation: 28 },
 ];
 
-/* Colours offered before the household has picked any of its own. */
 const STARTER_COLOURS: [number, number][] = [
   [5, 70],
   [330, 62],
@@ -59,9 +58,7 @@ export const effectsOf = (e: EntityView) =>
 
 const hsCss = (h: number, s: number) => parseColor(`hsb(${h}, ${s}%, 100%)`).toString("css");
 
-const RecentColoursSchema = z
-  .array(z.tuple([z.number().finite(), z.number().finite()]))
-  .max(RECENT_MAX);
+const RecentColoursSchema = z.array(z.tuple([z.number(), z.number()])).max(RECENT_MAX);
 
 function rememberColour(hs: [number, number], list: [number, number][]): [number, number][] {
   const near = (a: [number, number]) => Math.abs(a[0] - hs[0]) < 8 && Math.abs(a[1] - hs[1]) < 8;
