@@ -1,9 +1,14 @@
 import { fireEvent, render } from "@solidjs/testing-library";
 import { createRoot, createSignal } from "solid-js";
-import { describe, expect, test } from "vitest";
+import { useFakeTime } from "@glasshome/ui/testing";
+import { describe, expect, test, vi } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
 import { CameraLiveView } from "../../src/camera/live-view";
-import { type CameraPlayer, createCameraPlayer } from "../../src/camera/create-player";
+import {
+  type CameraPlayer,
+  createCameraPlayer,
+  WATCHDOG_MS,
+} from "../../src/camera/create-player";
 import type { PlayerStatus } from "../../src/camera/player";
 
 function fakePlayer(hasAudio: boolean) {
@@ -163,6 +168,102 @@ describe("camera player", () => {
     expect(second?.kind).toBe("hls");
     first?.mounted();
     expect(player.video()).toBe(second);
+    dispose();
+  });
+});
+
+describe("camera full screen", () => {
+  const REFRESH_MS = 10_000;
+
+  function imagePlayer(kind: "mjpeg" | "snapshot", url: string) {
+    return createRoot((dispose) => {
+      const player = createCameraPlayer({
+        entityId: () => "camera.front_door",
+        sources: () => [{ kind, url }],
+        offline: () => false,
+        refreshMs: () => REFRESH_MS,
+      });
+      return { player, dispose };
+    });
+  }
+
+  test("an MJPEG camera plays through the camera stream, where full screen lives", () => {
+    const { player, dispose } = imagePlayer(
+      "mjpeg",
+      "/api/camera_proxy_stream/camera.front_door?token=t",
+    );
+    const stream = player.video();
+    expect(stream?.kind).toBe("image");
+    expect(stream?.src()).toBe("/api/camera_proxy_stream/camera.front_door?token=t");
+    dispose();
+  });
+
+  test("a snapshot camera refreshes its picture in place, on the same stream", async () => {
+    useFakeTime();
+    const { player, dispose } = imagePlayer("snapshot", "/api/camera_proxy/camera.front_door?token=t");
+    const stream = player.video();
+    const first = stream?.src();
+    expect(first).toBe("/api/camera_proxy/camera.front_door?token=t");
+    stream?.onLive();
+    await vi.advanceTimersByTimeAsync(REFRESH_MS);
+    expect(player.video()).toBe(stream);
+    expect(stream?.src()).toMatch(/^\/api\/camera_proxy\/camera\.front_door\?token=t&_ts=\d+$/);
+    dispose();
+  });
+
+  test("a reconnect restarts the stream in place, so a full screen picture stays", () => {
+    const attempt = (id: number) => ({
+      id,
+      entityId: "camera.front_door",
+      kind: "webrtc" as const,
+      src: () => undefined,
+      onLive: () => {},
+      onAudio: () => {},
+      onError: () => {},
+      onStale: () => {},
+      onStage: () => {},
+      mounted: () => () => {},
+    });
+    const [video, setVideo] = createSignal(attempt(1));
+    const player: CameraPlayer = { ...fakePlayer(false).player, video };
+    const [muted, setMuted] = createSignal(true);
+    const view = render(() => (
+      <CameraView
+        player={player}
+        poster={() => undefined}
+        name={() => "Front Door"}
+        active={() => true}
+        muted={muted}
+        setMuted={setMuted}
+        variant="live"
+        fullscreen
+      />
+    ));
+    const before = view.container.querySelector("video");
+    expect(before).not.toBeNull();
+    setVideo(attempt(2));
+    expect(view.container.querySelector("video")).toBe(before);
+  });
+
+  test("the watchdog names where a stream that never played stands", async () => {
+    useFakeTime();
+    const warned: string[] = [];
+    const { player, dispose } = createRoot((dispose) => ({
+      player: createCameraPlayer({
+        entityId: () => "camera.front_door",
+        sources: () => [{ kind: "webrtc" }, { kind: "hls" }],
+        offline: () => false,
+        refreshMs: () => REFRESH_MS,
+        warn: (message) => warned.push(message),
+      }),
+      dispose,
+    }));
+    player.video()?.onStage("stage home assistant answer, connection new");
+    await vi.advanceTimersByTimeAsync(WATCHDOG_MS.webrtc);
+    expect(warned).toEqual([
+      "[camera] camera.front_door webrtc watchdog: no picture within 20s (stage home assistant answer, connection new)",
+    ]);
+    expect(player.video()?.kind).toBe("hls");
     dispose();
   });
 });
