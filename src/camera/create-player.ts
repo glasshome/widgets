@@ -28,7 +28,7 @@ interface VideoAttempt {
   onAudio: (has: boolean) => void;
   onError: (reason: string) => void;
   onStale: (reason: string) => void;
-  /** A view showed this attempt's stream; returns its release. A later view restarts a live attempt, or one no view holds. */
+  /** A view showed this attempt's stream; returns its release. A later view gets a fresh attempt once it plays alone. */
   mounted: () => () => void;
 }
 
@@ -121,8 +121,18 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     }, watchdogMs);
 
     if (source.kind === "webrtc" || source.kind === "hls") {
+      const restart = () => {
+        if (untrack(state).status === "live") dispatch({ t: "stale" });
+        else setBindVersion((v) => v + 1);
+      };
       let shown = false;
       let views = 0;
+      let joined = false;
+      // Views that remount in the flush that made this attempt are its first views, never late ones.
+      let fresh = true;
+      queueMicrotask(() => {
+        fresh = false;
+      });
       setVideo({
         entityId: untrack(opts.entityId),
         kind: source.kind,
@@ -133,19 +143,21 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
         onError: cb.onError,
         onStale: cb.onStale,
         mounted: () => {
-          const release = () => {
-            views--;
-          };
-          if (attempt !== attemptId) return release;
           const alone = views === 0;
           views++;
-          if (!shown) {
+          const release = () => {
+            views--;
+            if (attempt !== attemptId || !joined || views === 0) return;
+            joined = false;
+            restart();
+          };
+          if (attempt !== attemptId) return release;
+          if (!shown || fresh) {
             shown = true;
             return release;
           }
-          // Views sharing a connecting attempt join it; restarting there would loop them.
-          if (untrack(state).status === "live") dispatch({ t: "stale" });
-          else if (alone) setBindVersion((v) => v + 1);
+          if (alone || untrack(state).status === "live") restart();
+          else joined = true;
           return release;
         },
       });

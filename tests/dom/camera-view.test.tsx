@@ -91,12 +91,15 @@ describe("camera player", () => {
     });
   }
 
-  test("a second view of a live stream reconnects with a fresh attempt", () => {
+  const settled = () => Promise.resolve();
+
+  test("a second view of a live stream reconnects with a fresh attempt", async () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
     first?.mounted()();
     first?.onLive();
     expect(player.status()).toBe("live");
+    await settled();
 
     first?.mounted();
     expect(player.status()).toBe("reconnecting");
@@ -106,10 +109,11 @@ describe("camera player", () => {
     dispose();
   });
 
-  test("a later view of a connecting stream no view holds starts a fresh attempt on the same source", () => {
+  test("a later view of a connecting stream no view holds starts a fresh attempt on the same source", async () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
     first?.mounted()();
+    await settled();
     first?.mounted();
     expect(player.status()).toBe("connecting");
     expect(player.video()).not.toBe(first);
@@ -117,26 +121,34 @@ describe("camera player", () => {
     dispose();
   });
 
-  test("a view joining a connecting stream another view holds starts nothing", () => {
+  test("a view joining a connecting stream gets a fresh attempt once the other view leaves", async () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
-    first?.mounted();
+    const sheet = first?.mounted();
+    await settled();
     first?.mounted();
     expect(player.video()).toBe(first);
+
+    sheet?.();
+    expect(player.status()).toBe("connecting");
+    expect(player.video()).not.toBe(first);
     dispose();
   });
 
-  test("two views that both remount on the fresh attempt restart it once", () => {
+  test("two views remounting a live stream restart it once, and the closing view leaves it alone", async () => {
     const { player, dispose } = videoPlayer();
     const first = player.video();
     first?.mounted();
     first?.onLive();
+    await settled();
     first?.mounted();
     const second = player.video();
     expect(second).not.toBe(first);
 
+    const sheet = second?.mounted();
     second?.mounted();
-    second?.mounted();
+    await settled();
+    sheet?.();
     expect(player.video()).toBe(second);
     expect(player.status()).toBe("reconnecting");
     dispose();
