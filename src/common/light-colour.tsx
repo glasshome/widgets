@@ -7,12 +7,13 @@ import {
   SwatchPicker,
   TemperatureBar,
   useService,
+  useWidgetState,
+  z,
 } from "@glasshome/widget-sdk";
 import { createEffect, createSignal, on, Show } from "solid-js";
 
 const COLOUR_MODES = ["hs", "rgb", "xy", "rgbw", "rgbww"];
 const EFFECT_FEATURE = 4;
-const RECENT_KEY = "glasshome.light.recent-colours";
 const RECENT_MAX = 4;
 
 interface White {
@@ -58,32 +59,17 @@ export const effectsOf = (e: EntityView) =>
 
 const hsCss = (h: number, s: number) => parseColor(`hsb(${h}, ${s}%, 100%)`).toString("css");
 
-function readRecent(): [number, number][] {
-  try {
-    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
-    const hs = (v: unknown): v is [number, number] =>
-      Array.isArray(v) &&
-      v.length === 2 &&
-      v.every((n) => typeof n === "number" && Number.isFinite(n));
-    return Array.isArray(raw) ? raw.filter(hs).slice(0, RECENT_MAX) : [];
-  } catch {
-    return [];
-  }
-}
+const RecentColoursSchema = z
+  .array(z.tuple([z.number().finite(), z.number().finite()]))
+  .max(RECENT_MAX);
 
 function rememberColour(hs: [number, number], list: [number, number][]): [number, number][] {
   const near = (a: [number, number]) => Math.abs(a[0] - hs[0]) < 8 && Math.abs(a[1] - hs[1]) < 8;
-  const next = [hs, ...list.filter((c) => !near(c))].slice(0, RECENT_MAX);
-  try {
-    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
-  } catch {
-    // A browser without storage keeps the colours for this visit only.
-  }
-  return next;
+  return [hs, ...list.filter((c) => !near(c))].slice(0, RECENT_MAX);
 }
 
 /**
- * Colour for a set of lamps, the same on every sheet: presets (whites and this screen's recent colours),
+ * Colour for a set of lamps, the same on every sheet: presets (whites and the colours this person picked here last),
  * a white bar over the lamps' Kelvin span, a disc for lamps that take colour, and a line when colour
  * reaches only some of them. Whites go as a temperature where a lamp takes one.
  */
@@ -97,7 +83,7 @@ export function LightColour(props: { lamps: EntityView[] }) {
   };
   const ids = (list: EntityView[]) => list.map((e) => e.id);
 
-  const [recent, setRecent] = createSignal(readRecent());
+  const [recent, setRecent] = useWidgetState("recentColours", RecentColoursSchema, []);
   const colours = () => (recent().length ? recent() : STARTER_COLOURS);
   const [active, setActive] = createSignal<string>();
 
