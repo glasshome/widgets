@@ -7,6 +7,12 @@
   font-variant-numeric: tabular-nums;
   color: var(--muted-foreground);
 }
+.glasshome-widget-grid:has(> .glasshome-widget-backdrop) .media-volume {
+  color: oklch(0.88 0.01 80);
+}
+.dark .glasshome-widget-grid:has(> .glasshome-widget-backdrop) .media-volume {
+  color: var(--muted-foreground);
+}
 .glasshome-widget-backdrop > img.media-backdrop {
   inset: -12%;
   width: 124%;
