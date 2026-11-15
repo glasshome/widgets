@@ -46,6 +46,16 @@
   background:
     linear-gradient(
       to top,
+      oklch(0.16 0.01 60 / 0.72) 0%,
+      oklch(0.16 0.01 60 / 0.48) 50%,
+      transparent 74%
+    ),
+    linear-gradient(to bottom, oklch(0.16 0.01 60 / 0.45) 0%, transparent 32%);
+}
+.dark .sky-scrim {
+  background:
+    linear-gradient(
+      to top,
       color-mix(in oklch, var(--card) 72%, transparent) 0%,
       color-mix(in oklch, var(--card) 48%, transparent) 50%,
       transparent 74%
