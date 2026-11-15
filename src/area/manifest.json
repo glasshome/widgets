@@ -10,8 +10,8 @@
     "w": 8,
     "h": 8
   },
-  "sdkVersion": "^1.32.1",
-  "version": "1.2.1",
+  "sdkVersion": "^1.32.2",
+  "version": "1.2.2",
   "defaultSize": {
     "w": 3,
     "h": 3
