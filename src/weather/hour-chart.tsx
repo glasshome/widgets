@@ -9,6 +9,8 @@ const RAIN_DEPTHS = [
   { name: "near", columns: 2, period: 21, length: 8, seconds: 0.89, salt: 4.1414 },
 ];
 
+const EMPTY_HOUR: WeatherForecast = { datetime: "" };
+
 /**
  * The next hours as the shape of the day: a curve rising from the bottom edge, temperatures
  * along it, an icon only where the sky changes, rain chance as a blue tint under the line.
@@ -57,9 +59,12 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
     return i % every === 0 || (i === last && i % every > every / 2);
   };
   // Icons ride on the labelled hours only, so a sky that flips every hour cannot crowd the labels.
+  const labelledHours = createMemo(() => props.hours.flatMap((_, i) => (labelled(i) ? [i] : [])));
   const changes = createMemo(() => {
-    const marked = props.hours.flatMap((h, i) => (labelled(i) ? [{ h, i }] : []));
-    return new Set(skyChanges(marked.map((m) => m.h)).map((k) => marked[k]?.i));
+    const marked = labelledHours();
+    return new Set(
+      skyChanges(marked.map((i) => props.hours[i] ?? EMPTY_HOUR)).map((k) => marked[k]),
+    );
   });
 
   return (
@@ -120,10 +125,11 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
         <path d={line()} class="wx-chart-halo" />
         <path d={line()} class="wx-chart-line" stroke="url(#wx-chart-ink)" />
       </svg>
-      <Index each={props.hours}>
-        {(h, i) => (
-          <>
-            <Show when={labelled(i)}>
+      <For each={labelledHours()}>
+        {(i) => {
+          const h = () => props.hours[i] ?? EMPTY_HOUR;
+          return (
+            <>
               <span
                 class="wx-chart-point"
                 data-edge={edge(i)}
@@ -141,15 +147,13 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
                   <span class="wx-temp">{formatTemp(h().temperature ?? 0)}</span>
                 </span>
               </span>
-            </Show>
-            <Show when={labelled(i)}>
               <span class="wx-chart-time wx-label" data-edge={edge(i)} style={{ left: `${x(i)}%` }}>
                 {hourName(h().datetime, i)}
               </span>
-            </Show>
-          </>
-        )}
-      </Index>
+            </>
+          );
+        }}
+      </For>
     </div>
   );
 }
