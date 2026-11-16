@@ -122,4 +122,19 @@ describe("HeaderChips", () => {
     if (reading) fireEvent.click(reading);
     expect(runs).toEqual([]);
   });
+
+  test("a position that changes kind carries the attributes of a chip mounted as that kind", () => {
+    const attributes = (node: Element | undefined) =>
+      Object.fromEntries([...(node?.attributes ?? [])].map((a) => [a.name, a.value]));
+    const freshReading = attributes(mount([temperature("21°")]).nodes()[0]);
+    const freshAction = attributes(mount([lights("3")]).nodes()[0]);
+
+    const toReading = mount([lights("3")]);
+    toReading.setChips([temperature("21°")]);
+    expect(attributes(toReading.nodes()[0])).toEqual(freshReading);
+
+    const toAction = mount([temperature("21°")]);
+    toAction.setChips([lights("3")]);
+    expect(attributes(toAction.nodes()[0])).toEqual(freshAction);
+  });
 });
