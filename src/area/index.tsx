@@ -71,10 +71,8 @@ function AreaWidget(props: { config: AreaConfig }) {
   const visibleArea = createMemo(() => {
     const a = area();
     if (!a) return undefined;
-    return {
-      ...a,
-      entities: excludeEntities(a.entities, props.config.exclude),
-    };
+    const { entities, ...rest } = a;
+    return { ...rest, entities: excludeEntities(entities, props.config.exclude) };
   });
 
   const groups = createMemo(() => groupEntitiesByDomain(visibleArea()?.entities ?? []));

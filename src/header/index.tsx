@@ -1,5 +1,4 @@
 import {
-  Button,
   byDomain,
   defineWidget,
   Icon,
@@ -15,8 +14,9 @@ import {
   WidgetDialog,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { HeaderChips } from "./chips";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
 import { greetingForHour, hourIn } from "./greeting";
 import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
@@ -91,34 +91,12 @@ function HeaderWidget(props: { config: HeaderConfig }) {
       chips().slice(0, visibleCount(dimensions().width, chips().length)),
     );
     return (
-      <div class="header-chips">
-        <For each={shown()}>
-          {(chip) => (
-            <Button
-              as={chip.service ? "button" : "span"}
-              variant="outline"
-              size="none"
-              type={chip.service ? "button" : undefined}
-              class={`header-chip ${chip.service ? "" : "cursor-default"}`}
-              aria-label={chip.label}
-              onClick={() => {
-                if (chip.service)
-                  void callService(
-                    chip.service.domain,
-                    chip.service.name,
-                    {},
-                    { entity_id: chip.ids },
-                  );
-              }}
-            >
-              <Icon icon={chip.icon} width={18} height={18} class={chip.tone} />
-              <Show when={chip.value}>
-                <span class="header-chip-value">{chip.value}</span>
-              </Show>
-            </Button>
-          )}
-        </For>
-      </div>
+      <HeaderChips
+        chips={shown()}
+        run={(service, ids) =>
+          void callService(service.domain, service.name, {}, { entity_id: ids })
+        }
+      />
     );
   };
 

@@ -80,6 +80,11 @@ export function formatDegrees(value: number): string {
   return String(Math.round(value)).replace("-", "\u2212");
 }
 
+export function hourName(datetime: string, index: number): string {
+  if (index === 0) return "Now";
+  return new Date(datetime).toLocaleTimeString(undefined, { hour: "numeric" });
+}
+
 export function formatWindSpeed(value: number | string, unit = "km/h"): string {
   const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(num)) return "--";
