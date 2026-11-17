@@ -204,7 +204,7 @@
   height: 100%;
   overflow: visible;
   will-change: transform;
-  animation: wx-drop var(--wx-drop-t) linear infinite var(--wx-play);
+  animation: wx-drop var(--wx-drop-t) steps(var(--wx-steps)) infinite var(--wx-play);
 }
 .wx-chart-drops line {
   stroke: var(--wx-rain-ink);
