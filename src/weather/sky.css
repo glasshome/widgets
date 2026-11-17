@@ -44,7 +44,7 @@
 .wx-sky-photo[data-drift] {
   left: -14%;
   width: 128%;
-  animation: wx-clouds 60s steps(60) infinite alternate var(--wx-play);
+  animation: wx-clouds 60s steps(720) infinite alternate var(--wx-play);
 }
 .dark :is(.wx-sky-photo, .wx-land) {
   filter: brightness(0.72);
