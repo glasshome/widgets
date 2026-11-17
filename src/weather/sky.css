@@ -44,7 +44,7 @@
 .wx-sky-photo[data-drift] {
   left: -14%;
   width: 128%;
-  animation: wx-clouds 60s ease-in-out infinite alternate var(--wx-play);
+  animation: wx-clouds 60s steps(720) infinite alternate var(--wx-play);
 }
 .dark :is(.wx-sky-photo, .wx-land) {
   filter: brightness(0.72);
@@ -292,25 +292,27 @@
   top: calc(-1 * var(--wx-tile) - 14%);
   bottom: -14%;
   rotate: 8deg;
-  animation: wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+  animation: wx-fall var(--wx-dur) steps(var(--wx-steps)) var(--wx-delay, 0s) infinite
+    var(--wx-play);
 }
 .wx-fall.wx-gusty {
   animation:
-    wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play),
-    wx-gust var(--wx-gust) ease-in-out var(--wx-delay, 0s) infinite var(--wx-play);
+    wx-fall var(--wx-dur) steps(var(--wx-steps)) var(--wx-delay, 0s) infinite var(--wx-play),
+    wx-gust var(--wx-gust) steps(6) var(--wx-delay, 0s) infinite var(--wx-play);
 }
 .wx-drift {
   top: 0;
   bottom: 0;
   left: calc(-1 * var(--wx-tile));
   right: 0;
-  animation: wx-drift var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+  animation: wx-drift var(--wx-dur) steps(var(--wx-steps)) var(--wx-delay, 0s) infinite
+    var(--wx-play);
 }
 .wx-fall.wx-sway {
   rotate: none;
   animation:
-    wx-fall var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play),
-    wx-sway var(--wx-gust, 5s) ease-in-out var(--wx-delay, 0s) infinite var(--wx-play);
+    wx-fall var(--wx-dur) steps(var(--wx-steps)) var(--wx-delay, 0s) infinite var(--wx-play),
+    wx-sway var(--wx-gust, 5s) steps(6) var(--wx-delay, 0s) infinite var(--wx-play);
 }
 .wx-fog {
   left: 0;
@@ -326,7 +328,7 @@
     )
     0 0 / 50% 100% repeat-x;
   mask-image: linear-gradient(to top, black 30%, transparent 85%);
-  animation: wx-fog var(--wx-dur) linear var(--wx-delay, 0s) infinite var(--wx-play);
+  animation: wx-fog var(--wx-dur) steps(var(--wx-steps)) var(--wx-delay, 0s) infinite var(--wx-play);
 }
 .wx-fog-back {
   top: -12%;

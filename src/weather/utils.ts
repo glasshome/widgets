@@ -97,3 +97,15 @@ const STORMY = new Set(["rainy", "pouring", "lightning", "lightning-rainy", "hai
 export function isStormy(condition: string): boolean {
   return STORMY.has(condition);
 }
+
+const AMBIENT_FPS = 12;
+
+/** A loop that steps on one shared frame grid, so every loop in a card repaints on the same frames. */
+export function ambientLoop(seconds: number, offset = 0) {
+  const steps = Math.max(1, Math.round(seconds * AMBIENT_FPS));
+  return {
+    steps,
+    seconds: steps / AMBIENT_FPS,
+    delay: -Math.round(offset * steps) / AMBIENT_FPS,
+  };
+}

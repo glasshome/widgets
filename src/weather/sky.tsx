@@ -10,6 +10,7 @@ import skyClear from "./assets/sky-clear.webp";
 import skyCumulus from "./assets/sky-cumulus.webp";
 import skyOvercast from "./assets/sky-overcast.webp";
 import "./sky.css";
+import { ambientLoop } from "./utils";
 
 type Motion = "fall" | "drift";
 
@@ -232,20 +233,24 @@ export function WeatherSky(props: { condition: string; wintry: boolean }) {
       <img src={photos().near} alt="" class="wx-land" />
       <div class="wx-grade" />
       <For each={layers()}>
-        {(layer) => (
-          <div
-            class={[`wx-${layer.motion}`, layer.gust ? "wx-gusty" : "", layer.class ?? ""]
-              .join(" ")
-              .trim()}
-            style={{
-              "background-image": layer.image || undefined,
-              "--wx-tile": `${layer.size}px`,
-              "--wx-dur": `${layer.seconds}s`,
-              "--wx-delay": `${-layer.offset * layer.seconds}s`,
-              "--wx-gust": layer.gust ? `${layer.gust}s` : undefined,
-            }}
-          />
-        )}
+        {(layer) => {
+          const loop = ambientLoop(layer.seconds, layer.offset);
+          return (
+            <div
+              class={[`wx-${layer.motion}`, layer.gust ? "wx-gusty" : "", layer.class ?? ""]
+                .join(" ")
+                .trim()}
+              style={{
+                "background-image": layer.image || undefined,
+                "--wx-tile": `${layer.size}px`,
+                "--wx-dur": `${loop.seconds}s`,
+                "--wx-delay": `${loop.delay}s`,
+                "--wx-steps": loop.steps,
+                "--wx-gust": layer.gust ? `${layer.gust}s` : undefined,
+              }}
+            />
+          );
+        }}
       </For>
       <Show when={FLASHES.has(props.condition)}>
         <div class="wx-flash" />

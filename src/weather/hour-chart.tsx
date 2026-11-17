@@ -2,7 +2,7 @@ import type { WeatherForecast } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
 import { createMemo, For, Index, Show } from "solid-js";
 import { skyChanges, smoothPath, tempColor } from "./forecast";
-import { formatTemp, getWeatherIcon, hourName } from "./utils";
+import { ambientLoop, formatTemp, getWeatherIcon, hourName } from "./utils";
 
 const RAIN_DEPTHS = [
   { name: "far", columns: 3, period: 13, length: 4, seconds: 1.37, salt: 12.9898 },
@@ -71,22 +71,34 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
     <div class="wx-chart" role="img" aria-label="Temperature over the next hours">
       <div class="wx-drops-box" style={{ "mask-image": dropMask() }}>
         <For each={drops()}>
-          {(depth) => (
-            <svg
-              class="wx-chart-drops"
-              data-depth={depth.name}
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-              style={{ "--wx-drop-p": `${depth.period}%`, "--wx-drop-t": `${depth.seconds}s` }}
-            >
-              <For each={depth.lines}>
-                {(d) => (
-                  <line x1={d.x} y1={d.y} x2={d.x - depth.length * 0.09} y2={d.y + depth.length} />
-                )}
-              </For>
-            </svg>
-          )}
+          {(depth) => {
+            const loop = ambientLoop(depth.seconds);
+            return (
+              <svg
+                class="wx-chart-drops"
+                data-depth={depth.name}
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                style={{
+                  "--wx-drop-p": `${depth.period}%`,
+                  "--wx-drop-t": `${loop.seconds}s`,
+                  "--wx-steps": loop.steps,
+                }}
+              >
+                <For each={depth.lines}>
+                  {(d) => (
+                    <line
+                      x1={d.x}
+                      y1={d.y}
+                      x2={d.x - depth.length * 0.09}
+                      y2={d.y + depth.length}
+                    />
+                  )}
+                </For>
+              </svg>
+            );
+          }}
         </For>
       </div>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
