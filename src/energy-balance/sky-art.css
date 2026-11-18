@@ -1,0 +1,14 @@
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sky-day'%20width='720'%20height='538'/%3E"] {
+  background-image: url("./assets/sky-day.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sky-dusk'%20width='720'%20height='538'/%3E"] {
+  background-image: url("./assets/sky-dusk.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sky-night'%20width='720'%20height='538'/%3E"] {
+  background-image: url("./assets/sky-night.webp");
+}
+.glasshome-widget-backdrop > .sky-photo {
+  background-position: center 70%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}

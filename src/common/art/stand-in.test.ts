@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { ART } from "../../climate/art";
+import { PYLON } from "../../electricity-grid/pylon-photo";
+import { SKY } from "../../energy-balance/sky-art";
 import { SAMPLES } from "../../picture-frame/samples";
 import curtain from "./assets/cover-curtain.art";
 import garage from "./assets/cover-garage.art";
@@ -42,6 +45,17 @@ describe("art that left the module for a stylesheet", () => {
   it.each(arts)("%s paints the picture its module names", (sheet, art) => {
     expect(art.src).toStartWith("data:image/svg+xml,");
     expectPainted(src(sheet), art.src);
+  });
+
+  const photos: [string, string][] = [
+    ...Object.values(ART).map((s): [string, string] => ["climate/art.css", s]),
+    ...Object.values(SKY).map((s): [string, string] => ["energy-balance/sky-art.css", s]),
+    ["electricity-grid/pylon-photo.css", PYLON],
+  ];
+
+  it.each(photos)("%s paints %s", (sheet, standIn) => {
+    expect(standIn).toStartWith("data:image/svg+xml,");
+    expectPainted(src(sheet), standIn);
   });
 
   it("each picture frame sample's src names a photo the sheet paints", () => {

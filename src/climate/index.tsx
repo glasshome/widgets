@@ -20,10 +20,7 @@ import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { formatTemperature, shiftBand, useThermostat, widgetDialogProps } from "../common";
 import "../common/mode-transition.css";
-import acArt from "./assets/climate-ac.webp";
-import heatpumpArt from "./assets/climate-heatpump.webp";
-import radiatorArt from "./assets/climate-radiator.webp";
-import thermostatArt from "./assets/climate-thermostat.webp";
+import { ART } from "./art";
 import "./climate.css";
 import { ClimateSheet, climateHasExtras } from "./sheet";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
@@ -48,7 +45,6 @@ const configSchema = defineConfig({
     },
   }),
 });
-const ART = { thermostat: thermostatArt, radiator: radiatorArt, ac: acArt, heatpump: heatpumpArt };
 type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {

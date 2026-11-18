@@ -1,8 +1,6 @@
 import { useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
-import dayArt from "./assets/sky-day.webp";
-import duskArt from "./assets/sky-dusk.webp";
-import nightArt from "./assets/sky-night.webp";
+import { SKY } from "./sky-art";
 import { arcPoint, skyProgress, skyScene } from "./sun-path";
 import "./sky.css";
 
@@ -36,15 +34,15 @@ export function SkyScene(props: { glow: number }) {
 
   return (
     <>
-      <img src={dayArt} alt="" class="sky-photo" />
+      <img src={SKY.day} alt="" class="sky-photo" />
       <img
-        src={duskArt}
+        src={SKY.dusk}
         alt=""
         class="sky-photo sky-layer"
         data-visible={scene() === "dusk" || undefined}
       />
       <img
-        src={nightArt}
+        src={SKY.night}
         alt=""
         class="sky-photo sky-layer"
         data-visible={scene() === "night" || undefined}
