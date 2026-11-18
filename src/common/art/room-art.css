@@ -1,0 +1,96 @@
+/* The room photos live here, outside the module the realm compiles; room.tsx names each by its stand-in src. */
+img[src^="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-"] {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-living'/%3E"] {
+  background-image: url("./assets/room-living.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-living-night-off'/%3E"] {
+  background-image: url("./assets/room-living-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-living-night-on'/%3E"] {
+  background-image: url("./assets/room-living-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bedroom'/%3E"] {
+  background-image: url("./assets/room-bedroom.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bedroom-night-off'/%3E"] {
+  background-image: url("./assets/room-bedroom-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bedroom-night-on'/%3E"] {
+  background-image: url("./assets/room-bedroom-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kitchen'/%3E"] {
+  background-image: url("./assets/room-kitchen.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kitchen-night-off'/%3E"] {
+  background-image: url("./assets/room-kitchen-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kitchen-night-on'/%3E"] {
+  background-image: url("./assets/room-kitchen-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-dining'/%3E"] {
+  background-image: url("./assets/room-dining.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-dining-night-off'/%3E"] {
+  background-image: url("./assets/room-dining-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-dining-night-on'/%3E"] {
+  background-image: url("./assets/room-dining-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bathroom'/%3E"] {
+  background-image: url("./assets/room-bathroom.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bathroom-night-off'/%3E"] {
+  background-image: url("./assets/room-bathroom-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-bathroom-night-on'/%3E"] {
+  background-image: url("./assets/room-bathroom-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-office'/%3E"] {
+  background-image: url("./assets/room-office.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-office-night-off'/%3E"] {
+  background-image: url("./assets/room-office-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-office-night-on'/%3E"] {
+  background-image: url("./assets/room-office-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-hallway'/%3E"] {
+  background-image: url("./assets/room-hallway.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-hallway-night-off'/%3E"] {
+  background-image: url("./assets/room-hallway-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-hallway-night-on'/%3E"] {
+  background-image: url("./assets/room-hallway-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kids'/%3E"] {
+  background-image: url("./assets/room-kids.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kids-night-off'/%3E"] {
+  background-image: url("./assets/room-kids-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-kids-night-on'/%3E"] {
+  background-image: url("./assets/room-kids-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garage'/%3E"] {
+  background-image: url("./assets/room-garage.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garage-night-off'/%3E"] {
+  background-image: url("./assets/room-garage-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garage-night-on'/%3E"] {
+  background-image: url("./assets/room-garage-night-on.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garden'/%3E"] {
+  background-image: url("./assets/room-garden.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garden-night-off'/%3E"] {
+  background-image: url("./assets/room-garden-night-off.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='room-garden-night-on'/%3E"] {
+  background-image: url("./assets/room-garden-night-on.webp");
+}
