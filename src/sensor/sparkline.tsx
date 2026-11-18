@@ -71,8 +71,6 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
   const [mounted, setMounted] = createSignal(false);
 
   onMount(() => {
-    setWidth(containerRef.clientWidth);
-    setHeight(containerRef.clientHeight);
     const ro = new ResizeObserver((entries) => {
       const rect = entries[0]?.contentRect;
       if (!rect) return;
