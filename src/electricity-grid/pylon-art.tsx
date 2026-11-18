@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import pylonArt from "./assets/pylon.webp";
+import { PYLON } from "./pylon-photo";
 import "./pylon-art.css";
 
 // Insulator tips in the photo's own box (0..1), left to right per arm.
@@ -35,7 +35,7 @@ export function PylonArt(props: { lowCarbonPct: number; tint: string }) {
           )}
         </For>
       </svg>
-      <img src={pylonArt} alt="" />
+      <img src={PYLON} alt="" />
     </div>
   );
 }

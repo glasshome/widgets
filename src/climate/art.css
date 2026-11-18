@@ -1,0 +1,17 @@
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='climate-thermostat'%20width='304'%20height='360'/%3E"] {
+  background-image: url("./assets/climate-thermostat.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='climate-radiator'%20width='458'%20height='360'/%3E"] {
+  background-image: url("./assets/climate-radiator.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='climate-ac'%20width='622'%20height='360'/%3E"] {
+  background-image: url("./assets/climate-ac.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='climate-heatpump'%20width='359'%20height='360'/%3E"] {
+  background-image: url("./assets/climate-heatpump.webp");
+}
+.climate-object {
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
