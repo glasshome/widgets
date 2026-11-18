@@ -10,6 +10,7 @@ import kitchenThumb from "./assets/room-kitchen-thumb.webp";
 import livingThumb from "./assets/room-living-thumb.webp";
 import officeThumb from "./assets/room-office-thumb.webp";
 import "./room-art.css";
+import { standIn } from "./stand-in";
 
 export type RoomKind =
   | "living"
@@ -35,10 +36,6 @@ export interface RoomPhotos {
   nightOff?: string;
   nightOn?: string;
 }
-
-/** An empty picture whose src names a photo; room-art.css paints that photo behind it. */
-const standIn = (asset: string) =>
-  `data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='${asset}'/%3E`;
 
 const photosOf = (kind: RoomKind): RoomPhotos => ({
   day: standIn(`room-${kind}`),

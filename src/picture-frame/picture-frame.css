@@ -17,6 +17,7 @@
 }
 .frame-photo > .frame-fill {
   object-fit: cover;
+  background-size: cover;
   filter: blur(20px) saturate(1.3) brightness(0.85);
   transform: scale(1.2);
 }

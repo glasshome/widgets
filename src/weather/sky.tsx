@@ -1,16 +1,19 @@
 import { useDaylight, useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
 import { type Accessor, createSignal, For, onCleanup, Show } from "solid-js";
-import landNight from "./assets/land-night.webp";
-import landSummer from "./assets/land-summer.webp";
-import landWinter from "./assets/land-winter.webp";
-import nearNight from "./assets/near-night.webp";
-import nearSummer from "./assets/near-summer.webp";
-import nearWinter from "./assets/near-winter.webp";
+import { standIn } from "../common/art/stand-in";
 import skyClear from "./assets/sky-clear.webp";
 import skyCumulus from "./assets/sky-cumulus.webp";
 import skyOvercast from "./assets/sky-overcast.webp";
+import "./land-art.css";
 import "./sky.css";
 import { ambientLoop } from "./utils";
+
+const landNight = standIn("wx-land-night");
+const landSummer = standIn("wx-land-summer");
+const landWinter = standIn("wx-land-winter");
+const nearNight = standIn("wx-near-night");
+const nearSummer = standIn("wx-near-summer");
+const nearWinter = standIn("wx-near-winter");
 
 type Motion = "fall" | "drift";
 

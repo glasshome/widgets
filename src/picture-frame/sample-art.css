@@ -1,0 +1,17 @@
+/* The sample photos live here, outside the module the realm compiles; samples.ts names each by its stand-in src. */
+img[src^="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sample-"] {
+  background-position: center;
+  background-repeat: no-repeat;
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sample-coast'/%3E"] {
+  background-image: url("./assets/coast.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sample-dog'/%3E"] {
+  background-image: url("./assets/dog.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sample-forest'/%3E"] {
+  background-image: url("./assets/forest.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='sample-meadow'/%3E"] {
+  background-image: url("./assets/meadow.webp");
+}
