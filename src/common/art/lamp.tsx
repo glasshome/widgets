@@ -1,12 +1,4 @@
 import { createUniqueId, For, Show } from "solid-js";
-import bulb from "./assets/lamp-bulb.webp";
-import ceiling from "./assets/lamp-ceiling.webp";
-import desk from "./assets/lamp-desk.webp";
-import floor from "./assets/lamp-floor.webp";
-import mushroom from "./assets/lamp-mushroom.webp";
-import pendant from "./assets/lamp-pendant.webp";
-import sconce from "./assets/lamp-sconce.webp";
-import table from "./assets/lamp-table.webp";
 import "./lamp.css";
 
 export type LampKind =
@@ -38,7 +30,6 @@ interface Beam {
 }
 
 interface Lamp {
-  src: string;
   w: number;
   h: number;
   emit: Emitter[];
@@ -49,7 +40,6 @@ interface Lamp {
 
 const LAMPS: Record<LampKind, Lamp> = {
   table: {
-    src: table,
     w: 247,
     h: 360,
     emit: [{ x: 50, y: 30, rx: 44, ry: 24, core: 0.9 }],
@@ -60,7 +50,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 1.6,
   },
   floor: {
-    src: floor,
     w: 91,
     h: 360,
     emit: [{ x: 50, y: 11, rx: 70, ry: 12 }],
@@ -71,7 +60,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 2.4,
   },
   pendant: {
-    src: pendant,
     w: 137,
     h: 360,
     emit: [{ x: 50, y: 85, rx: 46, ry: 16, core: 1 }],
@@ -79,7 +67,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 2.6,
   },
   desk: {
-    src: desk,
     w: 293,
     h: 360,
     emit: [{ x: 15, y: 24, rx: 12, ry: 10, core: 1 }],
@@ -87,7 +74,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 1.2,
   },
   mushroom: {
-    src: mushroom,
     w: 256,
     h: 360,
     emit: [
@@ -99,7 +85,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 1.5,
   },
   ceiling: {
-    src: ceiling,
     w: 610,
     h: 360,
     emit: [
@@ -110,7 +95,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 1.2,
   },
   sconce: {
-    src: sconce,
     w: 361,
     h: 360,
     emit: [{ x: 27, y: 34, rx: 34, ry: 40 }],
@@ -121,7 +105,6 @@ const LAMPS: Record<LampKind, Lamp> = {
     bloom: 1.4,
   },
   bulb: {
-    src: bulb,
     w: 195,
     h: 360,
     emit: [
@@ -185,11 +168,11 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
   return (
     <div
       class="lamp-art"
+      data-lamp={props.kind}
       data-on={props.on || undefined}
       style={{
         "--lamp-color": props.color,
         "--lamp-level": level(),
-        "--lamp-mask": `url("${lamp().src}")`,
         "--art-aspect": lamp().w / lamp().h,
       }}
     >
@@ -272,7 +255,7 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
           )}
         </Show>
       </svg>
-      <img src={lamp().src} alt="" draggable={false} />
+      <div class="lamp-fixture" />
       <div
         class="lamp-emit"
         style={{
