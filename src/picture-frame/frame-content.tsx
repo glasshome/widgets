@@ -10,7 +10,7 @@ export function FrameContent(props: { src: string; objectFit: PictureFit; onFail
       <img
         src={props.src}
         alt=""
-        style={{ "object-fit": props.objectFit }}
+        style={{ "object-fit": props.objectFit, "background-size": props.objectFit }}
         onError={props.onFailed}
       />
     </div>

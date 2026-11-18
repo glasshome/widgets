@@ -1,0 +1,27 @@
+/* The land photos live here, outside the module the realm compiles; sky.tsx names each by its stand-in src. */
+img[src^="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-"] {
+  background-position: center 62%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.wx-frost img[src^="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-"] {
+  background-position: center 40%;
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-land-night'/%3E"] {
+  background-image: url("./assets/land-night.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-land-summer'/%3E"] {
+  background-image: url("./assets/land-summer.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-land-winter'/%3E"] {
+  background-image: url("./assets/land-winter.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-near-night'/%3E"] {
+  background-image: url("./assets/near-night.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-near-summer'/%3E"] {
+  background-image: url("./assets/near-summer.webp");
+}
+img[src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20id='wx-near-winter'/%3E"] {
+  background-image: url("./assets/near-winter.webp");
+}
