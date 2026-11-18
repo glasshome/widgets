@@ -178,7 +178,7 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
   });
 
   return (
-    <div ref={containerRef} class="h-full w-full">
+    <div ref={containerRef} class="sensor-spark-chart">
       <svg
         width={width()}
         height={height()}
@@ -219,53 +219,63 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
 
               <For each={cd().columns}>
                 {(col) => (
-                  <>
-                    <line
-                      x1={col.x}
-                      x2={col.x}
-                      y1={
-                        Math.max(cd().labelSize, col.y - cd().labelSize * 0.9) +
-                        cd().labelSize * 0.45
-                      }
-                      y2={cd().h - cd().labelSize * 0.85 - 10}
-                      stroke="var(--muted-foreground)"
-                      stroke-width="1"
-                      stroke-dasharray="2 4"
-                      stroke-linecap="round"
-                      opacity={mounted() ? 0.45 : 0}
-                      style={reveal(true)}
-                    />
-                    <text
-                      x={col.x}
-                      y={Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}
-                      text-anchor="middle"
-                      fill="var(--foreground)"
-                      font-size={`${cd().labelSize}`}
-                      font-weight="600"
-                      opacity={mounted() ? 0.9 : 0}
-                      style={reveal(true)}
-                    >
-                      {col.value}
-                    </text>
-                    <text
-                      x={col.x}
-                      y={cd().h - 6}
-                      text-anchor="middle"
-                      fill="var(--muted-foreground)"
-                      font-size={`${cd().labelSize * 0.85}`}
-                      font-weight="500"
-                      opacity={mounted() ? 0.85 : 0}
-                      style={reveal(true)}
-                    >
-                      {col.time}
-                    </text>
-                  </>
+                  <line
+                    x1={col.x}
+                    x2={col.x}
+                    y1={
+                      Math.max(cd().labelSize, col.y - cd().labelSize * 0.9) + cd().labelSize * 0.45
+                    }
+                    y2={cd().h - cd().labelSize * 0.85 - 10}
+                    stroke="var(--muted-foreground)"
+                    stroke-width="1"
+                    stroke-dasharray="2 4"
+                    stroke-linecap="round"
+                    opacity={mounted() ? 0.45 : 0}
+                    style={reveal(true)}
+                  />
                 )}
               </For>
             </>
           )}
         </Show>
       </svg>
+      {/* SVG text makes WebKit lay out the whole board again on every layout, so labels are HTML. */}
+      <Show when={chartData()}>
+        {(cd) => (
+          <For each={cd().columns}>
+            {(col) => (
+              <>
+                <span
+                  class="sensor-spark-label"
+                  data-kind="value"
+                  style={{
+                    left: `${col.x}px`,
+                    top: `${Math.max(cd().labelSize, col.y - cd().labelSize * 0.9)}px`,
+                    "font-size": `${cd().labelSize}px`,
+                    opacity: mounted() ? 0.9 : 0,
+                    ...reveal(true),
+                  }}
+                >
+                  {col.value}
+                </span>
+                <span
+                  class="sensor-spark-label"
+                  data-kind="time"
+                  style={{
+                    left: `${col.x}px`,
+                    top: `${cd().h - 6}px`,
+                    "font-size": `${cd().labelSize * 0.85}px`,
+                    opacity: mounted() ? 0.85 : 0,
+                    ...reveal(true),
+                  }}
+                >
+                  {col.time}
+                </span>
+              </>
+            )}
+          </For>
+        )}
+      </Show>
     </div>
   );
 }
