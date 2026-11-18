@@ -4,11 +4,35 @@
   display: inline-block;
   isolation: isolate;
 }
-.lamp-art > img {
+.lamp-art[data-lamp="table"] {
+  --lamp-mask: url("./assets/lamp-table.webp");
+}
+.lamp-art[data-lamp="floor"] {
+  --lamp-mask: url("./assets/lamp-floor.webp");
+}
+.lamp-art[data-lamp="pendant"] {
+  --lamp-mask: url("./assets/lamp-pendant.webp");
+}
+.lamp-art[data-lamp="desk"] {
+  --lamp-mask: url("./assets/lamp-desk.webp");
+}
+.lamp-art[data-lamp="mushroom"] {
+  --lamp-mask: url("./assets/lamp-mushroom.webp");
+}
+.lamp-art[data-lamp="ceiling"] {
+  --lamp-mask: url("./assets/lamp-ceiling.webp");
+}
+.lamp-art[data-lamp="sconce"] {
+  --lamp-mask: url("./assets/lamp-sconce.webp");
+}
+.lamp-art[data-lamp="bulb"] {
+  --lamp-mask: url("./assets/lamp-bulb.webp");
+}
+.lamp-fixture {
   position: relative;
   height: 100%;
-  width: auto;
-  display: block;
+  aspect-ratio: var(--art-aspect);
+  background: var(--lamp-mask) center / 100% 100% no-repeat;
   filter: brightness(calc(1 - var(--lamp-level) * 0.22)) saturate(calc(1 - var(--lamp-level) * 0.2));
   transition: filter 400ms ease;
 }
