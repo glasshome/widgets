@@ -13,9 +13,9 @@
     "w": 2,
     "h": 2
   },
-  "sdkVersion": "^1.17.1",
+  "sdkVersion": "^1.17.0",
   "capabilities": [],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
