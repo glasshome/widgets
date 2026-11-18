@@ -71,15 +71,20 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
   const [mounted, setMounted] = createSignal(false);
 
   onMount(() => {
+    let frame = 0;
     const ro = new ResizeObserver((entries) => {
       const rect = entries[0]?.contentRect;
       if (!rect) return;
       if (Math.abs(rect.width - width()) > 1) setWidth(rect.width);
       if (Math.abs(rect.height - height()) > 1) setHeight(rect.height);
+      // The paths exist once the first size lands; they paint undrawn for a frame, then draw in.
+      if (!frame) frame = requestAnimationFrame(() => setMounted(true));
     });
     ro.observe(containerRef);
-    onCleanup(() => ro.disconnect());
-    requestAnimationFrame(() => setMounted(true));
+    onCleanup(() => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+    });
   });
 
   const chartData = createMemo(() => {
