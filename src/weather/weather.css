@@ -197,14 +197,18 @@
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
 }
+/* The loop moves an HTML box: Chrome on the T50 will not composite a transform on an svg root. */
 .wx-chart-drops {
   position: absolute;
   inset: 0;
+  will-change: transform;
+  animation: wx-drop var(--wx-drop-t) steps(var(--wx-steps)) infinite var(--wx-play);
+}
+.wx-chart-drops > svg {
+  display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  will-change: transform;
-  animation: wx-drop var(--wx-drop-t) steps(var(--wx-steps)) infinite var(--wx-play);
 }
 .wx-chart-drops line {
   stroke: var(--wx-rain-ink);
