@@ -74,29 +74,28 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
           {(depth) => {
             const loop = ambientLoop(depth.seconds);
             return (
-              <svg
+              <div
                 class="wx-chart-drops"
                 data-depth={depth.name}
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                aria-hidden="true"
                 style={{
                   "--wx-drop-p": `${depth.period}%`,
                   "--wx-drop-t": `${loop.seconds}s`,
                   "--wx-steps": loop.steps,
                 }}
               >
-                <For each={depth.lines}>
-                  {(d) => (
-                    <line
-                      x1={d.x}
-                      y1={d.y}
-                      x2={d.x - depth.length * 0.09}
-                      y2={d.y + depth.length}
-                    />
-                  )}
-                </For>
-              </svg>
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <For each={depth.lines}>
+                    {(d) => (
+                      <line
+                        x1={d.x}
+                        y1={d.y}
+                        x2={d.x - depth.length * 0.09}
+                        y2={d.y + depth.length}
+                      />
+                    )}
+                  </For>
+                </svg>
+              </div>
             );
           }}
         </For>
