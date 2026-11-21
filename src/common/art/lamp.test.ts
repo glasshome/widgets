@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { LAMP_KINDS } from "./lamp";
+import { LAMP_KINDS } from "./lamp-kinds";
 
 const sheet = readFileSync(join(import.meta.dir, "lamp.css"), "utf8");
 

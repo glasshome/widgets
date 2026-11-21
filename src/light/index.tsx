@@ -19,7 +19,8 @@ import {
 import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS, LampArt } from "../common/art/lamp";
+import { LampArt } from "../common/art/lamp";
+import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS } from "../common/art/lamp-kinds";
 import { groupLine } from "../common/group";
 import { LightSheet, lightHasExtras } from "./sheet";
 import { brightnessToPercent, hsToCSS } from "./utils";
