@@ -8,7 +8,7 @@ import {
   useService,
 } from "@glasshome/widget-sdk";
 import { Icon } from "@iconify-icon/solid";
-import { For, Show } from "solid-js";
+import { Index, Show } from "solid-js";
 import type { Thermostat } from "../common";
 import { FAN_MODES, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
 
@@ -44,14 +44,14 @@ function Choices(props: {
       value={props.value ?? null}
       onChange={(v: string | null) => v && props.onPick(v)}
     >
-      <For each={props.items}>
+      <Index each={props.items}>
         {(c) => (
-          <ToggleGroupItem value={c.value} aria-label={c.label}>
-            <Show when={c.icon}>{(icon) => <Icon icon={icon()} width={18} />}</Show>
-            {c.label}
+          <ToggleGroupItem value={c().value} aria-label={c().label}>
+            <Show when={c().icon}>{(icon) => <Icon icon={icon()} width={18} />}</Show>
+            {c().label}
           </ToggleGroupItem>
         )}
-      </For>
+      </Index>
     </ToggleGroup>
   );
 }
