@@ -13,7 +13,11 @@
       color-mix(in oklch, oklch(0.72 0.08 240) 14%, transparent),
       transparent 70%
     );
-  transition: --area-warmth 500ms ease;
+}
+@supports (transition-behavior: allow-discrete) {
+  .area-ambient {
+    transition: --area-warmth 500ms ease;
+  }
 }
 .area-humidity {
   display: inline-flex;
