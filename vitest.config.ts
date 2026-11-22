@@ -19,6 +19,8 @@ export default defineConfig({
       ? ["default", ["junit", { outputFile: `${resultsDir}/vitest.xml` }]]
       : ["default"],
     environment: "happy-dom",
+    // test-change-ok hang guard for expect.poll, below the 5 s testTimeout; provisional until the nightly stress ledger measures it
+    expect: { poll: { timeout: 4_000 } },
     globals: true,
     include: ["tests/dom/**/*.test.{ts,tsx}"],
     setupFiles: ["tests/dom/setup.ts"],
