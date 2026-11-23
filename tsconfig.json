@@ -2,6 +2,7 @@
   "compilerOptions": {
     "types": ["bun", "vite/client"],
     "target": "ESNext",
+    "lib": ["ES2024", "ES2025.Collection", "DOM"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "customConditions": ["@glasshome/source"],
