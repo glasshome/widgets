@@ -15,6 +15,8 @@ export default defineConfig({
   },
   test: {
     sequence: shuffleSeed ? { shuffle: true, seed: Number(shuffleSeed) } : undefined,
+    // Whole values in test.each titles keep two cases from sharing one results-ledger id.
+    taskTitleValueFormatTruncate: 0,
     reporters: resultsDir
       ? ["default", ["junit", { outputFile: `${resultsDir}/vitest.xml` }]]
       : ["default"],
