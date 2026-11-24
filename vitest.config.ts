@@ -15,6 +15,10 @@ export default defineConfig({
   },
   test: {
     sequence: shuffleSeed ? { shuffle: true, seed: Number(shuffleSeed) } : undefined,
+    // Whole values in test.each titles keep two cases from sharing one results-ledger id.
+    taskTitleValueFormatTruncate: 0,
+    // Vitest's shared default directory is wiped by any suite whose lockfile differs, and its key misses workspace exports edits.
+    fsModuleCache: false,
     reporters: resultsDir
       ? ["default", ["junit", { outputFile: `${resultsDir}/vitest.xml` }]]
       : ["default"],
