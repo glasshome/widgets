@@ -3,6 +3,7 @@ import {
   defineConfig,
   defineWidget,
   field,
+  Icon,
   type Infer,
   isEntityActive,
   useEntities,
@@ -16,7 +17,6 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { LampArt } from "../common/art/lamp";

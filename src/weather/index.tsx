@@ -4,6 +4,7 @@ import {
   defineWidget,
   field,
   getEntityAttribute,
+  Icon,
   type Infer,
   useEntity,
   useForecast,
@@ -13,7 +14,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";

@@ -1,5 +1,4 @@
-import { Badge, Button, CameraStream } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Badge, Button, CameraStream, Icon } from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,

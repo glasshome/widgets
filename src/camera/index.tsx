@@ -5,6 +5,7 @@ import {
   field,
   getEntityAttribute,
   hassMediaUrl,
+  Icon,
   type Infer,
   useEntity,
   useWidgetContext,
@@ -14,7 +15,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { CameraView } from "./camera-view";

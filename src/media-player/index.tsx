@@ -1,12 +1,13 @@
 import {
+  buildDebugData,
   Button,
   ButtonGroup,
-  buildDebugData,
   defineConfig,
   defineWidget,
   field,
   getEntityAttribute,
   hassMediaUrl,
+  Icon,
   type Infer,
   useEntity,
   useService,
@@ -18,7 +19,6 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./media.css";

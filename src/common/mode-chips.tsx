@@ -1,5 +1,4 @@
-import { Button } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Button, Icon } from "@glasshome/widget-sdk";
 import { For, Show } from "solid-js";
 
 interface ModeChipsProps {

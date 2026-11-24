@@ -3,6 +3,7 @@ import {
   defineConfig,
   defineWidget,
   field,
+  Icon,
   type Infer,
   presetValue,
   useArea,
@@ -13,7 +14,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { ROOM_PRESETS, roomIcon } from "../common/art/room";

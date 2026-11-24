@@ -1,5 +1,6 @@
 import {
   type EntityView,
+  Icon,
   isDark,
   PanelSection,
   Slider,
@@ -7,7 +8,6 @@ import {
   ToggleGroupItem,
   useService,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { Index, Show } from "solid-js";
 import type { Thermostat } from "../common";
 import { FAN_MODES, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";

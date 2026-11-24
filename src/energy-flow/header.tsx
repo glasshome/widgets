@@ -1,5 +1,4 @@
-import { Widget } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Icon, Widget } from "@glasshome/widget-sdk";
 import { type JSX, Show } from "solid-js";
 import { energyIcons } from "../_energy-shared/icons";
 

@@ -3,6 +3,7 @@ import {
   defineConfig,
   defineWidget,
   field,
+  Icon,
   type Infer,
   isDark,
   useEntities,
@@ -16,7 +17,6 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { formatTemperature, shiftBand, useThermostat, widgetDialogProps } from "../common";
 import "../common/mode-transition.css";

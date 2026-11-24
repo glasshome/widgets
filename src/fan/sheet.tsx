@@ -1,5 +1,6 @@
 import {
   type EntityView,
+  Icon,
   PanelEntityRow,
   PanelRows,
   PanelSection,
@@ -8,7 +9,6 @@ import {
   ToggleGroupItem,
   useService,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { For, Show } from "solid-js";
 
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replaceAll("_", " ");

@@ -1,10 +1,10 @@
 import {
+  Icon,
   useDaylight,
   useWidgetDimensions,
   type WeatherForecast,
   Widget,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, createSignal, For, Index, Show } from "solid-js";
 import { dayHigh, tempColor, weekRange } from "./forecast";
 import { HourChart } from "./hour-chart";
