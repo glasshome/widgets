@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit && vite build",
-    "test": "bun test --timeout 30000 src; s=$?; vitest run && exit $s",
+    "test": "bun test --isolate --timeout 30000 src; s=$?; vitest run && exit $s",
     "test:dom": "vitest run",
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123",
     "check:dead": "fallow dead-code --fail-on-issues",
