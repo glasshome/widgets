@@ -1,5 +1,4 @@
-import { useDaylight, useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Icon, useDaylight, useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,

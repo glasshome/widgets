@@ -4,6 +4,7 @@ import {
   defineConfig,
   defineWidget,
   field,
+  Icon,
   type Infer,
   useEntities,
   useWidgetContext,
@@ -12,7 +13,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, Index } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./batteries.css";

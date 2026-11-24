@@ -15,7 +15,7 @@
   min-width: 0;
   font-size: var(--widget-text-caption);
 }
-.batteries-row > iconify-icon {
+.batteries-row > svg {
   font-size: 1.3em;
 }
 .batteries-name {

@@ -4,6 +4,7 @@ import {
   defineWidget,
   field,
   getEntityAttribute,
+  Icon,
   type Infer,
   type SensorGroupResult,
   trackEntityHistory,
@@ -17,7 +18,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
 import { SensorSheet } from "./sheet";

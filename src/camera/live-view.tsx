@@ -1,5 +1,4 @@
-import { Button, type PanelFact, PanelFacts } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Button, Icon, type PanelFact, PanelFacts } from "@glasshome/widget-sdk";
 import { type Accessor, type Setter, Show } from "solid-js";
 import { CameraView } from "./camera-view";
 import type { CameraPlayer } from "./create-player";
