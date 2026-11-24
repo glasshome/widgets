@@ -35,7 +35,10 @@ function mount(hours: WeatherForecast[], labelEvery: number) {
     lefts: points().map((p) => p.style.left),
     times: times().map((t) => t.textContent),
     temps: points().map((p) => p.querySelector(".wx-temp")?.textContent),
-    icons: points().map((p) => p.querySelector("iconify-icon")?.getAttribute("icon") ?? null),
+    icons: points().map((p) => {
+      const icon = p.querySelector("iconify-icon, [data-slot='icon']");
+      return icon?.getAttribute("data-icon") ?? icon?.getAttribute("icon") ?? null;
+    }),
     edges: points().map((p) => p.dataset.edge ?? null),
     timeEdges: times().map((t) => t.dataset.edge ?? null),
     now: points().map((p) => p.dataset.now ?? null),

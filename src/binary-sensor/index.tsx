@@ -5,6 +5,7 @@ import {
   defineWidget,
   field,
   getEntityAttribute,
+  Icon,
   type Infer,
   isEntityActive,
   useEntities,
@@ -15,7 +16,6 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
 import { createMemo, type JSX, Show } from "solid-js";
 import { getBinarySensorIcon, widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";

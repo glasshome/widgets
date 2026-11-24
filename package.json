@@ -20,9 +20,6 @@
     "check:dead": "fallow dead-code --fail-on-issues",
     "lint": "oxlint --type-aware . && oxfmt --check ."
   },
-  "dependencies": {
-    "@iconify-icon/solid": "^3.0.3"
-  },
   "devDependencies": {
     "@glasshome/widget-sdk": "1.33.0",
     "@solidjs/testing-library": "^0.8.10",

@@ -1,5 +1,4 @@
-import type { WeatherForecast } from "@glasshome/widget-sdk";
-import { Icon } from "@iconify-icon/solid";
+import { Icon, type WeatherForecast } from "@glasshome/widget-sdk";
 import { createMemo, For, Index, Show } from "solid-js";
 import { skyChanges, smoothPath, tempColor } from "./forecast";
 import { ambientLoop, formatTemp, getWeatherIcon, hourName } from "./utils";

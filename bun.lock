@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "@glasshome/widgets",
-      "dependencies": {
-        "@iconify-icon/solid": "^3.0.3",
-      },
       "devDependencies": {
         "@glasshome/widget-sdk": "1.33.0",
         "@solidjs/testing-library": "^0.8.10",
@@ -102,8 +99,6 @@
     "@glasshome/widget-contract": ["@glasshome/widget-contract@0.8.0", "", { "dependencies": { "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-5m1vSPfOXdJymYPTZ2/7bUJC427C6vX6KJP4UJ0m5AxA4L1sJ2+J6x+mS5RMq7N7GyPDgpJDOawd9rGhoTWU/g=="],
 
     "@glasshome/widget-sdk": ["@glasshome/widget-sdk@1.33.0", "", { "dependencies": { "@glasshome/widget-contract": "0.8.0", "@tailwindcss/vite": "^4.1.13", "clsx": "^2.1.1", "happy-dom": "^20.0.0", "hls.js": "^1.6.15", "lightningcss": "^1.33.0", "semver": "^7.7.0", "tailwind-merge": "^3.5.0", "tailwindcss": "^4.1.13", "zod": "^4.1.13" }, "peerDependencies": { "@glasshome/sync-layer": "0.9.1", "@glasshome/ui": "1.37.0", "solid-js": "^1.9.11" } }, "sha512-rT4yzFPFNVSoXeZd5srkcIMg31mHnNLmsKdrrbDOYn0eTxcoDOck04yFjFNtiGyTPBcSKaRXdRuLOTrSAiw4wA=="],
-
-    "@iconify-icon/solid": ["@iconify-icon/solid@3.0.5", "", { "dependencies": { "iconify-icon": "^3.0.4" }, "peerDependencies": { "solid-js": ">=1.0.0" } }, "sha512-fnvU5cqy7ES85gGq5oOusCKqNVh9fBHNAvgIoo47A419+ail5ctpdkRONDMilczjIqERa4J5GSRrSLm8TAqXSw=="],
 
     "@iconify/types": ["@iconify/types@2.0.0", "", {}, "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="],
 
@@ -454,8 +449,6 @@
     "home-assistant-js-websocket": ["home-assistant-js-websocket@9.7.1", "", {}, "sha512-zOAiyF+gUc/IsiswYdWKns6SCBbvWb8iJtMX9+Dk0wlbdfcp+I38T2Vx36krWeWMk/GPwoSiYwCs5hk/+Hsn7w=="],
 
     "html-entities": ["html-entities@2.3.3", "", {}, "sha512-DV5Ln36z34NNTDgnz0EWGBLZENelNAtkiFA4kyNOG2tDI6Mz1uSWiq1wAKdyjnJwyDiDO7Fa2SO1CTxPXL8VxA=="],
-
-    "iconify-icon": ["iconify-icon@3.0.4", "", { "dependencies": { "@iconify/types": "^2.0.0" } }, "sha512-au7IER/1evWjPP1rtueNnBdge9E9ocoPfQ87RYTLkRMYpNt87xn5oy6i5U2qRp+wXul5aV0VyPuZAf7rt+jpRg=="],
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
