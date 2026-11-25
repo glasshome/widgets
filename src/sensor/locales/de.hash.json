@@ -1,0 +1,42 @@
+{
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "cb548678bd4741d7"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "abcafc82daaf011f"
+  },
+  "manifest.config.x-mftwo4tfm5qxi2lpnzkhs4df.title": {
+    "source": "26d427a6b8ba2dd1",
+    "value": "749cfaf9af6c41d3"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "23d443eb5680f8d8",
+    "value": "215ed630221b9c58"
+  },
+  "manifest.description": {
+    "source": "55a9e5c96708f476",
+    "value": "4064c023a13baa80"
+  },
+  "manifest.examples.0.label": {
+    "source": "368f5ddc348237a3",
+    "value": "992bd25f4da699ae"
+  },
+  "manifest.examples.1.label": {
+    "source": "72d4d2a1c8eb3d00",
+    "value": "2da10076c9e7b7c9"
+  },
+  "manifest.examples.2.label": {
+    "source": "56d862d3daa0341b",
+    "value": "9e1dd51bd2597cd6"
+  },
+  "manifest.examples.3.label": {
+    "source": "51e889c98f12e081",
+    "value": "788f93c4242776bd"
+  },
+  "manifest.name": {
+    "source": "43c69a3995e857c2",
+    "value": "162cc64ca1e4ffe9"
+  }
+}

@@ -21,6 +21,7 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
 import { SwitchSheet } from "./sheet";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -140,6 +141,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 }
 
 export default defineWidget<SwitchConfig>({
+  messages: en,
   manifest: {
     name: "Switch",
     description: "Toggle switch entities",

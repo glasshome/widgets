@@ -1,0 +1,30 @@
+{
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "be7e27369a3786bf"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "78e7920010aa1ff0"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "23d443eb5680f8d8",
+    "value": "bc4ba6ceee475507"
+  },
+  "manifest.description": {
+    "source": "8e30e4b736cd9fa8",
+    "value": "7940707f09648c06"
+  },
+  "manifest.examples.0.label": {
+    "source": "e6b0f679e40d5082",
+    "value": "1644a8fd0e878bc4"
+  },
+  "manifest.examples.1.label": {
+    "source": "14b967516898f319",
+    "value": "567a1e29932e3c21"
+  },
+  "manifest.name": {
+    "source": "0e293547af5f9569",
+    "value": "c05940720c0ddc15"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "manifest.config.fit.title": "Anpassung",
+  "manifest.config.interval.description": "Aus behält ein Bild bei, bis du zum nächsten wischst.",
+  "manifest.config.interval.title": "Wechseln alle",
+  "manifest.config.pictures.add-label": "Bild hinzufügen",
+  "manifest.config.pictures.title": "Bilder",
+  "manifest.config.pictures.x-items-all.image.presets.coast.label": "Küste",
+  "manifest.config.pictures.x-items-all.image.presets.dog.label": "Hund",
+  "manifest.config.pictures.x-items-all.image.presets.forest.label": "Wald",
+  "manifest.config.pictures.x-items-all.image.presets.meadow.label": "Wiese",
+  "manifest.config.pictures.x-items-all.image.title": "Bild",
+  "manifest.config.pictures.x-items-all.title": "Bild",
+  "manifest.description": "Deine eigenen Fotos auf dem Dashboard, einzeln oder als Diashow",
+  "manifest.examples.0.label": "Beispielfotos",
+  "manifest.examples.1.label": "Dein Foto",
+  "manifest.examples.2.label": "Breit",
+  "manifest.examples.3.label": "Hochformat, ganzes Bild",
+  "manifest.examples.4.label": "Hoch",
+  "manifest.examples.5.label": "Groß",
+  "manifest.examples.6.label": "Klein",
+  "manifest.name": "Bilderrahmen"
+}

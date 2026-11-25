@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Nombre visible opcional que sustituye al predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.config.x-onug652gn5zgky3bon2a.title": "Mostrar previsión",
+  "manifest.description": "El cielo de fuera, las horas y los días que vienen",
+  "manifest.examples.0.label": "Parcialmente nublado",
+  "manifest.examples.1.label": "Central",
+  "manifest.examples.2.label": "Nieve",
+  "manifest.examples.3.label": "Franja",
+  "manifest.name": "Tiempo"
+}

@@ -9,13 +9,21 @@ export type LampKind =
   | "bulb";
 
 export const LAMP_LABELS: Record<LampKind, string> = {
+  // ui-text-ok: schema label the manifest derives
   table: "Table lamp",
+  // ui-text-ok: schema label the manifest derives
   floor: "Floor lamp",
+  // ui-text-ok: schema label the manifest derives
   pendant: "Pendant",
+  // ui-text-ok: schema label the manifest derives
   desk: "Desk lamp",
+  // ui-text-ok: schema label the manifest derives
   mushroom: "Mushroom lamp",
+  // ui-text-ok: schema label the manifest derives
   ceiling: "Ceiling light",
+  // ui-text-ok: schema label the manifest derives
   sconce: "Wall light",
+  // ui-text-ok: schema label the manifest derives
   bulb: "Bare bulb",
 };
 

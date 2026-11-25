@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mftwo4tfm5qxi2lpnzkhs4df.title": "Agrégation",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Afficher les valeurs des capteurs avec agrégation",
+  "manifest.examples.0.label": "Extérieur",
+  "manifest.examples.1.label": "Température",
+  "manifest.examples.2.label": "Puissance",
+  "manifest.examples.3.label": "Capteurs climatiques",
+  "manifest.name": "Capteur"
+}

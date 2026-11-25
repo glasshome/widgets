@@ -1,0 +1,114 @@
+{
+  "common.light-colour.colour-preset": {
+    "source": "511c0869f3027d70",
+    "value": "028d0c46b91cdd71"
+  },
+  "common.light-colour.cool-white": {
+    "source": "878ddb32b720fadb",
+    "value": "b2389b50f5555407"
+  },
+  "common.light-colour.neutral-white": {
+    "source": "4b08da28f58e9107",
+    "value": "c80bf8294946607b"
+  },
+  "common.light-colour.presets": {
+    "source": "1bcdd557f3b67cf0",
+    "value": "8ae0fa8406243d9f"
+  },
+  "common.light-colour.reach": {
+    "source": "83a13442c39ee6c1",
+    "value": "04b54d464b628ea9"
+  },
+  "common.light-colour.soft-white": {
+    "source": "e57b99b1ba15ac34",
+    "value": "cdad3420ac9cc2fe"
+  },
+  "common.light-colour.title": {
+    "source": "086dd90f71a846d6",
+    "value": "6b73191a0a4b6742"
+  },
+  "common.light-colour.warm-white": {
+    "source": "08476086fadc1332",
+    "value": "d58e660d5dd0d62f"
+  },
+  "common.light-colour.white": {
+    "source": "3e5bdf9edfe7e8f0",
+    "value": "7913a179fb289474"
+  },
+  "manifest.config.lamp.labels.bulb": {
+    "source": "741f4b8e42dd87f2",
+    "value": "a5a07108995827e2"
+  },
+  "manifest.config.lamp.labels.ceiling": {
+    "source": "b22e00157e0da65a",
+    "value": "04418db0208cdace"
+  },
+  "manifest.config.lamp.labels.desk": {
+    "source": "5e3bc713778b4306",
+    "value": "7af4b3352a78c1f2"
+  },
+  "manifest.config.lamp.labels.floor": {
+    "source": "466319df197ad23f",
+    "value": "2f178996b023849a"
+  },
+  "manifest.config.lamp.labels.mushroom": {
+    "source": "fc06fe75feb0fb5c",
+    "value": "9e136eb7cdf488f5"
+  },
+  "manifest.config.lamp.labels.pendant": {
+    "source": "e2d0d032e333ad42",
+    "value": "25145ae16d002c21"
+  },
+  "manifest.config.lamp.labels.sconce": {
+    "source": "d0d89bf218985dd8",
+    "value": "0defb2775720f063"
+  },
+  "manifest.config.lamp.labels.table": {
+    "source": "63a61c8fc1d781df",
+    "value": "8165f847a6b91150"
+  },
+  "manifest.config.lamp.title": {
+    "source": "9d3a55f09d68f966",
+    "value": "401ca26523005cca"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "2a113362e0704b9e"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "4c08a5d5feb22ce2"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "23d443eb5680f8d8",
+    "value": "a3346c788a2a24be"
+  },
+  "manifest.description": {
+    "source": "cc03f66138dddb04",
+    "value": "fe4434d0b064ac7a"
+  },
+  "manifest.examples.0.label": {
+    "source": "f9a33f34a22f83fa",
+    "value": "67a0babae79a4967"
+  },
+  "manifest.examples.1.label": {
+    "source": "d16a6793236588a7",
+    "value": "73f36dfc5b0094ac"
+  },
+  "manifest.examples.2.label": {
+    "source": "cfae911753530ea9",
+    "value": "6b73191a0a4b6742"
+  },
+  "manifest.examples.3.label": {
+    "source": "b3f69806c1890fa5",
+    "value": "2de676cd6e40b160"
+  },
+  "manifest.examples.4.label": {
+    "source": "597ea32f8215307d",
+    "value": "8abe82c10ad7c68f"
+  },
+  "manifest.name": {
+    "source": "62c11afc0726b871",
+    "value": "10ee0862a25f22b9"
+  }
+}

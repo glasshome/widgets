@@ -1,7 +1,7 @@
-import { useDaylight, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
+import { useDaylight, useTranslation, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
 import { createMemo, Index, Show } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
-import { formatPower } from "../_energy-shared";
+import { type EnergyTools, formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import houseDay from "./assets/house-clay.webp";
 import houseNight from "./assets/house-clay-night.webp";
@@ -19,13 +19,14 @@ interface EnergyContentProps {
   onOpen: () => void;
 }
 
-function splitPower(watts: number): { value: string; unit: string } {
-  const text = formatPower(watts);
+function splitPower(watts: number, tools: EnergyTools): { value: string; unit: string } {
+  const text = formatPower(watts, tools);
   const i = text.lastIndexOf(" ");
   return i < 0 ? { value: text, unit: "" } : { value: text.slice(0, i), unit: text.slice(i + 1) };
 }
 
 export function EnergyContent(props: EnergyContentProps) {
+  const tools = useTranslation();
   const dimensions = useWidgetDimensions();
   const daylight = useDaylight();
 
@@ -34,7 +35,7 @@ export function EnergyContent(props: EnergyContentProps) {
     return selectTier(d.width, d.height);
   });
   const idle = createMemo(() => isIdle(props.flow));
-  const reading = createMemo(() => splitPower(props.flow.hubW));
+  const reading = createMemo(() => splitPower(props.flow.hubW, tools));
   const glow = createMemo(() => Math.min(1, aggregate(props.flow.nodes).productionW / 4000));
   const activeNodes = createMemo(() =>
     props.flow.nodes.filter(
@@ -83,7 +84,7 @@ export function EnergyContent(props: EnergyContentProps) {
                   {(n) => (
                     <Widget.Chip icon={n().icon} tone={n().color}>
                       {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
-                      {formatPower(n().watts)}
+                      {formatPower(n().watts, tools)}
                     </Widget.Chip>
                   )}
                 </Index>

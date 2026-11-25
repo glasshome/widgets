@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename, der den Standard überschreibt",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entität",
+  "manifest.description": "Medienwiedergabe-Steuerung mit Albumcover und Fortschrittsanzeige",
+  "manifest.examples.0.label": "Wiedergabe",
+  "manifest.examples.1.label": "Breit",
+  "manifest.examples.2.label": "Groß",
+  "manifest.name": "Medienplayer"
+}

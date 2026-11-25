@@ -1,0 +1,9 @@
+{
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Appuyer sur une entité bouton",
+  "manifest.examples.0.label": "Bouton unique",
+  "manifest.examples.1.label": "Groupe de boutons",
+  "manifest.name": "Bouton"
+}

@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.ac": "Aire acondicionado",
+  "manifest.config.art.labels.heatpump": "Bomba de calor",
+  "manifest.config.art.labels.radiator": "Radiador",
+  "manifest.config.art.labels.thermostat": "Termostato",
+  "manifest.config.art.title": "Imagen del dispositivo",
+  "manifest.config.title.description": "Nombre de visualización opcional que reemplaza el predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidad",
+  "manifest.description": "Control de clima con temperatura, modos HVAC y control del ventilador",
+  "manifest.examples.0.label": "Termostato",
+  "manifest.examples.1.label": "Calefacción por radiador",
+  "manifest.examples.2.label": "Aire acondicionado apagado",
+  "manifest.examples.3.label": "Bomba de calor",
+  "manifest.examples.4.label": "Compacto",
+  "manifest.examples.5.label": "Aire acondicionado, ancho",
+  "manifest.examples.6.label": "Termostato grande",
+  "manifest.name": "Clima"
+}

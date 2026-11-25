@@ -1,0 +1,21 @@
+{
+  "manifest.config.art.labels.blind": "Persiana de ventana",
+  "manifest.config.art.labels.curtain": "Cortinas",
+  "manifest.config.art.labels.device": "Igual que Home Assistant",
+  "manifest.config.art.labels.garage": "Puerta del garaje",
+  "manifest.config.art.labels.gate": "Portón de entrada",
+  "manifest.config.art.labels.shutter": "Persiana enrollable",
+  "manifest.config.art.title": "Imagen de la cubierta",
+  "manifest.config.title.description": "Nombre para mostrar opcional",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Controla cubiertas, persianas y contraventanas",
+  "manifest.examples.0.label": "Persiana",
+  "manifest.examples.1.label": "Cortinas cerradas",
+  "manifest.examples.2.label": "Contraventana medio abierta",
+  "manifest.examples.3.label": "Puerta del garaje",
+  "manifest.examples.4.label": "Persiana abierta",
+  "manifest.examples.5.label": "Portón abierto",
+  "manifest.examples.6.label": "Persianas",
+  "manifest.name": "Cubierta"
+}

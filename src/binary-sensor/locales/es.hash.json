@@ -1,0 +1,70 @@
+{
+  "manifest.config.art.labels.device": {
+    "source": "4b8a633998cb00b4",
+    "value": "809fe275ed0372d2"
+  },
+  "manifest.config.art.labels.door": {
+    "source": "7cf7136e739c5853",
+    "value": "dd40270898526f86"
+  },
+  "manifest.config.art.labels.garage": {
+    "source": "d477edec30f23109",
+    "value": "3dd3b95d0baf6822"
+  },
+  "manifest.config.art.labels.none": {
+    "source": "91db4c81a58ce840",
+    "value": "bc2505b2aefa666b"
+  },
+  "manifest.config.art.labels.window": {
+    "source": "92b70cd7411d5312",
+    "value": "09c101d2650e3dba"
+  },
+  "manifest.config.art.title": {
+    "source": "627a7e23889b95a6",
+    "value": "9fd1d23e4d7307c4"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "a66a5a4fd05d65e4"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "4c08a5d5feb22ce2"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "23d443eb5680f8d8",
+    "value": "a3346c788a2a24be"
+  },
+  "manifest.description": {
+    "source": "4368fc0d695dcbdb",
+    "value": "decb8abb467c4ed4"
+  },
+  "manifest.examples.0.label": {
+    "source": "6ffe7a91f423354a",
+    "value": "f7c143d89fb03030"
+  },
+  "manifest.examples.1.label": {
+    "source": "7cf7136e739c5853",
+    "value": "dd40270898526f86"
+  },
+  "manifest.examples.2.label": {
+    "source": "a6c0275c89f45e01",
+    "value": "947277780ce3c8d1"
+  },
+  "manifest.examples.3.label": {
+    "source": "f4a49fc30eff1858",
+    "value": "1a9431aa25c8fbc6"
+  },
+  "manifest.examples.4.label": {
+    "source": "6a363fa384a747e8",
+    "value": "83fc57feebacbf0a"
+  },
+  "manifest.examples.5.label": {
+    "source": "7d53859842dcb993",
+    "value": "9d6f3fffefcc41e1"
+  },
+  "manifest.name": {
+    "source": "c1332a74cb9e5605",
+    "value": "14a91852528bb45a"
+  }
+}

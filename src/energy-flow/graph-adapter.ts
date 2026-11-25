@@ -1,16 +1,7 @@
-/**
- * The seam between config and rendering: resolves the user-defined node list
- * into a `ResolvedFlow` (per-node power, direction, remainder math) and maps
- * that onto the domain-agnostic flow-graph model — source/spend nodes around a
- * central hub, one ribbon per flow. This is the ONLY runtime module that knows
- * the config's node field names. Pure — no SolidJS, no DOM.
- */
-
-// Leaf imports (not the _energy-shared barrel): the barrel pulls JSX modules
-// (icons/empty-state), which break bun's server-side test transpile.
+// Leaf imports, not the _energy-shared barrel: its JSX modules break bun's test transpile.
 import { type BidirectionalInput, normalizeBidirectional } from "../_energy-shared/calculations";
 import { energyColors } from "../_energy-shared/colors";
-import { formatPower } from "../_energy-shared/formatting";
+import { type EnergyTools, formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import type { FlowEdge, FlowGraph, FlowNode } from "../_flow-graph/types";
 import { computeCost, gridCostSub, solarSavingSub, type Tariff } from "./cost";
@@ -258,7 +249,11 @@ function levelSuffix(level: number | undefined): string {
   return level === undefined ? "" : ` · ${Math.round(level)}%`;
 }
 
-export function buildEnergyGraph(flow: ResolvedFlow, tariff?: Tariff): EnergyGraph {
+export function buildEnergyGraph(
+  flow: ResolvedFlow,
+  tools: EnergyTools,
+  tariff?: Tariff,
+): EnergyGraph {
   const graphNodes: FlowNode[] = [];
   const edges: FlowEdge[] = [];
   const views = new Map<string, NodeView>();
@@ -279,7 +274,7 @@ export function buildEnergyGraph(flow: ResolvedFlow, tariff?: Tariff): EnergyGra
       views.set(node.id, {
         icon: node.icon,
         label,
-        value: idle ? "idle" : formatPower(node.watts),
+        value: idle ? "idle" : formatPower(node.watts, tools),
         color: node.color,
         idle,
       });
@@ -307,14 +302,14 @@ export function buildEnergyGraph(flow: ResolvedFlow, tariff?: Tariff): EnergyGra
     views.set(node.id, {
       icon: node.icon,
       label,
-      value: node.resting ? "Back at sunrise" : idle ? "idle" : formatPower(node.watts),
+      value: node.resting ? "Back at sunrise" : idle ? "idle" : formatPower(node.watts, tools),
       color,
       idle,
       sub:
         node.priced && active
-          ? gridCostSub(cost)
+          ? gridCostSub(cost, tools)
           : node === soleInput
-            ? solarSavingSub(cost)
+            ? solarSavingSub(cost, tools)
             : undefined,
     });
     graphNodes.push({ id: node.id, kind: "source" });
@@ -335,7 +330,7 @@ export function buildEnergyGraph(flow: ResolvedFlow, tariff?: Tariff): EnergyGra
   views.set("hub", {
     icon: energyIcons.home,
     label: "Home",
-    value: formatPower(flow.hubW),
+    value: formatPower(flow.hubW, tools),
     color: energyColors.home,
     idle: false,
     hub: true,

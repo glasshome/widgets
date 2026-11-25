@@ -1,0 +1,13 @@
+{
+  "manifest.config.blacklist.title": "Liste noire (exclure ceux-ci)",
+  "manifest.config.threshold.title": "Seuil de batterie faible (%)",
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.whitelist.title": "Liste blanche (inclure uniquement ceux-ci)",
+  "manifest.description": "Détection automatique et suivi des niveaux de batterie de tous les appareils",
+  "manifest.examples.0.label": "Tout va bien",
+  "manifest.examples.1.label": "Une batterie faible",
+  "manifest.examples.2.label": "Batteries",
+  "manifest.examples.3.label": "Chaque batterie",
+  "manifest.name": "Batteries"
+}

@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nombre para mostrar opcional que reemplaza el predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidad",
+  "manifest.config.x-ojswm4tfonues3tumvzhmylm.title": "Actualización de instantánea (segundos)",
+  "manifest.config.x-on2hezlbnvcw4z3jnzsq.title": "Motor de transmisión",
+  "manifest.description": "Transmisión de cámara en vivo con compatibilidad multiprotocolo",
+  "manifest.examples.0.label": "Puerta principal",
+  "manifest.name": "Cámara"
+}

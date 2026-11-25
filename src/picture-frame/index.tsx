@@ -19,6 +19,7 @@ import { SAMPLES } from "./samples";
 import { resolveSlideshow } from "./slideshow";
 import { configSchema, type PictureFrameConfig } from "./types";
 import "./picture-frame.css";
+import en from "./locales/en.json";
 
 const SAMPLE_CONFIG: PictureFrameConfig = { pictures: [], fit: "cover", interval: "30s" };
 
@@ -137,6 +138,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
 }
 
 export default defineWidget<PictureFrameConfig>({
+  messages: en,
   manifest: {
     name: "Picture Frame",
     description: "Your own photos on the dashboard, one at a time or as a slideshow",

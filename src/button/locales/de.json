@@ -1,0 +1,9 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Drücke eine Button-Entität",
+  "manifest.examples.0.label": "Einzelner Button",
+  "manifest.examples.1.label": "Button-Gruppe",
+  "manifest.name": "Button"
+}

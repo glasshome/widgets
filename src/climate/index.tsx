@@ -8,6 +8,7 @@ import {
   isDark,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -18,12 +19,13 @@ import {
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
-import { formatTemperature, shiftBand, useThermostat, widgetDialogProps } from "../common";
+import { shiftBand, useThermostat, widgetDialogProps } from "../common";
 import "../common/mode-transition.css";
 import { ART } from "./art";
 import "./climate.css";
 import { ClimateSheet, climateHasExtras } from "./sheet";
 import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -49,6 +51,7 @@ type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();
+  const { formatTemperature } = useTranslation();
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -122,7 +125,9 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     const ct = currentTemp();
     const hum = entity()?.attributes?.current_humidity as number | undefined;
     return [
-      ct === undefined ? undefined : `Now ${formatTemperature(ct, tempUnit())}`,
+      ct === undefined
+        ? undefined
+        : `Now ${formatTemperature(ct, { unit: tempUnit() === "F" ? "°F" : "°C" })}`,
       hum === undefined ? undefined : `${hum}%`,
     ]
       .filter(Boolean)
@@ -263,6 +268,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
 }
 
 export default defineWidget<ClimateConfig>({
+  messages: en,
   manifest: {
     name: "Climate",
     description: "Climate control with temperature, HVAC modes, and fan control",

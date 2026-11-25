@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nombre visible opcional que reemplaza el predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Alternar entidades de interruptor",
+  "manifest.examples.0.label": "Encendido",
+  "manifest.examples.1.label": "Apagado",
+  "manifest.examples.2.label": "Interruptores",
+  "manifest.name": "Interruptor"
+}

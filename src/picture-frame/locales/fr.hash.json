@@ -1,0 +1,82 @@
+{
+  "manifest.config.fit.title": {
+    "source": "1d0c1b254be73535",
+    "value": "d06d33e77f28ca51"
+  },
+  "manifest.config.interval.description": {
+    "source": "198228d1b945224a",
+    "value": "e2b9c353e85798c4"
+  },
+  "manifest.config.interval.title": {
+    "source": "9083236a62b94488",
+    "value": "a333a6e130828170"
+  },
+  "manifest.config.pictures.add-label": {
+    "source": "2e5087df73b22da0",
+    "value": "d02c80ccfe4850ae"
+  },
+  "manifest.config.pictures.title": {
+    "source": "27bdb8250937ebc2",
+    "value": "be7e2f20129365c2"
+  },
+  "manifest.config.pictures.x-items-all.image.presets.coast.label": {
+    "source": "c133091dfcf0ecab",
+    "value": "2a836cc351f24e20"
+  },
+  "manifest.config.pictures.x-items-all.image.presets.dog.label": {
+    "source": "1511929f905ed4fa",
+    "value": "7726a438c1e3e362"
+  },
+  "manifest.config.pictures.x-items-all.image.presets.forest.label": {
+    "source": "25806191f74e8184",
+    "value": "56d4e67e39254001"
+  },
+  "manifest.config.pictures.x-items-all.image.presets.meadow.label": {
+    "source": "b58e32a783462e1d",
+    "value": "2380d607497a6d5a"
+  },
+  "manifest.config.pictures.x-items-all.image.title": {
+    "source": "65d828c8f09cb9b3",
+    "value": "1aa4cb0bcca76e92"
+  },
+  "manifest.config.pictures.x-items-all.title": {
+    "source": "65d828c8f09cb9b3",
+    "value": "1aa4cb0bcca76e92"
+  },
+  "manifest.description": {
+    "source": "db8c2601dd268b77",
+    "value": "ab99a0c416bd3bbf"
+  },
+  "manifest.examples.0.label": {
+    "source": "d0cb3af79099cf5c",
+    "value": "37161ecb4f497332"
+  },
+  "manifest.examples.1.label": {
+    "source": "f12fa5821b97796e",
+    "value": "7777906bcdca6ce5"
+  },
+  "manifest.examples.2.label": {
+    "source": "0d56f2de892006f5",
+    "value": "ab80540d98d27456"
+  },
+  "manifest.examples.3.label": {
+    "source": "a585d2db25c5e6f3",
+    "value": "3b3c858d46602ff2"
+  },
+  "manifest.examples.4.label": {
+    "source": "5f29b2e9fa06d40a",
+    "value": "8cba739d1f752df4"
+  },
+  "manifest.examples.5.label": {
+    "source": "427b336288941841",
+    "value": "464e1d466885e60e"
+  },
+  "manifest.examples.6.label": {
+    "source": "51ee94efbb295b54",
+    "value": "c03a43a858c183d2"
+  },
+  "manifest.name": {
+    "source": "e4f0ca3f9b06b07d",
+    "value": "35efa75f0c983821"
+  }
+}

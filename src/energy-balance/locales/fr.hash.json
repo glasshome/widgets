@@ -1,0 +1,214 @@
+{
+  "energy.empty.configure": {
+    "source": "e7e3bb8f7c1974a3",
+    "value": "87e4b799e14189f9"
+  },
+  "energy.empty.first-day-message": {
+    "source": "ad1775a629c94c3d",
+    "value": "dede61939a3ececb"
+  },
+  "energy.empty.first-day-title": {
+    "source": "c89923126c9161ee",
+    "value": "7b816057abfe0ea7"
+  },
+  "energy.empty.message": {
+    "source": "2e952b037733089f",
+    "value": "5453c208c73c0a1e"
+  },
+  "energy.empty.reconnecting": {
+    "source": "27ab7daca4d143da",
+    "value": "868ff81cb5cacd91"
+  },
+  "energy.empty.title": {
+    "source": "80a3de07369a3d83",
+    "value": "122889d945086eb7"
+  },
+  "energy.flow.all-quiet": {
+    "source": "e9729377135598a5",
+    "value": "f75028575de70bfb"
+  },
+  "energy.flow.battery-to-grid": {
+    "source": "b5be61a92d552dbd",
+    "value": "b24a3b161befca49"
+  },
+  "energy.flow.charging-battery": {
+    "source": "608b53335e8fff47",
+    "value": "854538cfb2e06317"
+  },
+  "energy.flow.from-grid": {
+    "source": "9f20c14c0d3b2203",
+    "value": "920daa79c869f07f"
+  },
+  "energy.flow.grid-untouched": {
+    "source": "86245c8cb63a7a28",
+    "value": "3f145dffd2a9aa01"
+  },
+  "energy.flow.home-using": {
+    "source": "f5d1fa849bbc3012",
+    "value": "2c50e25a8a5110da"
+  },
+  "energy.flow.on-battery": {
+    "source": "6b54357f332c750e",
+    "value": "30b9e0f8c24d88d7"
+  },
+  "energy.flow.on-solar": {
+    "source": "2485388003a53564",
+    "value": "ed5a8b8cad6d8718"
+  },
+  "energy.flow.pushing-back": {
+    "source": "feadc848986a39ca",
+    "value": "a89cad0fdbbcec76"
+  },
+  "energy.flow.solar-and-battery": {
+    "source": "ccc4f2c73c06077d",
+    "value": "4eaf33e1c5cac331"
+  },
+  "energy.flow.solar-and-grid": {
+    "source": "99a4da1537e69123",
+    "value": "f55b248800c140cd"
+  },
+  "energy.flow.solar-covers-everything": {
+    "source": "051e1e46fd04650f",
+    "value": "4e782687851353e0"
+  },
+  "energy.flow.solar-covers-part": {
+    "source": "359db19db2614be0",
+    "value": "2e1db1cb97b622f8"
+  },
+  "energy.flow.solar-resting": {
+    "source": "4f4866c23c02879b",
+    "value": "c120d58a9fed2116"
+  },
+  "energy.flow.to-grid": {
+    "source": "9608c24bfba44253",
+    "value": "3b506cefbdcb042c"
+  },
+  "energy.labelled-power": {
+    "source": "746dc757c2869a4d",
+    "value": "ec2847903740b47e"
+  },
+  "energy.money": {
+    "source": "d98df8b00229bcff",
+    "value": "6352169940174e0a"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "136ef928df3dfcbe"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "78e7920010aa1ff0"
+  },
+  "manifest.config.x-m5zgszcfpbyg64tuivxgk4thpfcw45djor4q.description": {
+    "source": "d6360e4e1a053c5a",
+    "value": "5a286b4a55ba3797"
+  },
+  "manifest.config.x-m5zgszcfpbyg64tuivxgk4thpfcw45djor4q.title": {
+    "source": "c29ff3464e156015",
+    "value": "bf48db91541a1c89"
+  },
+  "manifest.config.x-m5zgszcfpbyg64tukbxxozlsivxhi2lupe.description": {
+    "source": "eada43c2a98967ce",
+    "value": "7ad069b81a8eeb30"
+  },
+  "manifest.config.x-m5zgszcfpbyg64tukbxxozlsivxhi2lupe.title": {
+    "source": "0dd535cb5ae579c4",
+    "value": "6783b6a50665a7d8"
+  },
+  "manifest.config.x-m5zgszcjnvyg64tuivxgk4thpfcw45djor4q.description": {
+    "source": "5beb1234862196f9",
+    "value": "cce0723851dd3571"
+  },
+  "manifest.config.x-m5zgszcjnvyg64tuivxgk4thpfcw45djor4q.title": {
+    "source": "1a83ee70ba9a1ef6",
+    "value": "163883682e414c60"
+  },
+  "manifest.config.x-m5zgszcjnvyg64tukbxxozlsivxhi2lupe.description": {
+    "source": "38bec56e38c285fe",
+    "value": "ba1bc4eb39895f61"
+  },
+  "manifest.config.x-m5zgszcjnvyg64tukbxxozlsivxhi2lupe.title": {
+    "source": "bf694e951931e055",
+    "value": "48b64f3273a2bf51"
+  },
+  "manifest.config.x-m5zgszctnftw4zlekbxxozlsivxhi2lupe.description": {
+    "source": "b898a3920b418ac0",
+    "value": "5a5f9cb8fc2c8e93"
+  },
+  "manifest.config.x-m5zgszctnftw4zlekbxxozlsivxhi2lupe.title": {
+    "source": "ff935577172a1d89",
+    "value": "08180a4e6437c16d"
+  },
+  "manifest.config.x-mjqxi5dfoj4ug2dbojtwkrlomvzgo6kfnz2gs5dz.description": {
+    "source": "eb6b27c2f22a3765",
+    "value": "19691cb487a92515"
+  },
+  "manifest.config.x-mjqxi5dfoj4ug2dbojtwkrlomvzgo6kfnz2gs5dz.title": {
+    "source": "114b53d07a9e7d28",
+    "value": "86655ab0b51b7a51"
+  },
+  "manifest.config.x-mjqxi5dfoj4ui2ltmnugc4thmvcw4zlsm54uk3tunf2hs.description": {
+    "source": "360e1c2bb3319d16",
+    "value": "3cb4fbd83643997d"
+  },
+  "manifest.config.x-mjqxi5dfoj4ui2ltmnugc4thmvcw4zlsm54uk3tunf2hs.title": {
+    "source": "b83b18a42edd27d2",
+    "value": "2e100ee9584133ca"
+  },
+  "manifest.config.x-nbxw2zkfnzsxez3zivxhi2lupe.description": {
+    "source": "edd00be5858b1007",
+    "value": "f31988276d040c24"
+  },
+  "manifest.config.x-nbxw2zkfnzsxez3zivxhi2lupe.title": {
+    "source": "a66d30b066857b09",
+    "value": "49996b5d5c132291"
+  },
+  "manifest.config.x-nbxw2zkqn53wk4sfnz2gs5dz.description": {
+    "source": "7668fa68b55c1b2d",
+    "value": "e1742f8cb510a26c"
+  },
+  "manifest.config.x-nbxw2zkqn53wk4sfnz2gs5dz.title": {
+    "source": "65df70606700ca0e",
+    "value": "9186730615d91aa8"
+  },
+  "manifest.config.x-onxwyylsivxgk4thpfcw45djor4q.description": {
+    "source": "0173f10a6df2bf1f",
+    "value": "d05e1a453e79eb8e"
+  },
+  "manifest.config.x-onxwyylsivxgk4thpfcw45djor4q.title": {
+    "source": "31b533b9f3e5187d",
+    "value": "f0835de6f52ba2ee"
+  },
+  "manifest.config.x-onxwyylskbxxozlsivxhi2lupe.description": {
+    "source": "f38564c1f9c9a927",
+    "value": "83616b6f2cd45e45"
+  },
+  "manifest.config.x-onxwyylskbxxozlsivxhi2lupe.title": {
+    "source": "66f18783cd50ca85",
+    "value": "51766aff2b06918e"
+  },
+  "manifest.description": {
+    "source": "df243a5327bb3681",
+    "value": "5c8b215ee8e1bbaa"
+  },
+  "manifest.examples.0.label": {
+    "source": "ccc4f2c73c06077d",
+    "value": "4eaf33e1c5cac331"
+  },
+  "manifest.examples.1.label": {
+    "source": "3bee88c379f6f2de",
+    "value": "ae8e5f52ccbba90e"
+  },
+  "manifest.examples.2.label": {
+    "source": "0d56f2de892006f5",
+    "value": "ab80540d98d27456"
+  },
+  "manifest.examples.3.label": {
+    "source": "427b336288941841",
+    "value": "464e1d466885e60e"
+  },
+  "manifest.name": {
+    "source": "058853ccf2e9c642",
+    "value": "faea14ca076c2c7f"
+  }
+}

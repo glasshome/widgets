@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nombre visible opcional que reemplaza el predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Activa una escena",
+  "manifest.examples.0.label": "Una escena",
+  "manifest.examples.1.label": "Escenas",
+  "manifest.examples.2.label": "Ancho",
+  "manifest.name": "Escena"
+}

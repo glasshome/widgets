@@ -14,6 +14,7 @@ import { configSchema, type ElectricityGridConfig } from "./config";
 import { PylonArt } from "./pylon-art";
 import "./grid.css";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
+import en from "./locales/en.json";
 
 const TINT: Record<Band, string> = {
   clean: "var(--success)",
@@ -161,6 +162,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
 }
 
 export default defineWidget<ElectricityGridConfig>({
+  messages: en,
   manifest: {
     name: "Electricity Grid",
     description: "Is now a good time to use power? Grid carbon intensity and price at a glance",

@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename, der den Standard überschreibt",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.config.x-onug652gn5zgky3bon2a.title": "Vorhersage anzeigen",
+  "manifest.description": "Der Himmel draußen, die kommenden Stunden und Tage",
+  "manifest.examples.0.label": "Teilweise bewölkt",
+  "manifest.examples.1.label": "Mittelpunkt",
+  "manifest.examples.2.label": "Schnee",
+  "manifest.examples.3.label": "Leiste",
+  "manifest.name": "Wetter"
+}

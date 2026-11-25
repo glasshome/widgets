@@ -21,6 +21,7 @@ import { CameraView } from "./camera-view";
 import { createCameraPlayer } from "./create-player";
 import { type CameraFacts, CameraLiveView } from "./live-view";
 import { resolveSources, type StreamEngine } from "./sources";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -163,6 +164,7 @@ function CameraWidget(props: { config: CameraConfig }) {
 }
 
 export default defineWidget<CameraConfig>({
+  messages: en,
   manifest: {
     name: "Camera",
     description: "Live camera stream with multi-protocol support",

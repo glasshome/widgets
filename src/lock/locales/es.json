@@ -1,0 +1,15 @@
+{
+  "manifest.config.art.labels.door": "Puerta principal",
+  "manifest.config.art.labels.gate": "Puerta del jardín",
+  "manifest.config.art.labels.smart": "Cerradura inteligente",
+  "manifest.config.art.title": "Imagen de la cerradura",
+  "manifest.config.title.description": "Nombre visible opcional que reemplaza el predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Bloquea y desbloquea entidades con indicador de seguridad",
+  "manifest.examples.0.label": "Puerta principal",
+  "manifest.examples.1.label": "Bloqueada",
+  "manifest.examples.2.label": "Desbloqueada",
+  "manifest.examples.3.label": "Cerraduras",
+  "manifest.name": "Cerradura"
+}

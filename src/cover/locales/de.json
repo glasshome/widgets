@@ -1,0 +1,21 @@
+{
+  "manifest.config.art.labels.blind": "Fensterjalousie",
+  "manifest.config.art.labels.curtain": "Vorhänge",
+  "manifest.config.art.labels.device": "Wie in Home Assistant",
+  "manifest.config.art.labels.garage": "Garagentor",
+  "manifest.config.art.labels.gate": "Einfahrtstor",
+  "manifest.config.art.labels.shutter": "Rollladen",
+  "manifest.config.art.title": "Abdeckungsbild",
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Abdeckungen, Jalousien und Rollläden steuern",
+  "manifest.examples.0.label": "Jalousie",
+  "manifest.examples.1.label": "Vorhänge geschlossen",
+  "manifest.examples.2.label": "Rollladen halb offen",
+  "manifest.examples.3.label": "Garagentor",
+  "manifest.examples.4.label": "Jalousie offen",
+  "manifest.examples.5.label": "Tor offen",
+  "manifest.examples.6.label": "Jalousien",
+  "manifest.name": "Abdeckung"
+}

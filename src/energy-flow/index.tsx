@@ -2,6 +2,7 @@ import {
   defineWidget,
   useEntities,
   useEntity,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   Widget,
@@ -18,6 +19,7 @@ import { configEntityIds, dominantColor, type PowerLookup, resolveFlow } from ".
 import { EnergyHeader } from "./header";
 import { migrateConfig } from "./migrate";
 import { EnergyFlowSheet } from "./sheet";
+import en from "./locales/en.json";
 
 /** Scale a power reading to watts based on the sensor's reported unit.
  *  HA power sensors commonly report kW. "MW" and "mW" collide under a
@@ -39,6 +41,7 @@ function toWatts(value: number, unit: string | null | undefined): number {
 
 function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const ids = createMemo(() => configEntityIds(props.config.nodes));
@@ -63,7 +66,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   });
 
   const flow = createMemo(() => resolveFlow(props.config.nodes, lookup(), sunBelowHorizon()));
-  const description = createMemo(() => describeFlow(flow().flowState));
+  const description = createMemo(() => describeFlow(flow().flowState, tools));
   const channelColor = createMemo(() => dominantColor(flow()));
   const unconfigured = createMemo(() => isUnconfigured(flow()));
 
@@ -131,6 +134,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
 }
 
 export default defineWidget<EnergyFlowConfig>({
+  messages: en,
   manifest: {
     name: "Energy Flow",
     description: "Live power flow between solar, grid, battery, home, and EV",

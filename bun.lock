@@ -6,6 +6,7 @@
       "name": "@glasshome/widgets",
       "devDependencies": {
         "@glasshome/widget-cli": "0.22.4",
+        "@glasshome/widget-contract": "0.9.0",
         "@glasshome/widget-sdk": "1.33.0",
         "@solidjs/testing-library": "^0.8.10",
         "@types/bun": "^1.4.0",
@@ -101,6 +102,10 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.12", "", {}, "sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww=="],
 
+    "@formatjs/icu-messageformat-parser": ["@formatjs/icu-messageformat-parser@3.5.22", "", { "dependencies": { "@formatjs/icu-skeleton-parser": "2.1.12" } }, "sha512-YuwN+dDKgssfuYwtOyGQD0CSn7K46g9cv1Fp0VgKpjZDDFvv8b8crzP990IcJhRPWHhKzCGsbUSJVIguyyFA5A=="],
+
+    "@formatjs/icu-skeleton-parser": ["@formatjs/icu-skeleton-parser@2.1.12", "", {}, "sha512-ca7tZMLpfHX3sUD7hP6gE/qr6Iq89EDd3ZLeRhbsB7r0UD55DGJq+tmFLzrGrnx5StahUevQmQQVtbDRHsfDHA=="],
+
     "@glasshome/ha-types": ["@glasshome/ha-types@0.2.0", "", {}, "sha512-HaN3op9lV/OZsnWbv4yW6MDzZxhjthqSXtFrUm86x12D1y4n0yz1C2j0b45KRs+4xMQrXMYuWvtOmecHlsmrlw=="],
 
     "@glasshome/sync-layer": ["@glasshome/sync-layer@0.12.12", "", { "dependencies": { "@glasshome/widget-contract": "0.8.0", "home-assistant-js-websocket": "^9.6.0", "zod": "^4.4.3" }, "peerDependencies": { "@glasshome/ha-types": "0.2.0", "solid-js": "^1.9.0" }, "optionalPeers": ["solid-js"] }, "sha512-P1mqZZ+57VBZ0RAvOmtjFe7qL3vW6z8P9DLERafMf7GxsWsk+9HbgXkyVI+DA3ZU8xEzOzUEMGegfvCW3VNvIg=="],
@@ -109,7 +114,7 @@
 
     "@glasshome/widget-cli": ["@glasshome/widget-cli@0.22.4", "", { "dependencies": { "@clack/prompts": "^1.6.0", "@glasshome/sync-layer": "0.12.12", "@glasshome/widget-contract": "0.8.0", "@glasshome/widget-sdk": "1.33.1", "@iconify-json/lucide": "^1.2.0", "@iconify-json/mdi": "^1.2.3", "@iconify/utils": "^3.1.4", "es-module-lexer": "^2.3.2", "open": "^11.0.0", "picocolors": "^1.1.1", "semver": "^7.6.0", "ts-morph": "^28.0.0", "vite-plugin-solid": "^2.11.0" }, "peerDependencies": { "playwright": "^1.40.0", "vite": "^7.3.1" }, "optionalPeers": ["playwright"], "bin": { "glasshome-widget": "bin/cli.ts" } }, "sha512-t8RPgdJ3E9VAFL+83FnOMYz4ACKxFMuV6gjnLKiFurXb8dEAjDRjYQUUiQ1+1RgzUIZzXVIXE8qIemkbkINjrw=="],
 
-    "@glasshome/widget-contract": ["@glasshome/widget-contract@0.8.0", "", { "dependencies": { "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-5m1vSPfOXdJymYPTZ2/7bUJC427C6vX6KJP4UJ0m5AxA4L1sJ2+J6x+mS5RMq7N7GyPDgpJDOawd9rGhoTWU/g=="],
+    "@glasshome/widget-contract": ["@glasshome/widget-contract@0.9.0", "", { "dependencies": { "@formatjs/icu-messageformat-parser": "3.5.22", "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-cAcLkgRIQeKhMRuEzq1gybAUcZ9QbALPIbVfXcuqYiN/JrPy7CzK8R5kLLWh2juU0d3lQv2bFLKc3G7/1qPrYQ=="],
 
     "@glasshome/widget-sdk": ["@glasshome/widget-sdk@1.33.0", "", { "dependencies": { "@glasshome/widget-contract": "0.8.0", "@tailwindcss/vite": "^4.1.13", "clsx": "^2.1.1", "happy-dom": "^20.0.0", "hls.js": "^1.6.15", "lightningcss": "^1.33.0", "semver": "^7.7.0", "tailwind-merge": "^3.5.0", "tailwindcss": "^4.1.13", "zod": "^4.1.13" }, "peerDependencies": { "@glasshome/sync-layer": "0.9.1", "@glasshome/ui": "1.37.0", "solid-js": "^1.9.11" } }, "sha512-rT4yzFPFNVSoXeZd5srkcIMg31mHnNLmsKdrrbDOYn0eTxcoDOck04yFjFNtiGyTPBcSKaRXdRuLOTrSAiw4wA=="],
 
@@ -681,7 +686,13 @@
 
     "@babel/helper-compilation-targets/semver": ["semver@6.3.2", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-GYrCADwpu6yV5OAvchkQ27Z5wwMxWAEMg5NNWjyHh/5DboFFqbdbvYNIvZouQpxXyeMPoTOh0vdPYKlf0ZswdQ=="],
 
+    "@glasshome/sync-layer/@glasshome/widget-contract": ["@glasshome/widget-contract@0.8.0", "", { "dependencies": { "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-5m1vSPfOXdJymYPTZ2/7bUJC427C6vX6KJP4UJ0m5AxA4L1sJ2+J6x+mS5RMq7N7GyPDgpJDOawd9rGhoTWU/g=="],
+
+    "@glasshome/widget-cli/@glasshome/widget-contract": ["@glasshome/widget-contract@0.8.0", "", { "dependencies": { "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-5m1vSPfOXdJymYPTZ2/7bUJC427C6vX6KJP4UJ0m5AxA4L1sJ2+J6x+mS5RMq7N7GyPDgpJDOawd9rGhoTWU/g=="],
+
     "@glasshome/widget-cli/@glasshome/widget-sdk": ["@glasshome/widget-sdk@1.33.1", "", { "dependencies": { "@glasshome/widget-contract": "0.8.0", "@tailwindcss/vite": "^4.1.13", "clsx": "^2.1.1", "happy-dom": "^20.0.0", "hls.js": "^1.6.15", "lightningcss": "^1.33.0", "semver": "^7.7.0", "tailwind-merge": "^3.5.0", "tailwindcss": "^4.1.13", "zod": "^4.1.13" }, "peerDependencies": { "@glasshome/sync-layer": "0.9.1", "@glasshome/ui": "1.37.0", "solid-js": "^1.9.11" } }, "sha512-w3v8727xn3CTBmawstCkPoENgvB00IwkUO3gcKyTaOVPqwF8OWZ5StvlzbXo/WMgxp7jfBnVhtbjOfZ6nPbzIw=="],
+
+    "@glasshome/widget-sdk/@glasshome/widget-contract": ["@glasshome/widget-contract@0.8.0", "", { "dependencies": { "es-module-lexer": "^2.3.2", "semver": "^7.7.0", "zod": "^4.4.3" } }, "sha512-5m1vSPfOXdJymYPTZ2/7bUJC427C6vX6KJP4UJ0m5AxA4L1sJ2+J6x+mS5RMq7N7GyPDgpJDOawd9rGhoTWU/g=="],
 
     "@tailwindcss/node/magic-string": ["magic-string@1.4.5", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.6.0" } }, "sha512-oLLC2+YvQUfAa+vxoufE/yc1icb87M9iXIRqAoR/2EhE/8cb3SF/+Gi0c2By1B+5Vz2e2vQtUvHiu1+63Znh+w=="],
 

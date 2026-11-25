@@ -24,6 +24,7 @@ import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS } from "../common/art/lamp-kinds";
 import { groupLine } from "../common/group";
 import { LightSheet, lightHasExtras } from "./sheet";
 import { brightnessToPercent, hsToCSS } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -218,6 +219,7 @@ function LightWidget(props: { config: LightConfig }) {
 }
 
 export default defineWidget<LightConfig>({
+  messages: en,
   manifest: {
     name: "Light",
     description: "Light control with brightness, color, and temperature",

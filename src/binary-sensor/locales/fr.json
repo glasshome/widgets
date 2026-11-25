@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.device": "Correspondre à Home Assistant",
+  "manifest.config.art.labels.door": "Porte",
+  "manifest.config.art.labels.garage": "Porte de garage",
+  "manifest.config.art.labels.none": "Aucune image",
+  "manifest.config.art.labels.window": "Fenêtre",
+  "manifest.config.art.title": "Image du capteur",
+  "manifest.config.title.description": "Remplacement facultatif du nom affiché",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Capteurs de mouvement, de porte et d’occupation",
+  "manifest.examples.0.label": "Porte ouverte",
+  "manifest.examples.1.label": "Porte",
+  "manifest.examples.2.label": "Fenêtre fermée",
+  "manifest.examples.3.label": "Garage fermé",
+  "manifest.examples.4.label": "Mouvement",
+  "manifest.examples.5.label": "Contact et mouvement",
+  "manifest.name": "Capteur binaire"
+}

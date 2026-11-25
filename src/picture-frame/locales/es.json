@@ -1,0 +1,22 @@
+{
+  "manifest.config.fit.title": "Ajuste",
+  "manifest.config.interval.description": "Desactivado mantiene una imagen hasta que deslices a la siguiente.",
+  "manifest.config.interval.title": "Cambiar cada",
+  "manifest.config.pictures.add-label": "Añadir imagen",
+  "manifest.config.pictures.title": "Imágenes",
+  "manifest.config.pictures.x-items-all.image.presets.coast.label": "Costa",
+  "manifest.config.pictures.x-items-all.image.presets.dog.label": "Perro",
+  "manifest.config.pictures.x-items-all.image.presets.forest.label": "Bosque",
+  "manifest.config.pictures.x-items-all.image.presets.meadow.label": "Prado",
+  "manifest.config.pictures.x-items-all.image.title": "Imagen",
+  "manifest.config.pictures.x-items-all.title": "Imagen",
+  "manifest.description": "Tus propias fotos en el panel, una a la vez o como presentación",
+  "manifest.examples.0.label": "Fotos de ejemplo",
+  "manifest.examples.1.label": "Tu foto",
+  "manifest.examples.2.label": "Ancho",
+  "manifest.examples.3.label": "Retrato, imagen completa",
+  "manifest.examples.4.label": "Alto",
+  "manifest.examples.5.label": "Grande",
+  "manifest.examples.6.label": "Pequeño",
+  "manifest.name": "Marco de fotos"
+}

@@ -1,0 +1,70 @@
+{
+  "manifest.config.art.labels.ac": {
+    "source": "7c095c3cffdeb317",
+    "value": "ea0e1904f1726cda"
+  },
+  "manifest.config.art.labels.heatpump": {
+    "source": "e2a448e437c4775b",
+    "value": "7e19e40855a4beeb"
+  },
+  "manifest.config.art.labels.radiator": {
+    "source": "ab6ae88b903f0ef6",
+    "value": "327630c626ae26c3"
+  },
+  "manifest.config.art.labels.thermostat": {
+    "source": "e92f08bd6e3af5ab",
+    "value": "dd1eeb3ccf9f7bcb"
+  },
+  "manifest.config.art.title": {
+    "source": "8274de5715a4dd67",
+    "value": "e8cdae26f9aa44d1"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "43c7a8b6c15bd75d"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "abcafc82daaf011f"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "fd4864477fa21757",
+    "value": "a8a6d6ec304da067"
+  },
+  "manifest.description": {
+    "source": "2a702d83cc01a5fa",
+    "value": "5e869ffa88cf9b07"
+  },
+  "manifest.examples.0.label": {
+    "source": "e92f08bd6e3af5ab",
+    "value": "dd1eeb3ccf9f7bcb"
+  },
+  "manifest.examples.1.label": {
+    "source": "b513711efdd2a378",
+    "value": "327630c626ae26c3"
+  },
+  "manifest.examples.2.label": {
+    "source": "b1079b6b84f14b4d",
+    "value": "eab98af13db9596a"
+  },
+  "manifest.examples.3.label": {
+    "source": "e2a448e437c4775b",
+    "value": "7e19e40855a4beeb"
+  },
+  "manifest.examples.4.label": {
+    "source": "5c9034aa0680a09c",
+    "value": "e7cc39b47178d8db"
+  },
+  "manifest.examples.5.label": {
+    "source": "40657bd31ee3b277",
+    "value": "1ee9e8092370c3c5"
+  },
+  "manifest.examples.6.label": {
+    "source": "e3e39e54c2ba00fc",
+    "value": "48f1e614f9805565"
+  },
+  "manifest.name": {
+    "source": "1bed48e86b9f628b",
+    "value": "f7a6e5b531e8f88d"
+  }
+}

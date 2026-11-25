@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename, der den Standard überschreibt",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entität",
+  "manifest.config.x-ojswm4tfonues3tumvzhmylm.title": "Snapshot-Aktualisierung (Sekunden)",
+  "manifest.config.x-on2hezlbnvcw4z3jnzsq.title": "Stream-Engine",
+  "manifest.description": "Live-Kamerastream mit Unterstützung für mehrere Protokolle",
+  "manifest.examples.0.label": "Haustür",
+  "manifest.name": "Kamera"
+}

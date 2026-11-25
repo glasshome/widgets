@@ -21,6 +21,7 @@ import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
 import { greetingForHour, hourIn } from "./greeting";
 import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 import "./header.css";
+import en from "./locales/en.json";
 
 function HeaderWidget(props: { config: HeaderConfig }) {
   const ctx = useWidgetContext();
@@ -141,6 +142,7 @@ const DEFAULT_CHIPS: HeaderChip[] = [
 ];
 
 export default defineWidget<HeaderConfig>({
+  messages: en,
   manifest: {
     name: "Header",
     description:

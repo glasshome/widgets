@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nombre visible opcional que sustituye al predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidad",
+  "manifest.description": "Controles de reproducción multimedia con carátula del álbum y seguimiento del progreso",
+  "manifest.examples.0.label": "Reproduciendo",
+  "manifest.examples.1.label": "Ancho",
+  "manifest.examples.2.label": "Grande",
+  "manifest.name": "Reproductor multimedia"
+}

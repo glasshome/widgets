@@ -29,6 +29,7 @@ import {
   getWeatherIconColor,
 } from "./utils";
 import "./weather.css";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -202,6 +203,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
 }
 
 export default defineWidget<WeatherConfig>({
+  messages: en,
   manifest: {
     name: "Weather",
     description: "The sky outside, the hours and days ahead",

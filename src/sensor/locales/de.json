@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mftwo4tfm5qxi2lpnzkhs4df.title": "Aggregation",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Sensorwerte mit Aggregation anzeigen",
+  "manifest.examples.0.label": "Außen",
+  "manifest.examples.1.label": "Temperatur",
+  "manifest.examples.2.label": "Leistung",
+  "manifest.examples.3.label": "Klimasensoren",
+  "manifest.name": "Sensor"
+}

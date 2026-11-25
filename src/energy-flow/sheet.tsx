@@ -4,9 +4,10 @@ import {
   PanelRow,
   PanelRows,
   PanelSection,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createMemo, Index, Show } from "solid-js";
-import { formatMoney, formatPower } from "../_energy-shared";
+import { type EnergyTools, formatMoney, formatPower } from "../_energy-shared/formatting";
 import { energyIcons } from "../_energy-shared/icons";
 import { computeCost, type Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, aggregate, type ResolvedFlow, type ResolvedNode } from "./flow";
@@ -20,11 +21,11 @@ function directionWord(node: ResolvedNode): string | undefined {
   return node.direction === "in" ? "Discharging" : "Charging";
 }
 
-function nodeState(n: ResolvedNode): string {
+function nodeState(n: ResolvedNode, tools: EnergyTools): string {
   if (n.stale) return "Unavailable";
   if (n.resting) return "Back at sunrise";
   const active = n.watts > ACTIVE_THRESHOLD && n.direction !== "idle";
-  const parts = [active ? formatPower(n.watts) : "Idle"];
+  const parts = [active ? formatPower(n.watts, tools) : "Idle"];
   const word = active ? directionWord(n) : undefined;
   if (word) parts.unshift(word);
   if (n.level !== undefined) parts.push(`${Math.round(n.level)}%`);
@@ -33,7 +34,8 @@ function nodeState(n: ResolvedNode): string {
 
 /** What the energy tile cannot show: each source and use with its share of the flow, and what the flow earns or costs. */
 export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
-  const views = createMemo(() => buildEnergyGraph(props.flow, props.tariff).views);
+  const tools = useTranslation();
+  const views = createMemo(() => buildEnergyGraph(props.flow, tools, props.tariff).views);
   const configured = createMemo(() => props.flow.nodes.filter((n) => n.configured));
   const sources = () => configured().filter((n) => n.kind !== "output");
   const uses = () => configured().filter((n) => n.kind === "output");
@@ -53,7 +55,7 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
       out.push({
         icon: energyIcons.solar,
         label: "Producing",
-        value: formatPower(agg.productionW),
+        value: formatPower(agg.productionW, tools),
       });
     }
     if (props.flow.hubW > ACTIVE_THRESHOLD && configured().some((n) => n.priced)) {
@@ -69,14 +71,14 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
       out.push({
         icon: "mdi:cash",
         label: cost.gridPerHour > 0 ? "Grid cost" : "Earning",
-        value: `${formatMoney(Math.abs(cost.gridPerHour), cost.currency)}/h`,
+        value: `${formatMoney(Math.abs(cost.gridPerHour), cost.currency, tools)}/h`,
       });
     }
     if (cost && cost.solarSavingPerHour > COST_THRESHOLD) {
       out.push({
         icon: "mdi:piggy-bank-outline",
         label: "Saving",
-        value: `${formatMoney(cost.solarSavingPerHour, cost.currency)}/h`,
+        value: `${formatMoney(cost.solarSavingPerHour, cost.currency, tools)}/h`,
       });
     }
     return out;
@@ -86,7 +88,7 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
     <PanelRow
       icon={n().icon}
       name={n().label}
-      state={nodeState(n())}
+      state={nodeState(n(), tools)}
       tone={views().get(n().id)?.color ?? n().color}
       on={share(n()) > 0}
       fill={share(n())}

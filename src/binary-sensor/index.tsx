@@ -24,6 +24,7 @@ import { CoverArt } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
 import { BinarySensorSheet } from "./sheet";
 import { getBinarySensorStateText } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -167,6 +168,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
 }
 
 export default defineWidget<BinarySensorConfig>({
+  messages: en,
   manifest: {
     name: "Binary Sensor",
     description: "Motion, door, occupancy sensors",

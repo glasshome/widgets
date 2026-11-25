@@ -1,0 +1,15 @@
+{
+  "manifest.config.art.labels.door": "Haustür",
+  "manifest.config.art.labels.gate": "Gartentor",
+  "manifest.config.art.labels.smart": "Smartes Schloss",
+  "manifest.config.art.title": "Schlossbild",
+  "manifest.config.title.description": "Optionaler Anzeigename, der den Standard überschreibt",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Schlösser und Entriegelungen mit Sicherheitsanzeige steuern",
+  "manifest.examples.0.label": "Haustür",
+  "manifest.examples.1.label": "Verriegelt",
+  "manifest.examples.2.label": "Entriegelt",
+  "manifest.examples.3.label": "Schlösser",
+  "manifest.name": "Schloss"
+}

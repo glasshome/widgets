@@ -1,0 +1,21 @@
+{
+  "manifest.config.art.labels.blind": "Store de fenêtre",
+  "manifest.config.art.labels.curtain": "Rideaux",
+  "manifest.config.art.labels.device": "Identique à Home Assistant",
+  "manifest.config.art.labels.garage": "Porte de garage",
+  "manifest.config.art.labels.gate": "Portail d’entrée",
+  "manifest.config.art.labels.shutter": "Volet roulant",
+  "manifest.config.art.title": "Image de la couverture",
+  "manifest.config.title.description": "Remplacement facultatif du nom affiché",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Commandez les volets roulants, stores et persiennes",
+  "manifest.examples.0.label": "Store",
+  "manifest.examples.1.label": "Rideaux fermés",
+  "manifest.examples.2.label": "Volet à mi-hauteur",
+  "manifest.examples.3.label": "Porte de garage",
+  "manifest.examples.4.label": "Store ouvert",
+  "manifest.examples.5.label": "Portail ouvert",
+  "manifest.examples.6.label": "Stores",
+  "manifest.name": "Couverture"
+}

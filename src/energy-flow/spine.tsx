@@ -1,4 +1,10 @@
-import { Icon, useDaylight, useIntersectionPause, useReducedMotion } from "@glasshome/widget-sdk";
+import {
+  Icon,
+  useDaylight,
+  useIntersectionPause,
+  useReducedMotion,
+  useTranslation,
+} from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,
@@ -67,7 +73,8 @@ export function Spine(props: {
   tariff: Tariff;
   onTap: (id: string) => void;
 }): JSX.Element {
-  const energy = createMemo(() => buildEnergyGraph(props.flow, props.tariff));
+  const tools = useTranslation();
+  const energy = createMemo(() => buildEnergyGraph(props.flow, tools, props.tariff));
   const [el, setEl] = createSignal<HTMLDivElement>();
   const [size, setSize] = createSignal({ width: 0, height: 0 });
   createEffect(() => {
@@ -145,7 +152,7 @@ export function Spine(props: {
         <div
           class="flow-house-scene"
           role="img"
-          aria-label={`Home, ${formatPower(props.flow.hubW)}`}
+          aria-label={`Home, ${formatPower(props.flow.hubW, tools)}`}
           style={{
             left: `${scene().house.x}px`,
             top: `${scene().house.y}px`,

@@ -7,6 +7,7 @@ import {
   useEntities,
   useEntityStatistics,
   useReducedMotion,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -21,6 +22,7 @@ import { configSchema, type EnergyBalanceConfig } from "./config";
 import { SkyScene } from "./sky";
 import { skyScene } from "./sun-path";
 import "./balance.css";
+import en from "./locales/en.json";
 
 type ValueUnit = "W" | "kWh";
 
@@ -57,6 +59,7 @@ function firstId(ids: string[]): string {
 
 function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const _reducedMotion = useReducedMotion();
   const [mode, setMode] = createSignal<Mode>("today");
@@ -176,13 +179,13 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       if (Math.abs(diff) < 50) return { value: "Balanced", unit: "", caption: when, color: "" };
       if (diff > 0)
         return {
-          value: `+${formatPower(diff)}`,
+          value: `+${formatPower(diff, tools)}`,
           unit: "",
           caption: `solar surplus ${when}`,
           color: AMBER,
         };
       return {
-        value: `−${formatPower(-diff)}`,
+        value: `−${formatPower(-diff, tools)}`,
         unit: "",
         caption: drawn,
         color: BLUE,
@@ -216,7 +219,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const subLine = () => {
     const unit = dataUnit();
     const fmt = (v: number) =>
-      unit === "W" ? formatPower(v) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
+      unit === "W" ? formatPower(v, tools) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
     return hasSolar() ? `Solar ${fmt(produced())} · Home ${fmt(consumed())}` : undefined;
   };
 
@@ -288,6 +291,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
 }
 
 export default defineWidget<EnergyBalanceConfig>({
+  messages: en,
   manifest: {
     name: "Energy Balance",
     description: "Today's self-sufficiency: how much of your home ran on solar vs the grid",

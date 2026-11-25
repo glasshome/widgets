@@ -20,6 +20,7 @@ import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
 import { type ClockConfig, configSchema } from "./types";
 import { formatDate, getClockTones, getDayOfWeek, getDefaultConfig, getTimeParts } from "./utils";
+import en from "./locales/en.json";
 
 function ClockWidget(props: { config: ClockConfig }) {
   const defaults = getDefaultConfig();
@@ -666,6 +667,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 }
 
 export default defineWidget<ClockConfig>({
+  messages: en,
   manifest: {
     name: "Clock",
     description: "Display current time with digital or analog styles, presets, and date",

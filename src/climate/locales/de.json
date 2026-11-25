@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.ac": "Klimaanlage",
+  "manifest.config.art.labels.heatpump": "Wärmepumpe",
+  "manifest.config.art.labels.radiator": "Heizkörper",
+  "manifest.config.art.labels.thermostat": "Thermostat",
+  "manifest.config.art.title": "Gerätebild",
+  "manifest.config.title.description": "Optionale Überschreibung des Anzeigenamens",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entität",
+  "manifest.description": "Klimasteuerung mit Temperatur, HVAC-Modi und Lüftersteuerung",
+  "manifest.examples.0.label": "Thermostat",
+  "manifest.examples.1.label": "Heizkörper",
+  "manifest.examples.2.label": "Klimaanlage aus",
+  "manifest.examples.3.label": "Wärmepumpe",
+  "manifest.examples.4.label": "Kompakt",
+  "manifest.examples.5.label": "Klimaanlage, breit",
+  "manifest.examples.6.label": "Großes Thermostat",
+  "manifest.name": "Klima"
+}

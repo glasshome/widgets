@@ -1,0 +1,134 @@
+{
+  "manifest.config.chips.description": {
+    "source": "21c2081511e78a28",
+    "value": "a227846ef351ee4d"
+  },
+  "manifest.config.chips.title": {
+    "source": "2d10f0a934f10603",
+    "value": "6511172bd1da0faf"
+  },
+  "manifest.config.chips.x-items-all.labels.action": {
+    "source": "1fd0c036f4c79522",
+    "value": "64cff1319d2fd2cb"
+  },
+  "manifest.config.chips.x-items-all.labels.covers": {
+    "source": "74bb1dc64c0c4116",
+    "value": "f42b41e1aea4c073"
+  },
+  "manifest.config.chips.x-items-all.labels.fans": {
+    "source": "c5238418eb6ddbac",
+    "value": "abd46a7d920c998c"
+  },
+  "manifest.config.chips.x-items-all.labels.lights": {
+    "source": "8ae3bd4156019b0d",
+    "value": "38045565d7de1fe1"
+  },
+  "manifest.config.chips.x-items-all.labels.locks": {
+    "source": "99c62057f7c26a09",
+    "value": "56a1a02565d1e903"
+  },
+  "manifest.config.chips.x-items-all.labels.switches": {
+    "source": "de68d344134a94ac",
+    "value": "e59952f1e76d5eb6"
+  },
+  "manifest.config.chips.x-items-all.labels.value": {
+    "source": "c6578d555f414a00",
+    "value": "6e8f3132d8e2e2a8"
+  },
+  "manifest.config.chips.x-items-all.title": {
+    "source": "43d7de3ba64a9f1d",
+    "value": "baaddf70fb5d432b"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-0.only.title": {
+    "source": "a11e8dfd3318fc27",
+    "value": "599222444f360d57"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-1.only.title": {
+    "source": "a11e8dfd3318fc27",
+    "value": "599222444f360d57"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-2.only.title": {
+    "source": "a11e8dfd3318fc27",
+    "value": "599222444f360d57"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-3.only.title": {
+    "source": "a11e8dfd3318fc27",
+    "value": "599222444f360d57"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-4.only.title": {
+    "source": "a11e8dfd3318fc27",
+    "value": "599222444f360d57"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-5.x-mvxhi2lupfewi.title": {
+    "source": "c0d5b569610f4ffa",
+    "value": "9932bafbd7af51b4"
+  },
+  "manifest.config.chips.x-items-all.x-oneof-6.x-mvxhi2lupfewi.title": {
+    "source": "cfcfc292fe913d89",
+    "value": "73bfd8863767acdb"
+  },
+  "manifest.config.greeting.description": {
+    "source": "2604c013156a5f87",
+    "value": "0c075d296a8dc8c1"
+  },
+  "manifest.config.greeting.title": {
+    "source": "d691d63022975863",
+    "value": "93002340ccc34a48"
+  },
+  "manifest.config.icon.description": {
+    "source": "aa7468850dc5baf5",
+    "value": "9f433da71d4d249a"
+  },
+  "manifest.config.icon.title": {
+    "source": "1666f9e6d9c4ac95",
+    "value": "09e867783abb3203"
+  },
+  "manifest.config.title.description": {
+    "source": "3cd6ea47a9cf4d02",
+    "value": "e7ef66132cc9eb94"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "78e7920010aa1ff0"
+  },
+  "manifest.config.where.description": {
+    "source": "e2604f009e89cede",
+    "value": "50c3cd62ee5c4589"
+  },
+  "manifest.config.where.labels.area": {
+    "source": "a2142f5e41b43bde",
+    "value": "968a0bb11f65e261"
+  },
+  "manifest.config.where.labels.dashboard": {
+    "source": "903f6e9d749cd453",
+    "value": "bf043d44b6f388d5"
+  },
+  "manifest.config.where.labels.home": {
+    "source": "36da886d160bc278",
+    "value": "6a1446e21d63b2da"
+  },
+  "manifest.config.where.title": {
+    "source": "f5ce233e6c491948",
+    "value": "709bfa4695449c5f"
+  },
+  "manifest.config.where.x-oneof-2.x-mfzgkykjmq.title": {
+    "source": "a67af6d9cae89d28",
+    "value": "779eb3ddcac5260e"
+  },
+  "manifest.description": {
+    "source": "e798c8e1a8b6c072",
+    "value": "849bb341e1bcbca3"
+  },
+  "manifest.examples.0.label": {
+    "source": "2196bb330845ec0d",
+    "value": "bd1ffa02f9b3e564"
+  },
+  "manifest.examples.1.label": {
+    "source": "3b37f655b7f7f32b",
+    "value": "86632d60b3e35e46"
+  },
+  "manifest.name": {
+    "source": "5713de771c660206",
+    "value": "01e73c6b76a4e7b8"
+  }
+}

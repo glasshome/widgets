@@ -1,0 +1,11 @@
+{
+  "common.light-colour.colour-preset": "Colour {hue}°, {saturation}%",
+  "common.light-colour.cool-white": "Cool white",
+  "common.light-colour.neutral-white": "Neutral white",
+  "common.light-colour.presets": "Presets",
+  "common.light-colour.reach": "Colour reaches {colour} of {white, plural, one {# lamp} other {# lamps}}",
+  "common.light-colour.soft-white": "Soft white",
+  "common.light-colour.title": "Colour",
+  "common.light-colour.warm-white": "Warm white",
+  "common.light-colour.white": "White"
+}

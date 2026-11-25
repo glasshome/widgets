@@ -1,3 +1,7 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
+
+export type EnergyTools = Pick<TranslationTools, "t" | "formatNumber">;
+
 export interface FlowState {
   solarW?: number;
   gridImportW?: number;
@@ -8,45 +12,44 @@ export interface FlowState {
   solarSleeping?: boolean;
 }
 
-function formatNumber(value: number, locale: string, decimals: number): string {
-  return new Intl.NumberFormat(locale, {
+function scaled(value: number, decimals: number, tools: EnergyTools): string {
+  return tools.formatNumber(value, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(value);
+  });
 }
 
-export function formatPower(watts: number, locale = "en-US"): string {
+export function formatPower(watts: number, tools: EnergyTools): string {
   const abs = Math.abs(watts);
   if (abs < 1000) {
-    return `${formatNumber(Math.round(watts), locale, 0)} W`;
+    return `${scaled(Math.round(watts), 0, tools)} W`;
   }
   const kw = watts / 1000;
   if (abs >= 10000) {
-    return `${formatNumber(Math.round(kw), locale, 0)} kW`;
+    return `${scaled(Math.round(kw), 0, tools)} kW`;
   }
-  return `${formatNumber(kw, locale, 1)} kW`;
+  return `${scaled(kw, 1, tools)} kW`;
 }
 
-export function formatEnergy(wh: number, locale = "en-US"): string {
+export function formatEnergy(wh: number, tools: EnergyTools): string {
   const abs = Math.abs(wh);
   if (abs < 1000) {
-    return `${formatNumber(Math.round(wh), locale, 0)} Wh`;
+    return `${scaled(Math.round(wh), 0, tools)} Wh`;
   }
   const kwh = wh / 1000;
   if (abs >= 10000) {
-    return `${formatNumber(Math.round(kwh), locale, 0)} kWh`;
+    return `${scaled(Math.round(kwh), 0, tools)} kWh`;
   }
-  return `${formatNumber(kwh, locale, 1)} kWh`;
+  return `${scaled(kwh, 1, tools)} kWh`;
 }
 
-export function describePower(label: string, watts: number, locale = "en-US"): string {
-  return `${label}: ${formatPower(watts, locale)}`;
+export function describePower(label: string, watts: number, tools: EnergyTools): string {
+  return tools.t("energy.labelled-power", { label, power: formatPower(watts, tools) });
 }
 
-/** Money with a user-supplied currency symbol (e.g. "€0.42"). Always magnitude:
- *  callers phrase the sign as "costs"/"earns". */
-export function formatMoney(amount: number, currency: string, locale = "en-US"): string {
-  return `${currency}${formatNumber(Math.abs(amount), locale, 2)}`;
+// Magnitude only: callers phrase the sign as costs or earns.
+export function formatMoney(amount: number, currency: string, tools: EnergyTools): string {
+  return tools.t("energy.money", { currency, amount: scaled(Math.abs(amount), 2, tools) });
 }
 
 export interface FlowDescription {
@@ -56,12 +59,9 @@ export interface FlowDescription {
 
 const THRESHOLD = 50;
 
-/**
- * Headline + secondary line describing the current flow. Rules are evaluated in
- * priority order; a headline never names a minority source while a larger one is
- * active (so battery never headlines while solar out-contributes it).
- */
-export function describeFlow(state: FlowState, locale = "en-US"): FlowDescription {
+// Rules run in priority order: a headline never names a minority source while a larger one is active.
+export function describeFlow(state: FlowState, tools: EnergyTools): FlowDescription {
+  const { t } = tools;
   const solar = state.solarW ?? 0;
   const gridImport = state.gridImportW ?? 0;
   const gridExport = state.gridExportW ?? 0;
@@ -77,47 +77,47 @@ export function describeFlow(state: FlowState, locale = "en-US"): FlowDescriptio
   if (gridExport > THRESHOLD) {
     // Don't credit solar unless it's actually running and covers home plus what we export.
     const solarCoversExport = solarActive && solar >= home + gridExport;
-    let detail = "Pushing power back to the grid";
+    let detail = t("energy.flow.pushing-back");
     if (solarCoversExport) {
-      detail = "Solar is covering everything";
+      detail = t("energy.flow.solar-covers-everything");
     } else if (batteryDischarging && !solarActive) {
-      detail = "Discharging the battery to the grid";
+      detail = t("energy.flow.battery-to-grid");
     }
     return {
-      headline: `${formatPower(gridExport, locale)} to the grid`,
+      headline: t("energy.flow.to-grid", { power: formatPower(gridExport, tools) }),
       detail,
     };
   }
   if (solar >= home && solarActive && !batteryDischarging) {
     return {
-      headline: "Running on solar",
-      detail: batteryCharging ? "Charging the battery" : "Grid untouched",
+      headline: t("energy.flow.on-solar"),
+      detail: batteryCharging ? t("energy.flow.charging-battery") : t("energy.flow.grid-untouched"),
     };
   }
   if (solarActive && batteryDischarging && !importing) {
     return {
-      headline: "Solar and battery",
-      detail: "Grid untouched",
+      headline: t("energy.flow.solar-and-battery"),
+      detail: t("energy.flow.grid-untouched"),
     };
   }
   if (batteryDischarging && !solarActive) {
-    return { headline: "Running on battery", detail: "Grid untouched" };
+    return { headline: t("energy.flow.on-battery"), detail: t("energy.flow.grid-untouched") };
   }
   if (solarActive && importing) {
     return {
-      headline: "Solar and grid",
-      detail: "Solar is covering part of it",
+      headline: t("energy.flow.solar-and-grid"),
+      detail: t("energy.flow.solar-covers-part"),
     };
   }
   if (importing) {
     return {
-      headline: `${formatPower(gridImport, locale)} from the grid`,
-      detail: state.solarSleeping ? "Solar is resting until sunrise" : "",
+      headline: t("energy.flow.from-grid", { power: formatPower(gridImport, tools) }),
+      detail: state.solarSleeping ? t("energy.flow.solar-resting") : "",
     };
   }
   // Nothing flowing and home draw is negligible: calmer than "Home using 0 W".
   if (home <= THRESHOLD) {
-    return { headline: "All quiet", detail: "" };
+    return { headline: t("energy.flow.all-quiet"), detail: "" };
   }
-  return { headline: `Home using ${formatPower(home, locale)}`, detail: "" };
+  return { headline: t("energy.flow.home-using", { power: formatPower(home, tools) }), detail: "" };
 }

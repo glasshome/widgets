@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.ac": "Climatiseur",
+  "manifest.config.art.labels.heatpump": "Pompe à chaleur",
+  "manifest.config.art.labels.radiator": "Radiateur",
+  "manifest.config.art.labels.thermostat": "Thermostat",
+  "manifest.config.art.title": "Image de l’appareil",
+  "manifest.config.title.description": "Nom d’affichage personnalisé facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entité",
+  "manifest.description": "Contrôle du climat avec température, modes CVC et commande du ventilateur",
+  "manifest.examples.0.label": "Thermostat",
+  "manifest.examples.1.label": "Chauffage à radiateur",
+  "manifest.examples.2.label": "Climatiseur éteint",
+  "manifest.examples.3.label": "Pompe à chaleur",
+  "manifest.examples.4.label": "Compact",
+  "manifest.examples.5.label": "Climatiseur, large",
+  "manifest.examples.6.label": "Thermostat grand format",
+  "manifest.name": "Climat"
+}

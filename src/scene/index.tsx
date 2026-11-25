@@ -19,6 +19,7 @@ import {
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -144,6 +145,7 @@ function SceneWidget(props: { config: SceneConfig }) {
 }
 
 export default defineWidget<SceneConfig>({
+  messages: en,
   manifest: {
     name: "Scene",
     description: "Activate a scene",

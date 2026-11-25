@@ -24,6 +24,7 @@ import { SensorSheet } from "./sheet";
 import { type SparklinePoint, TileSparkline } from "./sparkline";
 import "./sensor.css";
 import { formatSensorValue } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -164,6 +165,7 @@ function SensorWidget(props: { config: SensorConfig }) {
 }
 
 export default defineWidget<SensorConfig>({
+  messages: en,
   manifest: {
     name: "Sensor",
     description: "Display sensor values with aggregation",

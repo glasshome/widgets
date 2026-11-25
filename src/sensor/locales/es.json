@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Nombre opcional que sustituye al predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mftwo4tfm5qxi2lpnzkhs4df.title": "Agregación",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Muestra valores de sensores con agregación",
+  "manifest.examples.0.label": "Exterior",
+  "manifest.examples.1.label": "Temperatura",
+  "manifest.examples.2.label": "Potencia",
+  "manifest.examples.3.label": "Sensores de clima",
+  "manifest.name": "Sensor"
+}

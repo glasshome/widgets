@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Schaltereinheiten ein- und ausschalten",
+  "manifest.examples.0.label": "Ein",
+  "manifest.examples.1.label": "Aus",
+  "manifest.examples.2.label": "Schalter",
+  "manifest.name": "Schalter"
+}

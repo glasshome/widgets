@@ -18,6 +18,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -132,6 +133,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
 }
 
 export default defineWidget<ButtonConfig>({
+  messages: en,
   manifest: {
     name: "Button",
     description: "Press a button entity",

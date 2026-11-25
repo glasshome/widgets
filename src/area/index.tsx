@@ -26,6 +26,7 @@ import {
   HIDEABLE_DOMAINS,
   NO_EXCLUSIONS,
 } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -219,6 +220,7 @@ function AreaWidget(props: { config: AreaConfig }) {
 }
 
 export default defineWidget<AreaConfig>({
+  messages: en,
   manifest: {
     name: "Area",
     configVersion: 2,

@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Remplacement facultatif du nom affiché",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entité",
+  "manifest.description": "Commandes de lecture multimédia avec pochette d’album et suivi de la progression",
+  "manifest.examples.0.label": "En lecture",
+  "manifest.examples.1.label": "Large",
+  "manifest.examples.2.label": "Grand",
+  "manifest.name": "Lecteur multimédia"
+}

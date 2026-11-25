@@ -1,0 +1,12 @@
+{
+  "manifest.config.title.description": "Nom d’affichage personnalisé facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.config.x-onug652gn5zgky3bon2a.title": "Afficher les prévisions",
+  "manifest.description": "Le ciel dehors, les heures et les jours à venir",
+  "manifest.examples.0.label": "Partiellement nuageux",
+  "manifest.examples.1.label": "Élément central",
+  "manifest.examples.2.label": "Neige",
+  "manifest.examples.3.label": "Bandeau",
+  "manifest.name": "Météo"
+}

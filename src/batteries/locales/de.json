@@ -1,0 +1,13 @@
+{
+  "manifest.config.blacklist.title": "Blacklist (diese ausschließen)",
+  "manifest.config.threshold.title": "Schwelle für niedrigen Batteriestand (%)",
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.whitelist.title": "Whitelist (nur diese einschließen)",
+  "manifest.description": "Batteriestände aller Geräte automatisch erkennen und überwachen",
+  "manifest.examples.0.label": "Alles gut",
+  "manifest.examples.1.label": "Eine fast leer",
+  "manifest.examples.2.label": "Batterien",
+  "manifest.examples.3.label": "Jede Batterie",
+  "manifest.name": "Batterien"
+}

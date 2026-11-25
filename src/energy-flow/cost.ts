@@ -1,12 +1,4 @@
-/**
- * Turn live power (W) into running cost rates using the configured tariff.
- *
- * The widget only knows instantaneous power, not accumulated energy, so cost is
- * expressed as a rate (currency/hour): power (kW) x price (per kWh). DOM-free and
- * unit-tested, mirroring flow.ts.
- */
-
-import { type FlowState, formatMoney } from "../_energy-shared/formatting";
+import { type EnergyTools, type FlowState, formatMoney } from "../_energy-shared/formatting";
 
 export interface Tariff {
   currency?: string;
@@ -21,10 +13,7 @@ export interface EnergyCost {
   solarSavingPerHour: number;
 }
 
-/**
- * Null when the tariff is incomplete: both a non-empty currency symbol and a
- * positive rate are required, matching the config's "set together" guidance.
- */
+// Null unless the currency symbol and a positive rate are both set.
 export function computeCost(state: FlowState, tariff: Tariff): EnergyCost | null {
   const currency = tariff.currency?.trim();
   const rate = tariff.rate;
@@ -40,22 +29,18 @@ export function computeCost(state: FlowState, tariff: Tariff): EnergyCost | null
   return { currency, gridPerHour, solarSavingPerHour };
 }
 
-// Below this the rate rounds to 0.00/h, so callers show nothing rather than a
-// "€0.00/h" line.
+// Below this the rate rounds to 0.00/h, so callers show nothing.
 const COST_THRESHOLD = 0.005;
 
-/** Grid chip/legend sub-line: bare cost while importing, "Earns …" while
- *  exporting (the node label already carries the direction). Null when idle. */
-export function gridCostSub(cost: EnergyCost | null): string | undefined {
+export function gridCostSub(cost: EnergyCost | null, tools: EnergyTools): string | undefined {
   if (!cost) return undefined;
-  const perHour = `${formatMoney(cost.gridPerHour, cost.currency)}/h`;
+  const perHour = `${formatMoney(cost.gridPerHour, cost.currency, tools)}/h`;
   if (cost.gridPerHour > COST_THRESHOLD) return perHour;
   if (cost.gridPerHour < -COST_THRESHOLD) return `Earns ${perHour}`;
   return undefined;
 }
 
-/** Solar chip/legend sub-line: value of self-consumed solar. Null when none. */
-export function solarSavingSub(cost: EnergyCost | null): string | undefined {
+export function solarSavingSub(cost: EnergyCost | null, tools: EnergyTools): string | undefined {
   if (!cost || cost.solarSavingPerHour <= COST_THRESHOLD) return undefined;
-  return `Saves ${formatMoney(cost.solarSavingPerHour, cost.currency)}/h`;
+  return `Saves ${formatMoney(cost.solarSavingPerHour, cost.currency, tools)}/h`;
 }

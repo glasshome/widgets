@@ -1,0 +1,9 @@
+{
+  "manifest.config.title.description": "Nombre visible opcional que sustituye al original",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Pulsa una entidad de botón",
+  "manifest.examples.0.label": "Botón individual",
+  "manifest.examples.1.label": "Grupo de botones",
+  "manifest.name": "Botón"
+}

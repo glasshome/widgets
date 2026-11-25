@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.device": "Wie in Home Assistant",
+  "manifest.config.art.labels.door": "Tür",
+  "manifest.config.art.labels.garage": "Garagentor",
+  "manifest.config.art.labels.none": "Kein Bild",
+  "manifest.config.art.labels.window": "Fenster",
+  "manifest.config.art.title": "Sensorbild",
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Bewegungs-, Tür- und Präsenzsensoren",
+  "manifest.examples.0.label": "Tür offen",
+  "manifest.examples.1.label": "Tür",
+  "manifest.examples.2.label": "Fenster geschlossen",
+  "manifest.examples.3.label": "Garage geschlossen",
+  "manifest.examples.4.label": "Bewegung",
+  "manifest.examples.5.label": "Kontakt & Bewegung",
+  "manifest.name": "Binärsensor"
+}

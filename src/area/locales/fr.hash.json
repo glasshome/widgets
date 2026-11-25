@@ -1,0 +1,202 @@
+{
+  "common.light-colour.colour-preset": {
+    "source": "511c0869f3027d70",
+    "value": "b92a4e6d3fcad5a8"
+  },
+  "common.light-colour.cool-white": {
+    "source": "878ddb32b720fadb",
+    "value": "9d6c4b2507919b2d"
+  },
+  "common.light-colour.neutral-white": {
+    "source": "4b08da28f58e9107",
+    "value": "d4533b28668063ca"
+  },
+  "common.light-colour.presets": {
+    "source": "1bcdd557f3b67cf0",
+    "value": "24c2e9f5f69ba726"
+  },
+  "common.light-colour.reach": {
+    "source": "83a13442c39ee6c1",
+    "value": "abea5fbfbfbe2e99"
+  },
+  "common.light-colour.soft-white": {
+    "source": "e57b99b1ba15ac34",
+    "value": "36a90339c558d85b"
+  },
+  "common.light-colour.title": {
+    "source": "086dd90f71a846d6",
+    "value": "4550720a1879721c"
+  },
+  "common.light-colour.warm-white": {
+    "source": "08476086fadc1332",
+    "value": "7e0d66c85f9d59bb"
+  },
+  "common.light-colour.white": {
+    "source": "3e5bdf9edfe7e8f0",
+    "value": "a3bdd3c553e07a34"
+  },
+  "manifest.config.exclude.climate.title": {
+    "source": "9cd24c06ca493c51",
+    "value": "2f27d631797b1ff4"
+  },
+  "manifest.config.exclude.covers.title": {
+    "source": "863d62fa95a1c91e",
+    "value": "334f99ea0b299752"
+  },
+  "manifest.config.exclude.domains.description": {
+    "source": "08821f3d46ec5e4e",
+    "value": "fb31b4b7eb4de6bc"
+  },
+  "manifest.config.exclude.domains.labels.binary_sensor": {
+    "source": "b15aa9bcb75c7ee3",
+    "value": "45958aa05379574a"
+  },
+  "manifest.config.exclude.domains.labels.climate": {
+    "source": "1bed48e86b9f628b",
+    "value": "5b0676a07ba6259a"
+  },
+  "manifest.config.exclude.domains.labels.cover": {
+    "source": "1f65d443b47bac3b",
+    "value": "be23d331152e3e98"
+  },
+  "manifest.config.exclude.domains.labels.light": {
+    "source": "8ae3bd4156019b0d",
+    "value": "38045565d7de1fe1"
+  },
+  "manifest.config.exclude.domains.labels.sensor": {
+    "source": "c0947d6a7b26cf34",
+    "value": "3e974e0cc477f03b"
+  },
+  "manifest.config.exclude.domains.labels.switch": {
+    "source": "de68d344134a94ac",
+    "value": "e59952f1e76d5eb6"
+  },
+  "manifest.config.exclude.domains.title": {
+    "source": "bf84bec0858fae9d",
+    "value": "93ead512de245f3b"
+  },
+  "manifest.config.exclude.lights.title": {
+    "source": "24fe1a66d2d2f574",
+    "value": "62f38531a895d243"
+  },
+  "manifest.config.exclude.sensors.title": {
+    "source": "6f2c1b0206baf19c",
+    "value": "841f16ffd38c858c"
+  },
+  "manifest.config.exclude.switches.title": {
+    "source": "865c497247fbbf4c",
+    "value": "442ae1c7fd5e106e"
+  },
+  "manifest.config.exclude.title": {
+    "source": "9686adf0c163e5c5",
+    "value": "66206fc9931fd3de"
+  },
+  "manifest.config.exclude.x-mjuw4ylspfjwk3ttn5zhg.title": {
+    "source": "79a4ff6569cf17a7",
+    "value": "09aeb27962b6cbe3"
+  },
+  "manifest.config.image.description": {
+    "source": "2dce877f7f9c2496",
+    "value": "5026dc568a2934a8"
+  },
+  "manifest.config.image.presets.bathroom.label": {
+    "source": "e0842a8cd233c5ea",
+    "value": "b13ce9ac6c458700"
+  },
+  "manifest.config.image.presets.bedroom.label": {
+    "source": "197791cafac319c9",
+    "value": "a68868ee93e7354f"
+  },
+  "manifest.config.image.presets.dining.label": {
+    "source": "0a0a864452fd1ff0",
+    "value": "b9c8e90aff06b2f2"
+  },
+  "manifest.config.image.presets.garage.label": {
+    "source": "3faa0656655eb090",
+    "value": "b15f6253519634d5"
+  },
+  "manifest.config.image.presets.garden.label": {
+    "source": "1a8f68b30bb386f1",
+    "value": "1676010b6aac77ad"
+  },
+  "manifest.config.image.presets.hallway.label": {
+    "source": "3e164fe9aa077e41",
+    "value": "a76274e3718e23c8"
+  },
+  "manifest.config.image.presets.kids.label": {
+    "source": "1eeee94c8b18171e",
+    "value": "c283a0b2d8b2cd9a"
+  },
+  "manifest.config.image.presets.kitchen.label": {
+    "source": "a51c404cdb0fc125",
+    "value": "6814ffa9a3486233"
+  },
+  "manifest.config.image.presets.living.label": {
+    "source": "d672f762e396ef8f",
+    "value": "4e353fada1e9d693"
+  },
+  "manifest.config.image.presets.office.label": {
+    "source": "8ff1bbb6beceb04c",
+    "value": "d67769ec203c973b"
+  },
+  "manifest.config.image.title": {
+    "source": "136369e223fc0962",
+    "value": "d84eebada93efee1"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "be7e27369a3786bf"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "78e7920010aa1ff0"
+  },
+  "manifest.config.x-mfzgkykjmq.title": {
+    "source": "3e042926de5877ab",
+    "value": "179d9d449275ba05"
+  },
+  "manifest.description": {
+    "source": "5e653740262d9816",
+    "value": "2c7954e0fed78815"
+  },
+  "manifest.examples.0.label": {
+    "source": "54a100b14c05580d",
+    "value": "4e353fada1e9d693"
+  },
+  "manifest.examples.1.label": {
+    "source": "197791cafac319c9",
+    "value": "a68868ee93e7354f"
+  },
+  "manifest.examples.2.label": {
+    "source": "a51c404cdb0fc125",
+    "value": "6814ffa9a3486233"
+  },
+  "manifest.examples.3.label": {
+    "source": "03ccbdad7c3892d5",
+    "value": "d9c7efe13095fdad"
+  },
+  "manifest.examples.4.label": {
+    "source": "3faa0656655eb090",
+    "value": "b15f6253519634d5"
+  },
+  "manifest.examples.5.label": {
+    "source": "51ee94efbb295b54",
+    "value": "c03a43a858c183d2"
+  },
+  "manifest.examples.6.label": {
+    "source": "0d56f2de892006f5",
+    "value": "ab80540d98d27456"
+  },
+  "manifest.examples.7.label": {
+    "source": "427b336288941841",
+    "value": "464e1d466885e60e"
+  },
+  "manifest.examples.8.label": {
+    "source": "380ccb2b647c5af0",
+    "value": "3bc93bd49e20e9c5"
+  },
+  "manifest.name": {
+    "source": "3e042926de5877ab",
+    "value": "179d9d449275ba05"
+  }
+}

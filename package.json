@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@glasshome/widget-cli": "0.22.4",
+    "@glasshome/widget-contract": "0.9.0",
     "@glasshome/widget-sdk": "1.33.0",
     "@solidjs/testing-library": "^0.8.10",
     "@types/bun": "^1.4.0",

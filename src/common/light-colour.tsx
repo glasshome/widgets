@@ -7,6 +7,7 @@ import {
   SwatchPicker,
   TemperatureBar,
   useService,
+  useTranslation,
   useWidgetState,
   z,
 } from "@glasshome/widget-sdk";
@@ -18,26 +19,47 @@ const RECENT_MAX = 4;
 
 interface White {
   id: string;
-  label: string;
+  labelKey: string;
   kelvin: number;
   color: string;
   hue: number;
   saturation: number;
 }
 
-/* The whites people reach for, warm to cool. A colour-only lamp gets this hue and saturation instead. */
+// Warm to cool; a colour-only lamp gets the hue and saturation instead.
 const WHITES: White[] = [
-  { id: "warm", label: "Warm white", kelvin: 2200, color: "#ffb35a", hue: 25, saturation: 92 },
-  { id: "soft", label: "Soft white", kelvin: 2700, color: "#ffd79a", hue: 36, saturation: 64 },
+  {
+    id: "warm",
+    labelKey: "common.light-colour.warm-white",
+    kelvin: 2200,
+    color: "#ffb35a",
+    hue: 25,
+    saturation: 92,
+  },
+  {
+    id: "soft",
+    labelKey: "common.light-colour.soft-white",
+    kelvin: 2700,
+    color: "#ffd79a",
+    hue: 36,
+    saturation: 64,
+  },
   {
     id: "neutral",
-    label: "Neutral white",
+    labelKey: "common.light-colour.neutral-white",
     kelvin: 4000,
     color: "#fff1dc",
     hue: 44,
     saturation: 36,
   },
-  { id: "cool", label: "Cool white", kelvin: 6000, color: "#dfeeff", hue: 214, saturation: 28 },
+  {
+    id: "cool",
+    labelKey: "common.light-colour.cool-white",
+    kelvin: 6000,
+    color: "#dfeeff",
+    hue: 214,
+    saturation: 28,
+  },
 ];
 
 const STARTER_COLOURS: [number, number][] = [
@@ -65,15 +87,11 @@ function rememberColour(hs: [number, number], list: [number, number][]): [number
   return [hs, ...list.filter((c) => !near(c))].slice(0, RECENT_MAX);
 }
 
-/**
- * Colour for a set of lamps, the same on every sheet: presets (whites and the colours this person picked here last),
- * a white bar over the lamps' Kelvin span, a disc for lamps that take colour, and a line when colour
- * reaches only some of them. Whites go as a temperature where a lamp takes one.
- */
 export function LightColour(props: { lamps: EntityView[] }) {
   const { callService } = useService();
+  const { t } = useTranslation();
 
-  /** The lamps a change reaches: those in scope that can take it and are on, or all that can when none is. */
+  // Lamps in scope that can take the change and are on, or every capable one when none is.
   const targets = (can: (e: EntityView) => boolean) => {
     const anyOn = props.lamps.some((e) => e.state === "on");
     return props.lamps.filter((e) => can(e) && (!anyOn || e.state === "on"));
@@ -110,10 +128,10 @@ export function LightColour(props: { lamps: EntityView[] }) {
   };
 
   const presets = () => [
-    ...WHITES.map((w) => ({ css: w.color, label: w.label, apply: () => sendWhite(w) })),
+    ...WHITES.map((w) => ({ css: w.color, label: t(w.labelKey), apply: () => sendWhite(w) })),
     ...colours().map(([h, sat]) => ({
       css: hsCss(h, sat),
-      label: `Colour ${h}°, ${sat}%`,
+      label: t("common.light-colour.colour-preset", { hue: h, saturation: sat }),
       apply: () => sendColour([h, sat]),
     })),
   ];
@@ -157,7 +175,6 @@ export function LightColour(props: { lamps: EntityView[] }) {
     draggedKelvin() ??
     (temperatureLamp()?.attributes.color_temp_kelvin as number | undefined) ??
     2700;
-  /** The span the lamps can reach together: the warmest any goes to, the coolest any goes to. */
   const kelvinRange = () => {
     const lamps = props.lamps.filter(takesTemperature);
     const lows = lamps.map((e) => e.attributes.min_color_temp_kelvin as number | undefined);
@@ -180,19 +197,19 @@ export function LightColour(props: { lamps: EntityView[] }) {
     const whiteCapable = props.lamps.filter(takesWhite).length;
     const colourCapable = props.lamps.filter(takesColour).length;
     return colourCapable < whiteCapable
-      ? `Colour reaches ${colourCapable} of ${whiteCapable} lamps`
+      ? t("common.light-colour.reach", { colour: colourCapable, white: whiteCapable })
       : undefined;
   };
 
   return (
     <Show when={anyWhite()}>
-      <PanelSection label="Colour">
+      <PanelSection label={t("common.light-colour.title")}>
         <SwatchPicker
           value={active() ?? null}
           colors={presets().map((p) => p.css)}
           labelOf={(_, i) => presets()[i]?.label ?? ""}
           onChange={pick}
-          aria-label="Presets"
+          aria-label={t("common.light-colour.presets")}
         />
         <Show when={anyTemperature()}>
           <TemperatureBar
@@ -204,7 +221,7 @@ export function LightColour(props: { lamps: EntityView[] }) {
               setDraggedKelvin(k);
               sendKelvin(k);
             }}
-            aria-label="White"
+            aria-label={t("common.light-colour.white")}
           />
         </Show>
         <Show when={anyColour()}>

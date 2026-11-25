@@ -1,0 +1,78 @@
+{
+  "manifest.config.art.labels.blind": {
+    "source": "9c0425a22e1a98fd",
+    "value": "fca40cfac0c34dde"
+  },
+  "manifest.config.art.labels.curtain": {
+    "source": "3017b7ca917043ec",
+    "value": "c357f7c0a6c9b860"
+  },
+  "manifest.config.art.labels.device": {
+    "source": "4b8a633998cb00b4",
+    "value": "791c3e4e436d55e7"
+  },
+  "manifest.config.art.labels.garage": {
+    "source": "d477edec30f23109",
+    "value": "d30ca64c763a96f6"
+  },
+  "manifest.config.art.labels.gate": {
+    "source": "a573da736d776901",
+    "value": "7e62d8981507bcef"
+  },
+  "manifest.config.art.labels.shutter": {
+    "source": "b1c3d2838b380b83",
+    "value": "a67c045be4a993c2"
+  },
+  "manifest.config.art.title": {
+    "source": "3c0574c1f75deead",
+    "value": "8c7286bc08d9cd1c"
+  },
+  "manifest.config.title.description": {
+    "source": "c5297a7b336aa0ac",
+    "value": "e6254ccc3ae50778"
+  },
+  "manifest.config.title.title": {
+    "source": "2106ab0b62b8eb9c",
+    "value": "4c08a5d5feb22ce2"
+  },
+  "manifest.config.x-mvxhi2lupfewi4y.title": {
+    "source": "23d443eb5680f8d8",
+    "value": "a3346c788a2a24be"
+  },
+  "manifest.description": {
+    "source": "fa0323b2f26e6199",
+    "value": "d8bd2e746d30bafd"
+  },
+  "manifest.examples.0.label": {
+    "source": "e19fb50ba213a7de",
+    "value": "82c8717c5a42f1be"
+  },
+  "manifest.examples.1.label": {
+    "source": "ef04c02a859e2e1c",
+    "value": "a863b356a52443dd"
+  },
+  "manifest.examples.2.label": {
+    "source": "29b56e2ef16e69d2",
+    "value": "97aca56cb9e3168d"
+  },
+  "manifest.examples.3.label": {
+    "source": "d477edec30f23109",
+    "value": "d30ca64c763a96f6"
+  },
+  "manifest.examples.4.label": {
+    "source": "f0c76a3383d04b0c",
+    "value": "24a350feb831d17a"
+  },
+  "manifest.examples.5.label": {
+    "source": "0c5b99507f674fd5",
+    "value": "a66d31b558f73941"
+  },
+  "manifest.examples.6.label": {
+    "source": "d8a6aa7f849512d5",
+    "value": "53d5198dcd2d8f0d"
+  },
+  "manifest.name": {
+    "source": "c5209e6a1a306559",
+    "value": "9872708eb0e111a3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "manifest.config.fit.title": "Ajustement",
+  "manifest.config.interval.description": "Désactivé conserve une image affichée jusqu’à ce que vous passiez à la suivante.",
+  "manifest.config.interval.title": "Changer toutes les",
+  "manifest.config.pictures.add-label": "Ajouter une image",
+  "manifest.config.pictures.title": "Images",
+  "manifest.config.pictures.x-items-all.image.presets.coast.label": "Côte",
+  "manifest.config.pictures.x-items-all.image.presets.dog.label": "Chien",
+  "manifest.config.pictures.x-items-all.image.presets.forest.label": "Forêt",
+  "manifest.config.pictures.x-items-all.image.presets.meadow.label": "Prairie",
+  "manifest.config.pictures.x-items-all.image.title": "Image",
+  "manifest.config.pictures.x-items-all.title": "Image",
+  "manifest.description": "Vos propres photos sur le tableau de bord, une à la fois ou en diaporama",
+  "manifest.examples.0.label": "Exemples de photos",
+  "manifest.examples.1.label": "Votre photo",
+  "manifest.examples.2.label": "Large",
+  "manifest.examples.3.label": "Portrait, image entière",
+  "manifest.examples.4.label": "Haut",
+  "manifest.examples.5.label": "Grand",
+  "manifest.examples.6.label": "Petit",
+  "manifest.name": "Cadre photo"
+}

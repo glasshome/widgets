@@ -32,6 +32,7 @@ import {
   isCoverOpen,
 } from "./cover-entity";
 import { CoverSheet, coverHasExtras } from "./sheet";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -348,6 +349,7 @@ function CoverWidget(props: { config: CoverConfig }) {
 }
 
 export default defineWidget<CoverConfig>({
+  messages: en,
   manifest: {
     name: "Cover",
     description: "Control covers, blinds, and shutters",

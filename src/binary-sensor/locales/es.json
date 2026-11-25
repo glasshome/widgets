@@ -1,0 +1,19 @@
+{
+  "manifest.config.art.labels.device": "Igualar a Home Assistant",
+  "manifest.config.art.labels.door": "Puerta",
+  "manifest.config.art.labels.garage": "Puerta de garaje",
+  "manifest.config.art.labels.none": "Sin imagen",
+  "manifest.config.art.labels.window": "Ventana",
+  "manifest.config.art.title": "Imagen del sensor",
+  "manifest.config.title.description": "Nombre visible opcional",
+  "manifest.config.title.title": "Título",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
+  "manifest.description": "Sensores de movimiento, puerta y ocupación",
+  "manifest.examples.0.label": "Puerta abierta",
+  "manifest.examples.1.label": "Puerta",
+  "manifest.examples.2.label": "Ventana cerrada",
+  "manifest.examples.3.label": "Garaje cerrado",
+  "manifest.examples.4.label": "Movimiento",
+  "manifest.examples.5.label": "Contacto y movimiento",
+  "manifest.name": "Sensor binario"
+}

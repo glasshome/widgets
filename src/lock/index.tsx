@@ -23,6 +23,7 @@ import { groupLine } from "../common/group";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
 import { LockSheet } from "./sheet";
+import en from "./locales/en.json";
 
 const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
 
@@ -160,6 +161,7 @@ function LockWidget(props: { config: LockConfig }) {
 }
 
 export default defineWidget<LockConfig>({
+  messages: en,
   manifest: {
     name: "Lock",
     description: "Lock and unlock entities with security indicator",

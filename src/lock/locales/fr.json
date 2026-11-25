@@ -1,0 +1,15 @@
+{
+  "manifest.config.art.labels.door": "Porte d’entrée",
+  "manifest.config.art.labels.gate": "Portail du jardin",
+  "manifest.config.art.labels.smart": "Verrou connecté",
+  "manifest.config.art.title": "Image du verrou",
+  "manifest.config.title.description": "Remplacement facultatif du nom affiché",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Verrouillez et déverrouillez les entités avec indicateur de sécurité",
+  "manifest.examples.0.label": "Porte d’entrée",
+  "manifest.examples.1.label": "Verrouillé",
+  "manifest.examples.2.label": "Déverrouillé",
+  "manifest.examples.3.label": "Verrous",
+  "manifest.name": "Verrou"
+}

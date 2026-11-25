@@ -1,0 +1,13 @@
+{
+  "manifest.config.blacklist.title": "Lista de exclusión (excluir estos)",
+  "manifest.config.threshold.title": "Umbral de batería baja (%)",
+  "manifest.config.title.description": "Nombre para mostrar opcional que sustituye al predeterminado",
+  "manifest.config.title.title": "Título",
+  "manifest.config.whitelist.title": "Lista de inclusión (incluir solo estos)",
+  "manifest.description": "Detecta automáticamente y supervisa los niveles de batería de todos los dispositivos",
+  "manifest.examples.0.label": "Todo bien",
+  "manifest.examples.1.label": "Una con poca carga",
+  "manifest.examples.2.label": "Baterías",
+  "manifest.examples.3.label": "Cada batería",
+  "manifest.name": "Baterías"
+}

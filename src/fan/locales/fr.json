@@ -1,0 +1,15 @@
+{
+  "manifest.config.art.labels.pedestal": "Ventilateur sur pied",
+  "manifest.config.art.labels.purifier": "Purificateur d’air",
+  "manifest.config.art.title": "Image du ventilateur",
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Commande du ventilateur avec vitesse, préréglages, oscillation et direction",
+  "manifest.examples.0.label": "Ventilateur de plafond",
+  "manifest.examples.1.label": "Purificateur",
+  "manifest.examples.2.label": "Ventilateurs",
+  "manifest.examples.3.label": "Compact",
+  "manifest.examples.4.label": "Grand purificateur",
+  "manifest.name": "Ventilateur"
+}

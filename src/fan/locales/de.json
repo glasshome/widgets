@@ -1,0 +1,15 @@
+{
+  "manifest.config.art.labels.pedestal": "Standventilator",
+  "manifest.config.art.labels.purifier": "Luftreiniger",
+  "manifest.config.art.title": "Ventilatorbild",
+  "manifest.config.title.description": "Optionaler Anzeigename, der den Standardnamen überschreibt",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Ventilatorsteuerung mit Geschwindigkeit, Voreinstellungen, Oszillation und Richtung",
+  "manifest.examples.0.label": "Deckenventilator",
+  "manifest.examples.1.label": "Luftreiniger",
+  "manifest.examples.2.label": "Ventilatoren",
+  "manifest.examples.3.label": "Kompakt",
+  "manifest.examples.4.label": "Großer Luftreiniger",
+  "manifest.name": "Ventilator"
+}

@@ -24,6 +24,7 @@ import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
 import "./fan.css";
 import { FanSheet, fanHasExtras } from "./sheet";
+import en from "./locales/en.json";
 
 const PRESET_ICONS: Record<string, string> = {
   auto: "mdi:fan-auto",
@@ -263,6 +264,7 @@ function FanWidget(props: { config: FanConfig }) {
 }
 
 export default defineWidget<FanConfig>({
+  messages: en,
   manifest: {
     name: "Fan",
     description: "Fan control with speed, presets, oscillation, and direction",

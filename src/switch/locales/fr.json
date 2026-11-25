@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
+  "manifest.description": "Activer ou désactiver les entités interrupteur",
+  "manifest.examples.0.label": "Activé",
+  "manifest.examples.1.label": "Désactivé",
+  "manifest.examples.2.label": "Interrupteurs",
+  "manifest.name": "Interrupteur"
+}

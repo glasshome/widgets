@@ -18,6 +18,7 @@ import { widgetDialogProps } from "../common";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
 import { batteryName, filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -121,6 +122,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
 }
 
 export default defineWidget<BatteriesConfig>({
+  messages: en,
   manifest: {
     name: "Batteries",
     description: "Auto-discover and monitor battery levels across all devices",

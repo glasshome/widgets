@@ -1,0 +1,5 @@
+{
+  "manifest.description": "Ist jetzt ein guter Zeitpunkt, Strom zu verbrauchen? Kohlenstoffintensität und Preis des Netzes auf einen Blick",
+  "manifest.examples.1.label": "Kohlenstoff und Preis",
+  "manifest.examples.2.label": "Nur Kohlenstoff"
+}

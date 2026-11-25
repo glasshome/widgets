@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Optionaler Anzeigename",
+  "manifest.config.title.title": "Titel",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
+  "manifest.description": "Eine Szene aktivieren",
+  "manifest.examples.0.label": "Eine Szene",
+  "manifest.examples.1.label": "Szenen",
+  "manifest.examples.2.label": "Breit",
+  "manifest.name": "Szene"
+}

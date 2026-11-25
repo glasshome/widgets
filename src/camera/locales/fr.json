@@ -1,0 +1,10 @@
+{
+  "manifest.config.title.description": "Nom d’affichage facultatif",
+  "manifest.config.title.title": "Titre",
+  "manifest.config.x-mvxhi2lupfewi4y.title": "Entité",
+  "manifest.config.x-ojswm4tfonues3tumvzhmylm.title": "Actualisation de l’instantané (secondes)",
+  "manifest.config.x-on2hezlbnvcw4z3jnzsq.title": "Moteur de flux",
+  "manifest.description": "Flux caméra en direct avec prise en charge multi-protocole",
+  "manifest.examples.0.label": "Porte d’entrée",
+  "manifest.name": "Caméra"
+}

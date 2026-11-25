@@ -25,6 +25,7 @@ import "./media.css";
 import { MediaPlayerSheet, mediaHasExtras } from "./sheet";
 import { calculateFeatures, getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
+import en from "./locales/en.json";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -245,6 +246,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
 }
 
 export default defineWidget<MediaPlayerConfig>({
+  messages: en,
   manifest: {
     name: "Media Player",
     description: "Media playback controls with album art and progress tracking",
