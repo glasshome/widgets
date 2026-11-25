@@ -1,6 +1,6 @@
 {
-  "common.group.all-off": "Tout éteindre",
-  "common.group.all-on": "Tout allumer",
+  "common.group.all-off": "Tout éteint",
+  "common.group.all-on": "Tout allumé",
   "common.group.some-on": "{active} sur {total} allumés",
   "common.light-colour.colour-preset": "Couleur {hue}°, {saturation}%",
   "common.light-colour.cool-white": "Blanc froid",

@@ -159,7 +159,7 @@ function FanWidget(props: { config: FanConfig }) {
     ((firstEntity()?.attributes?.preset_modes as string[] | undefined) ?? []).slice(0, 3),
   );
   const presetIcon = (p: string) => PRESET_ICONS[p.toLowerCase()] ?? "mdi:fan";
-  const lines = () =>
+  const lines = createMemo(() =>
     fanLines(tools, {
       sample: firstEntity(),
       isOn: isOn(),
@@ -169,7 +169,8 @@ function FanWidget(props: { config: FanConfig }) {
       count: count(),
       activeCount: activeCount(),
       preset: firstEntity()?.attributes?.preset_mode as string | undefined,
-    });
+    }),
+  );
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();

@@ -66,13 +66,14 @@ function SwitchWidget(props: { config: SwitchConfig }) {
       .map((e) => e.friendlyName)
       .join(", ") ||
     t("switch.name");
-  const lines = () =>
+  const lines = createMemo(() =>
     switchLines(tools, {
       sample: entities()[0],
       isOn: isOn(),
       count: count(),
       activeCount: activeCount(),
-    });
+    }),
+  );
 
   const handleTap = async () => {
     if (isToggling()) return;

@@ -1,12 +1,6 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
-import { groupLine } from "../common/group";
+import { groupOnLine } from "../common/group-on";
 import { aggregateWord } from "../common/state-word";
-
-const GROUP_ON = {
-  all: "common.group.all-on",
-  none: "common.group.all-off",
-  some: "common.group.some-on",
-};
 
 const STATE_WORDS = { on: "fan.state.on", off: "fan.state.off" };
 
@@ -45,7 +39,7 @@ export function fanLines(
   };
   const eyebrow = (): string => {
     if (input.isUnavailable) return word("unavailable");
-    if (input.count > 1) return groupLine(tools, input.activeCount, input.count, GROUP_ON);
+    if (input.count > 1) return groupOnLine(tools, input.activeCount, input.count);
     if (input.isOn && input.preset) {
       return presetWord(tools, input.sample, input.preset, capitalised);
     }

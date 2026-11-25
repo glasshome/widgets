@@ -1,12 +1,6 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
-import { groupLine } from "../common/group";
+import { groupOnLine } from "../common/group-on";
 import { aggregateWord } from "../common/state-word";
-
-const GROUP_ON = {
-  all: "common.group.all-on",
-  none: "common.group.all-off",
-  some: "common.group.some-on",
-};
 
 const STATE_WORDS = { off: "light.state.off" };
 
@@ -25,8 +19,6 @@ export function lightLines(
       ? Math.round(input.brightness)
       : aggregateWord(tools, "light", input.sample, "off", STATE_WORDS),
     eyebrow:
-      input.count > 1
-        ? groupLine(tools, input.activeCount, input.count, GROUP_ON)
-        : tools.t("light.name"),
+      input.count > 1 ? groupOnLine(tools, input.activeCount, input.count) : tools.t("light.name"),
   };
 }

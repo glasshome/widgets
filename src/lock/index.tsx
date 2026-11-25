@@ -79,13 +79,14 @@ function LockWidget(props: { config: LockConfig }) {
       end={entities().some((e) => OPEN_STATES.has(e.state))}
     />
   );
-  const lines = () =>
+  const lines = createMemo(() =>
     lockLines(tools, {
       sample: entities()[0],
       isLocked: isLocked(),
       count: count(),
       lockedCount: lockedCount(),
-    });
+    }),
+  );
 
   // A group never unlocks in one tap: it locks what is open, and once all are locked the dialog unlocks one by one.
   const handleTap = async () => {

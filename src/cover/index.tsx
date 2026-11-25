@@ -132,7 +132,7 @@ function CoverWidget(props: { config: CoverConfig }) {
     return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
   };
   const movement = createMemo(() => getCoverMovement(entities()));
-  const lines = () =>
+  const lines = createMemo(() =>
     coverLines(tools, {
       sample: primary(),
       sliding: slidePosition(),
@@ -141,7 +141,8 @@ function CoverWidget(props: { config: CoverConfig }) {
       movement: movement(),
       count: count(),
       openCount: openCount(),
-    });
+    }),
+  );
 
   const sideways = () => artKind() === "curtain" || artKind() === "gate";
   const caps = createMemo(() => entities().map(getCoverCapabilities));

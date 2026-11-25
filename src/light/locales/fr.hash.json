@@ -1,11 +1,13 @@
 {
   "common.group.all-off": {
     "source": "7b463024c5d1afb2",
-    "value": "10505695c4f743ef"
+    "value": "bdd43eb2ae131b09",
+    "pinned": true
   },
   "common.group.all-on": {
     "source": "b8f19df9a3879939",
-    "value": "849e74ba80c3a6c0"
+    "value": "0e3fee559e1d87bb",
+    "pinned": true
   },
   "common.group.some-on": {
     "source": "5b48bcfe387cc5c6",

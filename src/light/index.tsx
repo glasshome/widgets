@@ -148,14 +148,15 @@ function LightWidget(props: { config: LightConfig }) {
       .join(", ") ||
     t("light.name");
 
-  const lines = () =>
+  const lines = createMemo(() =>
     lightLines(tools, {
       sample: entities()[0],
       isOn: isOn(),
       brightness: uiBrightness(),
       count: count(),
       activeCount: activeCount(),
-    });
+    }),
+  );
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
