@@ -134,7 +134,8 @@ describe("sensor", () => {
     expect(formatSensorValue(en, 1234.5, null)).toBe("1,234.5");
     expect(formatSensorValue(en, 21.456, "humidity")).toBe("21");
     expect(sensorClass(en, "signal_strength")).toBe("Signal strength");
-    expect(sensorClass(en, "wind_speed")).toBe("Wind speed");
+    // test-change-ok an unmapped device class reads the generic name, never an English identifier
+    expect(sensorClass(en, "wind_speed")).toBe("Sensor");
     expect(sensorClass(en, null)).toBe("Sensor");
   });
 
