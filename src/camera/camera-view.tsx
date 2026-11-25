@@ -134,7 +134,10 @@ export function CameraView(props: {
         }
       >
         <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent px-3 pt-2 pb-6">
-          <span class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 text-xs font-medium text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]">
+          <span
+            data-truncate="a name the home chose"
+            class="glass min-w-0 truncate rounded-full px-2.5 py-0.5 text-xs font-medium text-white [--glass-base:oklch(0.15_0_0/0.55)] [--glass-edge:transparent] [--glass-light:0]"
+          >
             {props.name()}
           </span>
           <Badge tone={badge().tone}>{badge().label}</Badge>
