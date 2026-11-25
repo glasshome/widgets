@@ -1,7 +1,7 @@
 {
   "batteries.all-good": "Alles gut",
   "batteries.eyebrow": "{count, plural, one {# Batterie} other {# Batterien}}",
-  "batteries.low": "{count} niedrig",
+  "batteries.low": "{count, plural, one {# niedrig} other {# niedrig}}",
   "batteries.sheet.batteries": "Batterien",
   "batteries.sheet.below": "Unter {threshold}%",
   "batteries.sheet.lowest-first": "Niedrigste zuerst",

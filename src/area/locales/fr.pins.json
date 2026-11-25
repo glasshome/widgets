@@ -1,9 +1,9 @@
 {
   "area.fact.home": "À la maison",
-  "area.mode.cool": "Froid",
-  "area.mode.dry": "Déshumidification",
-  "area.mode.fan-only": "Ventilation",
-  "area.mode.heat": "Chaud",
-  "area.mode.off": "Arrêt",
-  "area.pill.climate": "Climat"
+  "area.pill.climate": "Climat",
+  "climate.mode.cool": "Froid",
+  "climate.mode.dry": "Déshumidification",
+  "climate.mode.heat": "Chaud",
+  "climate.sheet.band": "Chauffe sous {low} °, refroidit au-dessus de {high} °",
+  "climate.target.range": "{low} à {high}"
 }

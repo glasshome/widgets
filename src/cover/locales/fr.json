@@ -1,7 +1,7 @@
 {
   "common.group.all-closed": "Tout fermé",
   "common.group.all-open": "Tout ouvert",
-  "common.group.some-open": "{active} sur {total} ouverts",
+  "common.group.some-open": "{active, plural, one {# sur {total} ouvert} other {# sur {total} ouverts}}",
   "cover.controls.close": "Fermer",
   "cover.controls.label": "Volet",
   "cover.controls.open": "Ouvrir",

@@ -1,5 +1,4 @@
 import type { TranslationTools } from "@glasshome/widget-sdk";
-import { spaced } from "../common/text";
 
 const PRECISION_BY_CLASS: Record<string, number> = {
   temperature: 1,
@@ -49,7 +48,7 @@ export function sensorClass(
 ): string {
   if (!deviceClass) return tools.t("sensor.name");
   if (Object.hasOwn(CLASS_KEYS, deviceClass)) return tools.t(CLASS_KEYS[deviceClass] ?? "");
-  return spaced(deviceClass);
+  return tools.t("sensor.name");
 }
 
 export function formatSensorValue(

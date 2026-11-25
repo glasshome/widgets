@@ -4,5 +4,6 @@
   "energy.flow.on-battery": "Läuft mit Batterie",
   "energy.flow.on-solar": "Läuft mit Solar",
   "energy.flow.pushing-back": "Strom wird ins Netz zurückgespeist",
-  "energy.flow.solar-covers-part": "Solar deckt einen Teil ab"
+  "energy.flow.solar-covers-part": "Solar deckt einen Teil ab",
+  "energy.money": "{amount} {currency}"
 }

@@ -1,0 +1,3 @@
+{
+  "common.group.some-on": "{active, plural, one {# sur {total} activé} other {# sur {total} activés}}"
+}

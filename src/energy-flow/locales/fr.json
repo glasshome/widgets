@@ -47,7 +47,7 @@
   "energy.flow.solar-resting": "Le solaire se repose jusqu’au lever du soleil",
   "energy.flow.to-grid": "{power} vers le réseau",
   "energy.labelled-power": "{label} : {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.nodes.add-label": "Ajouter un nœud",
   "manifest.config.nodes.description": "Les entrées alimentent le foyer, les sorties y puisent, les nœuds bidirectionnels changent de côté à chaque mesure.",
   "manifest.config.nodes.title": "Nœuds du flux",

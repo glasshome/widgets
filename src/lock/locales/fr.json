@@ -1,7 +1,7 @@
 {
   "common.group.all-locked": "Tout verrouillé",
   "common.group.all-unlocked": "Tout déverrouillé",
-  "common.group.some-unlocked": "{active} sur {total} déverrouillés",
+  "common.group.some-unlocked": "{active, plural, one {# sur {total} déverrouillé} other {# sur {total} déverrouillés}}",
   "lock.empty.message": "Maintenir pour configurer",
   "lock.empty.title": "Aucune entité de serrure",
   "lock.name": "Serrure",

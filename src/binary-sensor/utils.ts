@@ -1,5 +1,4 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
-import { spaced } from "../common/text";
 
 type Tools = Pick<TranslationTools, "t" | "translateState">;
 
@@ -83,5 +82,5 @@ export function getBinarySensorStateText(
 export function binarySensorClass(tools: Pick<TranslationTools, "t">, deviceClass: string | null) {
   if (!deviceClass) return tools.t("binary-sensor.name");
   if (Object.hasOwn(CLASS_KEYS, deviceClass)) return tools.t(CLASS_KEYS[deviceClass] ?? "");
-  return spaced(deviceClass);
+  return tools.t("binary-sensor.name");
 }

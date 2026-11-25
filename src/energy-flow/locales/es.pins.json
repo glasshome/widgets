@@ -1,3 +1,4 @@
 {
-  "energy.flow.pushing-back": "Devolviendo energía a la red"
+  "energy.flow.pushing-back": "Devolviendo energía a la red",
+  "energy.money": "{amount} {currency}"
 }

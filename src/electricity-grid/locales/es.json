@@ -32,7 +32,7 @@
   "energy.flow.solar-resting": "La solar descansa hasta el amanecer",
   "energy.flow.to-grid": "{power} a la red",
   "energy.labelled-power": "{label}: {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.title.description": "Nombre para mostrar opcional que reemplaza el predeterminado",
   "manifest.config.title.title": "Título",
   "manifest.config.x-mnugkylqijswy33x.description": "Opcional. Los precios por debajo de este valor se consideran baratos, en la unidad propia del sensor de precio. Requiere el sensor de precio.",

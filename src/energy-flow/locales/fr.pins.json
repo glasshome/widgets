@@ -1,5 +1,6 @@
 {
   "energy.empty.reconnecting": "Reconnexion...",
   "energy.flow.battery-to-grid": "La batterie se décharge vers le réseau",
-  "energy.flow.on-solar": "Fonctionne sur solaire"
+  "energy.flow.on-solar": "Fonctionne sur solaire",
+  "energy.money": "{amount} {currency}"
 }

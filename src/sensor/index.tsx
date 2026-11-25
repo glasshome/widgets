@@ -21,6 +21,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, onCleanup, onMount, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
+import { aggregateWord } from "../common/state-word";
 import { SensorSheet } from "./sheet";
 import { type SparklinePoint, TileSparkline } from "./sparkline";
 import "./sensor.css";
@@ -93,7 +94,7 @@ function SensorWidget(props: { config: SensorConfig }) {
     if (data.numericValue !== null) {
       return formatSensorValue(tools, data.numericValue, deviceClass());
     }
-    return data.state;
+    return aggregateWord(tools, "sensor", entities()[0], data.state, {});
   });
 
   const displayUnit = createMemo(() => sensorData()?.unit ?? "");

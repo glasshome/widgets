@@ -1,7 +1,7 @@
 {
   "common.group.all-off": "Todo apagado",
   "common.group.all-on": "Todo encendido",
-  "common.group.some-on": "{active} de {total} encendidos",
+  "common.group.some-on": "{active, plural, one {# de {total} encendido} other {# de {total} encendidos}}",
   "manifest.config.title.description": "Nombre visible opcional que reemplaza el predeterminado",
   "manifest.config.title.title": "Título",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",

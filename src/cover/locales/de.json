@@ -1,7 +1,7 @@
 {
   "common.group.all-closed": "Alle geschlossen",
   "common.group.all-open": "Alle geöffnet",
-  "common.group.some-open": "{active} von {total} geöffnet",
+  "common.group.some-open": "{active, plural, one {# von {total} offen} other {# von {total} offen}}",
   "cover.controls.close": "Schließen",
   "cover.controls.label": "Rollladen",
   "cover.controls.open": "Öffnen",

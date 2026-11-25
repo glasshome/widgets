@@ -47,7 +47,7 @@
   "energy.flow.solar-resting": "Solar ruht bis zum Sonnenaufgang",
   "energy.flow.to-grid": "{power} ins Netz",
   "energy.labelled-power": "{label}: {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.nodes.add-label": "Punkt hinzufügen",
   "manifest.config.nodes.description": "Eingänge speisen das Haus, Ausgänge entnehmen daraus, Punkte in beide Richtungen wechseln je Messwert die Seite.",
   "manifest.config.nodes.title": "Flusspunkte",

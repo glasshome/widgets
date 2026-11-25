@@ -47,7 +47,7 @@
   "energy.flow.solar-resting": "La solar descansa hasta el amanecer",
   "energy.flow.to-grid": "{power} a la red",
   "energy.labelled-power": "{label}: {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.nodes.add-label": "Añadir nodo",
   "manifest.config.nodes.description": "Las entradas alimentan el hogar, las salidas toman de él, y los nodos bidireccionales cambian de lado con cada lectura.",
   "manifest.config.nodes.title": "Nodos de flujo",

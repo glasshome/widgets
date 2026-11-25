@@ -7,5 +7,6 @@
   "energy.flow.battery-to-grid": "Batterie entlädt sich ins Netz",
   "energy.flow.on-battery": "Läuft mit Batterie",
   "energy.flow.on-solar": "Läuft mit Solar",
-  "electricity-grid.low-carbon": "{percent} % kohlenstoffarm"
+  "electricity-grid.low-carbon": "{percent} % kohlenstoffarm",
+  "energy.money": "{amount} {currency}"
 }

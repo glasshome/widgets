@@ -1,7 +1,7 @@
 {
   "common.group.all-closed": "Todo cerrado",
   "common.group.all-open": "Todo abierto",
-  "common.group.some-open": "{active} de {total} abiertos",
+  "common.group.some-open": "{active, plural, one {# de {total} abierto} other {# de {total} abiertos}}",
   "cover.controls.close": "Cerrar",
   "cover.controls.label": "Persiana",
   "cover.controls.open": "Abrir",

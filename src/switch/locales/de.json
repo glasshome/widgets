@@ -1,7 +1,7 @@
 {
   "common.group.all-off": "Alle aus",
   "common.group.all-on": "Alle an",
-  "common.group.some-on": "{active} von {total} an",
+  "common.group.some-on": "{active, plural, one {# von {total} an} other {# von {total} an}}",
   "manifest.config.title.description": "Optionaler Anzeigename",
   "manifest.config.title.title": "Titel",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",

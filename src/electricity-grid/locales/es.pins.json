@@ -2,5 +2,6 @@
   "energy.flow.on-solar": "Funcionando con solar",
   "energy.flow.solar-covers-everything": "La solar lo cubre todo",
   "energy.flow.solar-covers-part": "La solar cubre una parte",
-  "energy.flow.solar-resting": "La solar descansa hasta el amanecer"
+  "energy.flow.solar-resting": "La solar descansa hasta el amanecer",
+  "energy.money": "{amount} {currency}"
 }

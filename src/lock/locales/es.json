@@ -1,7 +1,7 @@
 {
   "common.group.all-locked": "Todo bloqueado",
   "common.group.all-unlocked": "Todo desbloqueado",
-  "common.group.some-unlocked": "{active} de {total} desbloqueados",
+  "common.group.some-unlocked": "{active, plural, one {# de {total} desbloqueado} other {# de {total} desbloqueados}}",
   "lock.empty.message": "Mantén pulsado para configurar",
   "lock.empty.title": "Sin entidad de cerradura",
   "lock.name": "Cerradura",

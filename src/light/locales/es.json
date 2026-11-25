@@ -1,7 +1,7 @@
 {
   "common.group.all-off": "Todo apagado",
   "common.group.all-on": "Todo encendido",
-  "common.group.some-on": "{active} de {total} encendidos",
+  "common.group.some-on": "{active, plural, one {# de {total} encendido} other {# de {total} encendidos}}",
   "common.light-colour.colour-preset": "Color {hue}°, {saturation}%",
   "common.light-colour.cool-white": "Blanco frío",
   "common.light-colour.neutral-white": "Blanco neutro",

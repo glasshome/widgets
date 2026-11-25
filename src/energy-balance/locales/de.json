@@ -33,7 +33,7 @@
   "energy.flow.solar-resting": "Solar ruht bis zum Sonnenaufgang",
   "energy.flow.to-grid": "{power} ins Netz",
   "energy.labelled-power": "{label}: {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.title.description": "Optionaler Anzeigename, der den Standard überschreibt",
   "manifest.config.title.title": "Titel",
   "manifest.config.x-m5zgszcfpbyg64tuivxgk4thpfcw45djor4q.description": "Täglich ins Netz eingespeiste Energie (kWh). Optional.",

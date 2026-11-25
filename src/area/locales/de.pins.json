@@ -1,5 +1,7 @@
 {
-  "area.mode.fan-only": "Lüfter",
   "area.state.open": "Geöffnet",
-  "common.light-colour.warm-white": "Extra-Warmweiß"
+  "common.light-colour.warm-white": "Extra-Warmweiß",
+  "climate.action.fan": "Lüfter",
+  "climate.action.preheating": "Vorwärmen",
+  "climate.mode.fan-only": "Lüfter"
 }

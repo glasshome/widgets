@@ -1,7 +1,7 @@
 {
   "common.group.all-off": "Todo apagado",
   "common.group.all-on": "Todo encendido",
-  "common.group.some-on": "{active} de {total} encendidos",
+  "common.group.some-on": "{active, plural, one {# de {total} encendido} other {# de {total} encendidos}}",
   "fan.empty.message": "Mantén pulsado para configurar",
   "fan.empty.title": "Ningún ventilador",
   "fan.name": "Ventilador",

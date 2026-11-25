@@ -17,7 +17,7 @@ import { EnergyContent } from "./energy-content";
 import { allStale, isUnconfigured } from "./flow";
 import { configEntityIds, dominantColor, type PowerLookup, resolveFlow } from "./graph-adapter";
 import { EnergyHeader } from "./header";
-import { migrateConfig } from "./migrate";
+import { migrateEnergyFlow } from "./migrate";
 import { EnergyFlowSheet } from "./sheet";
 import en from "./locales/en.json";
 
@@ -143,8 +143,8 @@ export default defineWidget<EnergyFlowConfig>({
     minSize: { w: 2, h: 3 },
     maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
-    // v3: fixed roles became a node list; migrate.ts maps v1/v2.
-    configVersion: 3,
+    // v3: fixed roles became a node list; v4: stored English role names clear. migrate.ts maps both.
+    configVersion: 4,
     examples: [
       {
         label: "Solar, battery and EV",
@@ -276,6 +276,6 @@ export default defineWidget<EnergyFlowConfig>({
     ],
   },
   configSchema,
-  migrate: migrateConfig,
+  migrate: migrateEnergyFlow,
   component: EnergyFlowWidget,
 });

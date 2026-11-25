@@ -1,6 +1,7 @@
 import type { EntityView, TranslationTools } from "@glasshome/widget-sdk";
-import { aggregateWord, stateWord } from "../common/state-word";
-import { capitalised, spaced } from "../common/text";
+import { aggregateWord } from "../common/state-word";
+import { spaced } from "../common/text";
+import { hvacWord } from "../climate/words";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
 
 export type AreaAction = "lights" | "covers" | "doors" | "climate" | "switches";
@@ -26,16 +27,6 @@ const STATE_WORDS: Record<string, string> = {
   closed: "area.state.closed",
 };
 
-const MODE_WORDS: Record<string, string> = {
-  off: "area.mode.off",
-  heat: "area.mode.heat",
-  cool: "area.mode.cool",
-  auto: "area.mode.auto",
-  dry: "area.mode.dry",
-  fan_only: "area.mode.fan-only",
-  heat_cool: "area.mode.heat-cool",
-};
-
 const stateOf = (tools: Tools, domain: string, sample: EntityView | undefined, state: string) =>
   aggregateWord(tools, domain, sample, state, STATE_WORDS);
 
@@ -50,10 +41,7 @@ function climatePill(tools: Tools, entity: EntityView): Pill {
   const target = entity.attributes?.temperature as number | undefined;
   const on = mode !== "off" && mode !== "unavailable";
   const degrees = (value: number) => `${tools.formatNumber(value, { maximumFractionDigits: 1 })}°`;
-  const word = (state: string) => {
-    const shown = stateWord(tools, { ...entity, state }, MODE_WORDS);
-    return shown === state ? spaced(state) : capitalised(shown);
-  };
+  const word = (state: string) => hvacWord(tools, entity, state, spaced);
   return {
     action: "climate",
     icon: mode === "cool" ? "mdi:snowflake" : "mdi:thermostat",

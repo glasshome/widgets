@@ -8,8 +8,9 @@
     "value": "0e3fee559e1d87bb"
   },
   "common.group.some-on": {
-    "source": "5b48bcfe387cc5c6",
-    "value": "ded3e2f3c939f0ca"
+    "source": "0670166724eaaa27",
+    "value": "0c1812e7b16cfa8d",
+    "pinned": true
   },
   "manifest.config.title.description": {
     "source": "c5297a7b336aa0ac",

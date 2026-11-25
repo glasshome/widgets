@@ -33,7 +33,7 @@
   "energy.flow.solar-resting": "La solar descansa hasta el amanecer",
   "energy.flow.to-grid": "{power} a la red",
   "energy.labelled-power": "{label}: {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.title.description": "Nombre para mostrar opcional",
   "manifest.config.title.title": "Título",
   "manifest.config.x-m5zgszcfpbyg64tuivxgk4thpfcw45djor4q.description": "Energía diaria enviada a la red (kWh). Opcional.",

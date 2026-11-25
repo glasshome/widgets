@@ -1,7 +1,7 @@
 {
   "common.group.all-off": "All off",
   "common.group.all-on": "All on",
-  "common.group.some-on": "{active} of {total} on",
+  "common.group.some-on": "{active, plural, one {# of {total} on} other {# of {total} on}}",
   "switch.empty.message": "Hold to configure",
   "switch.empty.title": "No switch entity",
   "switch.name": "Switch",

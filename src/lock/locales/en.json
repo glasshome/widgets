@@ -1,7 +1,7 @@
 {
   "common.group.all-locked": "All locked",
   "common.group.all-unlocked": "All unlocked",
-  "common.group.some-unlocked": "{active} of {total} unlocked",
+  "common.group.some-unlocked": "{active, plural, one {# of {total} unlocked} other {# of {total} unlocked}}",
   "lock.empty.message": "Hold to configure",
   "lock.empty.title": "No lock entity",
   "lock.name": "Lock",

@@ -95,38 +95,6 @@
     "source": "2757be539813d350",
     "value": "1e11fb73c6f483ca"
   },
-  "area.mode.auto": {
-    "source": "f6e7ff76d7c2b254",
-    "value": "b803f24d52edd7bc"
-  },
-  "area.mode.cool": {
-    "source": "46ab24b63262086b",
-    "value": "8feb4aba399af06d",
-    "pinned": true
-  },
-  "area.mode.dry": {
-    "source": "0de8646ff5c07e6a",
-    "value": "c33ed7df011bb19b",
-    "pinned": true
-  },
-  "area.mode.fan-only": {
-    "source": "70742057028c801a",
-    "value": "49bbf7c3f46d068d",
-    "pinned": true
-  },
-  "area.mode.heat": {
-    "source": "e4176e91d64aa019",
-    "value": "6550005a9fd63ca9",
-    "pinned": true
-  },
-  "area.mode.heat-cool": {
-    "source": "5258fd21cf974159",
-    "value": "1bb377aff48865d7"
-  },
-  "area.mode.off": {
-    "source": "597ea32f8215307d",
-    "value": "2d9936793ba3ca2d"
-  },
   "area.more": {
     "source": "2b0fc7a9b3a2d413",
     "value": "dd7ab474d5a405f1"
@@ -236,6 +204,111 @@
     "source": "9e78fc0bde6eafb2",
     "value": "246c6d40ead9da26",
     "pinned": true
+  },
+  "climate.action.cooling": {
+    "source": "e71d8feeae9f6593",
+    "value": "4303a93b5a921c80"
+  },
+  "climate.action.defrosting": {
+    "source": "b847072bf9fb6da9",
+    "value": "ecaa02412a25afca"
+  },
+  "climate.action.drying": {
+    "source": "dc133755d349aa29",
+    "value": "dd437b919efe3dbe"
+  },
+  "climate.action.fan": {
+    "source": "c8145e9b53cba865",
+    "value": "49bbf7c3f46d068d"
+  },
+  "climate.action.heating": {
+    "source": "0a7b8409ac0325a3",
+    "value": "fd331504aeee4fb6"
+  },
+  "climate.action.preheating": {
+    "source": "99f400335adec80a",
+    "value": "8cf774dc530ebfec"
+  },
+  "climate.controls.mode": {
+    "source": "39bc4f7127e3827a",
+    "value": "6efe5e3c0bcceb1e"
+  },
+  "climate.controls.target": {
+    "source": "f1e005cbca5e63ca",
+    "value": "230c362695aebd95"
+  },
+  "climate.fan.auto": {
+    "source": "f6e7ff76d7c2b254",
+    "value": "0286249762f7c943",
+    "pinned": true
+  },
+  "climate.fan.high": {
+    "source": "acb8d2906c60a5d0",
+    "value": "42719229fd62e2d6"
+  },
+  "climate.fan.low": {
+    "source": "5a2489e9bb72c212",
+    "value": "0b6af7d377dad019"
+  },
+  "climate.fan.medium": {
+    "source": "c4800ffdb8f45f25",
+    "value": "d357175cfe8978d3"
+  },
+  "climate.mode.auto": {
+    "source": "f6e7ff76d7c2b254",
+    "value": "0286249762f7c943",
+    "pinned": true
+  },
+  "climate.mode.cool": {
+    "source": "46ab24b63262086b",
+    "value": "8feb4aba399af06d",
+    "pinned": true
+  },
+  "climate.mode.dry": {
+    "source": "0de8646ff5c07e6a",
+    "value": "c33ed7df011bb19b"
+  },
+  "climate.mode.fan-only": {
+    "source": "c8145e9b53cba865",
+    "value": "49bbf7c3f46d068d"
+  },
+  "climate.mode.heat": {
+    "source": "e4176e91d64aa019",
+    "value": "6550005a9fd63ca9",
+    "pinned": true
+  },
+  "climate.mode.heat-cool": {
+    "source": "f6e7ff76d7c2b254",
+    "value": "0286249762f7c943",
+    "pinned": true
+  },
+  "climate.mode.off": {
+    "source": "597ea32f8215307d",
+    "value": "2d9936793ba3ca2d"
+  },
+  "climate.sheet.band": {
+    "source": "d6185942101ac77a",
+    "value": "e60a39b7f1dbf89f"
+  },
+  "climate.sheet.comfort-range": {
+    "source": "ace9d3aa65802ebf",
+    "value": "1847fa28e8f0c2c8"
+  },
+  "climate.sheet.fan": {
+    "source": "c8145e9b53cba865",
+    "value": "49bbf7c3f46d068d"
+  },
+  "climate.sheet.preset": {
+    "source": "51df428f68c2f417",
+    "value": "12bbd04760dd7144"
+  },
+  "climate.sub.now": {
+    "source": "ca17fad0f24d11f5",
+    "value": "289eca0189de5945"
+  },
+  "climate.target.range": {
+    "source": "db7fb7818a7a408b",
+    "value": "6686c0aec838d22a"
   },
   "common.light-colour.colour-preset": {
     "source": "511c0869f3027d70",

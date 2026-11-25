@@ -32,7 +32,7 @@
   "energy.flow.solar-resting": "Le solaire se repose jusqu’au lever du soleil",
   "energy.flow.to-grid": "{power} vers le réseau",
   "energy.labelled-power": "{label} : {power}",
-  "energy.money": "{currency}{amount}",
+  "energy.money": "{amount} {currency}",
   "manifest.config.title.description": "Nom d’affichage personnalisé facultatif",
   "manifest.config.title.title": "Titre",
   "manifest.config.x-mnugkylqijswy33x.description": "Facultatif. Les prix inférieurs à ce seuil sont considérés comme bon marché, dans l’unité propre au capteur de prix. Nécessite le capteur de prix.",

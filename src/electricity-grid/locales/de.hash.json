@@ -139,7 +139,8 @@
   },
   "energy.money": {
     "source": "d98df8b00229bcff",
-    "value": "6352169940174e0a"
+    "value": "405a01b62fc946e9",
+    "pinned": true
   },
   "manifest.config.title.description": {
     "source": "c5297a7b336aa0ac",

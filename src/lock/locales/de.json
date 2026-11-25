@@ -1,7 +1,7 @@
 {
   "common.group.all-locked": "Alle verriegelt",
   "common.group.all-unlocked": "Alle entriegelt",
-  "common.group.some-unlocked": "{active} von {total} entriegelt",
+  "common.group.some-unlocked": "{active, plural, one {# von {total} entsperrt} other {# von {total} entsperrt}}",
   "lock.empty.message": "Gedrückt halten zum Konfigurieren",
   "lock.empty.title": "Keine Schlossentität",
   "lock.name": "Schloss",

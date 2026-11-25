@@ -17,6 +17,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { getSensorIcon } from "../common";
+import { stateWord } from "../common/state-word";
 import { SparkChart } from "./sparkline";
 import { downsample, formatSensorValue, type Reading, readingsWithin, summarize } from "./utils";
 
@@ -38,7 +39,7 @@ const deviceClassOf = (e: EntityView) =>
 
 function readingText(tools: TranslationTools, e: EntityView): string {
   const n = Number(e.state);
-  if (Number.isNaN(n)) return e.state;
+  if (Number.isNaN(n)) return stateWord(tools, e, {});
   const value = formatSensorValue(tools, n, deviceClassOf(e));
   return e.unitOfMeasurement ? `${value} ${e.unitOfMeasurement}` : value;
 }

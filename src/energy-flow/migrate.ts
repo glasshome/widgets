@@ -121,3 +121,22 @@ export function migrateConfig(
     tariffRate: config.tariffRate,
   };
 }
+
+function oldDefaultLabel(node: FlowNodeConfig): string {
+  if (node.kind === "input") return "Solar";
+  if (node.kind === "bidirectional") return node.priced ? "Grid" : "Battery";
+  return node.icon === "mdi:car-electric" ? "EV charging" : "Home";
+}
+
+// configVersion 3 to 4: the migration above stored English role names; an exactly equal label goes back to the localized fallback.
+export function migrateEnergyFlow(
+  config: Record<string, unknown>,
+  fromConfigVersion: number,
+): Record<string, unknown> {
+  const migrated = migrateConfig(config, fromConfigVersion);
+  if (fromConfigVersion >= 4 || !Array.isArray(migrated.nodes)) return migrated;
+  const nodes = (migrated.nodes as FlowNodeConfig[]).map((node) =>
+    node.label === oldDefaultLabel(node) ? { ...node, label: "" } : node,
+  );
+  return { ...migrated, nodes };
+}
