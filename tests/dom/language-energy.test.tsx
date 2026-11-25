@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { batteryPercent } from "../../src/batteries/utils";
 import { BatteriesSheet } from "../../src/batteries/sheet";
 import { deriveVerdict } from "../../src/electricity-grid/verdict";
-import { gridLines } from "../../src/electricity-grid/words";
+import { gridLines, gridTileClass } from "../../src/electricity-grid/words";
 import { formatPower } from "../../src/_energy-shared/formatting";
 import { balanceReadout, balanceSubLine } from "../../src/energy-balance/words";
 import { computeCost } from "../../src/energy-flow/cost";
@@ -42,7 +42,7 @@ describe("energy-flow", () => {
 
   test("energy-flow words a cost sentence as one German message", () => {
     const de = tools("energy-flow", "de");
-    const saving = computeCost({ solarW: 2000 }, { currency: "€", rate: 0.3 });
+    const saving = computeCost({ solarW: 3000 }, { currency: "€", rate: 0.3 });
     const earning = computeCost({ gridExportW: 2000 }, { currency: "€", rate: 0.3 });
     const flow = resolveFlow(
       [
@@ -59,18 +59,20 @@ describe("energy-flow", () => {
           level: [],
         },
       ],
-      (id) => ({ "sensor.solar": 2000, "sensor.in": 0, "sensor.out": 2000 })[id] ?? null,
+      (id) => ({ "sensor.solar": 3000, "sensor.in": 0, "sensor.out": 2000 })[id] ?? null,
       false,
       de,
     );
     const views = buildEnergyGraph(flow, de, { currency: "€", rate: 0.3 }).views;
     expect(saving?.solarSavingPerHour).toBeGreaterThan(0);
+
     expect(earning?.gridPerHour).toBeLessThan(0);
     const amount = (n: number) =>
       de.t("energy.money", {
         currency: "€",
         amount: de.formatNumber(n, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       });
+    expect(views.get("node-0")?.sub).toBe(de.t("energy-flow.cost.saves", { amount: amount(0.3) }));
     expect(views.get("node-1")?.sub).toBe(de.t("energy-flow.cost.earns", { amount: amount(0.6) }));
   });
 
@@ -148,6 +150,23 @@ describe("electricity-grid", () => {
     expect(lines.eyebrow).toBe(
       `${de.t("electricity-grid.price-note.cheap").charAt(0).toUpperCase()}${de.t("electricity-grid.price-note.cheap").slice(1)}`,
     );
+  });
+
+  test("electricity grid picks its tile class from the band, not the words", () => {
+    for (const band of ["clean", "mixed", "dirty"] as const) {
+      const en = deriveVerdict(
+        { fossilPct: { clean: 20, mixed: 60, dirty: 90 }[band], price: null, cheapBelow: null },
+        tools("electricity-grid", "en"),
+      );
+      const de = deriveVerdict(
+        { fossilPct: { clean: 20, mixed: 60, dirty: 90 }[band], price: null, cheapBelow: null },
+        tools("electricity-grid", "de"),
+      );
+      expect(en?.band).toBe(band);
+      expect(gridTileClass(de?.band ?? "dirty")).toBe(gridTileClass(en?.band ?? "dirty"));
+    }
+    expect(gridTileClass("clean")).toBe("grid-tile grid-two-words");
+    expect(gridTileClass("dirty")).toBe("grid-tile");
   });
 
   test("electricity grid reads English with no catalog", () => {
