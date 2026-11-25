@@ -7,6 +7,7 @@ import { describe, expect, test, vi } from "vitest";
 import { buildPills, temperatureText } from "../../src/area/words";
 import { AreaSheet } from "../../src/area/sheet";
 import { calculateMetrics, groupEntitiesByDomain } from "../../src/area/utils";
+import { resolveChip } from "../../src/header/items";
 import { GreetingLine } from "../../src/header/greeting-line";
 import { weatherDetails } from "../../src/weather/details";
 import { dayRange } from "../../src/weather/sheet";
@@ -75,6 +76,45 @@ describe("header", () => {
       </WidgetLanguage>
     ));
     expect(view.container.textContent).toBe("Good night, Nina");
+  });
+});
+
+describe("header value chip", () => {
+  const reading = (state: string, unit?: string, deviceClass?: string) => ({
+    id: "sensor.room",
+    state,
+    name: "Room",
+    unit,
+    deviceClass,
+  });
+  const chip = { shows: "value", entityId: ["sensor.room"] } as const;
+  const de = (states = false): TestLanguage => ({
+    ...language("header", "de"),
+    states: states
+      ? {
+          component: { sensor: { _: { state: { idle: "Leerlauf" } } } },
+          entity: {},
+        }
+      : null,
+  });
+
+  test("a numeric reading takes the German number format and its unit", () => {
+    const value = resolveChip(chip, [reading("21.5", "°C")], languageTools(de()))?.value;
+    expect(value).toBe("21,5 °C");
+  });
+
+  test("a numeric reading keeps English format", () => {
+    const value = resolveChip(chip, [reading("21.5", "°C")], tools("header", "en"))?.value;
+    expect(value).toBe("21.5 °C");
+  });
+
+  test("a word state takes Home Assistant's German word", () => {
+    const value = resolveChip(chip, [reading("idle")], languageTools(de(true)))?.value;
+    expect(value).toBe("Leerlauf");
+  });
+
+  test("a word state stays as it is in English with no texts", () => {
+    expect(resolveChip(chip, [reading("idle")], tools("header", "en"))?.value).toBe("idle");
   });
 });
 
@@ -157,8 +197,8 @@ describe("area", () => {
     const [pill] = buildPills(tools("area", "fr"), calculateMetrics(groups), groups);
     const fr = tools("area", "fr");
     expect(pill?.label).toBe(word("area", "fr", "area.pill.lights"));
-    expect(pill?.short).toBe(fr.t("area.pill.count-on", { count: "1" }));
-    expect(pill?.state).toBe(fr.t("area.pill.some-on", { on: "1", total: "2" }));
+    expect(pill?.short).toBe(fr.t("area.pill.lights-on", { count: 1 }));
+    expect(pill?.state).toBe(fr.t("area.pill.lights-some-on", { on: 1, total: 2 }));
   });
 
   test("area names its covers by kind in German", () => {

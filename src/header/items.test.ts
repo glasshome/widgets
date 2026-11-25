@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { languageTools } from "@glasshome/widget-sdk/testing/tools";
+import { language } from "../../tests/catalog";
 import { DOMAIN_SPECS, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 
+const tools = languageTools(language("header", "en"));
 const hallOff = { id: "light.hall", state: "off", name: "Hall light" };
 const entities = [
   { id: "light.kitchen", state: "on", name: "Kitchen light" },
@@ -11,7 +14,7 @@ const entities = [
 
 describe("resolveChip", () => {
   test("a counting chip counts what is on and taps to fix it", () => {
-    expect(resolveChip({ shows: "lights" }, entities)).toMatchObject({
+    expect(resolveChip({ shows: "lights" }, entities, tools)).toMatchObject({
       value: "1",
       ids: ["light.kitchen"],
       service: { domain: "light", name: "turn_off" },
@@ -19,18 +22,18 @@ describe("resolveChip", () => {
   });
 
   test("a counting chip with nothing on shows nothing at all", () => {
-    expect(resolveChip({ shows: "lights" }, [hallOff])).toBeNull();
+    expect(resolveChip({ shows: "lights" }, [hallOff], tools)).toBeNull();
   });
 
   test("only these counts just the entities named, ignoring the rest", () => {
     const kitchenOn = { id: "light.kitchen", state: "on" };
     const two = [kitchenOn, { id: "light.hall", state: "on" }];
-    expect(resolveChip({ shows: "lights", only: ["light.kitchen"] }, two)).toMatchObject({
+    expect(resolveChip({ shows: "lights", only: ["light.kitchen"] }, two, tools)).toMatchObject({
       value: "1",
       ids: ["light.kitchen"],
     });
-    expect(resolveChip({ shows: "lights", only: [] }, two)).toMatchObject({ value: "2" });
-    expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [kitchenOn])).toBeNull();
+    expect(resolveChip({ shows: "lights", only: [] }, two, tools)).toMatchObject({ value: "2" });
+    expect(resolveChip({ shows: "lights", only: ["light.hall"] }, [kitchenOn], tools)).toBeNull();
   });
 
   test("doors, gates, garage doors and unclassed covers never join the covers chip's one-tap close", () => {
@@ -41,11 +44,11 @@ describe("resolveChip", () => {
       { id: "cover.gate", state: "open", deviceClass: "gate" },
       { id: "cover.patio", state: "open", deviceClass: "door" },
     ];
-    expect(resolveChip({ shows: "covers" }, covers)).toMatchObject({
+    expect(resolveChip({ shows: "covers" }, covers, tools)).toMatchObject({
       value: "1",
       ids: ["cover.blind"],
     });
-    expect(resolveChip({ shows: "covers" }, covers.slice(1))).toBeNull();
+    expect(resolveChip({ shows: "covers" }, covers.slice(1), tools)).toBeNull();
   });
 
   test("every counting kind names a real domain", () => {
@@ -55,19 +58,23 @@ describe("resolveChip", () => {
   });
 
   test("a value chip shows its value with the unit", () => {
-    expect(resolveChip({ shows: "value", entityId: ["sensor.power"] }, entities)).toMatchObject({
+    expect(
+      resolveChip({ shows: "value", entityId: ["sensor.power"] }, entities, tools),
+    ).toMatchObject({
       value: "412 W",
       icon: "mdi:flash",
     });
   });
 
   test("a value chip without its entity shows nothing", () => {
-    expect(resolveChip({ shows: "value", entityId: ["sensor.gone"] }, entities)).toBeNull();
-    expect(resolveChip({ shows: "value", entityId: [] }, entities)).toBeNull();
+    expect(resolveChip({ shows: "value", entityId: ["sensor.gone"] }, entities, tools)).toBeNull();
+    expect(resolveChip({ shows: "value", entityId: [] }, entities, tools)).toBeNull();
   });
 
   test("an action chip is icon only and runs its entity", () => {
-    expect(resolveChip({ shows: "action", entityId: ["scene.movie"] }, entities)).toMatchObject({
+    expect(
+      resolveChip({ shows: "action", entityId: ["scene.movie"] }, entities, tools),
+    ).toMatchObject({
       value: null,
       ids: ["scene.movie"],
       service: { domain: "scene", name: "turn_on" },
@@ -75,7 +82,9 @@ describe("resolveChip", () => {
   });
 
   test("an action chip on a domain nothing can run shows nothing", () => {
-    expect(resolveChip({ shows: "action", entityId: ["sensor.power"] }, entities)).toBeNull();
+    expect(
+      resolveChip({ shows: "action", entityId: ["sensor.power"] }, entities, tools),
+    ).toBeNull();
   });
 
   test("every watched domain names a state and a service", () => {
