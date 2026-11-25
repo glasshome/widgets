@@ -186,6 +186,7 @@ function AreaWidget(props: { config: AreaConfig }) {
             metrics={metrics()}
             groups={groups()}
             areaName={areaName()}
+            homeName={areaName() !== t("area.name.fallback")}
             areaIcon={area()?.icon}
             picture={area()?.picture}
             image={props.config.image}

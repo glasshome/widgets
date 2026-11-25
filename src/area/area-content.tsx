@@ -28,6 +28,7 @@ interface AreaContentProps {
   metrics: AreaMetrics;
   groups: EntityGroups;
   areaName: string;
+  homeName: boolean;
   areaIcon: string | null | undefined;
   picture: string | null | undefined;
   image?: string;
@@ -160,6 +161,7 @@ export function AreaContent(props: AreaContentProps) {
         active={m().lightsOn > 0}
         eyebrow={hasSummary() ? summary : undefined}
         name={props.areaName}
+        homeName={props.homeName}
         aside={
           <Show when={m().alertCount > 0}>
             <Widget.Chip icon="mdi:alert-circle" tone="var(--destructive)">

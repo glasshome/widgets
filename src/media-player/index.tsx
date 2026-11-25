@@ -162,6 +162,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                   name={
                     mediaTitle() || props.config.title || e().friendlyName || t("media-player.name")
                   }
+                  homeName={Boolean(mediaTitle() || props.config.title || e().friendlyName)}
                   active={isPlaying()}
                 />
                 <Widget.Hero

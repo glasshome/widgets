@@ -70,6 +70,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"}
             eyebrow={tools.t("batteries.eyebrow", { count: totalCount() })}
             name={title()}
+            homeName={Boolean(props.config.title)}
             active={hasLow()}
           />
           <Widget.Hero

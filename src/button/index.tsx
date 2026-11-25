@@ -100,6 +100,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
               icon="mdi:gesture-tap-button"
               eyebrow={t("button.name")}
               name={name()}
+              homeName={name() !== t("button.name")}
               count={entities().length}
             />
             <Widget.Hero value={lines().value} sub={lines().sub} />

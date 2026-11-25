@@ -199,6 +199,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
               icon={iconName()}
               eyebrow={eyebrow()}
               name={props.config.title || entity()?.friendlyName || t("climate.name")}
+              homeName={Boolean(props.config.title || entity()?.friendlyName)}
               active={hvacMode() !== "off"}
               count={entities().length}
             />

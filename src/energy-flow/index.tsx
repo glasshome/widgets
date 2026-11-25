@@ -110,6 +110,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
               description={description()}
               tariff={tariff()}
               title={title()}
+              homeTitle={Boolean(props.config.title)}
               onOpen={() => openDialog()}
             />
           </Show>

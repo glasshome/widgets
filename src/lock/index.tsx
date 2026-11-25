@@ -137,6 +137,7 @@ function LockWidget(props: { config: LockConfig }) {
               icon={isLocked() ? "mdi:lock" : "mdi:lock-open-variant"}
               eyebrow={lines().eyebrow}
               name={name()}
+              homeName={name() !== t("lock.name")}
               active={isLocked()}
               count={entities().length}
             />

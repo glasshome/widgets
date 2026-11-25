@@ -263,6 +263,7 @@ function CoverWidget(props: { config: CoverConfig }) {
               icon={iconName()}
               eyebrow={lines().eyebrow}
               name={name()}
+              homeName={name() !== t("cover.name")}
               active={isOpen()}
               count={entities().length}
             />

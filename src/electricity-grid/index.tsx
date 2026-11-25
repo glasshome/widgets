@@ -30,6 +30,7 @@ function firstId(ids: string[] | undefined): string {
 
 interface BodyProps {
   title: string;
+  homeTitle: boolean;
   verdict: Verdict;
   co2: number | null;
   price: number | null;
@@ -48,6 +49,7 @@ function GridBody(props: BodyProps): JSX.Element {
         icon="mdi:transmission-tower"
         eyebrow={lines().eyebrow}
         name={props.title}
+        homeName={props.homeTitle}
         active={props.verdict.band === "clean"}
       />
       <Widget.Hero
@@ -134,6 +136,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
             {(v) => (
               <GridBody
                 title={props.config.title || tools.t("electricity-grid.title")}
+                homeTitle={Boolean(props.config.title)}
                 verdict={v()}
                 co2={co2()}
                 price={price()}

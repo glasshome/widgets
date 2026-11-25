@@ -138,6 +138,7 @@ function SensorWidget(props: { config: SensorConfig }) {
               icon={iconName()}
               eyebrow={eyebrow()}
               name={name()}
+              homeName={name() !== t("sensor.name")}
               count={entities().length}
             />
             <Widget.Hero value={displayValue()} unit={displayUnit() || undefined} />

@@ -93,7 +93,12 @@ function SceneWidget(props: { config: SceneConfig }) {
         <Show when={hasEntities()}>
           <Widget.Content>
             <Widget.Glyph icon="mdi:palette" />
-            <Widget.Head icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
+            <Widget.Head
+              icon="mdi:palette"
+              eyebrow={eyebrow()}
+              name={name()}
+              homeName={name() !== t("scene.name.many")}
+            />
             <div class="scene-chips">
               <For each={entities()}>
                 {(e) => (

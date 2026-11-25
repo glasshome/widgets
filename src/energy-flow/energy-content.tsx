@@ -16,6 +16,7 @@ interface EnergyContentProps {
   description: FlowDescription;
   tariff: Tariff;
   title: string;
+  homeTitle: boolean;
   onOpen: () => void;
 }
 
@@ -66,6 +67,7 @@ export function EnergyContent(props: EnergyContentProps) {
         icon={energyIcons.home}
         eyebrow={props.description.headline}
         name={props.title}
+        homeName={props.homeTitle}
         active={!idle()}
       />
       <Show

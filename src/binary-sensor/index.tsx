@@ -145,6 +145,7 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
               icon={iconName()}
               eyebrow={eyebrow()}
               name={name()}
+              homeName={name() !== t("binary-sensor.name")}
               active={isOn()}
               count={entities().length}
             />

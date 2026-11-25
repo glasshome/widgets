@@ -117,6 +117,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
               icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"}
               eyebrow={lines().eyebrow}
               name={name()}
+              homeName={name() !== t("switch.name")}
               active={isOn()}
               count={entities().length}
             />

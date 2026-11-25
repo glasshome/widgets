@@ -199,6 +199,7 @@ function FanWidget(props: { config: FanConfig }) {
               icon={isOn() ? "mdi:fan" : "mdi:fan-off"}
               eyebrow={lines().eyebrow}
               name={name()}
+              homeName={name() !== t("fan.name")}
               active={isOn()}
               count={entities().length}
             />

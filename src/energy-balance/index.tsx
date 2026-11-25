@@ -195,6 +195,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
               icon={headIcon()}
               eyebrow={readout().caption}
               name={props.config.title || tools.t("energy-balance.title")}
+              homeName={Boolean(props.config.title)}
               active={readout().tone === "surplus"}
             />
             <Widget.Hero

@@ -185,6 +185,7 @@ function LightWidget(props: { config: LightConfig }) {
               icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"}
               eyebrow={lines().eyebrow}
               name={name()}
+              homeName={name() !== t("light.name")}
               active={isOn()}
               count={count()}
             />
