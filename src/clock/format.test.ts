@@ -28,6 +28,11 @@ describe("clockFace", () => {
     expect(face.hours).toBe("00");
   });
 
+  test("an empty zone reads the device zone", () => {
+    const face = clockFace(noon, { ...auto, timeZone: "" }, tools("de-DE"));
+    expect(face).toEqual(clockFace(noon, { ...auto, timeZone: undefined }, tools("de-DE")));
+  });
+
   test("24 keeps 15 in English", () => {
     const face = clockFace(
       new Date(Date.UTC(2026, 10, 3, 15, 4, 5)),

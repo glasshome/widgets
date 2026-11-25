@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@solidjs/testing-library";
+import { fireEvent, render, within } from "@solidjs/testing-library";
 import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import type { WidgetDialogProps } from "@glasshome/widget-sdk";
 import type { JSX } from "solid-js";
@@ -79,7 +79,11 @@ describe("the clock's dialog", () => {
       const trigger = field?.querySelector("button");
       if (!trigger) throw new Error(`${label} has no select`);
       fireEvent.click(trigger);
-      expect(screen.getAllByRole("option")[0]?.textContent).toBe("Automatic");
+      const listboxId = trigger.getAttribute("aria-labelledby")?.replace(/-value$/, "-listbox");
+      const listbox = listboxId ? document.getElementById(listboxId) : null;
+      if (!listbox) throw new Error(`${label} opened no listbox`);
+      const open = within(listbox);
+      expect(open.getAllByRole("option")[0]?.textContent).toBe("Automatic");
       fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     }
   });

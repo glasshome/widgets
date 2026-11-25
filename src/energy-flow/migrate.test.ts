@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { migrateConfig } from "./migrate";
+import { migrateConfig, migrateEnergyFlow } from "./migrate";
 import { type FlowNodeConfig, validateNodes } from "./node-model";
 
 /** A full v2 config as the host stored it (every key present, defaults filled). */
@@ -229,5 +229,79 @@ describe("migrateConfig shape", () => {
     for (const shape of shapes) {
       expect(validateNodes(nodesOf(shape))).toEqual([]);
     }
+  });
+});
+
+describe("migrateEnergyFlow", () => {
+  const stored = (label: string, extra: Partial<FlowNodeConfig> = {}) =>
+    ({
+      kind: "input",
+      entities: ["sensor.a"],
+      label,
+      icon: "mdi:solar-power-variant",
+      level: [],
+      ...extra,
+    }) as FlowNodeConfig;
+  const labels = (config: Record<string, unknown>) =>
+    (config.nodes as FlowNodeConfig[]).map((node) => node.label);
+
+  test("a v3 default English label clears for every role", () => {
+    const nodes: FlowNodeConfig[] = [
+      stored("Solar"),
+      {
+        kind: "bidirectional",
+        positive: [],
+        negative: [],
+        signed: [],
+        signedOutbound: false,
+        priced: false,
+        label: "Battery",
+        icon: "mdi:battery-high",
+        level: [],
+      },
+      {
+        kind: "bidirectional",
+        positive: [],
+        negative: [],
+        signed: [],
+        signedOutbound: false,
+        priced: true,
+        label: "Grid",
+        icon: "mdi:transmission-tower",
+        level: [],
+      },
+      {
+        kind: "output",
+        entities: [],
+        remainder: true,
+        label: "Home",
+        icon: "mdi:home-lightning-bolt",
+        level: [],
+      },
+      {
+        kind: "output",
+        entities: ["sensor.ev"],
+        remainder: false,
+        label: "EV charging",
+        icon: "mdi:car-electric",
+        level: [],
+      },
+    ];
+    expect(labels(migrateEnergyFlow({ nodes }, 3))).toEqual(["", "", "", "", ""]);
+  });
+
+  test("a label the homeowner chose stays", () => {
+    const nodes = [stored("Roof"), stored("solar"), stored("Grid")];
+    expect(labels(migrateEnergyFlow({ nodes }, 3))).toEqual(["Roof", "solar", "Grid"]);
+  });
+
+  test("a config already at version 4 is untouched", () => {
+    const config = { nodes: [stored("Solar")] };
+    expect(migrateEnergyFlow(config, 4)).toBe(config);
+  });
+
+  test("a v2 config clears its stored English names in one pass", () => {
+    const result = migrateEnergyFlow(v2({ solarEntity: ["sensor.roof"] }), 2);
+    expect(labels(result)).toEqual(["", ""]);
   });
 });
