@@ -8,8 +8,10 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { For, Show } from "solid-js";
+import { presetWord } from "./words";
 
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replaceAll("_", " ");
 
@@ -36,12 +38,15 @@ export function FanSheet(props: {
   name: string;
   presetIcon: (preset: string) => string;
 }) {
+  const tools = useTranslation();
+  const { t } = tools;
   const { callService } = useService();
   const primary = () => props.entities[0];
   const single = () => (props.entities.length === 1 ? primary() : undefined);
   const ids = () => props.entities.map((e) => e.id);
 
   const presets = () => presetsOf(primary());
+  const presetLabel = (p: string) => presetWord(tools, primary(), p, titleCase);
   const preset = () => primary()?.attributes.preset_mode as string | undefined;
   const oscillating = () => oscillatingOf(single());
   const direction = () => directionOf(single());
@@ -49,9 +54,9 @@ export function FanSheet(props: {
   return (
     <>
       <Show when={presets().length}>
-        <PanelSection label="Preset">
+        <PanelSection label={t("fan.preset.label")}>
           <ToggleGroup
-            aria-label="Preset"
+            aria-label={t("fan.preset.label")}
             tone="var(--widget-color)"
             value={preset() ?? null}
             onChange={(p: string | null) =>
@@ -70,9 +75,9 @@ export function FanSheet(props: {
           >
             <For each={presets()}>
               {(p) => (
-                <ToggleGroupItem value={p} aria-label={titleCase(p)}>
+                <ToggleGroupItem value={p} aria-label={presetLabel(p)}>
                   <Icon icon={props.presetIcon(p)} width={18} />
-                  {titleCase(p)}
+                  {presetLabel(p)}
                 </ToggleGroupItem>
               )}
             </For>
@@ -80,7 +85,7 @@ export function FanSheet(props: {
         </PanelSection>
       </Show>
       <Show when={oscillating() !== undefined || direction() !== undefined}>
-        <PanelSection label="Air flow">
+        <PanelSection label={t("fan.sheet.air-flow")}>
           <div class="glasshome-sheet-actions">
             <Show when={oscillating() !== undefined}>
               <Toggle
@@ -91,12 +96,12 @@ export function FanSheet(props: {
                 }
               >
                 <Icon icon="mdi:arrow-oscillating" width={18} />
-                Oscillate
+                {t("fan.sheet.oscillate")}
               </Toggle>
             </Show>
             <Show when={direction() !== undefined}>
               <ToggleGroup
-                aria-label="Direction"
+                aria-label={t("fan.sheet.direction")}
                 tone="var(--widget-color)"
                 value={direction() ?? null}
                 onChange={(d: string | null) =>
@@ -104,13 +109,13 @@ export function FanSheet(props: {
                   void callService("fan", "set_direction", { direction: d }, { entity_id: ids() })
                 }
               >
-                <ToggleGroupItem value="forward" aria-label="Forward">
+                <ToggleGroupItem value="forward" aria-label={t("fan.sheet.forward")}>
                   <Icon icon="mdi:rotate-right" width={18} />
-                  Forward
+                  {t("fan.sheet.forward")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="reverse" aria-label="Reverse">
+                <ToggleGroupItem value="reverse" aria-label={t("fan.sheet.reverse")}>
                   <Icon icon="mdi:rotate-left" width={18} />
-                  Reverse
+                  {t("fan.sheet.reverse")}
                 </ToggleGroupItem>
               </ToggleGroup>
             </Show>
@@ -118,7 +123,7 @@ export function FanSheet(props: {
         </PanelSection>
       </Show>
       <Show when={props.entities.length > 1}>
-        <PanelSection label="Fans">
+        <PanelSection label={t("fan.sheet.fans")}>
           <PanelRows>
             <For each={props.entities}>
               {(e) => <PanelEntityRow entityId={e.id} within={props.name} />}

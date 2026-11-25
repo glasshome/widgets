@@ -1,4 +1,7 @@
 {
+  "common.group.all-off": "Alle aus",
+  "common.group.all-on": "Alle an",
+  "common.group.some-on": "{active} von {total} an",
   "manifest.config.title.description": "Optionaler Anzeigename",
   "manifest.config.title.title": "Titel",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",
@@ -6,5 +9,11 @@
   "manifest.examples.0.label": "Ein",
   "manifest.examples.1.label": "Aus",
   "manifest.examples.2.label": "Schalter",
-  "manifest.name": "Schalter"
+  "manifest.name": "Schalter",
+  "switch.empty.message": "Gedrückt halten zum Konfigurieren",
+  "switch.empty.title": "Keine Schalter-Entität",
+  "switch.name": "Schalter",
+  "switch.sheet.switches": "Schalter",
+  "switch.state.off": "Aus",
+  "switch.state.on": "An"
 }

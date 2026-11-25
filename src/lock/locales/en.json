@@ -1,1 +1,13 @@
-{}
+{
+  "common.group.all-locked": "All locked",
+  "common.group.all-unlocked": "All unlocked",
+  "common.group.some-unlocked": "{active} of {total} unlocked",
+  "lock.empty.message": "Hold to configure",
+  "lock.empty.title": "No lock entity",
+  "lock.name": "Lock",
+  "lock.sheet.changed-at": "{day} · {time}",
+  "lock.sheet.doors": "Doors",
+  "lock.sheet.last-changed": "Last changed",
+  "lock.state.locked": "Locked",
+  "lock.state.unlocked": "Unlocked"
+}

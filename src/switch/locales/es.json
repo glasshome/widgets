@@ -1,4 +1,7 @@
 {
+  "common.group.all-off": "Todo apagado",
+  "common.group.all-on": "Todo encendido",
+  "common.group.some-on": "{active} de {total} encendidos",
   "manifest.config.title.description": "Nombre visible opcional que reemplaza el predeterminado",
   "manifest.config.title.title": "Título",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",
@@ -6,5 +9,11 @@
   "manifest.examples.0.label": "Encendido",
   "manifest.examples.1.label": "Apagado",
   "manifest.examples.2.label": "Interruptores",
-  "manifest.name": "Interruptor"
+  "manifest.name": "Interruptor",
+  "switch.empty.message": "Mantén pulsado para configurar",
+  "switch.empty.title": "No hay ninguna entidad de interruptor",
+  "switch.name": "Interruptor",
+  "switch.sheet.switches": "Interruptores",
+  "switch.state.off": "Apagado",
+  "switch.state.on": "Encendido"
 }

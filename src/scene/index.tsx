@@ -7,6 +7,7 @@ import {
   type Infer,
   useConfirm,
   useEntities,
+  useTranslation,
   useTurnOn,
   useWidgetContext,
   useWidgetDialog,
@@ -19,6 +20,7 @@ import {
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
+import { sceneEyebrow } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -30,6 +32,8 @@ type SceneConfig = Infer<typeof configSchema>;
 
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isLoading, setIsLoading] = createSignal(false);
 
@@ -40,8 +44,8 @@ function SceneWidget(props: { config: SceneConfig }) {
     aggregationMode: () => "none",
     emptyStateConfig: {
       icon: <Icon icon="mdi:palette" width={32} />,
-      title: "No scene",
-      message: "Hold to configure",
+      title: t("scene.empty.title"),
+      message: t("scene.empty.message"),
     },
   });
 
@@ -61,31 +65,12 @@ function SceneWidget(props: { config: SceneConfig }) {
   };
   const handleTap = () => run(entities().map((e) => e.id));
 
-  /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
-  const lastRan = () => {
-    const stamps = entities()
-      .map((e) => new Date(e.state).getTime())
-      .filter((t) => !Number.isNaN(t));
-    if (stamps.length === 0) return undefined;
-    const at = new Date(Math.max(...stamps));
-    const time = at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    return at.toDateString() === new Date().toDateString()
-      ? `Ran at ${time}`
-      : `Ran ${at.toLocaleDateString([], { weekday: "short" })} ${time}`;
-  };
-
   const name = () =>
     props.config.title ||
     (entities().length === 1 ? entities()[0]?.friendlyName : undefined) ||
-    "Scenes";
-  // A group named "Scenes" already says what the count would.
-  const eyebrow = () => {
-    const ranLine = lastRan();
-    if (ranLine) return ranLine;
-    const count = entities().length;
-    if (count === 1) return "Scene";
-    return name() === "Scenes" ? undefined : `${count} scenes`;
-  };
+    t("scene.name.many");
+  const eyebrow = () =>
+    sceneEyebrow(tools, { states: entities().map((e) => e.state), name: name() });
   const gestures = useWidgetGestures(() => ({ tap: handleTap }));
   onCleanup(gestures.dispose);
 
@@ -119,7 +104,7 @@ function SceneWidget(props: { config: SceneConfig }) {
                     id={e.id}
                     run={() => turnOn(e.id)}
                   >
-                    {entities().length > 1 ? e.friendlyName : "Activate"}
+                    {entities().length > 1 ? e.friendlyName : t("scene.action.activate")}
                   </Widget.Action>
                 )}
               </For>
@@ -130,7 +115,7 @@ function SceneWidget(props: { config: SceneConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Scene"
+        title={t("scene.name.one")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

@@ -1,4 +1,10 @@
 {
+  "button.action.press": "Drücken",
+  "button.empty.message": "Halten zum Konfigurieren",
+  "button.empty.title": "Keine Button-Entität",
+  "button.hero.last-pressed": "Zuletzt gedrückt",
+  "button.hero.never": "Noch nie gedrückt",
+  "button.name": "Button",
   "manifest.config.title.description": "Optionaler Anzeigename",
   "manifest.config.title.title": "Titel",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entitäten",

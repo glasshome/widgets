@@ -1,4 +1,10 @@
 {
+  "button.action.press": "Appuyer",
+  "button.empty.message": "Maintenir pour configurer",
+  "button.empty.title": "Aucune entité bouton",
+  "button.hero.last-pressed": "Dernier appui",
+  "button.hero.never": "Jamais appuyé",
+  "button.name": "Bouton",
   "manifest.config.title.description": "Nom d’affichage facultatif",
   "manifest.config.title.title": "Titre",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",

@@ -5,6 +5,7 @@ import {
   PanelRows,
   PanelSection,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { getCoverCapabilities, getCoverTiltPosition } from "./cover-entity";
@@ -19,12 +20,13 @@ export const coverHasExtras = (entities: EntityView[]) =>
 
 /** What the cover tile cannot show: each cover of a group, one at a time, or a single cover's slats. */
 export function CoverSheet(props: { entities: EntityView[]; name: string }) {
+  const { t } = useTranslation();
   return (
     <Show
       when={props.entities.length > 1}
       fallback={<Show when={props.entities[0]}>{(e) => <SlatsSection entity={e()} />}</Show>}
     >
-      <PanelSection label="Covers">
+      <PanelSection label={t("cover.sheet.covers")}>
         <PanelRows>
           <For each={props.entities}>
             {(e) => <PanelEntityRow entityId={e.id} within={props.name} />}
@@ -36,6 +38,7 @@ export function CoverSheet(props: { entities: EntityView[]; name: string }) {
 }
 
 function SlatsSection(props: { entity: EntityView }) {
+  const { t, formatNumber } = useTranslation();
   const { callService } = useService();
   const caps = createMemo(() => getCoverCapabilities(props.entity));
   const tilt = createMemo(() => getCoverTiltPosition(props.entity));
@@ -50,7 +53,7 @@ function SlatsSection(props: { entity: EntityView }) {
     void callService("cover", service, {}, target());
 
   return (
-    <PanelSection label="Slats">
+    <PanelSection label={t("cover.sheet.slats")}>
       <Show
         when={caps().canSetTiltPosition && tilt() !== null}
         fallback={
@@ -58,7 +61,7 @@ function SlatsSection(props: { entity: EntityView }) {
             <Show when={caps().canOpenTilt}>
               <PanelRow
                 icon="mdi:blinds-horizontal"
-                name="Open slats"
+                name={t("cover.sheet.open-slats")}
                 on={false}
                 onTap={() => tiltBy("open_cover_tilt")}
               />
@@ -66,7 +69,7 @@ function SlatsSection(props: { entity: EntityView }) {
             <Show when={caps().canCloseTilt}>
               <PanelRow
                 icon="mdi:blinds-horizontal-closed"
-                name="Close slats"
+                name={t("cover.sheet.close-slats")}
                 on={false}
                 onTap={() => tiltBy("close_cover_tilt")}
               />
@@ -77,8 +80,8 @@ function SlatsSection(props: { entity: EntityView }) {
         <PanelRows>
           <PanelRow
             icon={shown() > 0 ? "mdi:blinds-horizontal" : "mdi:blinds-horizontal-closed"}
-            name="Tilt"
-            state={`${shown()}%`}
+            name={t("cover.sheet.tilt")}
+            state={formatNumber(shown() / 100, { style: "percent" })}
             tone="var(--tone-info)"
             on={shown() > 0}
             slide={{

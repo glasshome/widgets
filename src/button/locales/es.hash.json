@@ -1,4 +1,28 @@
 {
+  "button.action.press": {
+    "source": "e04b5068b81fff36",
+    "value": "5987374c052c7e50"
+  },
+  "button.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "76c75e853915756c"
+  },
+  "button.empty.title": {
+    "source": "24173381b529f96c",
+    "value": "786f3aee5b1266d4"
+  },
+  "button.hero.last-pressed": {
+    "source": "a0f7ef0662999361",
+    "value": "a10d62e71e4b23d3"
+  },
+  "button.hero.never": {
+    "source": "2c82d078c11c878b",
+    "value": "e712b3645f58aa18"
+  },
+  "button.name": {
+    "source": "0e293547af5f9569",
+    "value": "d1d04e682422489c"
+  },
   "manifest.config.title.description": {
     "source": "c5297a7b336aa0ac",
     "value": "0774b154ef4ab6b8"

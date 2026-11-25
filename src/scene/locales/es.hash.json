@@ -30,5 +30,37 @@
   "manifest.name": {
     "source": "642d3163c78c6dc6",
     "value": "cd8f28e4abe111b3"
+  },
+  "scene.action.activate": {
+    "source": "1cace4a0fde1d847",
+    "value": "8e38c2571d87f6ee"
+  },
+  "scene.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "76c75e853915756c"
+  },
+  "scene.empty.title": {
+    "source": "8839a86598cf8bd0",
+    "value": "51528df3c9c085e5"
+  },
+  "scene.eyebrow.count": {
+    "source": "93c6abdd43d1a94d",
+    "value": "78eb6d7360de2153"
+  },
+  "scene.eyebrow.ran-at": {
+    "source": "9ef3afad9d2b2a5e",
+    "value": "1e9df3edff1d96fd"
+  },
+  "scene.eyebrow.ran-on": {
+    "source": "af31a044257594f0",
+    "value": "1bb645f1e9aeecfc"
+  },
+  "scene.name.many": {
+    "source": "ca866b5c17d183ec",
+    "value": "117794f17ae1af8a"
+  },
+  "scene.name.one": {
+    "source": "642d3163c78c6dc6",
+    "value": "cd8f28e4abe111b3"
   }
 }

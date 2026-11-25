@@ -1,12 +1,21 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
+
+export interface GroupKeys {
+  all: string;
+  none: string;
+  some: string;
+}
+
 /** A group's small line: "All locked" when every member agrees, "1 of 2 unlocked" otherwise. */
 export function groupLine(
+  tools: Pick<TranslationTools, "t">,
   active: number,
   total: number,
-  words: { active: string; rest: string },
+  keys: GroupKeys,
 ): string {
-  if (active === 0) return `All ${words.rest}`;
-  if (active === total) return `All ${words.active}`;
-  return `${active} of ${total} ${words.active}`;
+  if (active === 0) return tools.t(keys.none);
+  if (active === total) return tools.t(keys.all);
+  return tools.t(keys.some, { active, total });
 }
 
 const NO_BULK_COVER_CLASSES = new Set(["door", "gate", "garage"]);

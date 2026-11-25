@@ -1,4 +1,80 @@
 {
+  "common.group.all-closed": {
+    "source": "8c816a00235b0807",
+    "value": "bfe72c71d2b293f5"
+  },
+  "common.group.all-open": {
+    "source": "179a390175798509",
+    "value": "6e768bd99042bcaa"
+  },
+  "common.group.some-open": {
+    "source": "57821cad320d89a5",
+    "value": "c9c5afaee8f67bfc"
+  },
+  "cover.controls.close": {
+    "source": "63c7e1afe8fb90f0",
+    "value": "b808f6e97075772f"
+  },
+  "cover.controls.label": {
+    "source": "c5209e6a1a306559",
+    "value": "f2764a5320a0cf13"
+  },
+  "cover.controls.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "bc385a30b5378841"
+  },
+  "cover.controls.stop": {
+    "source": "4e6791252f0ea960",
+    "value": "268829685bf7f35f"
+  },
+  "cover.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "a2540cfec4ec0fe4"
+  },
+  "cover.empty.title": {
+    "source": "874c3dc3bffabbce",
+    "value": "346e2faf1b96f891"
+  },
+  "cover.name": {
+    "source": "c5209e6a1a306559",
+    "value": "f2764a5320a0cf13"
+  },
+  "cover.sheet.close-slats": {
+    "source": "abcf36e0d0587203",
+    "value": "de376a90681a4f83"
+  },
+  "cover.sheet.covers": {
+    "source": "74bb1dc64c0c4116",
+    "value": "4aff499255a9b43b"
+  },
+  "cover.sheet.open-slats": {
+    "source": "231ae93b243ea366",
+    "value": "ceca3d6c0ca8403b"
+  },
+  "cover.sheet.slats": {
+    "source": "11a89397e5e30379",
+    "value": "ab26653347342fac"
+  },
+  "cover.sheet.tilt": {
+    "source": "fc149cc29e48c2b6",
+    "value": "3497ea74f2f9494f"
+  },
+  "cover.state.closed": {
+    "source": "30a4a31995b63813",
+    "value": "525ac2f6efbb287b"
+  },
+  "cover.state.closing": {
+    "source": "f519d0a46a929a10",
+    "value": "8894f2642a87c933"
+  },
+  "cover.state.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "82f0f20a6d6676c8"
+  },
+  "cover.state.opening": {
+    "source": "69a7a0e27f01d26c",
+    "value": "efc8e2e651a63049"
+  },
   "manifest.config.art.labels.blind": {
     "source": "9c0425a22e1a98fd",
     "value": "36e74808ae27a38c"

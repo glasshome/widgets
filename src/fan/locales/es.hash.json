@@ -1,4 +1,64 @@
 {
+  "common.group.all-off": {
+    "source": "7b463024c5d1afb2",
+    "value": "f15d5a3c12869c9f"
+  },
+  "common.group.all-on": {
+    "source": "b8f19df9a3879939",
+    "value": "75f7a75f8452e1c9"
+  },
+  "common.group.some-on": {
+    "source": "5b48bcfe387cc5c6",
+    "value": "0ed01eafedaa45f2"
+  },
+  "fan.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "76c75e853915756c"
+  },
+  "fan.empty.title": {
+    "source": "afbe126067cc5dca",
+    "value": "4d3970600b399f9f"
+  },
+  "fan.name": {
+    "source": "c8145e9b53cba865",
+    "value": "49bbf7c3f46d068d"
+  },
+  "fan.preset.label": {
+    "source": "51df428f68c2f417",
+    "value": "12bbd04760dd7144"
+  },
+  "fan.sheet.air-flow": {
+    "source": "0818612ec638f8ac",
+    "value": "232b2294753e436d"
+  },
+  "fan.sheet.direction": {
+    "source": "74c54bc46bda1ff4",
+    "value": "2af66cb65da84067"
+  },
+  "fan.sheet.fans": {
+    "source": "c5238418eb6ddbac",
+    "value": "3630bdeadf6669fa"
+  },
+  "fan.sheet.forward": {
+    "source": "a5e9c0df79c9960a",
+    "value": "fa244127aafb164a"
+  },
+  "fan.sheet.oscillate": {
+    "source": "b0d6e7fd86a46f39",
+    "value": "c711ad81613504e9"
+  },
+  "fan.sheet.reverse": {
+    "source": "4d274d4fa76cd2a6",
+    "value": "ddae206337b20ca0"
+  },
+  "fan.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "2d9936793ba3ca2d"
+  },
+  "fan.state.on": {
+    "source": "875016a04e20fb98",
+    "value": "fe934b8ea03cf54e"
+  },
   "manifest.config.art.labels.pedestal": {
     "source": "691630179b919bff",
     "value": "058f0e1d2ddbe2bd"

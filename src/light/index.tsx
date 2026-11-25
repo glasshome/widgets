@@ -8,6 +8,7 @@ import {
   isEntityActive,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -21,9 +22,9 @@ import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-j
 import { widgetDialogProps } from "../common";
 import { LampArt } from "../common/art/lamp";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS } from "../common/art/lamp-kinds";
-import { groupLine } from "../common/group";
 import { LightSheet, lightHasExtras } from "./sheet";
 import { brightnessToPercent, hsToCSS } from "./utils";
+import { lightLines } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -40,6 +41,8 @@ type LightConfig = Infer<typeof configSchema>;
 
 function LightWidget(props: { config: LightConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -50,8 +53,8 @@ function LightWidget(props: { config: LightConfig }) {
     aggregationMode: () => "light",
     emptyStateConfig: {
       icon: <Icon icon="mdi:lightbulb" width={32} />,
-      title: "No light entity",
-      message: "Hold to configure",
+      title: t("light.empty.title"),
+      message: t("light.empty.message"),
     },
   });
 
@@ -143,13 +146,16 @@ function LightWidget(props: { config: LightConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Light";
+    t("light.name");
 
-  const eyebrow = createMemo(() => {
-    const total = count();
-    if (total <= 1) return "Light";
-    return groupLine(activeCount(), total, { active: "on", rest: "off" });
-  });
+  const lines = () =>
+    lightLines(tools, {
+      sample: entities()[0],
+      isOn: isOn(),
+      brightness: uiBrightness(),
+      count: count(),
+      activeCount: activeCount(),
+    });
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
@@ -176,13 +182,13 @@ function LightWidget(props: { config: LightConfig }) {
             <Widget.Glyph icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"} />
             <Widget.Head
               icon={isOn() ? "mdi:lightbulb" : "mdi:lightbulb-outline"}
-              eyebrow={eyebrow()}
+              eyebrow={lines().eyebrow}
               name={name()}
               active={isOn()}
               count={count()}
             />
             <Widget.Hero
-              value={isOn() ? Math.round(uiBrightness()) : "Off"}
+              value={lines().hero}
               unit={isOn() ? "%" : undefined}
               art={
                 <LampArt

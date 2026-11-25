@@ -8,6 +8,7 @@ import {
   isEntityActive,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -19,11 +20,11 @@ import {
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { groupLine } from "../common/group";
 import pedestalArt from "./assets/fan-pedestal.webp";
 import purifierArt from "./assets/fan-purifier.webp";
 import "./fan.css";
 import { FanSheet, fanHasExtras } from "./sheet";
+import { fanLines, presetWord } from "./words";
 import en from "./locales/en.json";
 
 const PRESET_ICONS: Record<string, string> = {
@@ -51,6 +52,8 @@ type FanConfig = Infer<typeof configSchema>;
 
 function FanWidget(props: { config: FanConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -61,8 +64,8 @@ function FanWidget(props: { config: FanConfig }) {
     aggregationMode: () => "switch",
     emptyStateConfig: {
       icon: <Icon icon="mdi:fan" width={32} />,
-      title: "No fan entity",
-      message: "Hold to configure",
+      title: t("fan.empty.title"),
+      message: t("fan.empty.message"),
     },
   });
 
@@ -151,24 +154,22 @@ function FanWidget(props: { config: FanConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Fan";
+    t("fan.name");
   const presets = createMemo(() =>
     ((firstEntity()?.attributes?.preset_modes as string[] | undefined) ?? []).slice(0, 3),
   );
   const presetIcon = (p: string) => PRESET_ICONS[p.toLowerCase()] ?? "mdi:fan";
-  const heroValue = () => {
-    if (isUnavailable()) return "--";
-    if (!isOn()) return "Off";
-    if (count() > 1) return "On";
-    return supportsSpeed() ? Math.round(uiPercentage()) : "On";
-  };
-  const eyebrow = () => {
-    if (isUnavailable()) return "Unavailable";
-    if (count() > 1) return groupLine(activeCount(), count(), { active: "on", rest: "off" });
-    const preset = firstEntity()?.attributes?.preset_mode as string | undefined;
-    if (isOn() && preset) return `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
-    return "Fan";
-  };
+  const lines = () =>
+    fanLines(tools, {
+      sample: firstEntity(),
+      isOn: isOn(),
+      isUnavailable: isUnavailable(),
+      supportsSpeed: supportsSpeed(),
+      percentage: uiPercentage(),
+      count: count(),
+      activeCount: activeCount(),
+      preset: firstEntity()?.attributes?.preset_mode as string | undefined,
+    });
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
     const ents = entities();
@@ -195,13 +196,13 @@ function FanWidget(props: { config: FanConfig }) {
             <Widget.Glyph icon={isOn() ? "mdi:fan" : "mdi:fan-off"} />
             <Widget.Head
               icon={isOn() ? "mdi:fan" : "mdi:fan-off"}
-              eyebrow={eyebrow()}
+              eyebrow={lines().eyebrow}
               name={name()}
               active={isOn()}
               count={entities().length}
             />
             <Widget.Hero
-              value={heroValue()}
+              value={lines().hero}
               unit={isOn() && supportsSpeed() && count() === 1 ? "%" : undefined}
               art={
                 <img
@@ -215,10 +216,14 @@ function FanWidget(props: { config: FanConfig }) {
             <Show when={presets().length > 0}>
               <Widget.Controls>
                 <Widget.Choice
-                  label="Preset"
+                  label={t("fan.preset.label")}
                   tone="var(--widget-color)"
                   value={firstEntity()?.attributes?.preset_mode as string}
-                  options={presets().map((p) => ({ value: p, icon: presetIcon(p), label: p }))}
+                  options={presets().map((p) => ({
+                    value: p,
+                    icon: presetIcon(p),
+                    label: presetWord(tools, firstEntity(), p, (raw) => raw),
+                  }))}
                   onChange={(p) => {
                     for (const e of entities()) {
                       const offers = (e.attributes?.preset_modes as string[] | undefined) ?? [];

@@ -8,6 +8,7 @@ import {
   useConfirm,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -18,6 +19,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { buttonLines } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -29,6 +31,8 @@ type ButtonConfig = Infer<typeof configSchema>;
 
 function ButtonWidget(props: { config: ButtonConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isLoading, setIsLoading] = createSignal(false);
 
@@ -39,8 +43,8 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     aggregationMode: () => "none",
     emptyStateConfig: {
       icon: <Icon icon="mdi:gesture-tap-button" width={32} />,
-      title: "No button entity",
-      message: "Hold to configure",
+      title: t("button.empty.title"),
+      message: t("button.empty.message"),
     },
   });
 
@@ -67,13 +71,8 @@ function ButtonWidget(props: { config: ButtonConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Button";
-  const lastPressed = () => {
-    const stamp = entities()[0]?.state;
-    const date = stamp ? new Date(stamp) : undefined;
-    if (!date || Number.isNaN(date.getTime())) return undefined;
-    return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  };
+    t("button.name");
+  const lines = () => buttonLines(tools, entities()[0]?.state);
 
   const gestures = useWidgetGestures(() => ({ tap: handleTap }));
   onCleanup(gestures.dispose);
@@ -99,17 +98,14 @@ function ButtonWidget(props: { config: ButtonConfig }) {
             <Widget.Glyph icon="mdi:gesture-tap-button" />
             <Widget.Head
               icon="mdi:gesture-tap-button"
-              eyebrow="Button"
+              eyebrow={t("button.name")}
               name={name()}
               count={entities().length}
             />
-            <Widget.Hero
-              value={lastPressed() ?? ""}
-              sub={lastPressed() ? "Last pressed" : "Never pressed"}
-            />
+            <Widget.Hero value={lines().value} sub={lines().sub} />
             <Widget.Controls>
               <Widget.Action icon="mdi:gesture-tap" confirm={confirm} id="press" run={press}>
-                Press
+                {t("button.action.press")}
               </Widget.Action>
             </Widget.Controls>
           </Widget.Content>
@@ -118,7 +114,7 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Button"
+        title={t("button.name")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

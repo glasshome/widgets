@@ -1,4 +1,80 @@
 {
+  "common.group.all-closed": {
+    "source": "8c816a00235b0807",
+    "value": "98bb7b278c323000"
+  },
+  "common.group.all-open": {
+    "source": "179a390175798509",
+    "value": "b0df2c81f24fd5ff"
+  },
+  "common.group.some-open": {
+    "source": "57821cad320d89a5",
+    "value": "f45e419af6591f84"
+  },
+  "cover.controls.close": {
+    "source": "63c7e1afe8fb90f0",
+    "value": "711e5f2e198df1b6"
+  },
+  "cover.controls.label": {
+    "source": "c5209e6a1a306559",
+    "value": "ed38b0bfcf2a58e6"
+  },
+  "cover.controls.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "9fb440435a046647"
+  },
+  "cover.controls.stop": {
+    "source": "4e6791252f0ea960",
+    "value": "5130281b4441b98c"
+  },
+  "cover.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "e407144e72b0d997"
+  },
+  "cover.empty.title": {
+    "source": "874c3dc3bffabbce",
+    "value": "d3978b47326bac11"
+  },
+  "cover.name": {
+    "source": "c5209e6a1a306559",
+    "value": "ed38b0bfcf2a58e6"
+  },
+  "cover.sheet.close-slats": {
+    "source": "abcf36e0d0587203",
+    "value": "2fb5c6a4415802e5"
+  },
+  "cover.sheet.covers": {
+    "source": "74bb1dc64c0c4116",
+    "value": "f42b41e1aea4c073"
+  },
+  "cover.sheet.open-slats": {
+    "source": "231ae93b243ea366",
+    "value": "145485a7f37f05d7"
+  },
+  "cover.sheet.slats": {
+    "source": "11a89397e5e30379",
+    "value": "dbdd616a3793c5f5"
+  },
+  "cover.sheet.tilt": {
+    "source": "fc149cc29e48c2b6",
+    "value": "2a55a3441280bd67"
+  },
+  "cover.state.closed": {
+    "source": "30a4a31995b63813",
+    "value": "91f0cbda0129d396"
+  },
+  "cover.state.closing": {
+    "source": "f519d0a46a929a10",
+    "value": "ba71d7560f656857"
+  },
+  "cover.state.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "b2770fef713a79a4"
+  },
+  "cover.state.opening": {
+    "source": "69a7a0e27f01d26c",
+    "value": "3bf302140b68c348"
+  },
   "manifest.config.art.labels.blind": {
     "source": "9c0425a22e1a98fd",
     "value": "4d5118b39e0ab0ae"

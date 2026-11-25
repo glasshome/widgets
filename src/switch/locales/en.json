@@ -1,1 +1,11 @@
-{}
+{
+  "common.group.all-off": "All off",
+  "common.group.all-on": "All on",
+  "common.group.some-on": "{active} of {total} on",
+  "switch.empty.message": "Hold to configure",
+  "switch.empty.title": "No switch entity",
+  "switch.name": "Switch",
+  "switch.sheet.switches": "Switches",
+  "switch.state.off": "Off",
+  "switch.state.on": "On"
+}

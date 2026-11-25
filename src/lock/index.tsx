@@ -7,6 +7,7 @@ import {
   type Infer,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -19,10 +20,10 @@ import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import { ArtStrip } from "../common/art/strip";
-import { groupLine } from "../common/group";
 import boltSlide from "./assets/bolt-slide.strip";
 import gateSwing from "./assets/gate-swing.strip";
 import { LockSheet } from "./sheet";
+import { lockLines } from "./words";
 import en from "./locales/en.json";
 
 const OPEN_STATES = new Set(["unlocked", "open", "opening"]);
@@ -44,6 +45,8 @@ type LockConfig = Infer<typeof configSchema>;
 
 function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
 
@@ -54,8 +57,8 @@ function LockWidget(props: { config: LockConfig }) {
     aggregationMode: () => "switch",
     emptyStateConfig: {
       icon: <Icon icon="mdi:lock" width={32} />,
-      title: "No lock entity",
-      message: "Hold to configure",
+      title: t("lock.empty.title"),
+      message: t("lock.empty.message"),
     },
   });
 
@@ -69,18 +72,20 @@ function LockWidget(props: { config: LockConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Lock";
+    t("lock.name");
   const art = () => (
     <ArtStrip
       strip={ART[props.config.art]}
       end={entities().some((e) => OPEN_STATES.has(e.state))}
     />
   );
-  const heroValue = () => (isLocked() ? "Locked" : "Unlocked");
-  const eyebrow = () =>
-    count() > 1
-      ? groupLine(count() - lockedCount(), count(), { active: "unlocked", rest: "locked" })
-      : "Lock";
+  const lines = () =>
+    lockLines(tools, {
+      sample: entities()[0],
+      isLocked: isLocked(),
+      count: count(),
+      lockedCount: lockedCount(),
+    });
 
   // A group never unlocks in one tap: it locks what is open, and once all are locked the dialog unlocks one by one.
   const handleTap = async () => {
@@ -129,12 +134,12 @@ function LockWidget(props: { config: LockConfig }) {
             <Widget.Glyph icon={isLocked() ? "mdi:lock" : "mdi:lock-open"} />
             <Widget.Head
               icon={isLocked() ? "mdi:lock" : "mdi:lock-open-variant"}
-              eyebrow={eyebrow()}
+              eyebrow={lines().eyebrow}
               name={name()}
               active={isLocked()}
               count={entities().length}
             />
-            <Widget.Hero value={heroValue()} art={art()} />
+            <Widget.Hero value={lines().hero} art={art()} />
           </Widget.Content>
         </Show>
       </Widget>

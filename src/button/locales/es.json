@@ -1,4 +1,10 @@
 {
+  "button.action.press": "Pulsar",
+  "button.empty.message": "Mantén pulsado para configurar",
+  "button.empty.title": "Sin entidad de botón",
+  "button.hero.last-pressed": "Última pulsación",
+  "button.hero.never": "Nunca pulsado",
+  "button.name": "Botón",
   "manifest.config.title.description": "Nombre visible opcional que sustituye al original",
   "manifest.config.title.title": "Título",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entidades",

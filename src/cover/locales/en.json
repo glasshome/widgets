@@ -1,1 +1,21 @@
-{}
+{
+  "common.group.all-closed": "All closed",
+  "common.group.all-open": "All open",
+  "common.group.some-open": "{active} of {total} open",
+  "cover.controls.close": "Close",
+  "cover.controls.label": "Cover",
+  "cover.controls.open": "Open",
+  "cover.controls.stop": "Stop",
+  "cover.empty.message": "Hold to configure",
+  "cover.empty.title": "No cover entity",
+  "cover.name": "Cover",
+  "cover.sheet.close-slats": "Close slats",
+  "cover.sheet.covers": "Covers",
+  "cover.sheet.open-slats": "Open slats",
+  "cover.sheet.slats": "Slats",
+  "cover.sheet.tilt": "Tilt",
+  "cover.state.closed": "Closed",
+  "cover.state.closing": "Closing",
+  "cover.state.open": "Open",
+  "cover.state.opening": "Opening"
+}

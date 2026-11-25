@@ -5,21 +5,26 @@ import {
   PanelFacts,
   PanelRows,
   PanelSection,
+  type TranslationTools,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createMemo, For, Show } from "solid-js";
 
-const at = (date: Date) => {
+const at = (tools: TranslationTools, date: Date) => {
   if (Number.isNaN(date.getTime())) return undefined;
-  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const time = tools.formatDate(date, { hour: "2-digit", minute: "2-digit" });
   if (date.toDateString() === new Date().toDateString()) return time;
-  return `${date.toLocaleDateString([], { month: "short", day: "numeric" })} · ${time}`;
+  const day = tools.formatDate(date, { month: "short", day: "numeric" });
+  return tools.t("lock.sheet.changed-at", { day, time });
 };
 
 /** What a group of locks cannot show on its tile: each door on its own row, and when each changed. */
 export function LockSheet(props: { entities: EntityView[] }) {
+  const tools = useTranslation();
+  const { t } = tools;
   const facts = createMemo((): PanelFact[] =>
     props.entities.flatMap((e) => {
-      const when = at(e.lastChanged);
+      const when = at(tools, e.lastChanged);
       if (!when) return [];
       return [
         {
@@ -33,13 +38,13 @@ export function LockSheet(props: { entities: EntityView[] }) {
 
   return (
     <>
-      <PanelSection label="Doors">
+      <PanelSection label={t("lock.sheet.doors")}>
         <PanelRows>
           <For each={props.entities}>{(e) => <PanelEntityRow entityId={e.id} />}</For>
         </PanelRows>
       </PanelSection>
       <Show when={facts().length}>
-        <PanelSection label="Last changed">
+        <PanelSection label={t("lock.sheet.last-changed")}>
           <PanelFacts items={facts()} />
         </PanelSection>
       </Show>

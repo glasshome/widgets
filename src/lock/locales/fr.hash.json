@@ -1,4 +1,48 @@
 {
+  "common.group.all-locked": {
+    "source": "68d20cef467a6ef2",
+    "value": "280d6bd3df8d1616"
+  },
+  "common.group.all-unlocked": {
+    "source": "6298e66c4fae37b7",
+    "value": "48e7f5bc6dec6a08"
+  },
+  "common.group.some-unlocked": {
+    "source": "3332e0bac0f8962a",
+    "value": "e0d8889723a1bdc1"
+  },
+  "lock.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "80cc4ae9010083eb"
+  },
+  "lock.empty.title": {
+    "source": "5bed83cdf51fc002",
+    "value": "c5e89b30a21436d0"
+  },
+  "lock.name": {
+    "source": "ef6462ffe421f590",
+    "value": "33383f79184a90a3"
+  },
+  "lock.sheet.changed-at": {
+    "source": "48752ee19d36fb88",
+    "value": "7b4ef60f6191831d"
+  },
+  "lock.sheet.doors": {
+    "source": "d1327545f86a6451",
+    "value": "0364fc85087fb9e6"
+  },
+  "lock.sheet.last-changed": {
+    "source": "c2baed5d9b00aec9",
+    "value": "354d6b855a2a5602"
+  },
+  "lock.state.locked": {
+    "source": "b968dfb20a77d964",
+    "value": "84f7f67257ada0ab"
+  },
+  "lock.state.unlocked": {
+    "source": "4102d7caa2e04672",
+    "value": "00d8f29bc42937ba"
+  },
   "manifest.config.art.labels.door": {
     "source": "f0d19d168f8fa099",
     "value": "b088aaedf4c722cd"

@@ -6,5 +6,13 @@
   "manifest.examples.0.label": "Une scène",
   "manifest.examples.1.label": "Scènes",
   "manifest.examples.2.label": "Large",
-  "manifest.name": "Scène"
+  "manifest.name": "Scène",
+  "scene.action.activate": "Activer",
+  "scene.empty.message": "Maintenez pour configurer",
+  "scene.empty.title": "Aucune scène",
+  "scene.eyebrow.count": "{count, plural, one {# scène} other {# scènes}}",
+  "scene.eyebrow.ran-at": "Exécutée à {time}",
+  "scene.eyebrow.ran-on": "Exécutée {day} {time}",
+  "scene.name.many": "Scènes",
+  "scene.name.one": "Scène"
 }

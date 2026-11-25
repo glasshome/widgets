@@ -1,4 +1,16 @@
 {
+  "common.group.all-off": {
+    "source": "7b463024c5d1afb2",
+    "value": "02d4fb2c2b9e1d3f"
+  },
+  "common.group.all-on": {
+    "source": "b8f19df9a3879939",
+    "value": "627b7a11d2020bf8"
+  },
+  "common.group.some-on": {
+    "source": "5b48bcfe387cc5c6",
+    "value": "8ec320ad790c33ac"
+  },
   "common.light-colour.colour-preset": {
     "source": "511c0869f3027d70",
     "value": "be66dbfff5ab9a62"
@@ -35,6 +47,38 @@
   "common.light-colour.white": {
     "source": "3e5bdf9edfe7e8f0",
     "value": "0afe9e60c4786444"
+  },
+  "light.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "e3f636abc43a0f97"
+  },
+  "light.empty.title": {
+    "source": "982c44a8dee021c0",
+    "value": "d23aad0c2a931033"
+  },
+  "light.name": {
+    "source": "62c11afc0726b871",
+    "value": "0d8d541d98f328df"
+  },
+  "light.sheet.all-lamps": {
+    "source": "1eb4180d87463819",
+    "value": "6faeca9f2a2900d3"
+  },
+  "light.sheet.effects": {
+    "source": "0f9350b3bd2e9f03",
+    "value": "4278493a370fe58c"
+  },
+  "light.sheet.lamp": {
+    "source": "981f3909c29f9a64",
+    "value": "9471c6375e05ea34"
+  },
+  "light.sheet.lamps-hint": {
+    "source": "31d3f6c907cd1bd3",
+    "value": "19d3c001f5959e4a"
+  },
+  "light.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "f0ce94502ed90ac3"
   },
   "manifest.config.lamp.labels.bulb": {
     "source": "741f4b8e42dd87f2",

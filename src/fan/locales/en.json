@@ -1,1 +1,17 @@
-{}
+{
+  "common.group.all-off": "All off",
+  "common.group.all-on": "All on",
+  "common.group.some-on": "{active} of {total} on",
+  "fan.empty.message": "Hold to configure",
+  "fan.empty.title": "No fan entity",
+  "fan.name": "Fan",
+  "fan.preset.label": "Preset",
+  "fan.sheet.air-flow": "Air flow",
+  "fan.sheet.direction": "Direction",
+  "fan.sheet.fans": "Fans",
+  "fan.sheet.forward": "Forward",
+  "fan.sheet.oscillate": "Oscillate",
+  "fan.sheet.reverse": "Reverse",
+  "fan.state.off": "Off",
+  "fan.state.on": "On"
+}

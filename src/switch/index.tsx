@@ -9,6 +9,7 @@ import {
   isEntityActive,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -19,8 +20,8 @@ import {
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import { groupLine } from "../common/group";
 import { SwitchSheet } from "./sheet";
+import { switchLines } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -32,6 +33,8 @@ type SwitchConfig = Infer<typeof configSchema>;
 
 function SwitchWidget(props: { config: SwitchConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
   const [isToggling, setIsToggling] = createSignal(false);
 
@@ -42,8 +45,8 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     aggregationMode: () => "switch",
     emptyStateConfig: {
       icon: <Icon icon="mdi:power-plug" width={32} />,
-      title: "No switch entity",
-      message: "Hold to configure",
+      title: t("switch.empty.title"),
+      message: t("switch.empty.message"),
     },
   });
 
@@ -62,8 +65,14 @@ function SwitchWidget(props: { config: SwitchConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Switch";
-  const heroValue = () => (isOn() ? "On" : "Off");
+    t("switch.name");
+  const lines = () =>
+    switchLines(tools, {
+      sample: entities()[0],
+      isOn: isOn(),
+      count: count(),
+      activeCount: activeCount(),
+    });
 
   const handleTap = async () => {
     if (isToggling()) return;
@@ -105,16 +114,12 @@ function SwitchWidget(props: { config: SwitchConfig }) {
             <Widget.Glyph icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"} />
             <Widget.Head
               icon={isOn() ? "mdi:power-plug" : "mdi:power-plug-off"}
-              eyebrow={
-                count() > 1
-                  ? groupLine(activeCount(), count(), { active: "on", rest: "off" })
-                  : "Switch"
-              }
+              eyebrow={lines().eyebrow}
               name={name()}
               active={isOn()}
               count={entities().length}
             />
-            <Widget.Hero value={heroValue()} />
+            <Widget.Hero value={lines().hero} />
           </Widget.Content>
         </Show>
       </Widget>

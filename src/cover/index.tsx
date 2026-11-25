@@ -9,6 +9,7 @@ import {
   type Infer,
   useEntities,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -22,7 +23,7 @@ import { getCoverIcon, widgetDialogProps } from "../common";
 import gateStrip from "../common/art/assets/cover-gate.strip";
 import { CoverArt, type CoverKind } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
-import { coverJoinsBulk, groupLine } from "../common/group";
+import { coverJoinsBulk } from "../common/group";
 import {
   getCoverCapabilities,
   getCoverMovement,
@@ -32,6 +33,7 @@ import {
   isCoverOpen,
 } from "./cover-entity";
 import { CoverSheet, coverHasExtras } from "./sheet";
+import { coverLines } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -76,6 +78,8 @@ const DIRECTIONAL_SLIDE_THRESHOLD = 20;
 
 function CoverWidget(props: { config: CoverConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -86,8 +90,8 @@ function CoverWidget(props: { config: CoverConfig }) {
     aggregationMode: () => "none",
     emptyStateConfig: {
       icon: <Icon icon="mdi:window-shutter" width={32} />,
-      title: "No cover entity",
-      message: "Hold to configure",
+      title: t("cover.empty.title"),
+      message: t("cover.empty.message"),
     },
   });
 
@@ -117,7 +121,7 @@ function CoverWidget(props: { config: CoverConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Cover";
+    t("cover.name");
   const stillKind = (): CoverKind | undefined => {
     const kind = artKind();
     return kind === "gate" ? undefined : kind;
@@ -127,20 +131,17 @@ function CoverWidget(props: { config: CoverConfig }) {
     if (art !== "device") return art;
     return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
   };
-  const heroValue = (): string | number => {
-    const sliding = slidePosition();
-    if (sliding !== null) return sliding;
-    const pos = count() === 1 ? position() : null;
-    if (pos !== null && pos > 0 && pos < 100) return pos;
-    return isOpen() ? "Open" : "Closed";
-  };
   const movement = createMemo(() => getCoverMovement(entities()));
-  const eyebrow = () => {
-    const moving = movement();
-    if (moving) return moving === "opening" ? "Opening" : "Closing";
-    if (count() > 1) return groupLine(openCount(), count(), { active: "open", rest: "closed" });
-    return typeof heroValue() === "number" ? "Open" : undefined;
-  };
+  const lines = () =>
+    coverLines(tools, {
+      sample: primary(),
+      sliding: slidePosition(),
+      position: position(),
+      isOpen: isOpen(),
+      movement: movement(),
+      count: count(),
+      openCount: openCount(),
+    });
 
   const sideways = () => artKind() === "curtain" || artKind() === "gate";
   const caps = createMemo(() => entities().map(getCoverCapabilities));
@@ -259,14 +260,14 @@ function CoverWidget(props: { config: CoverConfig }) {
             <Widget.Glyph icon={iconName()} />
             <Widget.Head
               icon={iconName()}
-              eyebrow={eyebrow()}
+              eyebrow={lines().eyebrow}
               name={name()}
               active={isOpen()}
               count={entities().length}
             />
             <Widget.Hero
-              value={heroValue()}
-              unit={typeof heroValue() === "number" ? "%" : undefined}
+              value={lines().hero}
+              unit={typeof lines().hero === "number" ? "%" : undefined}
               art={
                 <Show
                   when={stillKind()}
@@ -279,12 +280,15 @@ function CoverWidget(props: { config: CoverConfig }) {
             />
             <Show when={actsInBulk()}>
               <Widget.Controls>
-                <ButtonGroup aria-label="Cover" class="glasshome-widget-stepper">
+                <ButtonGroup
+                  aria-label={t("cover.controls.label")}
+                  class="glasshome-widget-stepper"
+                >
                   <Show when={canOpen()}>
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label="Open"
+                      aria-label={t("cover.controls.open")}
                       class="glasshome-widget-control"
                       disabled={allOpen()}
                       onClick={() =>
@@ -301,7 +305,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                   <Show when={canStop()}>
                     <Widget.Action
                       icon="mdi:stop"
-                      aria-label="Stop"
+                      aria-label={t("cover.controls.stop")}
                       run={() => callService("cover", "stop_cover", {}, { entity_id: entityIds() })}
                     />
                   </Show>
@@ -309,7 +313,7 @@ function CoverWidget(props: { config: CoverConfig }) {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label="Close"
+                      aria-label={t("cover.controls.close")}
                       class="glasshome-widget-control"
                       disabled={allClosed()}
                       onClick={() =>

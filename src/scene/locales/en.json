@@ -1,1 +1,10 @@
-{}
+{
+  "scene.action.activate": "Activate",
+  "scene.empty.message": "Hold to configure",
+  "scene.empty.title": "No scene",
+  "scene.eyebrow.count": "{count, plural, one {# scene} other {# scenes}}",
+  "scene.eyebrow.ran-at": "Ran at {time}",
+  "scene.eyebrow.ran-on": "Ran {day} {time}",
+  "scene.name.many": "Scenes",
+  "scene.name.one": "Scene"
+}

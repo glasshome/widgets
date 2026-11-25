@@ -1,4 +1,7 @@
 {
+  "common.group.all-off": "All off",
+  "common.group.all-on": "All on",
+  "common.group.some-on": "{active} of {total} on",
   "common.light-colour.colour-preset": "Colour {hue}°, {saturation}%",
   "common.light-colour.cool-white": "Cool white",
   "common.light-colour.neutral-white": "Neutral white",
@@ -7,5 +10,13 @@
   "common.light-colour.soft-white": "Soft white",
   "common.light-colour.title": "Colour",
   "common.light-colour.warm-white": "Warm white",
-  "common.light-colour.white": "White"
+  "common.light-colour.white": "White",
+  "light.empty.message": "Hold to configure",
+  "light.empty.title": "No light entity",
+  "light.name": "Light",
+  "light.sheet.all-lamps": "All lamps",
+  "light.sheet.effects": "Effects",
+  "light.sheet.lamp": "Lamp",
+  "light.sheet.lamps-hint": "Lamps · hold one to set it alone",
+  "light.state.off": "Off"
 }

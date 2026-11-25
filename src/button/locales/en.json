@@ -1,1 +1,8 @@
-{}
+{
+  "button.action.press": "Press",
+  "button.empty.message": "Hold to configure",
+  "button.empty.title": "No button entity",
+  "button.hero.last-pressed": "Last pressed",
+  "button.hero.never": "Never pressed",
+  "button.name": "Button"
+}

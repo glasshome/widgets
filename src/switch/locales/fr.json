@@ -1,4 +1,7 @@
 {
+  "common.group.all-off": "Tout éteint",
+  "common.group.all-on": "Tout allumé",
+  "common.group.some-on": "{active} sur {total} allumés",
   "manifest.config.title.description": "Nom d’affichage facultatif",
   "manifest.config.title.title": "Titre",
   "manifest.config.x-mvxhi2lupfewi4y.title": "Entités",
@@ -6,5 +9,11 @@
   "manifest.examples.0.label": "Activé",
   "manifest.examples.1.label": "Désactivé",
   "manifest.examples.2.label": "Interrupteurs",
-  "manifest.name": "Interrupteur"
+  "manifest.name": "Interrupteur",
+  "switch.empty.message": "Maintenez pour configurer",
+  "switch.empty.title": "Aucune entité interrupteur",
+  "switch.name": "Interrupteur",
+  "switch.sheet.switches": "Interrupteurs",
+  "switch.state.off": "Éteint",
+  "switch.state.on": "Allumé"
 }

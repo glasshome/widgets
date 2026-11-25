@@ -1,4 +1,80 @@
 {
+  "common.group.all-closed": {
+    "source": "8c816a00235b0807",
+    "value": "2b7d81f3665fc42a"
+  },
+  "common.group.all-open": {
+    "source": "179a390175798509",
+    "value": "7e4eb73e5fcb6231"
+  },
+  "common.group.some-open": {
+    "source": "57821cad320d89a5",
+    "value": "0a88477b050e1493"
+  },
+  "cover.controls.close": {
+    "source": "63c7e1afe8fb90f0",
+    "value": "aeccae342e4bd0a7"
+  },
+  "cover.controls.label": {
+    "source": "c5209e6a1a306559",
+    "value": "82c8717c5a42f1be"
+  },
+  "cover.controls.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "a01a5fce396edb61"
+  },
+  "cover.controls.stop": {
+    "source": "4e6791252f0ea960",
+    "value": "d36c5e504eb7c04c"
+  },
+  "cover.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "76c75e853915756c"
+  },
+  "cover.empty.title": {
+    "source": "874c3dc3bffabbce",
+    "value": "77e68b654e6d9d33"
+  },
+  "cover.name": {
+    "source": "c5209e6a1a306559",
+    "value": "82c8717c5a42f1be"
+  },
+  "cover.sheet.close-slats": {
+    "source": "abcf36e0d0587203",
+    "value": "0b33bbe1840ddec8"
+  },
+  "cover.sheet.covers": {
+    "source": "74bb1dc64c0c4116",
+    "value": "53d5198dcd2d8f0d"
+  },
+  "cover.sheet.open-slats": {
+    "source": "231ae93b243ea366",
+    "value": "6bffcd518104ba55"
+  },
+  "cover.sheet.slats": {
+    "source": "11a89397e5e30379",
+    "value": "11a773549e56e67d"
+  },
+  "cover.sheet.tilt": {
+    "source": "fc149cc29e48c2b6",
+    "value": "510359786519e27a"
+  },
+  "cover.state.closed": {
+    "source": "30a4a31995b63813",
+    "value": "4af1cadeb90b01f7"
+  },
+  "cover.state.closing": {
+    "source": "f519d0a46a929a10",
+    "value": "5aa7eb62d9e98710"
+  },
+  "cover.state.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "246c6d40ead9da26"
+  },
+  "cover.state.opening": {
+    "source": "69a7a0e27f01d26c",
+    "value": "b544ab598de27c75"
+  },
   "manifest.config.art.labels.blind": {
     "source": "9c0425a22e1a98fd",
     "value": "fca40cfac0c34dde"

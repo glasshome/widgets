@@ -1,4 +1,16 @@
 {
+  "common.group.all-off": {
+    "source": "7b463024c5d1afb2",
+    "value": "bdd43eb2ae131b09"
+  },
+  "common.group.all-on": {
+    "source": "b8f19df9a3879939",
+    "value": "0e3fee559e1d87bb"
+  },
+  "common.group.some-on": {
+    "source": "5b48bcfe387cc5c6",
+    "value": "ded3e2f3c939f0ca"
+  },
   "manifest.config.title.description": {
     "source": "c5297a7b336aa0ac",
     "value": "be7e27369a3786bf"
@@ -30,5 +42,29 @@
   "manifest.name": {
     "source": "90290d119478d2e6",
     "value": "cda02dcd7a953d3f"
+  },
+  "switch.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "e407144e72b0d997"
+  },
+  "switch.empty.title": {
+    "source": "cdac88cd349a490b",
+    "value": "203e7413fba7e8a3"
+  },
+  "switch.name": {
+    "source": "90290d119478d2e6",
+    "value": "cda02dcd7a953d3f"
+  },
+  "switch.sheet.switches": {
+    "source": "de68d344134a94ac",
+    "value": "e59952f1e76d5eb6"
+  },
+  "switch.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "d516838492687904"
+  },
+  "switch.state.on": {
+    "source": "875016a04e20fb98",
+    "value": "50d168402958ca0e"
   }
 }

@@ -6,6 +6,7 @@ import {
   PanelRows,
   PanelSection,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { effectsOf, LightColour, takesWhite } from "../common/light-colour";
@@ -16,6 +17,7 @@ export const lightHasExtras = (entities: EntityView[]) =>
 
 /** What the light tile cannot show: colour, each lamp of a group (hold one to set it alone), effects. */
 export function LightSheet(props: { entities: EntityView[]; name: string }) {
+  const { t } = useTranslation();
   const { callService } = useService();
   const isGroup = () => props.entities.length > 1;
   const [focus, setFocus] = createSignal<string>();
@@ -44,10 +46,10 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
             <div class="glasshome-sheet-actions">
               <Button variant="outline" size="sm" onClick={() => setFocus(undefined)}>
                 <Icon icon="mdi:chevron-left" />
-                All lamps
+                {t("light.sheet.all-lamps")}
               </Button>
             </div>
-            <PanelSection label="Lamp">
+            <PanelSection label={t("light.sheet.lamp")}>
               <PanelRows>
                 <PanelEntityRow entityId={id()} within={props.name} />
               </PanelRows>
@@ -57,7 +59,7 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
       </Show>
       <LightColour lamps={scope()} />
       <Show when={isGroup() && !focus()}>
-        <PanelSection label="Lamps · hold one to set it alone">
+        <PanelSection label={t("light.sheet.lamps-hint")}>
           <PanelRows>
             <For each={props.entities}>
               {(e) => (
@@ -68,7 +70,7 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
         </PanelSection>
       </Show>
       <Show when={effects().length}>
-        <PanelSection label="Effects">
+        <PanelSection label={t("light.sheet.effects")}>
           <ModeChips modes={effects()} active={activeEffect()} capitalize onSelect={setEffect} />
         </PanelSection>
       </Show>
