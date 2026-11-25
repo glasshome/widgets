@@ -1,8 +1,10 @@
 import type { WeatherForecast } from "@glasshome/widget-sdk";
 import { render } from "@solidjs/testing-library";
+import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import { createSignal } from "solid-js";
 import { describe, expect, test } from "vitest";
 import { HourChart } from "../../src/weather/hour-chart";
+import { language } from "../catalog";
 
 const CONDITIONS = [
   ...Array.from({ length: 6 }, () => "sunny"),
@@ -27,7 +29,11 @@ const hourLabel = (hours: WeatherForecast[], i: number) =>
 
 function mount(hours: WeatherForecast[], labelEvery: number) {
   const [current, setHours] = createSignal(hours);
-  const view = render(() => <HourChart hours={current()} labelEvery={labelEvery} />);
+  const view = render(() => (
+    <WidgetLanguage {...language("weather", "en")}>
+      <HourChart hours={current()} labelEvery={labelEvery} />
+    </WidgetLanguage>
+  ));
   const chart = () => view.container.querySelector(".wx-chart") as HTMLElement;
   const points = () => [...chart().querySelectorAll<HTMLElement>(".wx-chart-point")];
   const times = () => [...chart().querySelectorAll<HTMLElement>(".wx-chart-time")];
@@ -109,7 +115,11 @@ describe("HourChart labels", () => {
   test("follows the labelled set when the step changes", () => {
     const hours = forecast(24);
     const [every, setEvery] = createSignal(6);
-    const view = render(() => <HourChart hours={hours} labelEvery={every()} />);
+    const view = render(() => (
+      <WidgetLanguage {...language("weather", "en")}>
+        <HourChart hours={hours} labelEvery={every()} />
+      </WidgetLanguage>
+    ));
     const times = () =>
       [...view.container.querySelectorAll(".wx-chart-time")].map((t) => t.textContent);
     expect(times()).toEqual([0, 6, 12, 18, 23].map((i) => hourLabel(hours, i)));

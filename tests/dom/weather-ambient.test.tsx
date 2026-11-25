@@ -1,8 +1,10 @@
 import type { WeatherForecast } from "@glasshome/widget-sdk";
 import { render } from "@solidjs/testing-library";
+import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import { describe, expect, test } from "vitest";
 import { HourChart } from "../../src/weather/hour-chart";
 import { WeatherSky } from "../../src/weather/sky";
+import { language } from "../catalog";
 
 const FPS = 12;
 
@@ -27,7 +29,11 @@ const onGrid = (el: Element, dur: string, delay?: string) => {
 
 describe("ambient loops step on one frame grid", () => {
   test("rain over the hour chart", () => {
-    const view = render(() => <HourChart hours={rainy} labelEvery={6} />);
+    const view = render(() => (
+      <WidgetLanguage {...language("weather", "en")}>
+        <HourChart hours={rainy} labelEvery={6} />
+      </WidgetLanguage>
+    ));
     const drops = [...view.container.querySelectorAll(".wx-chart-drops")];
     expect(drops).toHaveLength(2);
     for (const el of drops) onGrid(el, "--wx-drop-t");

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { EntityView } from "@glasshome/widget-sdk";
+import { languageTools } from "@glasshome/widget-sdk/testing/tools";
+import { language } from "../../tests/catalog";
 import { coverKind, doorKind, excludeEntities, groupEntitiesByDomain } from "./utils";
 
 const entity = (id: string) =>
@@ -38,6 +40,10 @@ describe("area exclusions", () => {
   });
 });
 
+const tools = languageTools(language("area", "en"));
+const many = (kind: { key: string }) => tools.t(kind.key, { count: 2 });
+const one = (kind: { key: string }) => tools.t(kind.key, { count: 1 });
+
 const cover = (id: string, deviceClass?: string) =>
   ({ id, domain: "cover", state: "closed", deviceClass }) as unknown as EntityView;
 
@@ -54,8 +60,8 @@ describe("area covers", () => {
   });
 
   it("names coverings by their shared kind, and blinds when mixed", () => {
-    expect(coverKind([cover("a", "curtain"), cover("b", "curtain")]).many).toBe("Curtains");
-    expect(coverKind([cover("a", "curtain"), cover("b", "shade")]).many).toBe("Blinds");
-    expect(doorKind([cover("a", "garage")]).one).toBe("Garage door");
+    expect(many(coverKind([cover("a", "curtain"), cover("b", "curtain")]))).toBe("Curtains");
+    expect(many(coverKind([cover("a", "curtain"), cover("b", "shade")]))).toBe("Blinds");
+    expect(one(doorKind([cover("a", "garage")]))).toBe("Garage door");
   });
 });

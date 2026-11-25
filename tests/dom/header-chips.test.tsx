@@ -1,8 +1,10 @@
 import { fireEvent, render } from "@solidjs/testing-library";
+import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import { createSignal } from "solid-js";
 import { describe, expect, test } from "vitest";
 import { HeaderChips } from "../../src/header/chips";
 import type { ResolvedChip } from "../../src/header/items";
+import { language } from "../catalog";
 
 const lights = (value: string, ids: string[] = ["light.a"]): ResolvedChip => ({
   label: "Turn off lights",
@@ -31,10 +33,12 @@ function mount(initial: ResolvedChip[]) {
   const [chips, setChips] = createSignal(initial);
   const runs: Array<{ domain: string; name: string; ids: string[] }> = [];
   const view = render(() => (
-    <HeaderChips
-      chips={chips()}
-      run={(service, ids) => runs.push({ domain: service.domain, name: service.name, ids })}
-    />
+    <WidgetLanguage {...language("header", "en")}>
+      <HeaderChips
+        chips={chips()}
+        run={(service, ids) => runs.push({ domain: service.domain, name: service.name, ids })}
+      />
+    </WidgetLanguage>
   ));
   const nodes = () => [...view.container.querySelectorAll(".header-chip")];
   const values = () => nodes().map((node) => node.querySelector(".header-chip-value")?.textContent);
