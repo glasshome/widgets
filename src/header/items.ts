@@ -1,3 +1,4 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
 import { coverJoinsBulk } from "../common/group";
 
 export interface EntitySnapshot {
@@ -98,7 +99,28 @@ function domainOf(entityId: string): string {
 }
 
 /** One chip against the entities in scope, or null when it has nothing to say. */
-export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): ResolvedChip | null {
+type Tools = Pick<TranslationTools, "translateState" | "formatNumber">;
+
+const NUMERIC = /^-?\d+(?:\.\d+)?$/;
+
+function readingOf(tools: Tools, entity: EntitySnapshot): string {
+  const shown = NUMERIC.test(entity.state)
+    ? tools.formatNumber(Number(entity.state), { maximumFractionDigits: 10 })
+    : tools.translateState({
+        domain: domainOf(entity.id),
+        state: entity.state,
+        platform: "",
+        attributes: {},
+        deviceClass: entity.deviceClass ?? null,
+      });
+  return entity.unit ? `${shown} ${entity.unit}` : shown;
+}
+
+export function resolveChip(
+  chip: ChipConfig,
+  entities: EntitySnapshot[],
+  tools: Tools,
+): ResolvedChip | null {
   const domain = WATCH_DOMAIN[chip.shows];
   if (domain) {
     const spec = DOMAIN_SPECS[domain];
@@ -141,7 +163,7 @@ export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): Resol
   return {
     label: entity.name ?? id,
     icon: entity.icon ?? "mdi:gauge",
-    value: entity.unit ? `${entity.state} ${entity.unit}` : entity.state,
+    value: readingOf(tools, entity),
     ids: [id],
   };
 }

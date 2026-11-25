@@ -2,5 +2,7 @@
   "area.mode.cool": "Enfriar",
   "area.mode.dry": "Deshumidificar",
   "area.mode.fan-only": "Ventilador",
-  "area.mode.heat": "Calentar"
+  "area.mode.heat": "Calentar",
+  "area.state.closed": "Cerrada",
+  "area.state.open": "Abierta"
 }

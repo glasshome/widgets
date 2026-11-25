@@ -68,8 +68,7 @@ function climatePill(tools: Tools, entity: EntityView): Pill {
 }
 
 export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[] {
-  const { t, formatNumber } = tools;
-  const count = (n: number) => formatNumber(n);
+  const { t } = tools;
   const pills: Pill[] = [];
   if (m.lightsTotal > 0) {
     const sample = g.lights[0];
@@ -82,11 +81,11 @@ export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[
           ? stateOf(tools, "light", sample, "off")
           : m.lightsOn === m.lightsTotal
             ? stateOf(tools, "light", sample, "on")
-            : t("area.pill.some-on", { on: count(m.lightsOn), total: count(m.lightsTotal) }),
+            : t("area.pill.lights-some-on", { on: m.lightsOn, total: m.lightsTotal }),
       short:
         m.lightsOn === 0
           ? stateOf(tools, "light", sample, "off")
-          : t("area.pill.count-on", { count: count(m.lightsOn) }),
+          : t("area.pill.lights-on", { count: m.lightsOn }),
       on: m.lightsOn > 0,
       color: WARM,
     });
@@ -99,7 +98,7 @@ export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[
         ? stateOf(tools, "cover", sample, "closed")
         : m.coversOpen === m.coversTotal
           ? stateOf(tools, "cover", sample, "open")
-          : t("area.pill.count-open", { count: count(m.coversOpen) });
+          : t("area.pill.covers-open", { count: m.coversOpen });
     pills.push({
       action: "covers",
       icon: m.coversOpen > 0 ? kind.open : kind.closed,
@@ -119,7 +118,7 @@ export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[
         ? stateOf(tools, "cover", sample, "closed")
         : open === g.doors.length
           ? stateOf(tools, "cover", sample, "open")
-          : t("area.pill.count-open", { count: count(open) });
+          : t("area.pill.doors-open", { count: open });
     pills.push({
       action: "doors",
       icon: open > 0 ? kind.open : kind.closed,
@@ -140,7 +139,7 @@ export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[
         ? stateOf(tools, "switch", sample, "off")
         : g.switches.length === 1
           ? stateOf(tools, "switch", sample, "on")
-          : t("area.pill.count-on", { count: count(on) });
+          : t("area.pill.switches-on", { count: on });
     pills.push({
       action: "switches",
       icon: "mdi:power-plug",
@@ -159,7 +158,15 @@ export function buildPills(tools: Tools, m: AreaMetrics, g: EntityGroups): Pill[
 
 export function temperatureText(tools: Tools, m: AreaMetrics): string | undefined {
   if (m.temperature === null) return undefined;
-  return tools.formatTemperature(m.temperature, { unit: m.temperatureUnit, digits: 1 });
+  const unit = m.temperatureUnit ?? "°C";
+  if (unit === "°C" || unit === "°F") {
+    return tools.formatTemperature(m.temperature, { unit, digits: 1 });
+  }
+  const shown = tools.formatNumber(m.temperature, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  return `${shown} ${unit}`;
 }
 
 export function humidityText(tools: Tools, humidity: number): string {

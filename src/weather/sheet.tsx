@@ -1,11 +1,11 @@
 import {
   type PanelFact,
-  type TranslationTools,
-  useTranslation,
   PanelFacts,
   PanelRow,
   PanelRows,
   PanelSection,
+  type TranslationTools,
+  useTranslation,
   type WeatherForecast,
 } from "@glasshome/widget-sdk";
 import { For, Show } from "solid-js";

@@ -154,25 +154,33 @@
     "value": "5b0676a07ba6259a",
     "pinned": true
   },
-  "area.pill.count-on": {
-    "source": "899d371ccccf6aa0",
-    "value": "6f8b5df2752bbf0f"
+  "area.pill.covers-open": {
+    "source": "011e3de205199ac1",
+    "value": "76450e31fbbb9b2c"
   },
-  "area.pill.count-open": {
-    "source": "6a773176a34eea54",
-    "value": "9bbb01ad25fd51d6"
+  "area.pill.doors-open": {
+    "source": "011e3de205199ac1",
+    "value": "65dc9f6f3d3af3de"
   },
   "area.pill.lights": {
     "source": "8ae3bd4156019b0d",
     "value": "38045565d7de1fe1"
   },
-  "area.pill.some-on": {
-    "source": "335049f5371ca942",
-    "value": "b5a6bede77c36ab3"
+  "area.pill.lights-on": {
+    "source": "9cffc49bb901acfb",
+    "value": "4b5c860406b3ac2c"
+  },
+  "area.pill.lights-some-on": {
+    "source": "4f59f6a1524d8c74",
+    "value": "8529cd13fa7be956"
   },
   "area.pill.switches": {
     "source": "8902dac37bb15523",
     "value": "eec7b7c89695ea81"
+  },
+  "area.pill.switches-on": {
+    "source": "9cffc49bb901acfb",
+    "value": "36e83b38fffbe551"
   },
   "area.sheet.blinds": {
     "source": "c4a910057a175262",

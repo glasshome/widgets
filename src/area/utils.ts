@@ -17,7 +17,7 @@ export interface AreaMetrics {
   coversTotal: number;
   doorsOpen: number;
   temperature: number | null;
-  temperatureUnit: "°C" | "°F";
+  temperatureUnit: string | null;
   humidity: number | null;
   co2: number | null;
   pm25: number | null;
@@ -197,7 +197,7 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
     : findSensorByClass(groups.sensors, "humidity");
 
   const temperature = readNumericState(tempEntity);
-  const temperatureUnit = tempEntity?.unitOfMeasurement === "°F" ? "°F" : "°C";
+  const temperatureUnit = tempEntity?.unitOfMeasurement ?? null;
   const humidity = readNumericState(humEntity);
   const co2 = readNumericState(findSensorByClass(groups.sensors, "carbon_dioxide"));
   const pm25 = readNumericState(findSensorByClass(groups.sensors, "pm25"));

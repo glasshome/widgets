@@ -30,7 +30,8 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   const viewer = useWidgetViewer();
   const { callService } = useService();
   const { setShowDialog, dialogProps } = useWidgetDialog();
-  const { t } = useTranslation();
+  const tools = useTranslation();
+  const { t } = tools;
 
   const areaId = createMemo(() => {
     const where = props.config.where;
@@ -72,7 +73,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   const chips = createMemo(() => {
     if (needsArea(props.config.where)) return [];
     return props.config.chips.flatMap((chip) => {
-      const r = resolveChip(chip as never, snapshot(chip));
+      const r = resolveChip(chip as never, snapshot(chip), tools);
       return r ? [r] : [];
     });
   });
