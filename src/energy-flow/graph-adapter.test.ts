@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { languageTools } from "@glasshome/widget-sdk/testing/tools";
+import { language } from "../../tests/catalog";
 import { energyColors } from "../_energy-shared/colors";
 import {
   buildEnergyGraph,
@@ -8,6 +10,8 @@ import {
   resolveFlow,
 } from "./graph-adapter";
 import type { BidirectionalNodeConfig, FlowNodeConfig } from "./node-model";
+
+const tools = languageTools(language("energy-flow", "en"));
 
 function input(entities: string[], label = "Solar"): FlowNodeConfig {
   return { kind: "input", entities, label, icon: "mdi:solar-power-variant", level: [] };
@@ -183,7 +187,7 @@ describe("buildEnergyGraph topology", () => {
       lookupFrom({ "sensor.solar": 2000, "sensor.home": 1500 }),
       false,
     );
-    const g = buildEnergyGraph(flow);
+    const g = buildEnergyGraph(flow, tools);
     expect(g.graph.nodes.map((n) => n.id).sort()).toEqual(["hub", "node-0", "node-1"]);
     expect(edgeOf(g, "node-0")?.from.node).toBe("node-0");
     expect(edgeOf(g, "node-0")?.to.node).toBe("hub");
@@ -193,7 +197,7 @@ describe("buildEnergyGraph topology", () => {
 
   test("hub view carries total consumption", () => {
     const flow = resolveFlow([output(["sensor.home"])], lookupFrom({ "sensor.home": 1500 }), false);
-    const g = buildEnergyGraph(flow);
+    const g = buildEnergyGraph(flow, tools);
     expect(g.views.get("hub")?.hub).toBe(true);
     expect(g.views.get("hub")?.value).toContain("1.5");
   });
@@ -204,7 +208,7 @@ describe("buildEnergyGraph topology", () => {
       lookupFrom({ "sensor.home": 900 }),
       false,
     );
-    const g = buildEnergyGraph(flow);
+    const g = buildEnergyGraph(flow, tools);
     expect(g.graph.nodes.map((n) => n.id).sort()).toEqual(["hub", "node-1"]);
   });
 
@@ -214,7 +218,7 @@ describe("buildEnergyGraph topology", () => {
       lookupFrom({ "sensor.bat": -300, "sensor.soc": 72 }),
       false,
     );
-    expect(buildEnergyGraph(flow).views.get("node-0")?.label).toBe("Battery · 72%");
+    expect(buildEnergyGraph(flow, tools).views.get("node-0")?.label).toBe("Battery · 72%");
   });
 });
 
@@ -225,7 +229,7 @@ describe("buildEnergyGraph direction + color", () => {
       lookupFrom({ "sensor.grid": -1200 }),
       false,
     );
-    const g = buildEnergyGraph(flow);
+    const g = buildEnergyGraph(flow, tools);
     expect(edgeOf(g, "node-0")?.direction).toBe("reverse");
     expect(g.views.get("node-0")?.color).toBe(energyColors.export);
   });
@@ -236,18 +240,18 @@ describe("buildEnergyGraph direction + color", () => {
       lookupFrom({ "sensor.bat": 800 }),
       false,
     );
-    expect(edgeOf(buildEnergyGraph(charging), "node-0")?.direction).toBe("reverse");
+    expect(edgeOf(buildEnergyGraph(charging, tools), "node-0")?.direction).toBe("reverse");
     const discharging = resolveFlow(
       [bidirectional({ signed: ["sensor.bat"], signedOutbound: true })],
       lookupFrom({ "sensor.bat": -800 }),
       false,
     );
-    expect(edgeOf(buildEnergyGraph(discharging), "node-0")?.direction).toBe("forward");
+    expect(edgeOf(buildEnergyGraph(discharging, tools), "node-0")?.direction).toBe("forward");
   });
 
   test("resting input reads Back at sunrise", () => {
     const flow = resolveFlow([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 0 }), true);
-    expect(buildEnergyGraph(flow).views.get("node-0")?.value).toBe("Back at sunrise");
+    expect(buildEnergyGraph(flow, tools).views.get("node-0")?.value).toBe("Back at sunrise");
   });
 
   test("dominantColor picks the strongest supplier, falls back to home", () => {
@@ -275,18 +279,18 @@ describe("buildEnergyGraph tariff sub-lines", () => {
 
   test("no tariff -> no chip sub-lines", () => {
     const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
-    expect(buildEnergyGraph(flow).views.get("node-0")?.sub).toBeUndefined();
+    expect(buildEnergyGraph(flow, tools).views.get("node-0")?.sub).toBeUndefined();
   });
 
   test("priced import shows a bare cost rate", () => {
     const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
     // 2 kW * €0.30 = €0.60/h
-    expect(buildEnergyGraph(flow, tariff).views.get("node-0")?.sub).toBe("€0.60/h");
+    expect(buildEnergyGraph(flow, tools, tariff).views.get("node-0")?.sub).toBe("€0.60/h");
   });
 
   test("priced export is framed as earnings", () => {
     const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": -1500 }), false);
-    expect(buildEnergyGraph(flow, tariff).views.get("node-0")?.sub).toBe("Earns €0.45/h");
+    expect(buildEnergyGraph(flow, tools, tariff).views.get("node-0")?.sub).toBe("Earns €0.45/h");
   });
 
   test("sole input self-consumption is framed as savings", () => {
@@ -296,7 +300,7 @@ describe("buildEnergyGraph tariff sub-lines", () => {
       false,
     );
     // 3 kW self-consumed * €0.30 = €0.90/h
-    expect(buildEnergyGraph(flow, tariff).views.get("node-0")?.sub).toBe("Saves €0.90/h");
+    expect(buildEnergyGraph(flow, tools, tariff).views.get("node-0")?.sub).toBe("Saves €0.90/h");
   });
 
   test("with two inputs the aggregate savings line is omitted", () => {
@@ -305,7 +309,7 @@ describe("buildEnergyGraph tariff sub-lines", () => {
       lookupFrom({ "sensor.roof": 2000, "sensor.garage": 1000 }),
       false,
     );
-    const g = buildEnergyGraph(flow, tariff);
+    const g = buildEnergyGraph(flow, tools, tariff);
     expect(g.views.get("node-0")?.sub).toBeUndefined();
     expect(g.views.get("node-1")?.sub).toBeUndefined();
   });

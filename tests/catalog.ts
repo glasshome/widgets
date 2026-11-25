@@ -1,6 +1,6 @@
 import { compileCatalogDir } from "@glasshome/widget-contract/catalog-build";
 import type { CompiledCatalog } from "@glasshome/widget-contract/i18n-format";
-import type { TestLanguage } from "@glasshome/widget-sdk/testing";
+import type { TestLanguage } from "@glasshome/widget-sdk/testing/tools";
 import { join } from "node:path";
 
 const SRC = join(import.meta.dirname, "..", "src");
