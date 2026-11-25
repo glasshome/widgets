@@ -143,7 +143,6 @@ export default defineWidget<EnergyFlowConfig>({
     minSize: { w: 2, h: 3 },
     maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
-    // v3: fixed roles became a node list; v4: stored English role names clear. migrate.ts maps both.
     configVersion: 4,
     examples: [
       {

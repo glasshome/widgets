@@ -1,6 +1,6 @@
 // configVersion 1/2 to 3: maps the old fixed five-role fields onto the node list.
 
-import type { FlowNodeConfig } from "./node-model";
+import { type FlowNodeConfig, type NodeRole, roleOf } from "./node-model";
 
 // Runs on user-stored JSON, so strays are tolerated.
 function ids(value: unknown): string[] {
@@ -122,21 +122,32 @@ export function migrateConfig(
   };
 }
 
-function oldDefaultLabel(node: FlowNodeConfig): string {
-  if (node.kind === "input") return "Solar";
-  if (node.kind === "bidirectional") return node.priced ? "Grid" : "Battery";
-  return node.icon === "mdi:car-electric" ? "EV charging" : "Home";
-}
+const OLD_ENGLISH: Record<NodeRole, string> = {
+  // ui-text-ok: a name the old migration stored, matched and cleared
+  solar: "Solar",
+  // ui-text-ok: a name the old migration stored, matched and cleared
+  battery: "Battery",
+  // ui-text-ok: a name the old migration stored, matched and cleared
+  grid: "Grid",
+  // ui-text-ok: a name the old migration stored, matched and cleared
+  home: "Home",
+  // ui-text-ok: a name the old migration stored, matched and cleared
+  ev: "EV charging",
+};
 
-// configVersion 3 to 4: the migration above stored English role names; an exactly equal label goes back to the localized fallback.
+const isNode = (value: unknown): value is FlowNodeConfig =>
+  typeof value === "object" && value !== null;
+
 export function migrateEnergyFlow(
   config: Record<string, unknown>,
   fromConfigVersion: number,
 ): Record<string, unknown> {
   const migrated = migrateConfig(config, fromConfigVersion);
   if (fromConfigVersion >= 4 || !Array.isArray(migrated.nodes)) return migrated;
-  const nodes = (migrated.nodes as FlowNodeConfig[]).map((node) =>
-    node.label === oldDefaultLabel(node) ? { ...node, label: "" } : node,
-  );
+  const nodes = migrated.nodes.map((node: unknown) => {
+    if (!isNode(node)) return node;
+    const role = roleOf(node);
+    return role !== undefined && node.label === OLD_ENGLISH[role] ? { ...node, label: "" } : node;
+  });
   return { ...migrated, nodes };
 }

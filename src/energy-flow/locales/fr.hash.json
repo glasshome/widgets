@@ -15,6 +15,10 @@
     "source": "f98806827aef9f4b",
     "value": "ea7519245003ad82"
   },
+  "energy-flow.node.battery": {
+    "source": "33fcd5bedc5de08b",
+    "value": "43787dab5fe98737"
+  },
   "energy-flow.node.bidirectional": {
     "source": "28cf7478f840b2e0",
     "value": "0ecb7cf06797c44b"
@@ -27,9 +31,17 @@
     "source": "d735290deac0b1b7",
     "value": "d3b782ca5030655e"
   },
+  "energy-flow.node.ev": {
+    "source": "1b662cc2b255315a",
+    "value": "82e1e9a2966b0316"
+  },
   "energy-flow.node.exporting": {
     "source": "c2d149246affbf6e",
     "value": "352554262e2ad230"
+  },
+  "energy-flow.node.grid": {
+    "source": "20c5061e8bf443f5",
+    "value": "b5f96c04b7484349"
   },
   "energy-flow.node.home": {
     "source": "c5b027326a518e86",
@@ -54,6 +66,10 @@
   "energy-flow.node.resting": {
     "source": "300873f893ea8ee6",
     "value": "abe542d29b2e19b7"
+  },
+  "energy-flow.node.solar": {
+    "source": "e3bc50dd5f70de2f",
+    "value": "3303795f6c288719"
   },
   "energy-flow.scene.home": {
     "source": "d51de8000c6ffff3",

@@ -13,7 +13,12 @@ import {
   type ResolvedNode,
   toFlowState,
 } from "./flow";
-import type { BidirectionalNodeConfig, FlowNodeConfig } from "./node-model";
+import {
+  type BidirectionalNodeConfig,
+  type FlowNodeConfig,
+  ROLE_LABEL_KEYS,
+  roleOf,
+} from "./node-model";
 
 export type PowerLookup = (entityId: string) => number | null;
 
@@ -31,6 +36,11 @@ const FALLBACK_LABELS: Record<FlowNodeConfig["kind"], string> = {
   output: "energy-flow.node.output",
   bidirectional: "energy-flow.node.bidirectional",
 };
+
+function fallbackLabelKey(node: FlowNodeConfig): string {
+  const role = roleOf(node);
+  return role ? ROLE_LABEL_KEYS[role] : FALLBACK_LABELS[node.kind];
+}
 
 const FALLBACK_ICONS: Record<FlowNodeConfig["kind"], string> = {
   input: "mdi:lightning-bolt",
@@ -147,7 +157,7 @@ export function resolveFlow(
     const base = {
       id: `node-${index}`,
       kind: node.kind,
-      label: node.label || tools.t(FALLBACK_LABELS[node.kind]),
+      label: node.label || tools.t(fallbackLabelKey(node)),
       icon: node.icon || FALLBACK_ICONS[node.kind],
       remainder: node.kind === "output" && node.remainder,
       priced: node.kind === "bidirectional" && node.priced,

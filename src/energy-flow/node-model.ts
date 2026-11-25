@@ -69,3 +69,31 @@ export function validateNodes(nodes: readonly FlowNodeConfig[]): string[] {
   }
   return messages;
 }
+
+export const ROLE_LABEL_KEYS = {
+  solar: "energy-flow.node.solar",
+  battery: "energy-flow.node.battery",
+  grid: "energy-flow.node.grid",
+  home: "energy-flow.node.home",
+  ev: "energy-flow.node.ev",
+} as const;
+
+export type NodeRole = keyof typeof ROLE_LABEL_KEYS;
+
+const ROLE_ICONS: Record<NodeRole, string> = {
+  solar: "mdi:solar-power-variant",
+  battery: "mdi:battery-high",
+  grid: "mdi:transmission-tower",
+  home: "mdi:home-lightning-bolt",
+  ev: "mdi:car-electric",
+};
+
+export function roleOf(node: FlowNodeConfig): NodeRole | undefined {
+  if (node.kind === "input") return node.icon === ROLE_ICONS.solar ? "solar" : undefined;
+  if (node.kind === "bidirectional") {
+    if (node.priced) return node.icon === ROLE_ICONS.grid ? "grid" : undefined;
+    return node.icon === ROLE_ICONS.battery ? "battery" : undefined;
+  }
+  if (node.icon === ROLE_ICONS.ev) return "ev";
+  return node.icon === ROLE_ICONS.home ? "home" : undefined;
+}
