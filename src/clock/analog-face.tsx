@@ -33,6 +33,7 @@ const FACE_STYLES: Record<ClockPreset, FaceStyle> = {
     minuteLen: 7,
     minuteWidth: 1,
     numerals: "none",
+    // ui-text-ok: font stack
     numeralFont: "ui-monospace, SFMono-Regular, monospace",
     numeralWeight: "500",
     hand: "taper",
@@ -57,6 +58,7 @@ const FACE_STYLES: Record<ClockPreset, FaceStyle> = {
     minuteLen: 5,
     minuteWidth: 1,
     numerals: "all",
+    // ui-text-ok: font stack
     numeralFont: "Georgia, Cambria, serif",
     numeralWeight: "400",
     hand: "line",

@@ -309,6 +309,7 @@ function ClockWidget(props: { config: ClockConfig }) {
             </div>
           </Show>
 
+          {/* ui-text-ok: css */}
           <style>{`
             .clock-seconds-fill { width: 100%; transition: transform calc(var(--motion-ambient, 0) * 1000ms) linear; }
             .clock-seconds-fill.snap { transition: none; }

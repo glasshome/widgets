@@ -36,6 +36,7 @@ function projector(quad: Quad) {
 }
 
 const polygon = (points: Point[]) =>
+  // ui-text-ok: css clip-path
   `polygon(${points.map(([x, y]) => `${x.toFixed(2)}% ${y.toFixed(2)}%`).join(", ")})`;
 
 type Still = { src: string; aspect: number; quad: Quad };
