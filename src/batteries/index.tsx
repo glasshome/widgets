@@ -73,8 +73,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             active={hasLow()}
           />
           <Widget.Hero
-            value={lowestLevel() === undefined ? "--" : tools.formatNumber(lowestLevel() ?? 0)}
-            unit={lowestLevel() === undefined ? undefined : "%"}
+            value={lowestLevel() === undefined ? "--" : batteryPercent(tools, lowestLevel() ?? 0)}
             sub={
               hasLow()
                 ? tools.t("batteries.low", { count: lowCount() })

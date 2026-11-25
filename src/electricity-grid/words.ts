@@ -1,6 +1,6 @@
 import type { TranslationTools } from "@glasshome/widget-sdk";
 import { capitalised } from "../common/text";
-import type { Verdict } from "./verdict";
+import type { Band, Verdict } from "./verdict";
 
 type Tools = Pick<TranslationTools, "t" | "formatNumber">;
 
@@ -22,3 +22,6 @@ export function gridLines(tools: Tools, verdict: Verdict, co2: number | null) {
       co2 === null ? undefined : tools.t("electricity-grid.co2", { value: gridNumber(tools, co2) }),
   };
 }
+
+export const gridTileClass = (band: Band): string =>
+  band === "dirty" ? "grid-tile" : "grid-tile grid-two-words";

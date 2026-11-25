@@ -15,7 +15,7 @@ import { configSchema, type ElectricityGridConfig } from "./config";
 import { PylonArt } from "./pylon-art";
 import "./grid.css";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
-import { gridLines, gridNumber } from "./words";
+import { gridLines, gridNumber, gridTileClass } from "./words";
 import en from "./locales/en.json";
 
 const TINT: Record<Band, string> = {
@@ -42,12 +42,7 @@ function GridBody(props: BodyProps): JSX.Element {
   const lines = () => gridLines(tools, props.verdict, props.co2);
   const tint = () => TINT[props.verdict.band];
   return (
-    <Widget.Content
-      accent={tint()}
-      class={
-        props.verdict.phrase.split(" ").length === 2 ? "grid-tile grid-two-words" : "grid-tile"
-      }
-    >
+    <Widget.Content accent={tint()} class={gridTileClass(props.verdict.band)}>
       <Widget.Glyph icon="mdi:transmission-tower" />
       <Widget.Head
         icon="mdi:transmission-tower"

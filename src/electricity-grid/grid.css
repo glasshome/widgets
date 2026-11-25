@@ -19,11 +19,10 @@
     max-width: calc(52cqi - var(--widget-grid-pad));
   }
 }
-/* A two-word phrase ("Good time", 4.7em on one line) shrinks to stay on one line beside the pylon. */
+/* A two-word phrase ("Good time", 4.7em on one line) shrinks to fit beside the pylon; a longer translation wraps. */
 @container widget (min-width: 180px) and (min-height: 130px) {
   .grid-two-words .glasshome-widget-reading-value {
     font-size: clamp(18px, min(16cqb, 11cqi, calc((52cqi - var(--widget-grid-pad)) / 4.8)), 40px);
-    white-space: nowrap;
   }
 }
 @container widget (max-width: 179px) {
@@ -31,7 +30,6 @@
     display: none;
   }
   .grid-two-words .glasshome-widget-reading-value {
-    white-space: nowrap;
     max-width: none;
   }
 }
