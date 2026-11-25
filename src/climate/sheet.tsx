@@ -11,8 +11,9 @@ import {
 } from "@glasshome/widget-sdk";
 import { Index, Show } from "solid-js";
 import type { Thermostat } from "../common";
+import { spaced } from "../common/text";
 import { getHvacModeIcon, getModeColors } from "./utils";
-import { degrees, fanWord, hvacWord, presetWord, spaced } from "./words";
+import { degrees, fanWord, hvacWord, presetWord } from "./words";
 
 const list = (e: EntityView, key: string) => (e.attributes[key] as string[] | undefined) ?? [];
 const isRange = (e: EntityView) =>

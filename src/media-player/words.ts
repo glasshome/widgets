@@ -1,5 +1,6 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
 import { stateWord } from "../common/state-word";
+import { capitalised } from "../common/text";
 
 const STATE_WORDS = {
   playing: "media-player.state.playing",
@@ -10,8 +11,6 @@ const STATE_WORDS = {
   standby: "media-player.state.standby",
   buffering: "media-player.state.buffering",
 };
-
-const capitalised = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
 
 export function mediaStateWord(
   tools: Pick<TranslationTools, "t" | "translateState">,

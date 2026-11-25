@@ -1,0 +1,8 @@
+{
+  "energy.empty.message": "Verbinde deine Solaranlage, das Stromnetz und die Batterie, um die Energie deines Haushalts auf einen Blick zu sehen.",
+  "energy.flow.battery-to-grid": "Batterie entlädt sich ins Netz",
+  "energy.flow.on-battery": "Läuft mit Batterie",
+  "energy.flow.on-solar": "Läuft mit Solar",
+  "energy.flow.pushing-back": "Strom wird ins Netz zurückgespeist",
+  "energy.flow.solar-covers-part": "Solar deckt einen Teil ab"
+}

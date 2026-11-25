@@ -1,4 +1,5 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
+import { capitalised, spaced } from "../common/text";
 import { FAN_MODES, HVAC_MODES } from "./utils";
 
 type Tools = Pick<TranslationTools, "t" | "translateState">;
@@ -13,9 +14,6 @@ const ACTION_WORDS: Record<string, string> = {
   preheating: "climate.action.preheating",
   defrosting: "climate.action.defrosting",
 };
-
-const capitalised = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
-export const spaced = (raw: string) => capitalised(raw.replaceAll("_", " "));
 
 const climateEntity = (sample: StateEntity | undefined, state: string): StateEntity => ({
   domain: "climate",

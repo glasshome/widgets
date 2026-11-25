@@ -1,4 +1,52 @@
 {
+  "energy-balance.balanced": {
+    "source": "da8d2ef96d3a6158",
+    "value": "9123685a0d2a98ba"
+  },
+  "energy-balance.caption.balanced": {
+    "source": "802e99fba60f771f",
+    "value": "bac92505de574924"
+  },
+  "energy-balance.caption.from-grid": {
+    "source": "86e5a767b918419f",
+    "value": "7cc9dba6224130b5"
+  },
+  "energy-balance.caption.surplus": {
+    "source": "536133b3f391faf2",
+    "value": "8e5a92d80263d0ec"
+  },
+  "energy-balance.caption.top-up": {
+    "source": "b28f256d81a70126",
+    "value": "12a6f198451893ca"
+  },
+  "energy-balance.mode.live": {
+    "source": "17d617f930b82b5c",
+    "value": "00cd944998c0012d"
+  },
+  "energy-balance.mode.month": {
+    "source": "7c7aa8c5112543ff",
+    "value": "024261f9bfbac9ed"
+  },
+  "energy-balance.mode.today": {
+    "source": "be1870aab15d6a3f",
+    "value": "55133d4e6eb6172a"
+  },
+  "energy-balance.mode.week": {
+    "source": "b77794cc94e44867",
+    "value": "51656a29fb46a0a1"
+  },
+  "energy-balance.period": {
+    "source": "a6816dc04420a6cd",
+    "value": "162459d223dc72e5"
+  },
+  "energy-balance.sub": {
+    "source": "e6bba78dda03f586",
+    "value": "699079a4218e4c53"
+  },
+  "energy-balance.title": {
+    "source": "24ad34454c9bfe64",
+    "value": "8422cafdb615c4f4"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "d685ddb9bbfadaf9"
@@ -37,7 +85,8 @@
   },
   "energy.flow.from-grid": {
     "source": "9f20c14c0d3b2203",
-    "value": "9ead1e3aff4d0a09"
+    "value": "224f178e7a83caad",
+    "pinned": true
   },
   "energy.flow.grid-untouched": {
     "source": "86245c8cb63a7a28",
@@ -69,11 +118,13 @@
   },
   "energy.flow.solar-covers-everything": {
     "source": "051e1e46fd04650f",
-    "value": "727c0e163ad15a97"
+    "value": "dde51240282c814e",
+    "pinned": true
   },
   "energy.flow.solar-covers-part": {
     "source": "359db19db2614be0",
-    "value": "c13fd9741ffcc3d2"
+    "value": "1a887865e33a845b",
+    "pinned": true
   },
   "energy.flow.solar-resting": {
     "source": "4f4866c23c02879b",

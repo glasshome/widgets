@@ -154,6 +154,7 @@ export function ribbonShape(
     left.push({ x: p.x - (dy / len) * half, y: p.y + (dx / len) * half });
     right.push({ x: p.x + (dy / len) * half, y: p.y - (dx / len) * half });
   }
+  // ui-text-ok: svg path coordinates
   const f = (p: Point) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
   return `M${left.map(f).join("L")}L${right.reverse().map(f).join("L")}Z`;
 }

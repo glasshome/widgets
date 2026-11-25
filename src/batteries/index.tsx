@@ -7,6 +7,7 @@ import {
   Icon,
   type Infer,
   useEntities,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   Widget,
@@ -17,7 +18,13 @@ import { createMemo, Index } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
-import { batteryName, filterAndSortBatteries, getBatteryColor, getBatteryIcon } from "./utils";
+import {
+  batteryName,
+  batteryPercent,
+  filterAndSortBatteries,
+  getBatteryColor,
+  getBatteryIcon,
+} from "./utils";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -30,6 +37,8 @@ type BatteriesConfig = Infer<typeof configSchema>;
 
 function BatteriesWidget(props: { config: BatteriesConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const title = () => props.config.title || tools.t("batteries.title");
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const sensorIds = createMemo(() => byDomain().sensor ?? []);
@@ -59,14 +68,18 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
           <Widget.Glyph icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"} />
           <Widget.Head
             icon={hasLow() ? "mdi:battery-alert" : "mdi:battery"}
-            eyebrow={`${totalCount()} batteries`}
-            name={props.config.title || "Batteries"}
+            eyebrow={tools.t("batteries.eyebrow", { count: totalCount() })}
+            name={title()}
             active={hasLow()}
           />
           <Widget.Hero
-            value={lowestLevel() ?? "--"}
+            value={lowestLevel() === undefined ? "--" : tools.formatNumber(lowestLevel() ?? 0)}
             unit={lowestLevel() === undefined ? undefined : "%"}
-            sub={hasLow() ? `${lowCount()} low` : "All good"}
+            sub={
+              hasLow()
+                ? tools.t("batteries.low", { count: lowCount() })
+                : tools.t("batteries.all-good")
+            }
             art={
               <div class="batteries-list">
                 <Index each={batteries().slice(0, 8)}>
@@ -83,7 +96,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
                         class="batteries-level"
                         style={{ color: getBatteryColor(battery().level) }}
                       >
-                        {battery().level}%
+                        {batteryPercent(tools, battery().level)}
                       </span>
                     </div>
                   )}
@@ -96,7 +109,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={props.config.title || "Batteries"}
+        title={title()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

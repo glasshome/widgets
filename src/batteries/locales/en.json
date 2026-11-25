@@ -1,1 +1,12 @@
-{}
+{
+  "batteries.all-good": "All good",
+  "batteries.eyebrow": "{count, plural, one {# battery} other {# batteries}}",
+  "batteries.low": "{count} low",
+  "batteries.sheet.batteries": "Batteries",
+  "batteries.sheet.below": "Below {threshold}%",
+  "batteries.sheet.lowest-first": "Lowest first",
+  "batteries.sheet.none": "None",
+  "batteries.sheet.not-reporting": "Not reporting",
+  "batteries.sheet.overview": "Overview",
+  "batteries.title": "Batteries"
+}

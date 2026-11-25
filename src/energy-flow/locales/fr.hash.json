@@ -1,4 +1,108 @@
 {
+  "energy-flow.cost.earns": {
+    "source": "8a854e05c165eed2",
+    "value": "9442014fb62d96b3"
+  },
+  "energy-flow.cost.per-hour": {
+    "source": "e08a618813d50627",
+    "value": "7824e1d505793e02"
+  },
+  "energy-flow.cost.saves": {
+    "source": "8957d45a53d375c1",
+    "value": "c5fec88e2a235171"
+  },
+  "energy-flow.hero.home-now": {
+    "source": "f98806827aef9f4b",
+    "value": "ea7519245003ad82"
+  },
+  "energy-flow.node.bidirectional": {
+    "source": "28cf7478f840b2e0",
+    "value": "0ecb7cf06797c44b"
+  },
+  "energy-flow.node.charging": {
+    "source": "e4ded03f6a1ccc00",
+    "value": "94e735e8a3a412b4"
+  },
+  "energy-flow.node.discharging": {
+    "source": "d735290deac0b1b7",
+    "value": "d3b782ca5030655e"
+  },
+  "energy-flow.node.exporting": {
+    "source": "c2d149246affbf6e",
+    "value": "352554262e2ad230"
+  },
+  "energy-flow.node.home": {
+    "source": "c5b027326a518e86",
+    "value": "f522ea5bfee51818"
+  },
+  "energy-flow.node.idle": {
+    "source": "7668359b6174db1f",
+    "value": "07fbb97909e754f3"
+  },
+  "energy-flow.node.importing": {
+    "source": "8c223be7cef3e03c",
+    "value": "cffad1faf264cf61"
+  },
+  "energy-flow.node.input": {
+    "source": "3486cdc5ef15a833",
+    "value": "d9c7efe13095fdad"
+  },
+  "energy-flow.node.output": {
+    "source": "0adf61154abf3c63",
+    "value": "987ce358afb7a5a0"
+  },
+  "energy-flow.node.resting": {
+    "source": "300873f893ea8ee6",
+    "value": "abe542d29b2e19b7"
+  },
+  "energy-flow.scene.home": {
+    "source": "d51de8000c6ffff3",
+    "value": "714f215fb8d32541"
+  },
+  "energy-flow.sheet.earning": {
+    "source": "b7ad3bb00d75ea46",
+    "value": "4e125a3ef68a00b0"
+  },
+  "energy-flow.sheet.grid-cost": {
+    "source": "fb905567b5bbf3ab",
+    "value": "5f732e3606f7c548"
+  },
+  "energy-flow.sheet.idle": {
+    "source": "34e0a423e7764fc3",
+    "value": "cdcf2ea348f78758"
+  },
+  "energy-flow.sheet.producing": {
+    "source": "f9d3ccd088fb5247",
+    "value": "13a7c655a7d4213c"
+  },
+  "energy-flow.sheet.right-now": {
+    "source": "ee991d138eb92473",
+    "value": "b5af578dd647c8e0"
+  },
+  "energy-flow.sheet.saving": {
+    "source": "51ff5b484e97899b",
+    "value": "1afa920e6e843c6b"
+  },
+  "energy-flow.sheet.self-powered": {
+    "source": "9c020080cb3ecfe2",
+    "value": "277abc5e6345d08b"
+  },
+  "energy-flow.sheet.sources": {
+    "source": "59e786ae2e7d83f7",
+    "value": "caf85b0888d78f1f"
+  },
+  "energy-flow.sheet.unavailable": {
+    "source": "13c32c656e14af44",
+    "value": "dae75cff3b98f53d"
+  },
+  "energy-flow.sheet.using-power": {
+    "source": "a04b5b645f7de217",
+    "value": "2b4d12e60b346cc5"
+  },
+  "energy-flow.title": {
+    "source": "0a6a9bb5c53f6b1f",
+    "value": "7defaed5b5113237"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "87e4b799e14189f9"
@@ -17,7 +121,8 @@
   },
   "energy.empty.reconnecting": {
     "source": "27ab7daca4d143da",
-    "value": "6dd94fd1a64cf9c5"
+    "value": "868ff81cb5cacd91",
+    "pinned": true
   },
   "energy.empty.title": {
     "source": "80a3de07369a3d83",
@@ -29,7 +134,8 @@
   },
   "energy.flow.battery-to-grid": {
     "source": "b5be61a92d552dbd",
-    "value": "61db41ea3f806397"
+    "value": "b24a3b161befca49",
+    "pinned": true
   },
   "energy.flow.charging-battery": {
     "source": "608b53335e8fff47",
@@ -53,7 +159,8 @@
   },
   "energy.flow.on-solar": {
     "source": "2485388003a53564",
-    "value": "9798c0a21dc30f31"
+    "value": "ed5a8b8cad6d8718",
+    "pinned": true
   },
   "energy.flow.pushing-back": {
     "source": "feadc848986a39ca",

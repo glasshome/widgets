@@ -21,10 +21,7 @@ import { migrateConfig } from "./migrate";
 import { EnergyFlowSheet } from "./sheet";
 import en from "./locales/en.json";
 
-/** Scale a power reading to watts based on the sensor's reported unit.
- *  HA power sensors commonly report kW. "MW" and "mW" collide under a
- *  case-insensitive compare, so the megawatt/milliwatt branches stay exact-case;
- *  unknown/missing units are treated as W. */
+// "MW" and "mW" collide case-insensitively, so those two stay exact-case; unknown units read as W.
 function toWatts(value: number, unit: string | null | undefined): number {
   if (!unit) return value;
   if (unit === "MW") return value * 1e6;
@@ -42,6 +39,7 @@ function toWatts(value: number, unit: string | null | undefined): number {
 function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
   const ctx = useWidgetContext();
   const tools = useTranslation();
+  const title = () => props.config.title || tools.t("energy-flow.title");
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const ids = createMemo(() => configEntityIds(props.config.nodes));
@@ -65,7 +63,9 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
     return (id: string) => (map.has(id) ? (map.get(id) ?? null) : null);
   });
 
-  const flow = createMemo(() => resolveFlow(props.config.nodes, lookup(), sunBelowHorizon()));
+  const flow = createMemo(() =>
+    resolveFlow(props.config.nodes, lookup(), sunBelowHorizon(), tools),
+  );
   const description = createMemo(() => describeFlow(flow().flowState, tools));
   const channelColor = createMemo(() => dominantColor(flow()));
   const unconfigured = createMemo(() => isUnconfigured(flow()));
@@ -84,7 +84,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
           fallback={
             <Widget.Content>
               <div class="flex h-full min-h-0 flex-col gap-2">
-                <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
+                <EnergyHeader headline={title()} dimmed />
                 <div class="min-h-0 flex-1">
                   <EnergyEmptyState kind="unconfigured" onConfigure={openDialog} />
                 </div>
@@ -97,7 +97,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
             fallback={
               <Widget.Content>
                 <div class="flex h-full min-h-0 flex-col gap-2">
-                  <EnergyHeader headline={props.config.title || "Energy Flow"} dimmed />
+                  <EnergyHeader headline={title()} dimmed />
                   <div class="min-h-0 flex-1">
                     <EnergyEmptyState kind="unavailable" />
                   </div>
@@ -109,7 +109,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
               flow={flow()}
               description={description()}
               tariff={tariff()}
-              title={props.config.title || "Energy Flow"}
+              title={title()}
               onOpen={() => openDialog()}
             />
           </Show>
@@ -118,7 +118,7 @@ function EnergyFlowWidget(props: { config: EnergyFlowConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={props.config.title || "Energy Flow"}
+        title={title()}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -142,8 +142,7 @@ export default defineWidget<EnergyFlowConfig>({
     minSize: { w: 2, h: 3 },
     maxSize: { w: 8, h: 8 },
     sdkVersion: "^1.0.0",
-    // v3: the fixed five-role fields became a user-defined node list
-    // (field.list + field.variants); migrate.ts maps v1/v2 configs onto it.
+    // v3: fixed roles became a node list; migrate.ts maps v1/v2.
     configVersion: 3,
     examples: [
       {

@@ -1,0 +1,5 @@
+{
+  "energy.flow.from-grid": "{power} desde la red",
+  "energy.flow.solar-covers-everything": "La solar lo cubre todo",
+  "energy.flow.solar-covers-part": "La solar cubre una parte"
+}

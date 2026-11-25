@@ -1,4 +1,5 @@
 // Leaf imports, not the _energy-shared barrel: its JSX modules break bun's test transpile.
+import type { TranslationTools } from "@glasshome/widget-sdk";
 import { type BidirectionalInput, normalizeBidirectional } from "../_energy-shared/calculations";
 import { energyColors } from "../_energy-shared/colors";
 import { type EnergyTools, formatPower } from "../_energy-shared/formatting";
@@ -20,19 +21,15 @@ export type PowerLookup = (entityId: string) => number | null;
 // almost never fires. Treat anything at or below this as "resting".
 const SLEEP_THRESHOLD_W = 20;
 
-/** Hub-end fade for a ribbon: its own color receding toward the theme
- *  background, so the flow quiets down as it reaches the house in either
- *  theme. Staying on one hue per ribbon matters: SVG gradients interpolate in
- *  sRGB, and blending two distant hues (e.g. solar amber into a shared blue)
- *  passes near gray and reads muddy. */
+// One hue per ribbon: SVG gradients blend in sRGB, and two distant hues pass near gray.
 function hubFade(color: string): string {
   return `color-mix(in oklch, ${color} 55%, var(--background, transparent))`;
 }
 
 const FALLBACK_LABELS: Record<FlowNodeConfig["kind"], string> = {
-  input: "Input",
-  output: "Output",
-  bidirectional: "Two-way",
+  input: "energy-flow.node.input",
+  output: "energy-flow.node.output",
+  bidirectional: "energy-flow.node.bidirectional",
 };
 
 const FALLBACK_ICONS: Record<FlowNodeConfig["kind"], string> = {
@@ -41,9 +38,7 @@ const FALLBACK_ICONS: Record<FlowNodeConfig["kind"], string> = {
   bidirectional: "mdi:swap-horizontal",
 };
 
-// Deterministic per-kind palettes so migrated configs keep their old role
-// colors (solar amber first input, home purple first output, battery green
-// unpriced two-way, grid blue priced two-way).
+// Per-kind palettes keep migrated configs on their old role colors.
 const INPUT_COLORS = [energyColors.solar, energyColors.ev, energyColors.export, energyColors.home];
 const OUTPUT_COLORS = [energyColors.home, energyColors.ev, energyColors.export, energyColors.solar];
 const STORAGE_COLORS = [energyColors.battery, energyColors.grid, energyColors.export];
@@ -140,6 +135,7 @@ export function resolveFlow(
   nodes: readonly FlowNodeConfig[],
   lookup: PowerLookup,
   sunBelowHorizon: boolean,
+  tools: Pick<TranslationTools, "t">,
 ): ResolvedFlow {
   const resolved: ResolvedNode[] = [];
   const counters = { input: 0, output: 0, storage: 0 };
@@ -151,7 +147,7 @@ export function resolveFlow(
     const base = {
       id: `node-${index}`,
       kind: node.kind,
-      label: node.label || FALLBACK_LABELS[node.kind],
+      label: node.label || tools.t(FALLBACK_LABELS[node.kind]),
       icon: node.icon || FALLBACK_ICONS[node.kind],
       remainder: node.kind === "output" && node.remainder,
       priced: node.kind === "bidirectional" && node.priced,
@@ -233,8 +229,7 @@ interface NodeView {
   value: string;
   color: string;
   idle: boolean;
-  /** Running cost/earning/saving for the node (e.g. "€0.11/h"), when a tariff
-   *  is configured and the node carries a priceable flow. */
+  /** Running cost, earning or saving, when a tariff is set and the node carries a priceable flow. */
   sub?: string;
   /** Hub renders the house glyph instead of an icon chip. */
   hub?: boolean;
@@ -245,8 +240,12 @@ export interface EnergyGraph {
   views: Map<string, NodeView>;
 }
 
-function levelSuffix(level: number | undefined): string {
-  return level === undefined ? "" : ` · ${Math.round(level)}%`;
+export function levelPercent(level: number, tools: EnergyTools): string {
+  return tools.formatNumber(Math.round(level) / 100, { style: "percent" });
+}
+
+function levelSuffix(level: number | undefined, tools: EnergyTools): string {
+  return level === undefined ? "" : ` · ${levelPercent(level, tools)}`;
 }
 
 export function buildEnergyGraph(
@@ -260,21 +259,20 @@ export function buildEnergyGraph(
 
   const cost = tariff ? computeCost(flow.flowState, tariff) : null;
   const configuredInputs = flow.nodes.filter((n) => n.kind === "input" && n.configured);
-  // Savings are an aggregate over all production, so the sub-line only reads
-  // truthfully when a single input carries it.
+  // Savings aggregate all production, so only a single input can carry the sub-line.
   const soleInput = configuredInputs.length === 1 ? configuredInputs[0] : undefined;
 
   for (const node of flow.nodes) {
     if (!node.configured) continue;
     const active = node.watts > ACTIVE_THRESHOLD && node.direction !== "idle";
-    const label = `${node.label}${levelSuffix(node.level)}`;
+    const label = `${node.label}${levelSuffix(node.level, tools)}`;
 
     if (node.kind === "output") {
       const idle = !active;
       views.set(node.id, {
         icon: node.icon,
         label,
-        value: idle ? "idle" : formatPower(node.watts, tools),
+        value: idle ? tools.t("energy-flow.node.idle") : formatPower(node.watts, tools),
         color: node.color,
         idle,
       });
@@ -293,8 +291,7 @@ export function buildEnergyGraph(
       continue;
     }
 
-    // Inputs and two-way nodes feed the hub from the source column; a two-way
-    // node flowing out reverses its ribbon (e.g. charging, exporting).
+    // A two-way node flowing out reverses its ribbon.
     const outbound = node.kind === "bidirectional" && node.direction === "out";
     // A priced node pushing outward reads visually distinct (export teal).
     const color = node.priced && outbound ? energyColors.export : node.color;
@@ -302,7 +299,11 @@ export function buildEnergyGraph(
     views.set(node.id, {
       icon: node.icon,
       label,
-      value: node.resting ? "Back at sunrise" : idle ? "idle" : formatPower(node.watts, tools),
+      value: node.resting
+        ? tools.t("energy-flow.node.resting")
+        : idle
+          ? tools.t("energy-flow.node.idle")
+          : formatPower(node.watts, tools),
       color,
       idle,
       sub:
@@ -329,7 +330,7 @@ export function buildEnergyGraph(
   graphNodes.push({ id: "hub", kind: "hub" });
   views.set("hub", {
     icon: energyIcons.home,
-    label: "Home",
+    label: tools.t("energy-flow.node.home"),
     value: formatPower(flow.hubW, tools),
     color: energyColors.home,
     idle: false,

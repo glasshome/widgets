@@ -152,7 +152,9 @@ export function Spine(props: {
         <div
           class="flow-house-scene"
           role="img"
-          aria-label={`Home, ${formatPower(props.flow.hubW, tools)}`}
+          aria-label={tools.t("energy-flow.scene.home", {
+            power: formatPower(props.flow.hubW, tools),
+          })}
           style={{
             left: `${scene().house.x}px`,
             top: `${scene().house.y}px`,

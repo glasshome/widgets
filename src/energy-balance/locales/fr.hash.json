@@ -1,4 +1,52 @@
 {
+  "energy-balance.balanced": {
+    "source": "da8d2ef96d3a6158",
+    "value": "2c9a1165c515505e"
+  },
+  "energy-balance.caption.balanced": {
+    "source": "802e99fba60f771f",
+    "value": "b459c72704ab24a1"
+  },
+  "energy-balance.caption.from-grid": {
+    "source": "86e5a767b918419f",
+    "value": "3a61965fd242be92"
+  },
+  "energy-balance.caption.surplus": {
+    "source": "536133b3f391faf2",
+    "value": "fda168b74b810ba0"
+  },
+  "energy-balance.caption.top-up": {
+    "source": "b28f256d81a70126",
+    "value": "1b96a078b263f71f"
+  },
+  "energy-balance.mode.live": {
+    "source": "17d617f930b82b5c",
+    "value": "4303250da364c67c"
+  },
+  "energy-balance.mode.month": {
+    "source": "7c7aa8c5112543ff",
+    "value": "709ceef6d9f80871"
+  },
+  "energy-balance.mode.today": {
+    "source": "be1870aab15d6a3f",
+    "value": "f2de9e072a83f7c9"
+  },
+  "energy-balance.mode.week": {
+    "source": "b77794cc94e44867",
+    "value": "0934d42938492db4"
+  },
+  "energy-balance.period": {
+    "source": "a6816dc04420a6cd",
+    "value": "2171009f4e2a3d1c"
+  },
+  "energy-balance.sub": {
+    "source": "e6bba78dda03f586",
+    "value": "64f044148680548d"
+  },
+  "energy-balance.title": {
+    "source": "24ad34454c9bfe64",
+    "value": "faea14ca076c2c7f"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "87e4b799e14189f9"
@@ -13,7 +61,8 @@
   },
   "energy.empty.message": {
     "source": "2e952b037733089f",
-    "value": "5453c208c73c0a1e"
+    "value": "c4da24c78379279d",
+    "pinned": true
   },
   "energy.empty.reconnecting": {
     "source": "27ab7daca4d143da",

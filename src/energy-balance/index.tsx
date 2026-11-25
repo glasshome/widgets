@@ -1,6 +1,5 @@
 import {
   defineWidget,
-  svgColors,
   ToggleGroup,
   ToggleGroupItem,
   useDaylight,
@@ -15,11 +14,12 @@ import {
   WidgetDialog,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
+import { EnergyEmptyState, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
 import { SkyScene } from "./sky";
+import { type BalanceInput, balanceReadout, balanceSubLine, type Mode } from "./words";
 import { skyScene } from "./sun-path";
 import "./balance.css";
 import en from "./locales/en.json";
@@ -30,22 +30,13 @@ const STATS_REFRESH_MS = 5 * 60 * 1000;
 // Below this measured height the produced-vs-used bars can't breathe, so the
 // compact single balance bar shows instead.
 const _COMPACT_HEIGHT = 210;
-const AMBER = svgColors.solar.solid;
-const BLUE = svgColors.grid.solid;
 
-type Mode = "live" | "today" | "week" | "month";
 const MODES: Mode[] = ["live", "today", "week", "month"];
 const MODE_LABEL: Record<Mode, string> = {
-  live: "Now",
-  today: "Today",
-  week: "Week",
-  month: "Month",
-};
-const MODE_WHEN: Record<Mode, string> = {
-  live: "now",
-  today: "today",
-  week: "this week",
-  month: "this month",
+  live: "energy-balance.mode.live",
+  today: "energy-balance.mode.today",
+  week: "energy-balance.mode.week",
+  month: "energy-balance.mode.month",
 };
 
 function sumChange(values: { change?: number }[] | undefined): number {
@@ -169,60 +160,16 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     if (total <= 0) return 0;
     return Math.max(-1, Math.min(1, (p - c) / total));
   });
-  const readout = createMemo(() => {
-    const when = MODE_WHEN[mode()];
-    const p = produced();
-    const c = consumed();
-    const drawn = hasSolar() ? `grid top-up ${when}` : `from the grid ${when}`;
-    if (dataUnit() === "W") {
-      const diff = p - c;
-      if (Math.abs(diff) < 50) return { value: "Balanced", unit: "", caption: when, color: "" };
-      if (diff > 0)
-        return {
-          value: `+${formatPower(diff, tools)}`,
-          unit: "",
-          caption: `solar surplus ${when}`,
-          color: AMBER,
-        };
-      return {
-        value: `−${formatPower(-diff, tools)}`,
-        unit: "",
-        caption: drawn,
-        color: BLUE,
-      };
-    }
-    // Difference of the rounded values the bars display, so the header adds up.
-    const pr = Math.round(p * 10) / 10;
-    const cr = Math.round(c * 10) / 10;
-    const diff = Math.round((pr - cr) * 10) / 10;
-    if (Math.abs(diff) < 0.05) return { value: "Balanced", unit: "", caption: when, color: "" };
-    if (diff > 0)
-      return {
-        value: `+${diff.toFixed(1)}`,
-        unit: "kWh",
-        caption: `solar surplus ${when}`,
-        color: AMBER,
-      };
-    return {
-      value: `−${Math.abs(diff).toFixed(1)}`,
-      unit: "kWh",
-      caption: drawn,
-      color: BLUE,
-    };
+  const balanceInput = (): BalanceInput => ({
+    mode: mode(),
+    produced: produced(),
+    consumed: consumed(),
+    unit: dataUnit(),
+    hasSolar: hasSolar(),
   });
+  const readout = createMemo(() => balanceReadout(tools, balanceInput()));
 
   const headIcon = () => (hasSolar() ? "mdi:solar-power-variant" : "mdi:transmission-tower");
-  const eyebrow = () => {
-    const c = readout().caption;
-    return `${c.charAt(0).toUpperCase()}${c.slice(1)}`;
-  };
-  const subLine = () => {
-    const unit = dataUnit();
-    const fmt = (v: number) =>
-      unit === "W" ? formatPower(v, tools) : `${(Math.round(v * 10) / 10).toFixed(1)} kWh`;
-    return hasSolar() ? `Solar ${fmt(produced())} · Home ${fmt(consumed())}` : undefined;
-  };
-
   const daylight = useDaylight();
   const cycleMode = () => setMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length]);
   const gestures = useWidgetGestures(() => ({ tap: cycleMode }));
@@ -246,18 +193,18 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
             <Widget.Glyph icon={headIcon()} />
             <Widget.Head
               icon={headIcon()}
-              eyebrow={eyebrow()}
-              name={props.config.title || "Energy balance"}
-              active={readout().color === AMBER}
+              eyebrow={readout().caption}
+              name={props.config.title || tools.t("energy-balance.title")}
+              active={readout().tone === "surplus"}
             />
             <Widget.Hero
               value={readout().value}
               unit={readout().unit ? ` ${readout().unit}` : undefined}
-              sub={subLine()}
+              sub={balanceSubLine(tools, balanceInput())}
             />
             <Widget.Controls>
               <ToggleGroup
-                aria-label="Period"
+                aria-label={tools.t("energy-balance.period")}
                 value={mode()}
                 onChange={(v: string | null) => v && setMode(v as Mode)}
                 class="balance-modes"
@@ -265,7 +212,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
                 <For each={MODES}>
                   {(m) => (
                     <ToggleGroupItem value={m} class="balance-mode">
-                      {MODE_LABEL[m]}
+                      {tools.t(MODE_LABEL[m])}
                     </ToggleGroupItem>
                   )}
                 </For>
@@ -277,7 +224,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Energy Balance"
+        title={tools.t("energy-balance.title")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

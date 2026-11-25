@@ -34,13 +34,15 @@ const COST_THRESHOLD = 0.005;
 
 export function gridCostSub(cost: EnergyCost | null, tools: EnergyTools): string | undefined {
   if (!cost) return undefined;
-  const perHour = `${formatMoney(cost.gridPerHour, cost.currency, tools)}/h`;
-  if (cost.gridPerHour > COST_THRESHOLD) return perHour;
-  if (cost.gridPerHour < -COST_THRESHOLD) return `Earns ${perHour}`;
+  const amount = formatMoney(cost.gridPerHour, cost.currency, tools);
+  if (cost.gridPerHour > COST_THRESHOLD) return tools.t("energy-flow.cost.per-hour", { amount });
+  if (cost.gridPerHour < -COST_THRESHOLD) return tools.t("energy-flow.cost.earns", { amount });
   return undefined;
 }
 
 export function solarSavingSub(cost: EnergyCost | null, tools: EnergyTools): string | undefined {
   if (!cost || cost.solarSavingPerHour <= COST_THRESHOLD) return undefined;
-  return `Saves ${formatMoney(cost.solarSavingPerHour, cost.currency, tools)}/h`;
+  return tools.t("energy-flow.cost.saves", {
+    amount: formatMoney(cost.solarSavingPerHour, cost.currency, tools),
+  });
 }

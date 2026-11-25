@@ -1,0 +1,9 @@
+{
+  "energy.empty.reconnecting": "Verbindung wird wiederhergestellt...",
+  "energy.flow.charging-battery": "Batterie wird geladen",
+  "energy.flow.home-using": "Haushalt verbraucht {power}",
+  "energy.flow.solar-and-battery": "Solar und Batterie",
+  "energy.flow.on-battery": "Läuft mit Batterie",
+  "energy.flow.battery-to-grid": "Batterie entlädt sich ins Netz",
+  "energy.empty.message": "Verbinde deine Solaranlage, das Stromnetz und die Batterie, um die Energie deines Haushalts auf einen Blick zu sehen."
+}

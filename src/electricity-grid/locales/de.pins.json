@@ -1,5 +1,11 @@
 {
   "manifest.description": "Ist jetzt ein guter Zeitpunkt, Strom zu verbrauchen? Kohlenstoffintensität und Preis des Netzes auf einen Blick",
   "manifest.examples.1.label": "Kohlenstoff und Preis",
-  "manifest.examples.2.label": "Nur Kohlenstoff"
+  "manifest.examples.2.label": "Nur Kohlenstoff",
+  "energy.empty.first-day-message": "Dein Energieverlauf wird gerade aufgezeichnet",
+  "energy.empty.message": "Verbinde deine Solaranlage, das Stromnetz und die Batterie, um die Energie deines Haushalts auf einen Blick zu sehen.",
+  "energy.flow.battery-to-grid": "Batterie entlädt sich ins Netz",
+  "energy.flow.on-battery": "Läuft mit Batterie",
+  "energy.flow.on-solar": "Läuft mit Solar",
+  "electricity-grid.low-carbon": "{percent} % kohlenstoffarm"
 }

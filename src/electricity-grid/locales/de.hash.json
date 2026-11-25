@@ -1,11 +1,57 @@
 {
+  "electricity-grid.co2": {
+    "source": "2fdbe5da462ed94b",
+    "value": "21d0ce5add09e34b"
+  },
+  "electricity-grid.low-carbon": {
+    "source": "af5bf9943cdb3479",
+    "value": "a6e887dce50887b6",
+    "pinned": true
+  },
+  "electricity-grid.no-data": {
+    "source": "0fd8d0fe8e984257",
+    "value": "a6fc58459cd1f2b0"
+  },
+  "electricity-grid.price-note.cheap": {
+    "source": "d2e63304be01f8b8",
+    "value": "922362dc2307a45d"
+  },
+  "electricity-grid.price-note.cheap-if-urgent": {
+    "source": "bb7fa0fa1be9822b",
+    "value": "7f2459580649d29b"
+  },
+  "electricity-grid.price-note.free": {
+    "source": "e9b602eabfb20c85",
+    "value": "3fb070fd8cd457a5"
+  },
+  "electricity-grid.price-note.pricey": {
+    "source": "d0a86b575c26f294",
+    "value": "24cb2c14549ad9e0"
+  },
+  "electricity-grid.title": {
+    "source": "4f4c8c6501ce5464",
+    "value": "4ec2b43ffb15b732"
+  },
+  "electricity-grid.verdict.clean": {
+    "source": "f9b194b05a837c40",
+    "value": "3d4a73f9693a5a57"
+  },
+  "electricity-grid.verdict.dirty": {
+    "source": "6083a17a1f64bc75",
+    "value": "d53d8c7b47b4f568"
+  },
+  "electricity-grid.verdict.mixed": {
+    "source": "af0d377620e02072",
+    "value": "3f5b33a95f76fc1e"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "4a51c9b7a488911b"
   },
   "energy.empty.first-day-message": {
     "source": "ad1775a629c94c3d",
-    "value": "3c0d057febec99de"
+    "value": "e68c4285192389f8",
+    "pinned": true
   },
   "energy.empty.first-day-title": {
     "source": "c89923126c9161ee",
@@ -13,7 +59,8 @@
   },
   "energy.empty.message": {
     "source": "2e952b037733089f",
-    "value": "92264905b694b9d4"
+    "value": "a2cd89a63b84d73a",
+    "pinned": true
   },
   "energy.empty.reconnecting": {
     "source": "27ab7daca4d143da",
@@ -29,7 +76,8 @@
   },
   "energy.flow.battery-to-grid": {
     "source": "b5be61a92d552dbd",
-    "value": "7dd8cb4cab699300"
+    "value": "9056d9b500b73602",
+    "pinned": true
   },
   "energy.flow.charging-battery": {
     "source": "608b53335e8fff47",
@@ -49,11 +97,13 @@
   },
   "energy.flow.on-battery": {
     "source": "6b54357f332c750e",
-    "value": "0e6b90c9624ba55b"
+    "value": "696fd82ea4153b10",
+    "pinned": true
   },
   "energy.flow.on-solar": {
     "source": "2485388003a53564",
-    "value": "f4913dae9a575562"
+    "value": "8f2b7d37194ae0de",
+    "pinned": true
   },
   "energy.flow.pushing-back": {
     "source": "feadc848986a39ca",

@@ -25,6 +25,7 @@ export function SkyScene(props: { glow: number }) {
     const points: string[] = [];
     for (let i = 0; i <= SAMPLES; i++) {
       const p = arcPoint(from + ((to - from) * i) / SAMPLES, box());
+      // ui-text-ok: svg path coordinates
       points.push(`${p.x.toFixed(1)},${p.y.toFixed(1)}`);
     }
     return `M${points.join("L")}`;

@@ -4,6 +4,7 @@ import {
   useReducedMotion,
   useWidgetContext,
   useWidgetDialog,
+  useTranslation,
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
@@ -14,6 +15,7 @@ import { configSchema, type ElectricityGridConfig } from "./config";
 import { PylonArt } from "./pylon-art";
 import "./grid.css";
 import { type Band, deriveVerdict, type Verdict } from "./verdict";
+import { gridLines, gridNumber } from "./words";
 import en from "./locales/en.json";
 
 const TINT: Record<Band, string> = {
@@ -26,10 +28,6 @@ function firstId(ids: string[] | undefined): string {
   return ids?.[0] ?? "";
 }
 
-function fmt(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(value < 10 ? 2 : 1);
-}
-
 interface BodyProps {
   title: string;
   verdict: Verdict;
@@ -40,8 +38,9 @@ interface BodyProps {
 }
 
 function GridBody(props: BodyProps): JSX.Element {
+  const tools = useTranslation();
+  const lines = () => gridLines(tools, props.verdict, props.co2);
   const tint = () => TINT[props.verdict.band];
-  const note = () => props.verdict.priceNote;
   return (
     <Widget.Content
       accent={tint()}
@@ -52,25 +51,23 @@ function GridBody(props: BodyProps): JSX.Element {
       <Widget.Glyph icon="mdi:transmission-tower" />
       <Widget.Head
         icon="mdi:transmission-tower"
-        eyebrow={
-          note() ? `${note().charAt(0).toUpperCase()}${note().slice(1)}` : "Electricity grid"
-        }
+        eyebrow={lines().eyebrow}
         name={props.title}
         active={props.verdict.band === "clean"}
       />
       <Widget.Hero
         value={props.verdict.phrase}
-        sub={`${Math.round(props.verdict.lowCarbonPct)}% low-carbon`}
+        sub={lines().sub}
         art={<PylonArt lowCarbonPct={props.verdict.lowCarbonPct} tint={tint()} />}
       />
       <Widget.Controls>
         <div class="grid-chips">
-          <Show when={props.co2 !== null}>
-            <Widget.Chip icon="mdi:molecule-co2">{fmt(props.co2 ?? 0)} g/kWh</Widget.Chip>
+          <Show when={lines().co2}>
+            <Widget.Chip icon="mdi:molecule-co2">{lines().co2}</Widget.Chip>
           </Show>
           <Show when={props.showPrice && props.price !== null}>
             <Widget.Chip icon="mdi:cash">
-              {fmt(props.price ?? 0)}
+              {gridNumber(tools, props.price ?? 0)}
               {props.priceUnit ? ` ${props.priceUnit}` : ""}
             </Widget.Chip>
           </Show>
@@ -82,6 +79,7 @@ function GridBody(props: BodyProps): JSX.Element {
 
 function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const _reducedMotion = useReducedMotion();
 
@@ -104,11 +102,14 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
   const priceUnit = () => entities().find((e) => e.id === priceId())?.unitOfMeasurement ?? "";
 
   const verdict = createMemo<Verdict | null>(() =>
-    deriveVerdict({
-      fossilPct: fossilPct(),
-      price: price(),
-      cheapBelow: props.config.cheapBelow ?? null,
-    }),
+    deriveVerdict(
+      {
+        fossilPct: fossilPct(),
+        price: price(),
+        cheapBelow: props.config.cheapBelow ?? null,
+      },
+      tools,
+    ),
   );
 
   const configured = () => co2Id().length > 0 && fossilId().length > 0;
@@ -128,13 +129,16 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
             when={verdict()}
             fallback={
               <Widget.Content>
-                <EnergyEmptyState kind="unavailable" lastKnownValue="Grid data" />
+                <EnergyEmptyState
+                  kind="unavailable"
+                  lastKnownValue={tools.t("electricity-grid.no-data")}
+                />
               </Widget.Content>
             }
           >
             {(v) => (
               <GridBody
-                title={props.config.title || "Electricity grid"}
+                title={props.config.title || tools.t("electricity-grid.title")}
                 verdict={v()}
                 co2={co2()}
                 price={price()}
@@ -148,7 +152,7 @@ function ElectricityGridWidget(props: { config: ElectricityGridConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Electricity Grid"
+        title={tools.t("electricity-grid.title")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

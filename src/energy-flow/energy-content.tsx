@@ -75,7 +75,7 @@ export function EnergyContent(props: EnergyContentProps) {
             <Widget.Hero
               value={reading().value}
               unit={` ${reading().unit}`}
-              sub="Home now"
+              sub={tools.t("energy-flow.hero.home-now")}
               art={house()}
             />
             <Widget.Controls>

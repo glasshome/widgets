@@ -1,3 +1,5 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
+
 export type Band = "clean" | "mixed" | "dirty";
 
 export interface VerdictInputs {
@@ -13,11 +15,10 @@ export interface Verdict {
   priceNote: string;
 }
 
-// Short on purpose: the verdict line must survive a 2x1 tile untruncated.
 const PHRASES: Record<Band, string> = {
-  clean: "Good time",
-  mixed: "Okay time",
-  dirty: "Wait if you can",
+  clean: "electricity-grid.verdict.clean",
+  mixed: "electricity-grid.verdict.mixed",
+  dirty: "electricity-grid.verdict.dirty",
 };
 
 const CLEAN_MIN = 60;
@@ -29,22 +30,36 @@ function band(lowCarbonPct: number): Band {
   return "dirty";
 }
 
-function priceNote(b: Band, price: number | null, cheapBelow: number | null): string {
+function priceNote(
+  b: Band,
+  price: number | null,
+  cheapBelow: number | null,
+  tools: Pick<TranslationTools, "t">,
+): string {
   if (price === null || cheapBelow === null) return "";
   if (!Number.isFinite(price) || !Number.isFinite(cheapBelow)) return "";
-  if (price <= 0) return "free right now";
-  if (price < cheapBelow) return b === "dirty" ? "cheap, if it can't wait" : "cheap now";
-  return b === "dirty" ? "" : "pricey now";
+  if (price <= 0) return tools.t("electricity-grid.price-note.free");
+  if (price < cheapBelow) {
+    return tools.t(
+      b === "dirty"
+        ? "electricity-grid.price-note.cheap-if-urgent"
+        : "electricity-grid.price-note.cheap",
+    );
+  }
+  return b === "dirty" ? "" : tools.t("electricity-grid.price-note.pricey");
 }
 
-export function deriveVerdict(i: VerdictInputs): Verdict | null {
+export function deriveVerdict(
+  i: VerdictInputs,
+  tools: Pick<TranslationTools, "t">,
+): Verdict | null {
   if (i.fossilPct === null || !Number.isFinite(i.fossilPct)) return null;
   const lowCarbonPct = 100 - Math.min(100, Math.max(0, i.fossilPct));
   const b = band(lowCarbonPct);
   return {
     band: b,
     lowCarbonPct,
-    phrase: PHRASES[b],
-    priceNote: priceNote(b, i.price, i.cheapBelow),
+    phrase: tools.t(PHRASES[b]),
+    priceNote: priceNote(b, i.price, i.cheapBelow, tools),
   };
 }

@@ -26,6 +26,7 @@ export const configSchema = defineConfig({
   if (v.cheapBelow !== undefined && v.priceEntity.length === 0) {
     ctx.issues.push({
       code: "custom",
+      // ui-text-ok: validation text the config form shows in English
       message: "Cheap below needs an electricity price sensor.",
       input: v,
     });

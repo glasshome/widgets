@@ -1,16 +1,8 @@
-/**
- * configVersion 1/2 → 3 transform: maps the old fixed five-role flat fields
- * onto the node list mechanically.
- * Runs in the host's `resolveConfig` before the zod parse, so the output only
- * needs the discriminators and values — the schema fills variant defaults.
- * Pure and SDK-free so it unit-tests server-side.
- */
+// configVersion 1/2 to 3: maps the old fixed five-role fields onto the node list.
 
 import type { FlowNodeConfig } from "./node-model";
 
-/** Old fields stored entity IDs as string arrays; v1 single-selects were
- *  already arrays too. Be lenient about strays anyway — this runs on
- *  user-stored JSON. */
+// Runs on user-stored JSON, so strays are tolerated.
 function ids(value: unknown): string[] {
   if (typeof value === "string") return value.length > 0 ? [value] : [];
   if (!Array.isArray(value)) return [];
@@ -21,7 +13,6 @@ export function migrateConfig(
   config: Record<string, unknown>,
   _fromConfigVersion: number,
 ): Record<string, unknown> {
-  // Already node-shaped (defensive: resolveConfig only calls when behind).
   if (Array.isArray(config.nodes)) return config;
 
   const nodes: FlowNodeConfig[] = [];
@@ -31,6 +22,7 @@ export function migrateConfig(
     nodes.push({
       kind: "input",
       entities: solar,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "Solar",
       icon: "mdi:solar-power-variant",
       level: [],
@@ -50,6 +42,7 @@ export function migrateConfig(
       // Old battery signed convention: positive = charging = away from home.
       signedOutbound: batterySigned.length > 0,
       priced: false,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "Battery",
       icon: "mdi:battery-high",
       level: ids(config.batterySocEntity),
@@ -68,6 +61,7 @@ export function migrateConfig(
       signed: gridSigned,
       signedOutbound: false,
       priced: true,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "Grid",
       icon: "mdi:transmission-tower",
       level: [],
@@ -88,6 +82,7 @@ export function migrateConfig(
       kind: "output",
       entities: homeEntities,
       remainder: false,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "Home",
       icon: "mdi:home-lightning-bolt",
       level: [],
@@ -98,6 +93,7 @@ export function migrateConfig(
       kind: "output",
       entities: [],
       remainder: true,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "Home",
       icon: "mdi:home-lightning-bolt",
       level: [],
@@ -110,6 +106,7 @@ export function migrateConfig(
       kind: "output",
       entities: ev,
       remainder: false,
+      // ui-text-ok: a stored label the homeowner can rename
       label: "EV charging",
       icon: "mdi:car-electric",
       level: ids(config.evSocEntity),

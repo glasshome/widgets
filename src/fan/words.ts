@@ -1,10 +1,9 @@
 import type { StateEntity, TranslationTools } from "@glasshome/widget-sdk";
 import { groupOnLine } from "../common/group-on";
 import { aggregateWord } from "../common/state-word";
+import { capitalised } from "../common/text";
 
 const STATE_WORDS = { on: "fan.state.on", off: "fan.state.off" };
-
-const capitalised = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
 
 export function presetWord(
   tools: Pick<TranslationTools, "translateState">,

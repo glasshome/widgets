@@ -11,28 +11,34 @@ import { type EnergyTools, formatMoney, formatPower } from "../_energy-shared/fo
 import { energyIcons } from "../_energy-shared/icons";
 import { computeCost, type Tariff } from "./cost";
 import { ACTIVE_THRESHOLD, aggregate, type ResolvedFlow, type ResolvedNode } from "./flow";
-import { buildEnergyGraph } from "./graph-adapter";
+import { buildEnergyGraph, levelPercent } from "./graph-adapter";
 
 const COST_THRESHOLD = 0.005;
 
-function directionWord(node: ResolvedNode): string | undefined {
+function directionWord(node: ResolvedNode, tools: EnergyTools): string | undefined {
   if (node.kind !== "bidirectional" || node.direction === "idle") return undefined;
-  if (node.priced) return node.direction === "in" ? "Importing" : "Exporting";
-  return node.direction === "in" ? "Discharging" : "Charging";
+  if (node.priced) {
+    return tools.t(
+      node.direction === "in" ? "energy-flow.node.importing" : "energy-flow.node.exporting",
+    );
+  }
+  return tools.t(
+    node.direction === "in" ? "energy-flow.node.discharging" : "energy-flow.node.charging",
+  );
 }
 
 function nodeState(n: ResolvedNode, tools: EnergyTools): string {
-  if (n.stale) return "Unavailable";
-  if (n.resting) return "Back at sunrise";
+  if (n.stale) return tools.t("energy-flow.sheet.unavailable");
+  if (n.resting) return tools.t("energy-flow.node.resting");
   const active = n.watts > ACTIVE_THRESHOLD && n.direction !== "idle";
-  const parts = [active ? formatPower(n.watts, tools) : "Idle"];
-  const word = active ? directionWord(n) : undefined;
+  const parts = [active ? formatPower(n.watts, tools) : tools.t("energy-flow.sheet.idle")];
+  const word = active ? directionWord(n, tools) : undefined;
   if (word) parts.unshift(word);
-  if (n.level !== undefined) parts.push(`${Math.round(n.level)}%`);
+  if (n.level !== undefined) parts.push(levelPercent(n.level, tools));
   return parts.join(" · ");
 }
 
-/** What the energy tile cannot show: each source and use with its share of the flow, and what the flow earns or costs. */
+/** Each source and use with its share of the flow, and what the flow earns or costs. */
 export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
   const tools = useTranslation();
   const views = createMemo(() => buildEnergyGraph(props.flow, tools, props.tariff).views);
@@ -54,7 +60,7 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
     if (configured().some((n) => n.kind === "input")) {
       out.push({
         icon: energyIcons.solar,
-        label: "Producing",
+        label: tools.t("energy-flow.sheet.producing"),
         value: formatPower(agg.productionW, tools),
       });
     }
@@ -62,23 +68,29 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
       const own = Math.max(0, Math.min(1, 1 - agg.pricedInW / props.flow.hubW));
       out.push({
         icon: energyIcons.home,
-        label: "Self-powered",
-        value: `${Math.round(own * 100)}%`,
+        label: tools.t("energy-flow.sheet.self-powered"),
+        value: tools.formatNumber(Math.round(own * 100) / 100, { style: "percent" }),
       });
     }
     const cost = computeCost(props.flow.flowState, props.tariff);
     if (cost && Math.abs(cost.gridPerHour) > COST_THRESHOLD) {
       out.push({
         icon: "mdi:cash",
-        label: cost.gridPerHour > 0 ? "Grid cost" : "Earning",
-        value: `${formatMoney(Math.abs(cost.gridPerHour), cost.currency, tools)}/h`,
+        label: tools.t(
+          cost.gridPerHour > 0 ? "energy-flow.sheet.grid-cost" : "energy-flow.sheet.earning",
+        ),
+        value: tools.t("energy-flow.cost.per-hour", {
+          amount: formatMoney(cost.gridPerHour, cost.currency, tools),
+        }),
       });
     }
     if (cost && cost.solarSavingPerHour > COST_THRESHOLD) {
       out.push({
         icon: "mdi:piggy-bank-outline",
-        label: "Saving",
-        value: `${formatMoney(cost.solarSavingPerHour, cost.currency, tools)}/h`,
+        label: tools.t("energy-flow.sheet.saving"),
+        value: tools.t("energy-flow.cost.per-hour", {
+          amount: formatMoney(cost.solarSavingPerHour, cost.currency, tools),
+        }),
       });
     }
     return out;
@@ -98,19 +110,19 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
   return (
     <>
       <Show when={facts().length}>
-        <PanelSection label="Right now">
+        <PanelSection label={tools.t("energy-flow.sheet.right-now")}>
           <PanelFacts items={facts()} />
         </PanelSection>
       </Show>
       <Show when={sources().length}>
-        <PanelSection label="Sources">
+        <PanelSection label={tools.t("energy-flow.sheet.sources")}>
           <PanelRows>
             <Index each={sources()}>{row}</Index>
           </PanelRows>
         </PanelSection>
       </Show>
       <Show when={uses().length}>
-        <PanelSection label="Using power">
+        <PanelSection label={tools.t("energy-flow.sheet.using-power")}>
           <PanelRows>
             <Index each={uses()}>{row}</Index>
           </PanelRows>

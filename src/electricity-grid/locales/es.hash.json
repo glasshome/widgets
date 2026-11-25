@@ -1,4 +1,48 @@
 {
+  "electricity-grid.co2": {
+    "source": "2fdbe5da462ed94b",
+    "value": "21d0ce5add09e34b"
+  },
+  "electricity-grid.low-carbon": {
+    "source": "af5bf9943cdb3479",
+    "value": "63aa877722c0e78a"
+  },
+  "electricity-grid.no-data": {
+    "source": "0fd8d0fe8e984257",
+    "value": "aa00cbd185f75079"
+  },
+  "electricity-grid.price-note.cheap": {
+    "source": "d2e63304be01f8b8",
+    "value": "c481368ef7aa7642"
+  },
+  "electricity-grid.price-note.cheap-if-urgent": {
+    "source": "bb7fa0fa1be9822b",
+    "value": "0595204614a987ac"
+  },
+  "electricity-grid.price-note.free": {
+    "source": "e9b602eabfb20c85",
+    "value": "2a27f167bd390839"
+  },
+  "electricity-grid.price-note.pricey": {
+    "source": "d0a86b575c26f294",
+    "value": "b0f6955984f72d1a"
+  },
+  "electricity-grid.title": {
+    "source": "4f4c8c6501ce5464",
+    "value": "48bd36b419d874ee"
+  },
+  "electricity-grid.verdict.clean": {
+    "source": "f9b194b05a837c40",
+    "value": "f29926aed2617b33"
+  },
+  "electricity-grid.verdict.dirty": {
+    "source": "6083a17a1f64bc75",
+    "value": "b0bf591fa7bad153"
+  },
+  "electricity-grid.verdict.mixed": {
+    "source": "af0d377620e02072",
+    "value": "2157e592363f35dd"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "d685ddb9bbfadaf9"
@@ -53,7 +97,8 @@
   },
   "energy.flow.on-solar": {
     "source": "2485388003a53564",
-    "value": "a3194740a676bb8d"
+    "value": "7c66ca906c261b2e",
+    "pinned": true
   },
   "energy.flow.pushing-back": {
     "source": "feadc848986a39ca",
@@ -69,15 +114,18 @@
   },
   "energy.flow.solar-covers-everything": {
     "source": "051e1e46fd04650f",
-    "value": "65dd88f935a8ea1e"
+    "value": "dde51240282c814e",
+    "pinned": true
   },
   "energy.flow.solar-covers-part": {
     "source": "359db19db2614be0",
-    "value": "dfc3414b59918f28"
+    "value": "1a887865e33a845b",
+    "pinned": true
   },
   "energy.flow.solar-resting": {
     "source": "4f4866c23c02879b",
-    "value": "825899aa3c826ab7"
+    "value": "ae5f9227f47c2a55",
+    "pinned": true
   },
   "energy.flow.to-grid": {
     "source": "9608c24bfba44253",

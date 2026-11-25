@@ -1,4 +1,4 @@
-import type { EntityView } from "@glasshome/widget-sdk";
+import type { EntityView, TranslationTools } from "@glasshome/widget-sdk";
 
 export interface BatteryDevice {
   entity: EntityView;
@@ -19,6 +19,13 @@ export function batteryName(entity: EntityView): string {
   const full = entity.friendlyName || entity.id;
   const short = full.replace(/\s*\bbattery( level)?\b\s*/gi, " ").trim();
   return short || full;
+}
+
+export function batteryPercent(
+  tools: Pick<TranslationTools, "formatNumber">,
+  level: number,
+): string {
+  return tools.formatNumber(level / 100, { style: "percent", maximumFractionDigits: 1 });
 }
 
 export function getBatteryColor(level: number): string {

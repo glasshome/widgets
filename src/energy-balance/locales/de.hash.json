@@ -1,4 +1,52 @@
 {
+  "energy-balance.balanced": {
+    "source": "da8d2ef96d3a6158",
+    "value": "53d6f5507fbb4432"
+  },
+  "energy-balance.caption.balanced": {
+    "source": "802e99fba60f771f",
+    "value": "f331520a23cdadb1"
+  },
+  "energy-balance.caption.from-grid": {
+    "source": "86e5a767b918419f",
+    "value": "26d795908a87597c"
+  },
+  "energy-balance.caption.surplus": {
+    "source": "536133b3f391faf2",
+    "value": "c56e0d7f71f8b8c9"
+  },
+  "energy-balance.caption.top-up": {
+    "source": "b28f256d81a70126",
+    "value": "5dcec7badf9dab74"
+  },
+  "energy-balance.mode.live": {
+    "source": "17d617f930b82b5c",
+    "value": "43c73f447cc54e1d"
+  },
+  "energy-balance.mode.month": {
+    "source": "7c7aa8c5112543ff",
+    "value": "2933070469a218e3"
+  },
+  "energy-balance.mode.today": {
+    "source": "be1870aab15d6a3f",
+    "value": "46ea2fff7a5bad32"
+  },
+  "energy-balance.mode.week": {
+    "source": "b77794cc94e44867",
+    "value": "8a2727c044bcb220"
+  },
+  "energy-balance.period": {
+    "source": "a6816dc04420a6cd",
+    "value": "ab0f2fd5b2501811"
+  },
+  "energy-balance.sub": {
+    "source": "e6bba78dda03f586",
+    "value": "4b562eda11b62a5b"
+  },
+  "energy-balance.title": {
+    "source": "24ad34454c9bfe64",
+    "value": "4215807e726a4bc4"
+  },
   "energy.empty.configure": {
     "source": "e7e3bb8f7c1974a3",
     "value": "4a51c9b7a488911b"
@@ -13,7 +61,8 @@
   },
   "energy.empty.message": {
     "source": "2e952b037733089f",
-    "value": "a2cd89a63b84d73a"
+    "value": "a2cd89a63b84d73a",
+    "pinned": true
   },
   "energy.empty.reconnecting": {
     "source": "27ab7daca4d143da",
@@ -29,7 +78,8 @@
   },
   "energy.flow.battery-to-grid": {
     "source": "b5be61a92d552dbd",
-    "value": "9056d9b500b73602"
+    "value": "9056d9b500b73602",
+    "pinned": true
   },
   "energy.flow.charging-battery": {
     "source": "608b53335e8fff47",
@@ -49,15 +99,18 @@
   },
   "energy.flow.on-battery": {
     "source": "6b54357f332c750e",
-    "value": "696fd82ea4153b10"
+    "value": "696fd82ea4153b10",
+    "pinned": true
   },
   "energy.flow.on-solar": {
     "source": "2485388003a53564",
-    "value": "c5372003c30b2175"
+    "value": "8f2b7d37194ae0de",
+    "pinned": true
   },
   "energy.flow.pushing-back": {
     "source": "feadc848986a39ca",
-    "value": "28883e04452fc2c5"
+    "value": "f4eb6b8cdc49f2bd",
+    "pinned": true
   },
   "energy.flow.solar-and-battery": {
     "source": "ccc4f2c73c06077d",
@@ -73,7 +126,8 @@
   },
   "energy.flow.solar-covers-part": {
     "source": "359db19db2614be0",
-    "value": "cf30364a80807423"
+    "value": "bb48e1ee6839a065",
+    "pinned": true
   },
   "energy.flow.solar-resting": {
     "source": "4f4866c23c02879b",

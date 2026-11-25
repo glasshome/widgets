@@ -1,4 +1,44 @@
 {
+  "batteries.all-good": {
+    "source": "c8957937ae3936e6",
+    "value": "d74cab64c4ce044d"
+  },
+  "batteries.eyebrow": {
+    "source": "f8c8c2856be45451",
+    "value": "9e385f6c1ee75a37"
+  },
+  "batteries.low": {
+    "source": "c87ef90c92afa1b2",
+    "value": "79c4c29deadbae6b"
+  },
+  "batteries.sheet.batteries": {
+    "source": "22b4707ad912ac62",
+    "value": "9ede6ba551de4c7e"
+  },
+  "batteries.sheet.below": {
+    "source": "ee19f2bf46688be7",
+    "value": "e0dc06b7e55e4d40"
+  },
+  "batteries.sheet.lowest-first": {
+    "source": "ee2c87dc5a62a487",
+    "value": "2bc819b661b0c789"
+  },
+  "batteries.sheet.none": {
+    "source": "38582616fbb0a810",
+    "value": "8a572015c49b2071"
+  },
+  "batteries.sheet.not-reporting": {
+    "source": "059e355310528ddd",
+    "value": "76f47aeb317fe3b0"
+  },
+  "batteries.sheet.overview": {
+    "source": "be3b026f9c10e2a2",
+    "value": "4d2bb368f919df81"
+  },
+  "batteries.title": {
+    "source": "22b4707ad912ac62",
+    "value": "9ede6ba551de4c7e"
+  },
   "manifest.config.blacklist.title": {
     "source": "5d71496dfb1d5f66",
     "value": "3aa81c8fc14ac2e9"
