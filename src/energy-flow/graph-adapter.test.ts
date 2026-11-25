@@ -12,6 +12,8 @@ import {
 import type { BidirectionalNodeConfig, FlowNodeConfig } from "./node-model";
 
 const tools = languageTools(language("energy-flow", "en"));
+const resolve = (nodes: FlowNodeConfig[], lookup: PowerLookup, sunBelowHorizon: boolean) =>
+  resolveFlow(nodes, lookup, sunBelowHorizon, tools);
 
 function input(entities: string[], label = "Solar"): FlowNodeConfig {
   return { kind: "input", entities, label, icon: "mdi:solar-power-variant", level: [] };
@@ -52,13 +54,13 @@ function lookupFrom(values: Record<string, number | null>): PowerLookup {
 
 describe("resolveFlow", () => {
   test("empty node list resolves to an unconfigured flow", () => {
-    const flow = resolveFlow([], () => null, false);
+    const flow = resolve([], () => null, false);
     expect(flow.nodes).toEqual([]);
     expect(flow.hubW).toBe(0);
   });
 
   test("input entities sum into one node", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input(["sensor.roof", "sensor.garage"]), output([], { remainder: true })],
       lookupFrom({ "sensor.roof": 1500, "sensor.garage": 800 }),
       false,
@@ -67,7 +69,7 @@ describe("resolveFlow", () => {
   });
 
   test("one unavailable member marks the node stale but sums the rest", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input(["sensor.roof", "sensor.garage"])],
       lookupFrom({ "sensor.roof": 1500, "sensor.garage": null }),
       false,
@@ -76,7 +78,7 @@ describe("resolveFlow", () => {
   });
 
   test("dual sensors split a two-way node by side", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ positive: ["sensor.imp"], negative: ["sensor.exp"] })],
       lookupFrom({ "sensor.imp": 1200, "sensor.exp": 0 }),
       false,
@@ -85,7 +87,7 @@ describe("resolveFlow", () => {
   });
 
   test("signed sensor maps negative to outgoing", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ signed: ["sensor.grid"] })],
       lookupFrom({ "sensor.grid": -800 }),
       false,
@@ -94,7 +96,7 @@ describe("resolveFlow", () => {
   });
 
   test("signedOutbound flips the convention (old battery signed)", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ signed: ["sensor.bat"], signedOutbound: true })],
       lookupFrom({ "sensor.bat": 500 }),
       false,
@@ -104,7 +106,7 @@ describe("resolveFlow", () => {
   });
 
   test("remainder output soaks up inputs minus measured outputs", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [
         input(["sensor.solar"]),
         bidirectional({ signed: ["sensor.grid"], priced: true }),
@@ -119,7 +121,7 @@ describe("resolveFlow", () => {
   });
 
   test("remainder subtracts measured outputs and outgoing two-way flow", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [
         input(["sensor.solar"]),
         bidirectional({ negative: ["sensor.chg"] }),
@@ -135,12 +137,12 @@ describe("resolveFlow", () => {
   });
 
   test("remainder is unconfigured while nothing feeds it", () => {
-    const flow = resolveFlow([output([], { remainder: true })], () => null, false);
+    const flow = resolve([output([], { remainder: true })], () => null, false);
     expect(flow.nodes[0]?.configured).toBe(false);
   });
 
   test("level entity is surfaced when available", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ signed: ["sensor.bat"], level: ["sensor.soc"] })],
       lookupFrom({ "sensor.bat": -300, "sensor.soc": 72 }),
       false,
@@ -149,14 +151,10 @@ describe("resolveFlow", () => {
   });
 
   test("inputs rest after sunset when producing nothing", () => {
-    const rested = resolveFlow([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 10 }), true);
+    const rested = resolve([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 10 }), true);
     expect(rested.nodes[0]?.resting).toBe(true);
     expect(rested.flowState.solarSleeping).toBe(true);
-    const producing = resolveFlow(
-      [input(["sensor.solar"])],
-      lookupFrom({ "sensor.solar": 200 }),
-      true,
-    );
+    const producing = resolve([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 200 }), true);
     expect(producing.nodes[0]?.resting).toBe(false);
   });
 
@@ -182,7 +180,7 @@ const edgeOf = (g: ReturnType<typeof buildEnergyGraph>, id: string) =>
 
 describe("buildEnergyGraph topology", () => {
   test("inputs feed the hub; outputs draw from it", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input(["sensor.solar"]), output(["sensor.home"])],
       lookupFrom({ "sensor.solar": 2000, "sensor.home": 1500 }),
       false,
@@ -196,14 +194,14 @@ describe("buildEnergyGraph topology", () => {
   });
 
   test("hub view carries total consumption", () => {
-    const flow = resolveFlow([output(["sensor.home"])], lookupFrom({ "sensor.home": 1500 }), false);
+    const flow = resolve([output(["sensor.home"])], lookupFrom({ "sensor.home": 1500 }), false);
     const g = buildEnergyGraph(flow, tools);
     expect(g.views.get("hub")?.hub).toBe(true);
     expect(g.views.get("hub")?.value).toContain("1.5");
   });
 
   test("unconfigured nodes are dropped from the graph", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input([]), output(["sensor.home"])],
       lookupFrom({ "sensor.home": 900 }),
       false,
@@ -213,7 +211,7 @@ describe("buildEnergyGraph topology", () => {
   });
 
   test("node view shows the level suffix on the label", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ signed: ["sensor.bat"], label: "Battery", level: ["sensor.soc"] })],
       lookupFrom({ "sensor.bat": -300, "sensor.soc": 72 }),
       false,
@@ -224,7 +222,7 @@ describe("buildEnergyGraph topology", () => {
 
 describe("buildEnergyGraph direction + color", () => {
   test("a priced two-way node pushing out flows reverse in export color", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [bidirectional({ signed: ["sensor.grid"], priced: true }), output([], { remainder: true })],
       lookupFrom({ "sensor.grid": -1200 }),
       false,
@@ -235,13 +233,13 @@ describe("buildEnergyGraph direction + color", () => {
   });
 
   test("an unpriced two-way node charging flows reverse, discharging forward", () => {
-    const charging = resolveFlow(
+    const charging = resolve(
       [bidirectional({ signed: ["sensor.bat"], signedOutbound: true })],
       lookupFrom({ "sensor.bat": 800 }),
       false,
     );
     expect(edgeOf(buildEnergyGraph(charging, tools), "node-0")?.direction).toBe("reverse");
-    const discharging = resolveFlow(
+    const discharging = resolve(
       [bidirectional({ signed: ["sensor.bat"], signedOutbound: true })],
       lookupFrom({ "sensor.bat": -800 }),
       false,
@@ -250,12 +248,12 @@ describe("buildEnergyGraph direction + color", () => {
   });
 
   test("resting input reads Back at sunrise", () => {
-    const flow = resolveFlow([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 0 }), true);
+    const flow = resolve([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 0 }), true);
     expect(buildEnergyGraph(flow, tools).views.get("node-0")?.value).toBe("Back at sunrise");
   });
 
   test("dominantColor picks the strongest supplier, falls back to home", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [
         input(["sensor.solar"]),
         bidirectional({ signed: ["sensor.grid"], priced: true }),
@@ -265,7 +263,7 @@ describe("buildEnergyGraph direction + color", () => {
       false,
     );
     expect(dominantColor(flow)).toBe(energyColors.grid);
-    const quiet = resolveFlow([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 10 }), false);
+    const quiet = resolve([input(["sensor.solar"])], lookupFrom({ "sensor.solar": 10 }), false);
     expect(dominantColor(quiet)).toBe(energyColors.home);
   });
 });
@@ -278,23 +276,23 @@ describe("buildEnergyGraph tariff sub-lines", () => {
   ];
 
   test("no tariff -> no chip sub-lines", () => {
-    const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
+    const flow = resolve(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
     expect(buildEnergyGraph(flow, tools).views.get("node-0")?.sub).toBeUndefined();
   });
 
   test("priced import shows a bare cost rate", () => {
-    const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
+    const flow = resolve(gridAndHome(), lookupFrom({ "sensor.grid": 2000 }), false);
     // 2 kW * €0.30 = €0.60/h
     expect(buildEnergyGraph(flow, tools, tariff).views.get("node-0")?.sub).toBe("€0.60/h");
   });
 
   test("priced export is framed as earnings", () => {
-    const flow = resolveFlow(gridAndHome(), lookupFrom({ "sensor.grid": -1500 }), false);
+    const flow = resolve(gridAndHome(), lookupFrom({ "sensor.grid": -1500 }), false);
     expect(buildEnergyGraph(flow, tools, tariff).views.get("node-0")?.sub).toBe("Earns €0.45/h");
   });
 
   test("sole input self-consumption is framed as savings", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input(["sensor.solar"]), output([], { remainder: true })],
       lookupFrom({ "sensor.solar": 3000 }),
       false,
@@ -304,7 +302,7 @@ describe("buildEnergyGraph tariff sub-lines", () => {
   });
 
   test("with two inputs the aggregate savings line is omitted", () => {
-    const flow = resolveFlow(
+    const flow = resolve(
       [input(["sensor.roof"]), input(["sensor.garage"], "Garage"), output([], { remainder: true })],
       lookupFrom({ "sensor.roof": 2000, "sensor.garage": 1000 }),
       false,
