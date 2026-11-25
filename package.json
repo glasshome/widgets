@@ -13,7 +13,7 @@
     "./tailwind-sources": "./tailwind-sources.css"
   },
   "scripts": {
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && glasshome-widget build",
     "test": "bun test --isolate --timeout 30000 src; s=$?; vitest run && exit $s",
     "test:dom": "vitest run",
     "dev": "bun ../widget-cli/bin/cli.ts connect http://localhost:3123",
@@ -21,6 +21,7 @@
     "lint": "oxlint --type-aware . && oxfmt --check ."
   },
   "devDependencies": {
+    "@glasshome/widget-cli": "0.22.4",
     "@glasshome/widget-sdk": "1.33.0",
     "@solidjs/testing-library": "^0.8.10",
     "@types/bun": "^1.4.0",
