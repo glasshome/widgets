@@ -8,6 +8,7 @@ import {
   presetValue,
   useArea,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   Widget,
@@ -17,7 +18,7 @@ import {
 import { createMemo, createSignal, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { ROOM_PRESETS, roomIcon } from "../common/art/room";
-import { type AreaAction, AreaContent, builtInRoom, useRoomScene } from "./area-content";
+import { AreaContent, builtInRoom, useRoomScene } from "./area-content";
 import { AreaSheet } from "./sheet";
 import {
   calculateMetrics,
@@ -27,6 +28,7 @@ import {
   NO_EXCLUSIONS,
 } from "./utils";
 import en from "./locales/en.json";
+import type { AreaAction } from "./words";
 
 const configSchema = defineConfig({
   title: field.title(),
@@ -64,6 +66,7 @@ type AreaConfig = Infer<typeof configSchema>;
 
 function AreaWidget(props: { config: AreaConfig }) {
   const ctx = useWidgetContext();
+  const { t } = useTranslation();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
   const { turnOn, turnOff, callService } = useService();
 
@@ -85,7 +88,7 @@ function AreaWidget(props: { config: AreaConfig }) {
     lightsOn: metrics().lightsOn,
   }));
 
-  const areaName = createMemo(() => props.config.title || area()?.name || "Area");
+  const areaName = createMemo(() => props.config.title || area()?.name || t("area.name.fallback"));
   const isActive = createMemo(() => metrics().lightsOn > 0);
 
   // Light toggle handler — lifted here so useService() is called once
@@ -166,14 +169,14 @@ function AreaWidget(props: { config: AreaConfig }) {
           !props.config.areaId
             ? {
                 icon: <Icon icon="mdi:home-floor-1" width={32} />,
-                title: "No area selected",
-                message: "Hold to select area",
+                title: t("area.empty.title"),
+                message: t("area.empty.message"),
               }
             : area() === undefined
               ? {
                   icon: <Icon icon="mdi:home-alert" width={32} />,
-                  title: "Area not found",
-                  message: "Hold to change area",
+                  title: t("area.missing.title"),
+                  message: t("area.missing.message"),
                 }
               : undefined
         }

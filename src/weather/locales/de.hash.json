@@ -38,5 +38,161 @@
   "manifest.name": {
     "source": "96db1fa5030c96c1",
     "value": "8a305c39be2d4a77"
+  },
+  "weather.chart.aria": {
+    "source": "52ebacd535060511",
+    "value": "0bf70871091a3006"
+  },
+  "weather.condition.clear-night": {
+    "source": "7c69b244844c963a",
+    "value": "79aac70a12191826"
+  },
+  "weather.condition.cloudy": {
+    "source": "79526e1f5db592ad",
+    "value": "f7000b2a04a87a6f"
+  },
+  "weather.condition.foggy": {
+    "source": "294920aac6f1f052",
+    "value": "c169f63c3fd7fca1"
+  },
+  "weather.condition.hail": {
+    "source": "46d6d0289003cb56",
+    "value": "5ef205a716ce3279"
+  },
+  "weather.condition.heavy-rain": {
+    "source": "e9a5c50e311be736",
+    "value": "f364dc8e2259ff81"
+  },
+  "weather.condition.partly-cloudy": {
+    "source": "ac865d6a458b69e9",
+    "value": "2538cb96913755b4"
+  },
+  "weather.condition.rainy": {
+    "source": "31a44a0cf9303a00",
+    "value": "6e10a5d0cff97f77"
+  },
+  "weather.condition.severe": {
+    "source": "cb899ae84d4ba128",
+    "value": "37aaa60c03c339c6"
+  },
+  "weather.condition.sleet": {
+    "source": "9cbf04a6e41cd8f5",
+    "value": "ea1cc1c434894b18"
+  },
+  "weather.condition.snowy": {
+    "source": "58d3b4da4036dc8b",
+    "value": "6f37fc216b973922"
+  },
+  "weather.condition.sunny": {
+    "source": "63b1df8d11d8f623",
+    "value": "57d057cdd1057c44"
+  },
+  "weather.condition.thunderstorms": {
+    "source": "41bf54060de30113",
+    "value": "97b03e9ce109bf2e"
+  },
+  "weather.condition.windy": {
+    "source": "1a78a3b27db885fa",
+    "value": "d58ac459cc6a0793"
+  },
+  "weather.day.today": {
+    "source": "be1870aab15d6a3f",
+    "value": "46ea2fff7a5bad32"
+  },
+  "weather.day.tomorrow": {
+    "source": "8b9b96d299cd4e4a",
+    "value": "c4785ba17e12c3aa"
+  },
+  "weather.days.aria": {
+    "source": "9c042a78bdb950c9",
+    "value": "ed90dc8b337790c9"
+  },
+  "weather.detail.feels-like": {
+    "source": "1f5962d8ff86e0ec",
+    "value": "64432c37ace8008f"
+  },
+  "weather.detail.humidity": {
+    "source": "601da4e18382fed2",
+    "value": "16df4909f5b31351"
+  },
+  "weather.detail.pressure": {
+    "source": "e2da51efe05a40b7",
+    "value": "3b07efc6bcbef5ea"
+  },
+  "weather.detail.uv-index": {
+    "source": "7f84a16c916b2d21",
+    "value": "0d013a87622834a6"
+  },
+  "weather.detail.visibility": {
+    "source": "96edff58e6af1958",
+    "value": "197532daa8c777f6"
+  },
+  "weather.detail.wind": {
+    "source": "d262ce25268cbb51",
+    "value": "d151346fe7eea3c6"
+  },
+  "weather.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "a2540cfec4ec0fe4"
+  },
+  "weather.empty.title": {
+    "source": "abbaa4635bdd5832",
+    "value": "1556ed6ba55526aa"
+  },
+  "weather.hour.now": {
+    "source": "17d617f930b82b5c",
+    "value": "43c73f447cc54e1d"
+  },
+  "weather.hours.aria": {
+    "source": "04513b402953d057",
+    "value": "8f6bea4f915da205"
+  },
+  "weather.sheet.day-range": {
+    "source": "d3e16be30ce34f1f",
+    "value": "6c27c53ce0da38a6"
+  },
+  "weather.sheet.day-range-rain": {
+    "source": "2c9f9bf79295b6e8",
+    "value": "8683187a4c7c4ebb"
+  },
+  "weather.sheet.next-days": {
+    "source": "9c042a78bdb950c9",
+    "value": "ed90dc8b337790c9"
+  },
+  "weather.sheet.next-hours": {
+    "source": "04513b402953d057",
+    "value": "8f6bea4f915da205"
+  },
+  "weather.sheet.right-now": {
+    "source": "ee991d138eb92473",
+    "value": "e5365f10fb152ad3"
+  },
+  "weather.sub-range": {
+    "source": "24fa68aa7e0bd0dd",
+    "value": "e397f5aaf9112e85"
+  },
+  "weather.title": {
+    "source": "96db1fa5030c96c1",
+    "value": "8a305c39be2d4a77"
+  },
+  "weather.uv.extreme": {
+    "source": "54aa9aab14804021",
+    "value": "a4654b87a8c6738c"
+  },
+  "weather.uv.high": {
+    "source": "acb8d2906c60a5d0",
+    "value": "5f9d45fa2f0b9372"
+  },
+  "weather.uv.low": {
+    "source": "5a2489e9bb72c212",
+    "value": "ee12538381b9ba42"
+  },
+  "weather.uv.moderate": {
+    "source": "54666daeb7ff5ac4",
+    "value": "6ac467469f7e6efd"
+  },
+  "weather.uv.very-high": {
+    "source": "d9be0f2b3a2ed1f3",
+    "value": "95edc5a317f7ab23"
   }
 }

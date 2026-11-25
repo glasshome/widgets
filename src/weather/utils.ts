@@ -1,3 +1,9 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
+import { stateWord } from "../common/state-word";
+import { capitalised } from "../common/text";
+
+type Tools = Pick<TranslationTools, "t" | "translateState" | "formatNumber" | "formatDate">;
+
 const WEATHER_ICONS: Record<string, string> = {
   sunny: "mdi:weather-sunny",
   "clear-night": "mdi:weather-night",
@@ -43,52 +49,55 @@ export function getWeatherIconColor(condition: string): string {
   return WEATHER_ICON_COLORS[condition] ?? "oklch(0.70 0.04 250)";
 }
 
-const CONDITION_LABELS: Record<string, string> = {
-  sunny: "Sunny",
-  "clear-night": "Clear",
-  cloudy: "Cloudy",
-  partlycloudy: "Partly cloudy",
-  rainy: "Rainy",
-  pouring: "Heavy rain",
-  snowy: "Snowy",
-  "snowy-rainy": "Sleet",
-  lightning: "Thunderstorms",
-  "lightning-rainy": "Thunderstorms",
-  fog: "Foggy",
-  hail: "Hail",
-  windy: "Windy",
-  "windy-variant": "Windy",
-  exceptional: "Severe weather",
+const CONDITION_WORDS: Record<string, string> = {
+  sunny: "weather.condition.sunny",
+  "clear-night": "weather.condition.clear-night",
+  cloudy: "weather.condition.cloudy",
+  partlycloudy: "weather.condition.partly-cloudy",
+  rainy: "weather.condition.rainy",
+  pouring: "weather.condition.heavy-rain",
+  snowy: "weather.condition.snowy",
+  "snowy-rainy": "weather.condition.sleet",
+  lightning: "weather.condition.thunderstorms",
+  "lightning-rainy": "weather.condition.thunderstorms",
+  fog: "weather.condition.foggy",
+  hail: "weather.condition.hail",
+  windy: "weather.condition.windy",
+  "windy-variant": "weather.condition.windy",
+  exceptional: "weather.condition.severe",
 };
 
-/** Homeowner-facing copy for a Home Assistant weather state. */
-export function getConditionLabel(condition: string): string {
-  const known = CONDITION_LABELS[condition];
-  if (known) return known;
-  const words = condition.replace(/[-_]/g, " ").trim();
-  return words ? words.charAt(0).toUpperCase() + words.slice(1) : "";
+/** Home Assistant's word for a weather state, else the catalog's, else the state spelled out. */
+export function getConditionLabel(tools: Tools, condition: string): string {
+  const word = stateWord(
+    tools,
+    { domain: "weather", state: condition, platform: "", attributes: {}, deviceClass: null },
+    CONDITION_WORDS,
+  );
+  if (word !== condition) return word;
+  return capitalised(condition.replace(/[-_]/g, " ").trim());
 }
 
-export function formatTemp(value: number | string, unit = "\u00B0"): string {
+export function formatTemp(tools: Tools, value: number | string, unit = "\u00B0"): string {
   const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(num)) return "--";
-  return `${formatDegrees(num)}${unit}`;
+  return `${formatDegrees(tools, num)}${unit}`;
 }
 
 /** Rounded, with a true minus sign so "−2" never reads as a dash. */
-export function formatDegrees(value: number): string {
-  return String(Math.round(value)).replace("-", "\u2212");
+export function formatDegrees(tools: Tools, value: number): string {
+  return tools.formatNumber(Math.round(value), { signDisplay: "negative" }).replace("-", "\u2212");
 }
 
-export function hourName(datetime: string, index: number): string {
-  if (index === 0) return "Now";
-  return new Date(datetime).toLocaleTimeString(undefined, { hour: "numeric" });
+export function hourName(tools: Tools, datetime: string, index: number): string {
+  if (index === 0) return tools.t("weather.hour.now");
+  return tools.formatDate(new Date(datetime), { hour: "numeric" });
 }
 
-export function formatWindSpeed(value: number | string, unit = "km/h"): string {
+export function formatWindSpeed(tools: Tools, value: number | string, unit = "km/h"): string {
   const num = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(num)) return "--";
-  return `${Math.round(num)} ${unit}`;
+  return `${tools.formatNumber(Math.round(num))} ${unit}`;
 }
 
 const STORMY = new Set(["rainy", "pouring", "lightning", "lightning-rainy", "hail", "exceptional"]);

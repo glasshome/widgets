@@ -14,7 +14,7 @@ export interface DomainSpec {
   activeState: string;
   icon: string;
   tone: string;
-  label: string;
+  labelKey: string;
   service: { domain: string; name: string };
   /** Members that may move in this one-tap bulk action; every member when unset. */
   joinsBulk?: (entity: EntitySnapshot) => boolean;
@@ -34,21 +34,21 @@ export const DOMAIN_SPECS: Record<string, DomainSpec> = {
     activeState: "on",
     icon: "mdi:lightbulb-on",
     tone: "text-warning",
-    label: "Turn off lights",
+    labelKey: "header.chip.turn-off-lights",
     service: { domain: "light", name: "turn_off" },
   },
   lock: {
     activeState: "unlocked",
     icon: "lucide:unlock",
     tone: "text-destructive/80",
-    label: "Lock doors",
+    labelKey: "header.chip.lock-doors",
     service: { domain: "lock", name: "lock" },
   },
   cover: {
     activeState: "open",
     icon: "mdi:window-shutter-open",
     tone: "text-primary",
-    label: "Close covers",
+    labelKey: "header.chip.close-covers",
     service: { domain: "cover", name: "close_cover" },
     joinsBulk: coverJoinsBulk,
   },
@@ -56,14 +56,14 @@ export const DOMAIN_SPECS: Record<string, DomainSpec> = {
     activeState: "on",
     icon: "mdi:power-plug",
     tone: "text-primary",
-    label: "Turn off switches",
+    labelKey: "header.chip.turn-off-switches",
     service: { domain: "switch", name: "turn_off" },
   },
   fan: {
     activeState: "on",
     icon: "mdi:fan",
     tone: "text-primary",
-    label: "Turn off fans",
+    labelKey: "header.chip.turn-off-fans",
     service: { domain: "fan", name: "turn_off" },
   },
 };
@@ -74,7 +74,9 @@ export type ChipConfig =
   | { shows: "action"; entityId: string[] };
 
 export interface ResolvedChip {
-  label: string;
+  /** What the chip is called when it is not a catalog word: an entity's own name. */
+  label?: string;
+  labelKey?: string;
   icon: string;
   tone?: string;
   /** Null renders an icon-only chip. */
@@ -109,7 +111,7 @@ export function resolveChip(chip: ChipConfig, entities: EntitySnapshot[]): Resol
       .map((e) => e.id);
     if (ids.length === 0) return null;
     return {
-      label: spec.label,
+      labelKey: spec.labelKey,
       icon: spec.icon,
       tone: spec.tone,
       value: String(ids.length),

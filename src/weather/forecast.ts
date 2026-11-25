@@ -33,6 +33,7 @@ export function skyChanges(hours: WeatherForecast[]): number[] {
 export function smoothPath(points: { x: number; y: number }[]): string {
   const first = points[0];
   if (!first) return "";
+  // ui-text-ok: svg path coordinates
   let d = `M${first.x.toFixed(2)},${first.y.toFixed(2)}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i - 1] ?? points[i];
@@ -44,6 +45,7 @@ export function smoothPath(points: { x: number; y: number }[]): string {
     const c1y = p1.y + (p2.y - p0.y) / 6;
     const c2x = p2.x - (p3.x - p1.x) / 6;
     const c2y = p2.y - (p3.y - p1.y) / 6;
+    // ui-text-ok: svg path coordinates
     d += `C${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
   }
   return d;
@@ -78,5 +80,6 @@ export function weekRange(days: WeatherForecast[]): { min: number; max: number }
 export function tempColor(t: number): string {
   const x = Math.min(1, Math.max(0, (t + 5) / 40));
   const hue = 250 - x * 205;
+  // ui-text-ok: css hue
   return `oklch(0.74 0.17 ${hue.toFixed(0)})`;
 }

@@ -1,4 +1,4 @@
-import { Icon, type WeatherForecast } from "@glasshome/widget-sdk";
+import { Icon, useTranslation, type WeatherForecast } from "@glasshome/widget-sdk";
 import { createMemo, For, Index, Show } from "solid-js";
 import { skyChanges, smoothPath, tempColor } from "./forecast";
 import { ambientLoop, formatTemp, getWeatherIcon, hourName } from "./utils";
@@ -15,6 +15,7 @@ const EMPTY_HOUR: WeatherForecast = { datetime: "" };
  * along it, an icon only where the sky changes, rain chance as a blue tint under the line.
  */
 export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number }) {
+  const tools = useTranslation();
   const range = createMemo(() => {
     const temps = props.hours.map((h) => h.temperature ?? 0);
     const min = Math.min(...temps);
@@ -67,7 +68,7 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
   });
 
   return (
-    <div class="wx-chart" role="img" aria-label="Temperature over the next hours">
+    <div class="wx-chart" role="img" aria-label={tools.t("weather.chart.aria")}>
       <div class="wx-drops-box" style={{ "mask-image": dropMask() }}>
         <For each={drops()}>
           {(depth) => {
@@ -154,11 +155,11 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
                   <Show when={changes().has(i)}>
                     <Icon icon={getWeatherIcon(h().condition ?? "cloudy")} class="wx-icon" />
                   </Show>
-                  <span class="wx-temp">{formatTemp(h().temperature ?? 0)}</span>
+                  <span class="wx-temp">{formatTemp(tools, h().temperature ?? 0)}</span>
                 </span>
               </span>
               <span class="wx-chart-time wx-label" data-edge={edge(i)} style={{ left: `${x(i)}%` }}>
-                {hourName(h().datetime, i)}
+                {hourName(tools, h().datetime, i)}
               </span>
             </>
           );

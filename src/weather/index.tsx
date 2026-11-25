@@ -8,6 +8,7 @@ import {
   type Infer,
   useEntity,
   useForecast,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   Widget,
@@ -17,13 +18,13 @@ import {
 import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { dayHigh, upcomingHours } from "./forecast";
+import { weatherDetails } from "./details";
 import { type Detail, type Model, WeatherTile } from "./layout";
 import { WeatherSheet } from "./sheet";
 import { scenePhotos } from "./sky";
 import {
   formatDegrees,
   formatTemp,
-  formatWindSpeed,
   getConditionLabel,
   getWeatherIcon,
   getWeatherIconColor,
@@ -42,17 +43,10 @@ const MAX_DAYS = 10;
 
 const SNOWY = new Set(["snowy", "snowy-rainy"]);
 
-const UV_WORDS: [number, string][] = [
-  [11, "Extreme"],
-  [8, "Very high"],
-  [6, "High"],
-  [3, "Moderate"],
-  [0, "Low"],
-];
-
 function WeatherWidget(props: { config: WeatherConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, dialogProps } = useWidgetDialog();
+  const tools = useTranslation();
 
   const entityId = () => props.config.entityIds[0] ?? "";
   const entity = useEntity(entityId);
@@ -74,65 +68,28 @@ function WeatherWidget(props: { config: WeatherConfig }) {
       : (forecast()?.forecasts?.daily?.slice(0, MAX_DAYS) ?? []),
   );
 
-  const details = (): Detail[] => {
-    const out: Detail[] = [];
-    const feels = attr<number>("apparent_temperature");
-    if (feels != null) {
-      out.push({ icon: "mdi:thermometer", label: "Feels like", value: formatTemp(feels) });
-    }
-    const wind = attr<number>("wind_speed");
-    if (wind != null) {
-      const bearing = attr<number>("wind_bearing");
-      out.push({
-        icon: bearing != null ? "mdi:navigation" : "mdi:weather-windy",
-        label: "Wind",
-        value: formatWindSpeed(wind, attr<string>("wind_speed_unit") ?? undefined),
-        rotate: bearing != null ? bearing + 180 : undefined,
-      });
-    }
-    const humidity = attr<number>("humidity");
-    if (humidity != null) {
-      out.push({ icon: "mdi:water-percent", label: "Humidity", value: `${Math.round(humidity)}%` });
-    }
-    const uv = attr<number>("uv_index");
-    if (uv != null) {
-      const word = UV_WORDS.find(([min]) => uv >= min)?.[1] ?? "";
-      out.push({
-        icon: "mdi:sun-wireless-outline",
-        label: "UV index",
-        value: `${Math.round(uv)} ${word}`,
-      });
-    }
-    const pressure = attr<number>("pressure");
-    if (pressure != null) {
-      const unit = attr<string>("pressure_unit") ?? "hPa";
-      out.push({ icon: "mdi:gauge", label: "Pressure", value: `${Math.round(pressure)} ${unit}` });
-    }
-    const visibility = attr<number>("visibility");
-    if (visibility != null) {
-      const unit = attr<string>("visibility_unit") ?? "km";
-      out.push({
-        icon: "mdi:eye-outline",
-        label: "Visibility",
-        value: `${Math.round(visibility)} ${unit}`,
-      });
-    }
-    return out;
-  };
+  const details = (): Detail[] => weatherDetails(tools, attr);
 
   const model = createMemo((): Model => {
     const today = days()[0];
     const high = today ? dayHigh(today) : undefined;
     const low = today?.temp_low;
-    const range = high != null && low != null ? ` · ${formatTemp(high)} / ${formatTemp(low)}` : "";
+    const label = getConditionLabel(tools, condition());
     const t = attr<number>("temperature");
     const freezing = attr<string>("temperature_unit") === "°F" ? 32 : 0;
     return {
       title: props.config.title || undefined,
       condition: condition(),
       wintry: SNOWY.has(condition()) || (t != null && t <= freezing),
-      temperature: t != null ? formatDegrees(t) : "--",
-      sub: `${getConditionLabel(condition())}${range}`,
+      temperature: t != null ? formatDegrees(tools, t) : "--",
+      sub:
+        high != null && low != null
+          ? tools.t("weather.sub-range", {
+              condition: label,
+              high: formatTemp(tools, high),
+              low: formatTemp(tools, low),
+            })
+          : label,
       hours: hours(),
       days: days(),
       details: details(),
@@ -163,8 +120,8 @@ function WeatherWidget(props: { config: WeatherConfig }) {
           !entity()
             ? {
                 icon: <Icon icon="mdi:weather-partly-cloudy" width={32} />,
-                title: "No weather entity",
-                message: "Hold to configure",
+                title: tools.t("weather.empty.title"),
+                message: tools.t("weather.empty.message"),
               }
             : undefined
         }
@@ -176,7 +133,7 @@ function WeatherWidget(props: { config: WeatherConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={props.config.title || "Weather"}
+        title={props.config.title || tools.t("weather.title")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

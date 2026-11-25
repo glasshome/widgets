@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { greetingForHour, hourIn } from "./greeting";
+import { greetingForHour, greetingKey, hourIn } from "./greeting";
 
 describe("greetingForHour", () => {
   it("buckets the day the way the old header did", () => {
@@ -19,5 +19,17 @@ describe("hourIn", () => {
     const d = new Date("2026-09-03T00:30:00Z");
     expect(hourIn(d, "UTC")).toBe(0);
     expect(hourIn(d, "Asia/Tokyo")).toBe(9);
+  });
+});
+
+describe("greetingKey", () => {
+  it("keeps today's boundaries", () => {
+    expect(greetingKey(4)).toBe("header.greeting.night");
+    expect(greetingKey(5)).toBe("header.greeting.morning");
+    expect(greetingKey(11)).toBe("header.greeting.morning");
+    expect(greetingKey(12)).toBe("header.greeting.afternoon");
+    expect(greetingKey(17)).toBe("header.greeting.afternoon");
+    expect(greetingKey(18)).toBe("header.greeting.evening");
+    expect(greetingKey(23)).toBe("header.greeting.evening");
   });
 });

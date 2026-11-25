@@ -1,1 +1,14 @@
-{}
+{
+  "header.chip.close-covers": "Close covers",
+  "header.chip.lock-doors": "Lock doors",
+  "header.chip.turn-off-fans": "Turn off fans",
+  "header.chip.turn-off-lights": "Turn off lights",
+  "header.chip.turn-off-switches": "Turn off switches",
+  "header.greeting.afternoon": "Good afternoon",
+  "header.greeting.evening": "Good evening",
+  "header.greeting.morning": "Good morning",
+  "header.greeting.named": "{greeting}, {name}",
+  "header.greeting.night": "Good night",
+  "header.title": "Header",
+  "header.title.fallback": "Dashboard"
+}

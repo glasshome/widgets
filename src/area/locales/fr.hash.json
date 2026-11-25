@@ -1,4 +1,235 @@
 {
+  "area.alert": {
+    "source": "e4d59cdf6bcd7605",
+    "value": "f26724e9328dc130"
+  },
+  "area.empty.message": {
+    "source": "a3ad97bc50672159",
+    "value": "2cdfcf6d0a63578d"
+  },
+  "area.empty.title": {
+    "source": "c9f156e95fb1a12b",
+    "value": "44de41d6dea9e2c7"
+  },
+  "area.fact.away": {
+    "source": "af0babfb98666a85",
+    "value": "84fd36f7cbff12b9"
+  },
+  "area.fact.clear": {
+    "source": "7c69b244844c963a",
+    "value": "cf255bf5d70cba2b"
+  },
+  "area.fact.closed": {
+    "source": "30a4a31995b63813",
+    "value": "91f0cbda0129d396"
+  },
+  "area.fact.detected": {
+    "source": "f364302b8f76f26e",
+    "value": "336bc6296e6b23b1"
+  },
+  "area.fact.dry": {
+    "source": "0de8646ff5c07e6a",
+    "value": "7daacc78d1fe796c"
+  },
+  "area.fact.home": {
+    "source": "c5b027326a518e86",
+    "value": "acf36663095ba1f6",
+    "pinned": true
+  },
+  "area.fact.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "b2770fef713a79a4"
+  },
+  "area.fact.smoke": {
+    "source": "71f283b1b72e2501",
+    "value": "1198e90c20092494"
+  },
+  "area.fact.wet": {
+    "source": "5b8ee481dc2b2b26",
+    "value": "c50622af16e2f74c"
+  },
+  "area.humidity": {
+    "source": "78917b4ab452c830",
+    "value": "97902b5e0dc65634"
+  },
+  "area.kind.awning": {
+    "source": "582a109816022199",
+    "value": "53ab0c57bbf7f135"
+  },
+  "area.kind.blind": {
+    "source": "3baeb15267137c61",
+    "value": "ada7fe47da4c36dd"
+  },
+  "area.kind.curtain": {
+    "source": "2eae808452f10489",
+    "value": "aa96a997b88bdc8a"
+  },
+  "area.kind.door": {
+    "source": "fac16796d181c007",
+    "value": "230119ed12733a5c"
+  },
+  "area.kind.garage-door": {
+    "source": "4d1de4f42cebcd5c",
+    "value": "56f2d0af0f26b1b7"
+  },
+  "area.kind.gate": {
+    "source": "9f2fece48bfbd149",
+    "value": "6a093dc4e89993aa"
+  },
+  "area.kind.shade": {
+    "source": "706da6ac36c144d2",
+    "value": "ada7fe47da4c36dd"
+  },
+  "area.kind.shutter": {
+    "source": "ec0d27484076501a",
+    "value": "065ea7d6584d57ca"
+  },
+  "area.kind.window": {
+    "source": "3982c32124e56d46",
+    "value": "46c9017f4865bd3e"
+  },
+  "area.missing.message": {
+    "source": "b303f2b67f23c501",
+    "value": "dbc85b25610bf82c"
+  },
+  "area.missing.title": {
+    "source": "2757be539813d350",
+    "value": "37420b1ed1748805"
+  },
+  "area.mode.auto": {
+    "source": "f6e7ff76d7c2b254",
+    "value": "0286249762f7c943"
+  },
+  "area.mode.cool": {
+    "source": "46ab24b63262086b",
+    "value": "7343b7c42610dbf3",
+    "pinned": true
+  },
+  "area.mode.dry": {
+    "source": "0de8646ff5c07e6a",
+    "value": "49380f0aaf4625fe",
+    "pinned": true
+  },
+  "area.mode.fan-only": {
+    "source": "70742057028c801a",
+    "value": "3961803cc495fee3",
+    "pinned": true
+  },
+  "area.mode.heat": {
+    "source": "e4176e91d64aa019",
+    "value": "2f5a9f1bf311ea80",
+    "pinned": true
+  },
+  "area.mode.heat-cool": {
+    "source": "5258fd21cf974159",
+    "value": "3040564d5d678b60"
+  },
+  "area.mode.off": {
+    "source": "597ea32f8215307d",
+    "value": "a4254065cb9df88f",
+    "pinned": true
+  },
+  "area.more": {
+    "source": "2b0fc7a9b3a2d413",
+    "value": "8a7843789f8d740a"
+  },
+  "area.name.fallback": {
+    "source": "3e042926de5877ab",
+    "value": "a8a06e4a5695553c"
+  },
+  "area.occupancy.motion": {
+    "source": "6a363fa384a747e8",
+    "value": "b00eb0764920140d"
+  },
+  "area.occupancy.occupied": {
+    "source": "5854b83afe3dc905",
+    "value": "b68aae0b566b3816"
+  },
+  "area.pill.aria": {
+    "source": "e58ea72e167219b8",
+    "value": "7720276909c64770"
+  },
+  "area.pill.climate": {
+    "source": "1bed48e86b9f628b",
+    "value": "5b0676a07ba6259a",
+    "pinned": true
+  },
+  "area.pill.count-on": {
+    "source": "899d371ccccf6aa0",
+    "value": "6f8b5df2752bbf0f"
+  },
+  "area.pill.count-open": {
+    "source": "6a773176a34eea54",
+    "value": "9bbb01ad25fd51d6"
+  },
+  "area.pill.lights": {
+    "source": "8ae3bd4156019b0d",
+    "value": "38045565d7de1fe1"
+  },
+  "area.pill.some-on": {
+    "source": "335049f5371ca942",
+    "value": "b5a6bede77c36ab3"
+  },
+  "area.pill.switches": {
+    "source": "8902dac37bb15523",
+    "value": "eec7b7c89695ea81"
+  },
+  "area.sheet.blinds": {
+    "source": "c4a910057a175262",
+    "value": "58fec9abdfb2af37"
+  },
+  "area.sheet.climate": {
+    "source": "cee90b33d181464b",
+    "value": "fa7227a9553c3508"
+  },
+  "area.sheet.co2": {
+    "source": "ba624a5be8e0633f",
+    "value": "9049b29a14aeea60"
+  },
+  "area.sheet.co2-value": {
+    "source": "ef596f661aca98d7",
+    "value": "e6ded09e89b5a800"
+  },
+  "area.sheet.lights": {
+    "source": "8ae3bd4156019b0d",
+    "value": "38045565d7de1fe1"
+  },
+  "area.sheet.media": {
+    "source": "7ce2ebb6b44992e6",
+    "value": "15405707a27169c9"
+  },
+  "area.sheet.scenes": {
+    "source": "ca866b5c17d183ec",
+    "value": "ff53916fc420d56c"
+  },
+  "area.sheet.sensors": {
+    "source": "c0947d6a7b26cf34",
+    "value": "3e974e0cc477f03b"
+  },
+  "area.sheet.switches": {
+    "source": "de68d344134a94ac",
+    "value": "e59952f1e76d5eb6"
+  },
+  "area.sheet.thermostat": {
+    "source": "e92f08bd6e3af5ab",
+    "value": "dd1eeb3ccf9f7bcb"
+  },
+  "area.state.closed": {
+    "source": "30a4a31995b63813",
+    "value": "91f0cbda0129d396"
+  },
+  "area.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "d516838492687904"
+  },
+  "area.state.on": {
+    "source": "875016a04e20fb98",
+    "value": "50d168402958ca0e"
+  },
+  "area.state.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "b2770fef713a79a4"
+  },
   "common.light-colour.colour-preset": {
     "source": "511c0869f3027d70",
     "value": "b92a4e6d3fcad5a8"

@@ -1,8 +1,12 @@
-import { Button, Icon } from "@glasshome/widget-sdk";
+import { Button, Icon, useTranslation } from "@glasshome/widget-sdk";
 import { type Accessor, Index, Show } from "solid-js";
 import type { ResolvedChip } from "./items";
 
 type ChipService = NonNullable<ResolvedChip["service"]>;
+
+function chipLabel(t: (key: string) => string, chip: ResolvedChip): string {
+  return chip.labelKey ? t(chip.labelKey) : (chip.label ?? "");
+}
 
 function ChipFace(props: { chip: ResolvedChip }) {
   return (
@@ -19,13 +23,14 @@ function ActionChip(props: {
   chip: ResolvedChip;
   run: (service: ChipService, ids: string[]) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Button
       variant="outline"
       size="none"
       type="button"
       class="header-chip"
-      aria-label={props.chip.label}
+      aria-label={chipLabel(t, props.chip)}
       onClick={() => {
         const { service, ids } = props.chip;
         if (service) props.run(service, ids);
@@ -37,13 +42,14 @@ function ActionChip(props: {
 }
 
 function ReadingChip(props: { chip: ResolvedChip }) {
+  const { t } = useTranslation();
   return (
     <Button
       as="span"
       variant="outline"
       size="none"
       class="header-chip cursor-default"
-      aria-label={props.chip.label}
+      aria-label={chipLabel(t, props.chip)}
     >
       <ChipFace chip={props.chip} />
     </Button>

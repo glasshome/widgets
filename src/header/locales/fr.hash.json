@@ -1,4 +1,52 @@
 {
+  "header.chip.close-covers": {
+    "source": "40100c10c9aad16d",
+    "value": "dac92c266b041384"
+  },
+  "header.chip.lock-doors": {
+    "source": "25350c1f0fcc5ae8",
+    "value": "8331e1a32cf87cc0"
+  },
+  "header.chip.turn-off-fans": {
+    "source": "b7c07b423c6acc60",
+    "value": "8e72b347a122be3a"
+  },
+  "header.chip.turn-off-lights": {
+    "source": "2fde73249795d46c",
+    "value": "4eddfa69cd4a6634"
+  },
+  "header.chip.turn-off-switches": {
+    "source": "d037872df48f3a3d",
+    "value": "97bdeb56e6730bb9"
+  },
+  "header.greeting.afternoon": {
+    "source": "e388c8df91589be0",
+    "value": "c6c838e8cf9441fa"
+  },
+  "header.greeting.evening": {
+    "source": "81cc55aec3e6a0cc",
+    "value": "a31b2e7fc2ace72c"
+  },
+  "header.greeting.morning": {
+    "source": "ac217bb3b40eb601",
+    "value": "9172e8eec99f144f"
+  },
+  "header.greeting.named": {
+    "source": "e77ab3d81b66741b",
+    "value": "d88f025778fecb54"
+  },
+  "header.greeting.night": {
+    "source": "5b9e9c7188656e30",
+    "value": "4f9fc57377ba5f11"
+  },
+  "header.title": {
+    "source": "5713de771c660206",
+    "value": "01e73c6b76a4e7b8"
+  },
+  "header.title.fallback": {
+    "source": "70023022863c135e",
+    "value": "ac0e5fc936ade441"
+  },
   "manifest.config.chips.description": {
     "source": "21c2081511e78a28",
     "value": "a227846ef351ee4d"

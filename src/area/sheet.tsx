@@ -10,31 +10,35 @@ import {
   PanelSection,
   useConfirm,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createMemo, For, Show, untrack } from "solid-js";
 import { ClimateSheet } from "../climate/sheet";
 import { useThermostat } from "../common";
 import { LightColour } from "../common/light-colour";
+import { stateWord } from "../common/state-word";
 import type { AreaMetrics } from "./utils";
 
 const SECTIONS: { label: string; domains: string[]; thermostats?: true }[] = [
-  { label: "Lights", domains: ["light"] },
-  { label: "Climate and air", domains: ["fan", "humidifier"], thermostats: true },
-  { label: "Blinds and doors", domains: ["cover", "lock"] },
-  { label: "Media", domains: ["media_player"] },
-  { label: "Switches", domains: ["switch", "input_boolean"] },
+  { label: "area.sheet.lights", domains: ["light"] },
+  { label: "area.sheet.climate", domains: ["fan", "humidifier"], thermostats: true },
+  { label: "area.sheet.blinds", domains: ["cover", "lock"] },
+  { label: "area.sheet.media", domains: ["media_player"] },
+  { label: "area.sheet.switches", domains: ["switch", "input_boolean"] },
 ];
 
-const FACT_WORD: Record<string, [string, string]> = {
-  window: ["Open", "Closed"],
-  door: ["Open", "Closed"],
-  garage_door: ["Open", "Closed"],
-  opening: ["Open", "Closed"],
-  motion: ["Detected", "Clear"],
-  occupancy: ["Detected", "Clear"],
-  presence: ["Home", "Away"],
-  moisture: ["Wet", "Dry"],
-  smoke: ["Smoke", "Clear"],
+const OPEN_CLOSED = { on: "area.fact.open", off: "area.fact.closed" };
+const DETECTED_CLEAR = { on: "area.fact.detected", off: "area.fact.clear" };
+const FACT_WORD: Record<string, Record<string, string>> = {
+  window: OPEN_CLOSED,
+  door: OPEN_CLOSED,
+  garage_door: OPEN_CLOSED,
+  opening: OPEN_CLOSED,
+  motion: DETECTED_CLEAR,
+  occupancy: DETECTED_CLEAR,
+  presence: { on: "area.fact.home", off: "area.fact.away" },
+  moisture: { on: "area.fact.wet", off: "area.fact.dry" },
+  smoke: { on: "area.fact.smoke", off: "area.fact.clear" },
 };
 const FACT_ICON: Record<string, string> = {
   window: "mdi:window-closed-variant",
@@ -52,6 +56,7 @@ const live = (s: string) => s !== "unavailable" && s !== "unknown";
 
 /** One thermostat with everything it can set, its name and target heading the first section. */
 function Thermostat(props: { entity: () => EntityView | undefined }) {
+  const { t } = useTranslation();
   const thermostat = useThermostat(props.entity);
   return (
     <Show when={props.entity()}>
@@ -59,7 +64,7 @@ function Thermostat(props: { entity: () => EntityView | undefined }) {
         <ClimateSheet
           entity={e()}
           thermostat={thermostat}
-          targetLabel={e().friendlyName ?? "Thermostat"}
+          targetLabel={e().friendlyName ?? t("area.sheet.thermostat")}
         />
       )}
     </Show>
@@ -72,6 +77,8 @@ function Thermostat(props: { entity: () => EntityView | undefined }) {
  */
 export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?: string }) {
   const { callService } = useService();
+  const tools = useTranslation();
+  const { t } = tools;
 
   const byDomain = (domains: string[]) =>
     props.area.entities.filter((e) => domains.includes(e.domain) && live(e.state));
@@ -89,8 +96,10 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
     if (props.metrics.co2 !== null)
       out.push({
         icon: "mdi:molecule-co2",
-        label: "CO₂",
-        value: `${Math.round(props.metrics.co2)} ppm`,
+        label: t("area.sheet.co2"),
+        value: t("area.sheet.co2-value", {
+          value: tools.formatNumber(Math.round(props.metrics.co2)),
+        }),
       });
     for (const e of byDomain(["binary_sensor"])) {
       const cls = e.deviceClass ?? "";
@@ -99,7 +108,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
       out.push({
         icon: FACT_ICON[cls] ?? "mdi:eye",
         label: e.friendlyName,
-        value: e.state === "on" ? words[0] : words[1],
+        value: stateWord(tools, { ...e, state: e.state === "on" ? "on" : "off" }, words),
       });
     }
     return out.slice(0, 4);
@@ -108,7 +117,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
   return (
     <Show when={alone() === undefined} fallback={<Thermostat entity={alone} />}>
       <Show when={scenes().length}>
-        <PanelSection label="Scenes">
+        <PanelSection label={t("area.sheet.scenes")}>
           <div class="glasshome-sheet-actions">
             <For each={scenes()}>
               {(s) => (
@@ -135,7 +144,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
               <For each={thermostatIds()}>{(id) => <Thermostat entity={thermostat(id)} />}</For>
             </Show>
             <Show when={byDomain(section.domains).length}>
-              <PanelSection label={section.label}>
+              <PanelSection label={t(section.label)}>
                 <PanelRows>
                   <For each={byDomain(section.domains)}>
                     {(e) => <PanelEntityRow entityId={e.id} within={props.area.name} />}
@@ -150,7 +159,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
         )}
       </For>
       <Show when={facts().length}>
-        <PanelSection label="Sensors">
+        <PanelSection label={t("area.sheet.sensors")}>
           <PanelFacts items={facts()} />
         </PanelSection>
       </Show>

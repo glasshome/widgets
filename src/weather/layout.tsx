@@ -1,6 +1,8 @@
 import {
   Icon,
+  type TranslationTools,
   useDaylight,
+  useTranslation,
   useWidgetDimensions,
   type WeatherForecast,
   Widget,
@@ -37,11 +39,15 @@ const HOUR_PX = 26;
 const LABEL_PX = 52;
 const DAY_PX = 64;
 
-function dayLabel(datetime: string, now: Date): string {
+function dayLabel(
+  tools: Pick<TranslationTools, "t" | "formatDate">,
+  datetime: string,
+  now: Date,
+): string {
   const d = new Date(datetime);
   if (Number.isNaN(d.getTime())) return "";
-  if (d.toDateString() === now.toDateString()) return "Today";
-  return d.toLocaleDateString(undefined, { weekday: "short" });
+  if (d.toDateString() === now.toDateString()) return tools.t("weather.day.today");
+  return tools.formatDate(d, { weekday: "short" });
 }
 
 // Must render inside <Widget>: useWidgetDimensions throws outside it.
@@ -183,13 +189,14 @@ export function WeatherTile(props: { model: Model }) {
 }
 
 function HourRow(props: { hours: WeatherForecast[] }) {
+  const tools = useTranslation();
   return (
-    <ol class="wx-row-hours" aria-label="Next hours">
+    <ol class="wx-row-hours" aria-label={tools.t("weather.hours.aria")}>
       <Index each={props.hours}>
         {(h, i) => (
           <li>
-            <span class="wx-label">{hourName(h().datetime, i)}</span>
-            <span class="wx-temp">{formatTemp(h().temperature ?? 0)}</span>
+            <span class="wx-label">{hourName(tools, h().datetime, i)}</span>
+            <span class="wx-temp">{formatTemp(tools, h().temperature ?? 0)}</span>
           </li>
         )}
       </Index>
@@ -199,13 +206,14 @@ function HourRow(props: { hours: WeatherForecast[] }) {
 
 /** Each day's low-to-high as a floating bar on the week's scale: warm days sit high, cold days low. */
 function Days(props: { days: WeatherForecast[] }) {
+  const tools = useTranslation();
   const range = createMemo(() => weekRange(props.days));
   const pct = (t: number) => {
     const r = range();
     return r ? ((r.max - t) / (r.max - r.min)) * 100 : 0;
   };
   return (
-    <ol class="wx-days" aria-label="Next days">
+    <ol class="wx-days" aria-label={tools.t("weather.days.aria")}>
       <Index each={props.days}>
         {(d) => {
           const high = () => dayHigh(d()) ?? 0;
@@ -213,20 +221,23 @@ function Days(props: { days: WeatherForecast[] }) {
           const rain = () => d().precipitation_probability ?? 0;
           return (
             <li class="wx-day">
-              <span class="wx-label">{dayLabel(d().datetime, new Date())}</span>
+              <span class="wx-label">{dayLabel(tools, d().datetime, new Date())}</span>
               <Icon icon={getWeatherIcon(d().condition ?? "cloudy")} class="wx-icon" />
-              <span class="wx-rain">{rain() >= 20 ? `${rain()}%` : ""}</span>
+              <span class="wx-rain">
+                {rain() >= 20 ? tools.formatNumber(rain() / 100, { style: "percent" }) : ""}
+              </span>
               <span class="wx-range">
                 <span
                   class="wx-range-bar"
                   style={{
                     top: `${pct(high())}%`,
                     bottom: `${100 - pct(low())}%`,
+                    // ui-text-ok: css gradient
                     background: `linear-gradient(to bottom, ${tempColor(high())}, ${tempColor(low())})`,
                   }}
                 >
-                  <span class="wx-temp wx-range-high">{formatTemp(high())}</span>
-                  <span class="wx-range-low">{formatTemp(low())}</span>
+                  <span class="wx-temp wx-range-high">{formatTemp(tools, high())}</span>
+                  <span class="wx-range-low">{formatTemp(tools, low())}</span>
                 </span>
               </span>
             </li>

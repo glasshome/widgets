@@ -17,6 +17,7 @@ export interface AreaMetrics {
   coversTotal: number;
   doorsOpen: number;
   temperature: number | null;
+  temperatureUnit: "°C" | "°F";
   humidity: number | null;
   co2: number | null;
   pm25: number | null;
@@ -26,63 +27,41 @@ export interface AreaMetrics {
 }
 
 interface CoverKind {
-  one: string;
-  many: string;
+  /** A plural message: `{count}` picks the singular or the plural name. */
+  key: string;
   open: string;
   closed: string;
 }
 
-// Doors move people and cars through the house, so they never share a one-tap bulk action with blinds.
-const DOOR_KINDS: Record<string, CoverKind> = {
-  garage: {
-    one: "Garage door",
-    many: "Garage doors",
-    open: "mdi:garage-open",
-    closed: "mdi:garage",
-  },
-  gate: { one: "Gate", many: "Gates", open: "mdi:gate-open", closed: "mdi:gate" },
-  door: { one: "Door", many: "Doors", open: "mdi:door-open", closed: "mdi:door-closed" },
-};
-const MIXED_DOORS: CoverKind = {
-  one: "Door",
-  many: "Doors",
+const DOOR: CoverKind = {
+  key: "area.kind.door",
   open: "mdi:door-open",
   closed: "mdi:door-closed",
 };
 
+// Doors move people and cars through the house, so they never share a one-tap bulk action with blinds.
+const DOOR_KINDS: Record<string, CoverKind> = {
+  garage: { key: "area.kind.garage-door", open: "mdi:garage-open", closed: "mdi:garage" },
+  gate: { key: "area.kind.gate", open: "mdi:gate-open", closed: "mdi:gate" },
+  door: DOOR,
+};
+
 const BLINDS: CoverKind = {
-  one: "Blind",
-  many: "Blinds",
+  key: "area.kind.blind",
   open: "mdi:blinds-horizontal",
   closed: "mdi:blinds-horizontal-closed",
 };
 const COVERING_KINDS: Record<string, CoverKind> = {
   blind: BLINDS,
-  shade: {
-    one: "Shade",
-    many: "Shades",
-    open: "mdi:roller-shade",
-    closed: "mdi:roller-shade-closed",
-  },
-  curtain: {
-    one: "Curtain",
-    many: "Curtains",
-    open: "mdi:curtains",
-    closed: "mdi:curtains-closed",
-  },
+  shade: { key: "area.kind.shade", open: "mdi:roller-shade", closed: "mdi:roller-shade-closed" },
+  curtain: { key: "area.kind.curtain", open: "mdi:curtains", closed: "mdi:curtains-closed" },
   shutter: {
-    one: "Shutter",
-    many: "Shutters",
+    key: "area.kind.shutter",
     open: "mdi:window-shutter-open",
     closed: "mdi:window-shutter",
   },
-  awning: {
-    one: "Awning",
-    many: "Awnings",
-    open: "mdi:awning-outline",
-    closed: "mdi:awning-outline",
-  },
-  window: { one: "Window", many: "Windows", open: "mdi:window-open", closed: "mdi:window-closed" },
+  awning: { key: "area.kind.awning", open: "mdi:awning-outline", closed: "mdi:awning-outline" },
+  window: { key: "area.kind.window", open: "mdi:window-open", closed: "mdi:window-closed" },
 };
 
 function isDoorCover(entity: EntityView): boolean {
@@ -100,7 +79,7 @@ function sharedKind(
 }
 
 export const coverKind = (covers: EntityView[]) => sharedKind(covers, COVERING_KINDS, BLINDS);
-export const doorKind = (doors: EntityView[]) => sharedKind(doors, DOOR_KINDS, MIXED_DOORS);
+export const doorKind = (doors: EntityView[]) => sharedKind(doors, DOOR_KINDS, DOOR);
 
 export const HIDEABLE_DOMAINS = [
   "light",
@@ -218,6 +197,7 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
     : findSensorByClass(groups.sensors, "humidity");
 
   const temperature = readNumericState(tempEntity);
+  const temperatureUnit = tempEntity?.unitOfMeasurement === "°F" ? "°F" : "°C";
   const humidity = readNumericState(humEntity);
   const co2 = readNumericState(findSensorByClass(groups.sensors, "carbon_dioxide"));
   const pm25 = readNumericState(findSensorByClass(groups.sensors, "pm25"));
@@ -243,6 +223,7 @@ export function calculateMetrics(groups: EntityGroups, area?: AreaView): AreaMet
     coversTotal,
     doorsOpen,
     temperature,
+    temperatureUnit,
     humidity,
     co2,
     pm25,

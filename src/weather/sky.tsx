@@ -48,14 +48,17 @@ function tile(size: number, count: number, salt: number, mark: (x: number, y: nu
 const streak =
   (len: number, width: number, alpha: number, size: number) => (x: number, y: number) => {
     const top = Math.min(y, size - len - 1);
+    // ui-text-ok: svg geometry
     return `<line x1="${x.toFixed(1)}" y1="${top.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(top + len).toFixed(1)}" stroke="white" stroke-opacity="${alpha}" stroke-width="${width}" stroke-linecap="round"/>`;
   };
 
 const dot = (r: number, alpha: number, size: number) => (x: number, y: number) =>
+  // ui-text-ok: svg geometry
   `<circle cx="${Math.min(Math.max(x, r), size - r).toFixed(1)}" cy="${Math.min(Math.max(y, r), size - r).toFixed(1)}" r="${r}" fill="white" fill-opacity="${alpha}"/>`;
 
 const gust = (len: number, alpha: number, size: number) => (x: number, y: number) => {
   const left = Math.min(x, size - len - 1);
+  // ui-text-ok: svg geometry
   return `<line x1="${left.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(left + len).toFixed(1)}" y2="${y.toFixed(1)}" stroke="white" stroke-opacity="${alpha}" stroke-width="1" stroke-linecap="round"/>`;
 };
 

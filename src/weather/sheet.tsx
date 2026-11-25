@@ -1,5 +1,7 @@
 import {
   type PanelFact,
+  type TranslationTools,
+  useTranslation,
   PanelFacts,
   PanelRow,
   PanelRows,
@@ -15,28 +17,26 @@ const HOUR_STEP = 3;
 const HOUR_SLOTS = 6;
 const DAY_ROWS = 7;
 
-const hourLabel = (datetime: string) =>
-  new Date(datetime).toLocaleTimeString(undefined, { hour: "numeric" });
+type Tools = Pick<TranslationTools, "t" | "formatDate" | "formatNumber" | "translateState">;
 
-function dayLabel(datetime: string, now: Date): string {
+function dayLabel(tools: Tools, datetime: string, now: Date): string {
   const d = new Date(datetime);
   if (Number.isNaN(d.getTime())) return "";
-  if (d.toDateString() === now.toDateString()) return "Today";
+  if (d.toDateString() === now.toDateString()) return tools.t("weather.day.today");
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
-  if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-  return d.toLocaleDateString(undefined, { weekday: "long" });
+  if (d.toDateString() === tomorrow.toDateString()) return tools.t("weather.day.tomorrow");
+  return tools.formatDate(d, { weekday: "long" });
 }
 
-const rain = (f: WeatherForecast) => {
-  const p = f.precipitation_probability ?? 0;
-  return p >= 20 ? ` · ${Math.round(p)}% rain` : "";
-};
-
-const dayRange = (d: WeatherForecast) => {
-  const high = dayHigh(d) ?? 0;
-  return `${formatTemp(high)} / ${formatTemp(d.temp_low ?? high)}${rain(d)}`;
-};
+export function dayRange(tools: Tools, d: WeatherForecast): string {
+  const high = formatTemp(tools, dayHigh(d) ?? 0);
+  const low = formatTemp(tools, d.temp_low ?? dayHigh(d) ?? 0);
+  const p = d.precipitation_probability ?? 0;
+  if (p < 20) return tools.t("weather.sheet.day-range", { high, low });
+  const chance = tools.formatNumber(Math.round(p) / 100, { style: "percent" });
+  return tools.t("weather.sheet.day-range-rain", { high, low, chance });
+}
 
 /** What the weather tile cannot show: the coming hours and days, and the readings beyond the temperature. */
 export function WeatherSheet(props: {
@@ -44,6 +44,7 @@ export function WeatherSheet(props: {
   days: WeatherForecast[];
   details: Detail[];
 }) {
+  const tools = useTranslation();
   const hourFacts = (): PanelFact[] =>
     props.hours
       .slice(1)
@@ -51,8 +52,8 @@ export function WeatherSheet(props: {
       .slice(0, HOUR_SLOTS)
       .map((h) => ({
         icon: getWeatherIcon(h.condition ?? "cloudy"),
-        label: hourLabel(h.datetime),
-        value: formatTemp(h.temperature ?? 0),
+        label: tools.formatDate(new Date(h.datetime), { hour: "numeric" }),
+        value: formatTemp(tools, h.temperature ?? 0),
       }));
 
   const readings = (): PanelFact[] =>
@@ -65,19 +66,19 @@ export function WeatherSheet(props: {
   return (
     <>
       <Show when={hourFacts().length}>
-        <PanelSection label="Next hours">
+        <PanelSection label={tools.t("weather.sheet.next-hours")}>
           <PanelFacts items={hourFacts()} />
         </PanelSection>
       </Show>
       <Show when={props.days.length}>
-        <PanelSection label="Next days">
+        <PanelSection label={tools.t("weather.sheet.next-days")}>
           <PanelRows>
             <For each={props.days.slice(0, DAY_ROWS)}>
               {(d) => (
                 <PanelRow
                   icon={getWeatherIcon(d.condition ?? "cloudy")}
-                  name={dayLabel(d.datetime, new Date())}
-                  state={dayRange(d)}
+                  name={dayLabel(tools, d.datetime, new Date())}
+                  state={dayRange(tools, d)}
                   tone={getWeatherIconColor(d.condition ?? "cloudy")}
                   on
                 />
@@ -87,7 +88,7 @@ export function WeatherSheet(props: {
         </PanelSection>
       </Show>
       <Show when={readings().length}>
-        <PanelSection label="Right now">
+        <PanelSection label={tools.t("weather.sheet.right-now")}>
           <PanelFacts items={readings()} />
         </PanelSection>
       </Show>

@@ -5,6 +5,7 @@ import {
   useArea,
   useService,
   useStore,
+  useTranslation,
   useWidgetContext,
   useWidgetDashboard,
   useWidgetDialog,
@@ -14,11 +15,11 @@ import {
   WidgetDialog,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { HeaderChips } from "./chips";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
-import { greetingForHour, hourIn } from "./greeting";
+import { GreetingLine } from "./greeting-line";
 import { type EntitySnapshot, needsArea, resolveChip, visibleCount, WATCH_DOMAIN } from "./items";
 import "./header.css";
 import en from "./locales/en.json";
@@ -29,17 +30,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   const viewer = useWidgetViewer();
   const { callService } = useService();
   const { setShowDialog, dialogProps } = useWidgetDialog();
-
-  const [now, setNow] = createSignal(new Date());
-  onMount(() => {
-    const t = setInterval(() => setNow(new Date()), 60_000);
-    onCleanup(() => clearInterval(t));
-  });
-  const greeting = createMemo(() => {
-    const hello = greetingForHour(hourIn(now()));
-    const name = viewer().name;
-    return name ? `${hello}, ${name}` : hello;
-  });
+  const { t } = useTranslation();
 
   const areaId = createMemo(() => {
     const where = props.config.where;
@@ -111,10 +102,10 @@ function HeaderWidget(props: { config: HeaderConfig }) {
           />
           <div class="header-text">
             <Show when={props.config.greeting}>
-              <span class="header-greeting">{greeting()}</span>
+              <GreetingLine name={viewer().name} />
             </Show>
             <span class="header-title">
-              {props.config.title || dashboard().name || "Dashboard"}
+              {props.config.title || dashboard().name || t("header.title.fallback")}
             </span>
           </div>
           <Chips />
@@ -123,7 +114,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Header"
+        title={t("header.title")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
