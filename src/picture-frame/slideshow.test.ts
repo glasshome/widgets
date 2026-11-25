@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
+import { languageTools } from "@glasshome/widget-sdk/testing/tools";
+import { language } from "../../tests/catalog";
 import { resolveSlideshow } from "./slideshow";
 
+const { t } = languageTools(language("picture-frame", "en"));
 const none: ReadonlySet<string> = new Set();
 const samples = ["s1", "s2"];
 
 describe("resolveSlideshow", () => {
   test("shows the samples, labelled, when none are chosen", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [],
       samples,
       fit: "cover",
@@ -18,7 +21,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("ignores items whose picture was never picked", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: undefined }],
       samples,
       fit: "cover",
@@ -29,7 +32,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("a single picture is a still frame: one slide, no autoplay, no note", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }],
       samples,
       fit: "contain",
@@ -40,7 +43,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("several pictures autoplay at the chosen interval", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "b" }, { src: "c" }],
       samples,
       fit: "cover",
@@ -52,7 +55,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("interval off leaves the slides without autoplay", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "b" }],
       samples,
       fit: "cover",
@@ -63,7 +66,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("defaults to 30s when the interval is unset", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "b" }],
       samples,
       fit: "cover",
@@ -74,7 +77,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("a picture that no longer resolves drops out, the rest keep playing", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "gone" }, { src: "c" }],
       samples,
       fit: "cover",
@@ -85,7 +88,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("two pictures left as one stop the autoplay", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "gone" }],
       samples,
       fit: "cover",
@@ -96,7 +99,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("falls back to the samples and says so when every chosen picture is gone", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }, { src: "b" }],
       samples,
       fit: "cover",
@@ -108,7 +111,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("names the single gone picture in the singular", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }],
       samples,
       fit: "cover",
@@ -119,7 +122,7 @@ describe("resolveSlideshow", () => {
   });
 
   test("falls back to cover when fit is unset", () => {
-    const view = resolveSlideshow({
+    const view = resolveSlideshow(t, {
       pictures: [{ src: "a" }],
       samples,
       fit: undefined,

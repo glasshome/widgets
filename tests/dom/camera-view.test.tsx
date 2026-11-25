@@ -1,11 +1,15 @@
 import { fireEvent, render } from "@solidjs/testing-library";
 import { createRoot, createSignal } from "solid-js";
 import { useFakeTime } from "@glasshome/ui/testing";
+import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import { describe, expect, test, vi } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
 import { CameraLiveView } from "../../src/camera/live-view";
+import { language } from "../catalog";
 import { type CameraPlayer, createCameraPlayer, WATCHDOG_MS } from "../../src/camera/create-player";
 import type { PlayerStatus } from "../../src/camera/player";
+
+const english = language("camera", "en");
 
 function fakePlayer(hasAudio: boolean) {
   const [status, setStatus] = createSignal<PlayerStatus>("live");
@@ -37,14 +41,16 @@ function mount(hasAudio: boolean) {
   const { player, setStatus } = fakePlayer(hasAudio);
   const [muted, setMuted] = createSignal(true);
   const view = render(() => (
-    <CameraView
-      player={player}
-      poster={() => undefined}
-      name={() => "Front Door"}
-      active={() => true}
-      muted={muted}
-      setMuted={setMuted}
-    />
+    <WidgetLanguage {...english}>
+      <CameraView
+        player={player}
+        poster={() => undefined}
+        name={() => "Front Door"}
+        active={() => true}
+        muted={muted}
+        setMuted={setMuted}
+      />
+    </WidgetLanguage>
   ));
   const video = () => view.container.querySelector("video");
   const sound = () => view.queryByRole("button");
@@ -198,16 +204,18 @@ describe("camera full screen", () => {
         refreshMs: () => REFRESH_MS,
       });
       return (
-        <CameraView
-          player={player}
-          poster={() => undefined}
-          name={() => "Front Door"}
-          active={() => true}
-          muted={muted}
-          setMuted={setMuted}
-          variant="live"
-          fullscreen
-        />
+        <WidgetLanguage {...english}>
+          <CameraView
+            player={player}
+            poster={() => undefined}
+            name={() => "Front Door"}
+            active={() => true}
+            muted={muted}
+            setMuted={setMuted}
+            variant="live"
+            fullscreen
+          />
+        </WidgetLanguage>
       );
     });
     const picture = () => view.container.querySelector(`img[src^="${url}"]`);
@@ -289,14 +297,16 @@ describe("camera live view", () => {
     const { player, setStatus } = fakePlayer(hasAudio);
     const [muted, setMuted] = createSignal(true);
     const view = render(() => (
-      <CameraLiveView
-        player={player}
-        poster={() => undefined}
-        name={() => "Front Door"}
-        muted={muted}
-        setMuted={setMuted}
-        facts={() => ({ model: "Reolink E1 Zoom", motionDetection: true })}
-      />
+      <WidgetLanguage {...english}>
+        <CameraLiveView
+          player={player}
+          poster={() => undefined}
+          name={() => "Front Door"}
+          muted={muted}
+          setMuted={setMuted}
+          facts={() => ({ model: "Reolink E1 Zoom", motionDetection: true })}
+        />
+      </WidgetLanguage>
     ));
     return { view, setStatus };
   }
