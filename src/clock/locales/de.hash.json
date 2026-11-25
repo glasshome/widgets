@@ -1,4 +1,173 @@
 {
+  "clock.analog.reading": {
+    "source": "90b072f9abec4a66",
+    "value": "af6dc4085476050f"
+  },
+  "clock.dialog.border": {
+    "source": "1e639fb3a9413c32",
+    "value": "ba8e716abf20d5f7"
+  },
+  "clock.dialog.clock-size": {
+    "source": "000d1720d5abc4b1",
+    "value": "962f6d871847473b"
+  },
+  "clock.dialog.date.auto": {
+    "source": "2aecc01b234447d9",
+    "value": "4c2a3993c15df591"
+  },
+  "clock.dialog.date.dmy": {
+    "source": "5a4845c5ad0ee2ad",
+    "value": "988d238f80a485e1",
+    "pinned": true
+  },
+  "clock.dialog.date.label": {
+    "source": "a54953391bcd880d",
+    "value": "a7a3e92ae44d0b27"
+  },
+  "clock.dialog.date.mdy": {
+    "source": "6259a0a889a8ccdf",
+    "value": "ec7fd1c65dabafa8"
+  },
+  "clock.dialog.date.show": {
+    "source": "8eb40ef1ad0e6330",
+    "value": "b6e348dfdbbbf8f5"
+  },
+  "clock.dialog.date.ymd": {
+    "source": "ef2a65eb86b04b4c",
+    "value": "9e27a330faf4dcdb"
+  },
+  "clock.dialog.font-size": {
+    "source": "bf383efb125ff0c8",
+    "value": "bfd07028d68dbc07"
+  },
+  "clock.dialog.layout.auto": {
+    "source": "f6e7ff76d7c2b254",
+    "value": "0286249762f7c943"
+  },
+  "clock.dialog.layout.auto-shape": {
+    "source": "80b88d1a75b07dba",
+    "value": "e18cd62538c4c411"
+  },
+  "clock.dialog.layout.horizontal": {
+    "source": "b57190f605858cb5",
+    "value": "0abba441f16eff90"
+  },
+  "clock.dialog.layout.label": {
+    "source": "4e1275943f609c3d",
+    "value": "a511909161e1b84f"
+  },
+  "clock.dialog.layout.stacked": {
+    "source": "ec453e79eecdb681",
+    "value": "5bc23ba447ba8fb3"
+  },
+  "clock.dialog.preset.bold": {
+    "source": "026d24c52924e9a8",
+    "value": "f89f2f6a9dedf218"
+  },
+  "clock.dialog.preset.classic": {
+    "source": "e7e40eea7b84b318",
+    "value": "1a8a3fca7b8e68f7"
+  },
+  "clock.dialog.preset.label": {
+    "source": "0e1fb040e0c53b8b",
+    "value": "338edbef45244acf"
+  },
+  "clock.dialog.preset.minimal": {
+    "source": "fac97a5b063edf00",
+    "value": "057b5de48d7b90f1"
+  },
+  "clock.dialog.preset.modern": {
+    "source": "b3bb266daae0ff6b",
+    "value": "eef6c7f6ddd4067e"
+  },
+  "clock.dialog.seconds": {
+    "source": "62e0822594c7ded0",
+    "value": "b08b0e57e11a74f7"
+  },
+  "clock.dialog.size.large": {
+    "source": "427b336288941841",
+    "value": "251097f33d8d4df0"
+  },
+  "clock.dialog.size.medium": {
+    "source": "c4800ffdb8f45f25",
+    "value": "6604277e642c958b"
+  },
+  "clock.dialog.size.small": {
+    "source": "51ee94efbb295b54",
+    "value": "d3e963a0a44e2bb5"
+  },
+  "clock.dialog.style.analog": {
+    "source": "ec6fa90cbc4bd30a",
+    "value": "8f6fe0d8ef70f871"
+  },
+  "clock.dialog.style.digital": {
+    "source": "03a1355195179f7d",
+    "value": "42be1f53d688ed48"
+  },
+  "clock.dialog.style.label": {
+    "source": "026945e1444c0015",
+    "value": "cfa13470b68c788a"
+  },
+  "clock.dialog.style.square": {
+    "source": "e6eff0546e28b6f1",
+    "value": "cd56255805327410"
+  },
+  "clock.dialog.style.square-edge": {
+    "source": "c810871f84b8301d",
+    "value": "85603b5c4fd82bc6"
+  },
+  "clock.dialog.ticks.hour": {
+    "source": "a9b97228a3192735",
+    "value": "b26b52378d4f2047"
+  },
+  "clock.dialog.ticks.label": {
+    "source": "d0fddd02abac378b",
+    "value": "71e8fe1344f0af0e"
+  },
+  "clock.dialog.ticks.minute": {
+    "source": "ecccbc282b062c22",
+    "value": "135cc4d303fb5a34"
+  },
+  "clock.dialog.ticks.none": {
+    "source": "38582616fbb0a810",
+    "value": "8a572015c49b2071"
+  },
+  "clock.dialog.ticks.quarter": {
+    "source": "99b32177b9035a9a",
+    "value": "9507d832b708f2ca"
+  },
+  "clock.dialog.time.auto": {
+    "source": "2aecc01b234447d9",
+    "value": "4c2a3993c15df591"
+  },
+  "clock.dialog.time.h12": {
+    "source": "9cfcdfb18da2c6ad",
+    "value": "a8e0323cc9123f3c"
+  },
+  "clock.dialog.time.h24": {
+    "source": "490edfb929bdc640",
+    "value": "7d200c4df53166ce"
+  },
+  "clock.dialog.time.label": {
+    "source": "b61de3fff14ca962",
+    "value": "81efc6ea0e8b7182"
+  },
+  "clock.dialog.timezone.label": {
+    "source": "036bbf188cc22055",
+    "value": "00507b23a11ba675"
+  },
+  "clock.dialog.timezone.placeholder": {
+    "source": "6b1a5dbfccd05db7",
+    "value": "e618da130bac076d"
+  },
+  "clock.dialog.title": {
+    "source": "0bb23e7c6470c81b",
+    "value": "4221b9b808159cb2"
+  },
+  "clock.face.seconds-unit": {
+    "source": "3073b73917cad682",
+    "value": "9b1b02a8ebd5909b"
+  },
   "manifest.config.layout.title": {
     "source": "4e1275943f609c3d",
     "value": "a511909161e1b84f"

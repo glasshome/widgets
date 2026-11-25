@@ -2,7 +2,6 @@ import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
 
 export type ClockSize = "small" | "medium" | "large";
 export type ClockPreset = "modern" | "classic" | "minimal" | "bold";
-export type DateFormat = "MM/DD/YYYY" | "DD/MM/YYYY" | "YYYY-MM-DD";
 
 export const configSchema = defineConfig({
   clockStyle: field.choice(["digital", "analog", "square"], {
@@ -11,16 +10,16 @@ export const configSchema = defineConfig({
   }),
   clockSize: field.choice(["small", "medium", "large"], { title: "Clock Size", default: "small" }),
   showSeconds: field.toggle({ title: "Show Seconds", default: false }),
-  timeFormat: field.choice(["24", "12"], { title: "Time Format", default: "24" }),
+  timeFormat: field.choice(["auto", "24", "12"], { title: "Time Format", default: "auto" }),
   timeZone: field.text({ title: "Timezone" }),
   preset: field.choice(["modern", "classic", "minimal", "bold"], {
     title: "Theme Preset",
     default: "modern",
   }),
   showDate: field.toggle({ title: "Show Date", default: false }),
-  dateFormat: field.choice(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], {
+  dateFormat: field.choice(["auto", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], {
     title: "Date Format",
-    default: "MM/DD/YYYY",
+    default: "auto",
   }),
   fontSize: field.choice(["small", "medium", "large"], { title: "Font Size", default: "medium" }),
   layout: field.choice(["auto", "horizontal", "stacked"], { title: "Layout", default: "auto" }),
@@ -57,8 +56,6 @@ interface DigitalPresetTheme {
 }
 
 export interface ClockPresetTheme {
-  name: string;
-  description: string;
   digital: DigitalPresetTheme;
   analog: AnalogPresetTheme;
 }

@@ -1,0 +1,66 @@
+import { describe, expect, test } from "bun:test";
+import { languageTools } from "@glasshome/widget-sdk/testing/tools";
+import { clockFace } from "./format";
+
+const tools = (formatting: string) =>
+  languageTools({ language: formatting.slice(0, 2), formatting, catalog: null, english: null });
+
+const noon = new Date(Date.UTC(2026, 10, 3, 12));
+const auto = { timeFormat: "auto", dateFormat: "auto", timeZone: "UTC" } as const;
+
+describe("clockFace", () => {
+  test("auto in German writes 3. Nov.", () => {
+    expect(clockFace(noon, auto, tools("de-DE")).date).toBe("3. Nov.");
+  });
+
+  test("auto in English writes Nov 3", () => {
+    expect(clockFace(noon, auto, tools("en-US")).date).toBe("Nov 3");
+  });
+
+  test("auto in French writes 3 nov.", () => {
+    expect(clockFace(noon, auto, tools("fr-FR")).date).toBe("3 nov.");
+  });
+
+  test("the configured zone wins", () => {
+    const late = new Date(Date.UTC(2026, 10, 2, 23, 30));
+    const face = clockFace(late, { ...auto, timeZone: "Europe/Berlin" }, tools("de-DE"));
+    expect(face.date).toBe("3. Nov.");
+    expect(face.hours).toBe("00");
+  });
+
+  test("24 keeps 15 in English", () => {
+    const face = clockFace(
+      new Date(Date.UTC(2026, 10, 3, 15, 4, 5)),
+      { ...auto, timeFormat: "24" },
+      tools("en-US"),
+    );
+    expect(face).toMatchObject({ hours: "15", minutes: "04", seconds: "05" });
+    expect(face.period).toBeUndefined();
+  });
+
+  test("12 gives PM in English", () => {
+    const face = clockFace(
+      new Date(Date.UTC(2026, 10, 3, 15)),
+      { ...auto, timeFormat: "12" },
+      tools("en-GB"),
+    );
+    expect(face.hours).toBe("03");
+    expect(face.period?.toLowerCase()).toBe("pm");
+  });
+
+  test("auto in English US gives PM", () => {
+    const face = clockFace(new Date(Date.UTC(2026, 10, 3, 15)), auto, tools("en-US"));
+    expect(face.hours).toBe("03");
+    expect(face.period).toBe("PM");
+  });
+
+  test("DD/MM/YYYY writes 03/11/2026", () => {
+    expect(clockFace(noon, { ...auto, dateFormat: "DD/MM/YYYY" }, tools("en-US")).date).toBe(
+      "03/11/2026",
+    );
+  });
+
+  test("the weekday follows the language", () => {
+    expect(clockFace(noon, auto, tools("de-DE")).weekday).toBe("Dienstag");
+  });
+});

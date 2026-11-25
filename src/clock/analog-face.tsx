@@ -1,25 +1,12 @@
-import { useWidgetDimensions } from "@glasshome/widget-sdk";
+import { useTranslation, useWidgetDimensions, zonedTime } from "@glasshome/widget-sdk";
 import { createMemo, For, Show } from "solid-js";
+import { readingLabel } from "./format";
 import type { AnalogOptions, AnalogPresetTheme, ClockPreset, ClockSize } from "./types";
 
 /** Hours (0-11), minutes, seconds for the given instant + optional zone. */
 function readAnalogTime(date: Date, timeZone?: string) {
-  if (!timeZone) {
-    return { hours: date.getHours() % 12, minutes: date.getMinutes(), seconds: date.getSeconds() };
-  }
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
-  }).formatToParts(date);
-  const get = (t: string) => Number.parseInt(parts.find((p) => p.type === t)?.value || "0", 10);
-  return { hours: get("hour") % 12, minutes: get("minute"), seconds: get("second") };
-}
-
-function readoutLabel(t: { hours: number; minutes: number }): string {
-  return `Analog clock showing ${((t.hours + 11) % 12) + 1}:${String(t.minutes).padStart(2, "0")}`;
+  const { hour, minute, second } = zonedTime(date, timeZone);
+  return { hours: hour % 12, minutes: minute, seconds: second };
 }
 
 /** Per-preset character shared by the round + square faces: ticks, hands, numerals, font. */
@@ -147,7 +134,9 @@ export function AnalogClock(props: AnalogClockProps) {
   const radius = () => size() / 2 - 14;
   const k = () => radius() / 88; // scale the square face's px metrics onto the round face
 
+  const tools = useTranslation();
   const time = createMemo(() => readAnalogTime(props.date, props.timeZone));
+  const reading = () => readingLabel(tools, props.date, props.timeZone);
   // Skip the transition on the 59→0 wrap so the second hand / ring don't unwind.
   const wrap = () => time().seconds === 0;
 
@@ -314,7 +303,7 @@ export function AnalogClock(props: AnalogClockProps) {
       viewBox={`0 0 ${size()} ${size()}`}
       class="overflow-visible"
       role="img"
-      aria-label={readoutLabel(time())}
+      aria-label={reading()}
     >
       <defs>
         <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">
@@ -532,7 +521,9 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
   const ticks = () => props.analogOptions?.ticks ?? "hour";
   const border = () => props.analogOptions?.border ?? false;
 
+  const tools = useTranslation();
   const time = createMemo(() => readAnalogTime(props.date, props.timeZone));
+  const reading = () => readingLabel(tools, props.date, props.timeZone);
   const wrap = () => time().seconds === 0;
 
   const dims = createMemo(() => {
@@ -769,7 +760,7 @@ export function SquareAnalogClock(props: SquareAnalogClockProps) {
         preserveAspectRatio="none"
         class="absolute inset-0 h-full w-full"
         role="img"
-        aria-label={readoutLabel(time())}
+        aria-label={reading()}
       >
         <defs>
           <linearGradient id={`${gid()}-hand`} x1="0" y1="1" x2="0" y2="0">

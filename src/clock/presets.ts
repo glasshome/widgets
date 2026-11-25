@@ -2,8 +2,6 @@ import type { ClockPreset, ClockPresetTheme } from "./types";
 
 const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   modern: {
-    name: "Modern",
-    description: "Clean, contemporary look with cyan glow",
     digital: {
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
       fontWeight: "700",
@@ -22,8 +20,6 @@ const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   },
 
   classic: {
-    name: "Classic",
-    description: "Traditional, elegant style with warm tones",
     digital: {
       fontFamily: "Georgia, Cambria, serif",
       fontWeight: "400",
@@ -42,8 +38,6 @@ const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   },
 
   minimal: {
-    name: "Minimal",
-    description: "Simple, understated and technical",
     digital: {
       fontFamily: "ui-monospace, SFMono-Regular, monospace",
       fontWeight: "400",
@@ -62,8 +56,6 @@ const CLOCK_PRESETS: Record<ClockPreset, ClockPresetTheme> = {
   },
 
   bold: {
-    name: "Bold",
-    description: "Strong, high-contrast with vivid glow",
     digital: {
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
       fontWeight: "900",

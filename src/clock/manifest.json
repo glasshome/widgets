@@ -47,12 +47,13 @@
         "type": "boolean"
       },
       "timeFormat": {
-        "default": "24",
+        "default": "auto",
         "title": "Time Format",
         "type": "string",
         "enum": [
           "12",
-          "24"
+          "24",
+          "auto"
         ]
       },
       "timeZone": {
@@ -76,10 +77,11 @@
         "type": "boolean"
       },
       "dateFormat": {
-        "default": "MM/DD/YYYY",
+        "default": "auto",
         "title": "Date Format",
         "type": "string",
         "enum": [
+          "auto",
           "MM/DD/YYYY",
           "DD/MM/YYYY",
           "YYYY-MM-DD"
@@ -155,10 +157,10 @@
     "clockStyle": "digital",
     "clockSize": "small",
     "showSeconds": false,
-    "timeFormat": "24",
+    "timeFormat": "auto",
     "preset": "modern",
     "showDate": false,
-    "dateFormat": "MM/DD/YYYY",
+    "dateFormat": "auto",
     "fontSize": "medium",
     "layout": "auto",
     "analogOptions": {
@@ -177,10 +179,10 @@
         "clockStyle": "digital",
         "clockSize": "medium",
         "showSeconds": false,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "modern",
         "showDate": true,
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "fontSize": "medium",
         "layout": "auto",
         "analogOptions": {
@@ -199,10 +201,10 @@
         "clockStyle": "analog",
         "clockSize": "large",
         "showSeconds": true,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "classic",
         "showDate": false,
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "fontSize": "medium",
         "layout": "auto",
         "analogOptions": {
@@ -221,10 +223,10 @@
         "clockStyle": "square",
         "clockSize": "large",
         "showSeconds": false,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "bold",
         "showDate": true,
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "fontSize": "large",
         "layout": "stacked",
         "analogOptions": {
@@ -242,13 +244,13 @@
       "config": {
         "clockStyle": "digital",
         "showSeconds": true,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "modern",
         "showDate": true,
         "fontSize": "medium",
         "layout": "auto",
         "clockSize": "medium",
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "analogOptions": {
           "border": false,
           "ticks": "hour"
@@ -264,13 +266,13 @@
       "config": {
         "clockStyle": "digital",
         "showSeconds": false,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "modern",
         "showDate": true,
         "fontSize": "large",
         "layout": "stacked",
         "clockSize": "medium",
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "analogOptions": {
           "border": false,
           "ticks": "hour"
@@ -292,7 +294,7 @@
         "fontSize": "medium",
         "layout": "auto",
         "clockSize": "medium",
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "analogOptions": {
           "border": false,
           "ticks": "hour"
@@ -309,10 +311,10 @@
         "clockStyle": "analog",
         "clockSize": "large",
         "showSeconds": true,
-        "timeFormat": "24",
+        "timeFormat": "auto",
         "preset": "classic",
         "showDate": false,
-        "dateFormat": "DD/MM/YYYY",
+        "dateFormat": "auto",
         "fontSize": "medium",
         "layout": "auto",
         "analogOptions": {
@@ -321,5 +323,6 @@
         }
       }
     }
-  ]
+  ],
+  "configVersion": 2
 }

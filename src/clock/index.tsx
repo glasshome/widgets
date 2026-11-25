@@ -1,37 +1,28 @@
 import {
   defineWidget,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Switch,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetDimensions,
   Widget,
-  WidgetDialog,
+  zonedTime,
 } from "@glasshome/widget-sdk";
 import { createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
-import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
+import { ClockDialog } from "./dialog";
+import { clockFace } from "./format";
+import en from "./locales/en.json";
+import { migrateClock } from "./migrate";
 import { getPresetTheme } from "./presets";
 import { type ClockConfig, configSchema } from "./types";
-import { formatDate, getClockTones, getDayOfWeek, getDefaultConfig, getTimeParts } from "./utils";
-import en from "./locales/en.json";
+import { getClockTones, getDefaultConfig } from "./utils";
 
 function ClockWidget(props: { config: ClockConfig }) {
   const defaults = getDefaultConfig();
   const cfg = createMemo(() => ({ ...defaults, ...props.config }));
 
   const ctx = useWidgetContext();
-  const { setShowDialog, dialogProps } = useWidgetDialog();
-
-  // Draft state for dialog edits
-  const [draftConfig, setDraftConfig] = createSignal<ClockConfig>(cfg());
-  const hasChanges = () => JSON.stringify(draftConfig()) !== JSON.stringify(cfg());
+  const { dialogProps } = useWidgetDialog();
 
   // Time state
   const [currentTime, setCurrentTime] = createSignal(new Date());
@@ -42,14 +33,10 @@ function ClockWidget(props: { config: ClockConfig }) {
   const presetTheme = createMemo(() => getPresetTheme(cfg().preset));
   const tones = createMemo(() => getClockTones(cfg().preset));
 
-  const timeParts = createMemo(() => getTimeParts(currentTime(), cfg().timeFormat, cfg().timeZone));
-  const formattedDate = createMemo(() =>
-    formatDate(currentTime(), cfg().dateFormat, cfg().timeZone),
-  );
-  const dayOfWeek = createMemo(() => getDayOfWeek(currentTime(), cfg().timeZone));
+  const tools = useTranslation();
+  const face = createMemo(() => clockFace(currentTime(), cfg(), tools));
 
-  // Live minute-progress: drives the sweeping bottom bar (digital only).
-  const secondsNum = createMemo(() => Number.parseInt(timeParts().seconds, 10) || 0);
+  const secondsNum = createMemo(() => zonedTime(currentTime(), cfg().timeZone).second);
   const secondsProgress = createMemo(() => (secondsNum() / 60) * 100);
   // Single accent drives the live seconds bar — same palette as the analog/square faces.
   const barColor = () => "var(--primary)";
@@ -94,7 +81,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 "line-height": "0.9",
               }}
             >
-              {timeParts().hours}
+              {face().hours}
             </div>
             <div
               class="text-foreground font-bold tabular-nums opacity-70"
@@ -106,7 +93,7 @@ function ClockWidget(props: { config: ClockConfig }) {
                 "line-height": "0.9",
               }}
             >
-              {timeParts().minutes}
+              {face().minutes}
             </div>
             <Show when={cfg().showSeconds}>
               <div class="mt-1 flex items-center gap-1 @[200px]:mt-2">
@@ -119,16 +106,16 @@ function ClockWidget(props: { config: ClockConfig }) {
                     color: "var(--primary)",
                   }}
                 >
-                  {timeParts().seconds}
+                  {face().seconds}
                 </div>
                 <span class="text-foreground text-[10px] font-medium opacity-50 @[200px]:text-xs">
-                  sec
+                  {tools.t("clock.face.seconds-unit")}
                 </span>
               </div>
             </Show>
-            <Show when={timeParts().period && !cfg().showSeconds}>
+            <Show when={face().period && !cfg().showSeconds}>
               <span class={"text-foreground mt-1 text-xs font-medium opacity-50 @[200px]:text-sm"}>
-                {timeParts().period}
+                {face().period}
               </span>
             </Show>
           </div>
@@ -145,9 +132,9 @@ function ClockWidget(props: { config: ClockConfig }) {
               "letter-spacing": digital().letterSpacing,
             }}
           >
-            {timeParts().hours}
+            {face().hours}
             <span class="mx-0.5">:</span>
-            {timeParts().minutes}
+            {face().minutes}
           </div>
 
           <Show when={cfg().showSeconds}>
@@ -160,17 +147,17 @@ function ClockWidget(props: { config: ClockConfig }) {
                 color: "var(--primary)",
               }}
             >
-              :{timeParts().seconds}
+              :{face().seconds}
             </div>
           </Show>
 
-          <Show when={timeParts().period}>
+          <Show when={face().period}>
             <span
               class={
                 "text-foreground mt-[0.2em] ml-1 self-start text-xs font-medium opacity-50 @[200px]:text-sm"
               }
             >
-              {timeParts().period}
+              {face().period}
             </span>
           </Show>
         </div>
@@ -190,17 +177,15 @@ function ClockWidget(props: { config: ClockConfig }) {
           "letter-spacing": digital().letterSpacing,
         }}
       >
-        {timeParts().hours}
+        {face().hours}
         <span class="mx-0.5">:</span>
-        {timeParts().minutes}
-        <Show when={timeParts().period}>
-          <span class="text-foreground ml-1 text-xs font-medium opacity-50">
-            {timeParts().period}
-          </span>
+        {face().minutes}
+        <Show when={face().period}>
+          <span class="text-foreground ml-1 text-xs font-medium opacity-50">{face().period}</span>
         </Show>
       </div>
       <Show when={cfg().showDate}>
-        <span class="text-foreground/50 hidden text-[11px] @[240px]:inline">{formattedDate()}</span>
+        <span class="text-foreground/50 hidden text-[11px] @[240px]:inline">{face().date}</span>
       </Show>
     </div>
   );
@@ -277,20 +262,15 @@ function ClockWidget(props: { config: ClockConfig }) {
     );
   };
 
-  // Draft update helper
-  const updateDraft = <K extends keyof ClockConfig>(key: K, value: ClockConfig[K]) => {
-    setDraftConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
   // Day + date. Uniform foreground palette across all three faces.
   const DateBlock = () => (
     <div class="flex flex-col items-center gap-0.5 @[200px]:gap-1">
       <Show when={cfg().showDate}>
         <span class="text-foreground/60 font-medium" style={{ "font-size": metaSize() }}>
-          {dayOfWeek()}
+          {face().weekday}
         </span>
         <span class="text-foreground opacity-50" style={{ "font-size": metaSize() }}>
-          {formattedDate()}
+          {face().date}
         </span>
       </Show>
     </div>
@@ -339,328 +319,10 @@ function ClockWidget(props: { config: ClockConfig }) {
         </div>
       </Widget>
 
-      <WidgetDialog
-        {...widgetDialogProps}
-        {...dialogProps}
-        onOpenChange={(open) => {
-          if (!open) setDraftConfig(cfg());
-          setShowDialog(open);
-        }}
-        title="Clock"
-        maxWidth="md"
-        hasUnsavedChanges={hasChanges()}
-        onSave={() => {
-          ctx.updateConfig(draftConfig() as unknown as Record<string, unknown>);
-          setShowDialog(false);
-        }}
-        editContent={
-          <div class="flex flex-col gap-5 text-sm">
-            {/* Clock Style */}
-            <div class="flex flex-col gap-1.5">
-              <Label>Clock Style</Label>
-              <Select
-                value={draftConfig().clockStyle}
-                onChange={(val) => {
-                  if (val) updateDraft("clockStyle", val as ClockConfig["clockStyle"]);
-                }}
-                options={["digital", "analog", "square"]}
-                itemComponent={(itemProps) => (
-                  <SelectItem item={itemProps.item}>
-                    {{ digital: "Digital", analog: "Analog", square: "Square (edge ticks)" }[
-                      itemProps.item.rawValue as string
-                    ] ?? itemProps.item.rawValue}
-                  </SelectItem>
-                )}
-              >
-                <SelectTrigger class="w-full">
-                  <SelectValue<string>>
-                    {(state) =>
-                      ({ digital: "Digital", analog: "Analog", square: "Square" })[
-                        state.selectedOption() as string
-                      ] ?? state.selectedOption()
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-            </div>
-
-            {/* Time Format */}
-            <div class="flex flex-col gap-1.5">
-              <Label>Time Format</Label>
-              <Select
-                value={draftConfig().timeFormat}
-                onChange={(val) => {
-                  if (val) updateDraft("timeFormat", val as "12" | "24");
-                }}
-                options={["24", "12"]}
-                itemComponent={(itemProps) => (
-                  <SelectItem item={itemProps.item}>
-                    {itemProps.item.rawValue === "24" ? "24-hour" : "12-hour"}
-                  </SelectItem>
-                )}
-              >
-                <SelectTrigger class="w-full">
-                  <SelectValue<string>>
-                    {(state) => (state.selectedOption() === "24" ? "24-hour" : "12-hour")}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-            </div>
-
-            {/* Show Seconds */}
-            <div class="flex items-center justify-between">
-              <Label>Show Seconds</Label>
-              <Switch
-                checked={draftConfig().showSeconds}
-                onChange={(checked) => updateDraft("showSeconds", checked)}
-              />
-            </div>
-
-            {/* Timezone */}
-            <div class="flex flex-col gap-1.5">
-              <Label>Timezone</Label>
-              <Input
-                type="text"
-                placeholder="e.g. America/New_York (leave empty for local)"
-                value={draftConfig().timeZone ?? ""}
-                onInput={(e) => updateDraft("timeZone", e.currentTarget.value || undefined)}
-              />
-            </div>
-
-            {/* Preset */}
-            <div class="flex flex-col gap-1.5">
-              <Label>Theme Preset</Label>
-              <Select
-                value={draftConfig().preset}
-                onChange={(val) => {
-                  if (val) updateDraft("preset", val as ClockConfig["preset"]);
-                }}
-                options={["modern", "classic", "minimal", "bold"]}
-                itemComponent={(itemProps) => (
-                  <SelectItem item={itemProps.item}>
-                    {{
-                      modern: "Modern",
-                      classic: "Classic",
-                      minimal: "Minimal",
-                      bold: "Bold",
-                    }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                  </SelectItem>
-                )}
-              >
-                <SelectTrigger class="w-full">
-                  <SelectValue<string>>
-                    {(state) =>
-                      ({
-                        modern: "Modern",
-                        classic: "Classic",
-                        minimal: "Minimal",
-                        bold: "Bold",
-                      })[state.selectedOption() as string] ?? state.selectedOption()
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-            </div>
-
-            {/* Digital-specific options */}
-            <Show when={draftConfig().clockStyle === "digital"}>
-              {/* Layout */}
-              <div class="flex flex-col gap-1.5">
-                <Label>Layout</Label>
-                <Select
-                  value={draftConfig().layout}
-                  onChange={(val) => {
-                    if (val) updateDraft("layout", val as ClockConfig["layout"]);
-                  }}
-                  options={["auto", "horizontal", "stacked"]}
-                  itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>
-                      {{
-                        auto: "Auto (based on widget shape)",
-                        horizontal: "Horizontal",
-                        stacked: "Stacked",
-                      }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                    </SelectItem>
-                  )}
-                >
-                  <SelectTrigger class="w-full">
-                    <SelectValue<string>>
-                      {(state) =>
-                        ({
-                          auto: "Auto",
-                          horizontal: "Horizontal",
-                          stacked: "Stacked",
-                        })[state.selectedOption() as string] ?? state.selectedOption()
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent />
-                </Select>
-              </div>
-
-              {/* Font Size */}
-              <div class="flex flex-col gap-1.5">
-                <Label>Font Size</Label>
-                <Select
-                  value={draftConfig().fontSize}
-                  onChange={(val) => {
-                    if (val) updateDraft("fontSize", val as ClockConfig["fontSize"]);
-                  }}
-                  options={["small", "medium", "large"]}
-                  itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>
-                      {{
-                        small: "Small",
-                        medium: "Medium",
-                        large: "Large",
-                      }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                    </SelectItem>
-                  )}
-                >
-                  <SelectTrigger class="w-full">
-                    <SelectValue<string>>
-                      {(state) =>
-                        ({
-                          small: "Small",
-                          medium: "Medium",
-                          large: "Large",
-                        })[state.selectedOption() as string] ?? state.selectedOption()
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent />
-                </Select>
-              </div>
-            </Show>
-
-            {/* Show Date — shared between digital and analogue */}
-            <div class="flex items-center justify-between">
-              <Label>Show Date</Label>
-              <Switch
-                checked={draftConfig().showDate}
-                onChange={(checked) => updateDraft("showDate", checked)}
-              />
-            </div>
-
-            {/* Date Format */}
-            <Show when={draftConfig().showDate}>
-              <div class="flex flex-col gap-1.5">
-                <Label>Date Format</Label>
-                <Select
-                  value={draftConfig().dateFormat}
-                  onChange={(val) => {
-                    if (val) updateDraft("dateFormat", val as ClockConfig["dateFormat"]);
-                  }}
-                  options={["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]}
-                  itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>{String(itemProps.item.rawValue)}</SelectItem>
-                  )}
-                >
-                  <SelectTrigger class="w-full">
-                    <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent />
-                </Select>
-              </div>
-            </Show>
-
-            {/* Analog + square options */}
-            <Show when={draftConfig().clockStyle !== "digital"}>
-              {/* Clock Size — only the round analog face has a fixed size */}
-              <Show when={draftConfig().clockStyle === "analog"}>
-                <div class="flex flex-col gap-1.5">
-                  <Label>Clock Size</Label>
-                  <Select
-                    value={draftConfig().clockSize}
-                    onChange={(val) => {
-                      if (val) updateDraft("clockSize", val as ClockConfig["clockSize"]);
-                    }}
-                    options={["small", "medium", "large"]}
-                    itemComponent={(itemProps) => (
-                      <SelectItem item={itemProps.item}>
-                        {{
-                          small: "Small",
-                          medium: "Medium",
-                          large: "Large",
-                        }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                      </SelectItem>
-                    )}
-                  >
-                    <SelectTrigger class="w-full">
-                      <SelectValue<string>>
-                        {(state) =>
-                          ({
-                            small: "Small",
-                            medium: "Medium",
-                            large: "Large",
-                          })[state.selectedOption() as string] ?? state.selectedOption()
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent />
-                  </Select>
-                </div>
-              </Show>
-
-              {/* Border */}
-              <div class="flex items-center justify-between">
-                <Label>Show Border</Label>
-                <Switch
-                  checked={draftConfig().analogOptions?.border ?? false}
-                  onChange={(checked) =>
-                    updateDraft("analogOptions", {
-                      ...draftConfig().analogOptions,
-                      border: checked,
-                    })
-                  }
-                />
-              </div>
-
-              {/* Tick Marks */}
-              <div class="flex flex-col gap-1.5">
-                <Label>Tick Marks</Label>
-                <Select
-                  value={draftConfig().analogOptions?.ticks ?? "hour"}
-                  onChange={(val) => {
-                    if (val)
-                      updateDraft("analogOptions", {
-                        ...draftConfig().analogOptions,
-                        ticks: val as "none" | "quarter" | "hour" | "minute",
-                      });
-                  }}
-                  options={["none", "quarter", "hour", "minute"]}
-                  itemComponent={(itemProps) => (
-                    <SelectItem item={itemProps.item}>
-                      {{
-                        none: "None",
-                        quarter: "Quarter hours",
-                        hour: "Hours",
-                        minute: "Minutes",
-                      }[itemProps.item.rawValue as string] ?? itemProps.item.rawValue}
-                    </SelectItem>
-                  )}
-                >
-                  <SelectTrigger class="w-full">
-                    <SelectValue<string>>
-                      {(state) =>
-                        ({
-                          none: "None",
-                          quarter: "Quarter hours",
-                          hour: "Hours",
-                          minute: "Minutes",
-                        })[state.selectedOption() as string] ?? state.selectedOption()
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent />
-                </Select>
-              </div>
-            </Show>
-          </div>
-        }
+      <ClockDialog
+        config={cfg()}
+        dialog={dialogProps}
+        onConfigSave={(config) => ctx.updateConfig(config as unknown as Record<string, unknown>)}
       />
     </>
   );
@@ -669,6 +331,7 @@ function ClockWidget(props: { config: ClockConfig }) {
 export default defineWidget<ClockConfig>({
   messages: en,
   manifest: {
+    configVersion: 2,
     name: "Clock",
     description: "Display current time with digital or analog styles, presets, and date",
     icon: "mdi:clock-outline",
@@ -683,10 +346,10 @@ export default defineWidget<ClockConfig>({
           clockStyle: "digital",
           clockSize: "medium",
           showSeconds: false,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "modern",
           showDate: true,
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           fontSize: "medium",
           layout: "auto",
           analogOptions: { border: false, ticks: "hour" },
@@ -699,10 +362,10 @@ export default defineWidget<ClockConfig>({
           clockStyle: "analog",
           clockSize: "large",
           showSeconds: true,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "classic",
           showDate: false,
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           fontSize: "medium",
           layout: "auto",
           analogOptions: { border: true, ticks: "hour" },
@@ -715,10 +378,10 @@ export default defineWidget<ClockConfig>({
           clockStyle: "square",
           clockSize: "large",
           showSeconds: false,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "bold",
           showDate: true,
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           fontSize: "large",
           layout: "stacked",
           analogOptions: { border: false, ticks: "hour" },
@@ -730,13 +393,13 @@ export default defineWidget<ClockConfig>({
         config: {
           clockStyle: "digital",
           showSeconds: true,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "modern",
           showDate: true,
           fontSize: "medium",
           layout: "auto",
           clockSize: "medium",
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           analogOptions: { border: false, ticks: "hour" },
         },
       },
@@ -746,13 +409,13 @@ export default defineWidget<ClockConfig>({
         config: {
           clockStyle: "digital",
           showSeconds: false,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "modern",
           showDate: true,
           fontSize: "large",
           layout: "stacked",
           clockSize: "medium",
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           analogOptions: { border: false, ticks: "hour" },
         },
       },
@@ -768,7 +431,7 @@ export default defineWidget<ClockConfig>({
           fontSize: "medium",
           layout: "auto",
           clockSize: "medium",
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           analogOptions: { border: false, ticks: "hour" },
         },
       },
@@ -779,10 +442,10 @@ export default defineWidget<ClockConfig>({
           clockStyle: "analog",
           clockSize: "large",
           showSeconds: true,
-          timeFormat: "24",
+          timeFormat: "auto",
           preset: "classic",
           showDate: false,
-          dateFormat: "DD/MM/YYYY",
+          dateFormat: "auto",
           fontSize: "medium",
           layout: "auto",
           analogOptions: { border: true, ticks: "minute" },
@@ -791,5 +454,6 @@ export default defineWidget<ClockConfig>({
     ],
   },
   configSchema,
+  migrate: migrateClock,
   component: ClockWidget,
 });
