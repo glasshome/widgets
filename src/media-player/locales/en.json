@@ -1,1 +1,27 @@
-{}
+{
+  "media-player.controls.label": "Playback",
+  "media-player.controls.next": "Next track",
+  "media-player.controls.pause": "Pause",
+  "media-player.controls.play": "Play",
+  "media-player.controls.previous": "Previous track",
+  "media-player.empty.message": "Hold to configure",
+  "media-player.empty.title": "No media player",
+  "media-player.name": "Media",
+  "media-player.sheet.play-order": "Play order",
+  "media-player.sheet.playing-on": "Playing on",
+  "media-player.sheet.position": "{position} of {duration}",
+  "media-player.sheet.position-label": "Position in the track",
+  "media-player.sheet.repeat": "Repeat",
+  "media-player.sheet.repeat-one": "Repeat one",
+  "media-player.sheet.shuffle": "Shuffle",
+  "media-player.sheet.sound": "Sound",
+  "media-player.sheet.sound-mode": "Sound mode",
+  "media-player.sheet.source": "Source",
+  "media-player.state.buffering": "Buffering",
+  "media-player.state.idle": "Idle",
+  "media-player.state.off": "Off",
+  "media-player.state.on": "On",
+  "media-player.state.paused": "Paused",
+  "media-player.state.playing": "Playing",
+  "media-player.state.standby": "Standby"
+}

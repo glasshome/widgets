@@ -38,5 +38,149 @@
   "manifest.name": {
     "source": "43c69a3995e857c2",
     "value": "162cc64ca1e4ffe9"
+  },
+  "sensor.class.battery": {
+    "source": "33fcd5bedc5de08b",
+    "value": "43787dab5fe98737"
+  },
+  "sensor.class.carbon-dioxide": {
+    "source": "7a65af6b88be5556",
+    "value": "1ee0f202d0a431a5"
+  },
+  "sensor.class.carbon-monoxide": {
+    "source": "07d43f3c739bb275",
+    "value": "98a66cdccacc3272"
+  },
+  "sensor.class.current": {
+    "source": "bebb542c5ddf0d65",
+    "value": "dcdfa4723e65281e"
+  },
+  "sensor.class.distance": {
+    "source": "100c50267ce05f4c",
+    "value": "f0da9ad4711453fe"
+  },
+  "sensor.class.energy": {
+    "source": "e1ab5753c59ac682",
+    "value": "39a31692360de02a"
+  },
+  "sensor.class.humidity": {
+    "source": "601da4e18382fed2",
+    "value": "16df4909f5b31351"
+  },
+  "sensor.class.illuminance": {
+    "source": "69c6f3a316e03c61",
+    "value": "0c1e456a64e0901b"
+  },
+  "sensor.class.monetary": {
+    "source": "7dbe120dc0474066",
+    "value": "15b1a30d0e8206fc"
+  },
+  "sensor.class.pm10": {
+    "source": "82baecf67cf51026",
+    "value": "dca32eb04b7ef5f0"
+  },
+  "sensor.class.pm25": {
+    "source": "6db864666b2ac443",
+    "value": "7d02b73563670765"
+  },
+  "sensor.class.power": {
+    "source": "56d862d3daa0341b",
+    "value": "9e1dd51bd2597cd6"
+  },
+  "sensor.class.pressure": {
+    "source": "e2da51efe05a40b7",
+    "value": "d9afd08a61d8fa58"
+  },
+  "sensor.class.signal-strength": {
+    "source": "6153e580ead01168",
+    "value": "f0bd47fa52151216"
+  },
+  "sensor.class.speed": {
+    "source": "0c936e26bc2ff186",
+    "value": "8ea84bc3de5b3cb1"
+  },
+  "sensor.class.temperature": {
+    "source": "72d4d2a1c8eb3d00",
+    "value": "2da10076c9e7b7c9"
+  },
+  "sensor.class.voltage": {
+    "source": "6594da5c8bdea86a",
+    "value": "5fa34faee5f40a01"
+  },
+  "sensor.class.weight": {
+    "source": "3892e5573a0b842f",
+    "value": "d9cf8b745e5c76bb"
+  },
+  "sensor.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "a2540cfec4ec0fe4"
+  },
+  "sensor.empty.title": {
+    "source": "23fd8af4fcc81743",
+    "value": "06a5188f34f71d13"
+  },
+  "sensor.eyebrow.count": {
+    "source": "669f2452b2a2763c",
+    "value": "91065437ac672120"
+  },
+  "sensor.name": {
+    "source": "43c69a3995e857c2",
+    "value": "162cc64ca1e4ffe9"
+  },
+  "sensor.range.24h": {
+    "source": "1261e475f9ff3fd8",
+    "value": "a00380040f74dadf"
+  },
+  "sensor.range.24h-words": {
+    "source": "f48c7092bf73b5d2",
+    "value": "b603a9a582279cb6"
+  },
+  "sensor.range.6h": {
+    "source": "a060110b82bae62f",
+    "value": "56a627fb8865e564"
+  },
+  "sensor.range.6h-words": {
+    "source": "5600d9295c95b476",
+    "value": "0b20b7d9311ebd50"
+  },
+  "sensor.range.7d": {
+    "source": "dd66895b37752b17",
+    "value": "cafa9690540085b7"
+  },
+  "sensor.range.7d-words": {
+    "source": "e15ed1036b1822a9",
+    "value": "df1140f6b738ec8b"
+  },
+  "sensor.sheet.average": {
+    "source": "ac46e4631ccb1bb5",
+    "value": "64e948bb3999049a"
+  },
+  "sensor.sheet.high": {
+    "source": "acb8d2906c60a5d0",
+    "value": "5f9d45fa2f0b9372"
+  },
+  "sensor.sheet.history": {
+    "source": "f9af592a63f18432",
+    "value": "5fd70311d1c0f57d"
+  },
+  "sensor.sheet.low": {
+    "source": "5a2489e9bb72c212",
+    "value": "ee12538381b9ba42"
+  },
+  "sensor.sheet.named-history": {
+    "source": "b29ec2475b50e45b",
+    "value": "e0d110f76f62fa9e"
+  },
+  "sensor.sheet.none": {
+    "source": "5a7541d820dcadf1",
+    "value": "de2d639284fe8bbe"
+  },
+  "sensor.sheet.range": {
+    "source": "0f1bbc7c7a070dbc",
+    "value": "ab0f2fd5b2501811"
+  },
+  "sensor.sheet.sensors": {
+    "source": "c0947d6a7b26cf34",
+    "value": "595b5974fcaa74de"
   }
 }

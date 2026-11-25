@@ -1,4 +1,256 @@
 {
+  "binary-sensor.class.battery": {
+    "source": "33fcd5bedc5de08b",
+    "value": "43787dab5fe98737"
+  },
+  "binary-sensor.class.cold": {
+    "source": "ed20d4d6798c441f",
+    "value": "8f1a0519c8e4b102"
+  },
+  "binary-sensor.class.connectivity": {
+    "source": "8a5b86879cdb33ee",
+    "value": "036781f17340ce47"
+  },
+  "binary-sensor.class.door": {
+    "source": "7cf7136e739c5853",
+    "value": "1cff8a95c840c89a"
+  },
+  "binary-sensor.class.garage-door": {
+    "source": "d477edec30f23109",
+    "value": "88bd98e143d2d546"
+  },
+  "binary-sensor.class.gas": {
+    "source": "4a75ef5752306bdd",
+    "value": "e23a445d0fa70aa8"
+  },
+  "binary-sensor.class.heat": {
+    "source": "e4176e91d64aa019",
+    "value": "5c9c60a9914b1d29"
+  },
+  "binary-sensor.class.light": {
+    "source": "62c11afc0726b871",
+    "value": "0d8d541d98f328df"
+  },
+  "binary-sensor.class.lock": {
+    "source": "ef6462ffe421f590",
+    "value": "11015113586f6769"
+  },
+  "binary-sensor.class.moisture": {
+    "source": "c7efeb4f24785e44",
+    "value": "6b37cd92269037ec"
+  },
+  "binary-sensor.class.motion": {
+    "source": "6a363fa384a747e8",
+    "value": "1eaa52d0db4d9cea"
+  },
+  "binary-sensor.class.occupancy": {
+    "source": "e6f6d3d7745a968e",
+    "value": "7aabc3fdd635f873"
+  },
+  "binary-sensor.class.opening": {
+    "source": "69a7a0e27f01d26c",
+    "value": "b40b7803d2731019"
+  },
+  "binary-sensor.class.plug": {
+    "source": "8c354082684c9c94",
+    "value": "3ff9bf3e4248c6a4"
+  },
+  "binary-sensor.class.presence": {
+    "source": "35df73eca8088321",
+    "value": "51a00fdcfad1043a"
+  },
+  "binary-sensor.class.problem": {
+    "source": "e3fa7177c3a867de",
+    "value": "a1c5ae7bcb34bbf4"
+  },
+  "binary-sensor.class.running": {
+    "source": "c4e2c9e28eaef62b",
+    "value": "f85fd2bc5619c724"
+  },
+  "binary-sensor.class.safety": {
+    "source": "cc56e0d756065b6a",
+    "value": "4474c752608931d9"
+  },
+  "binary-sensor.class.smoke": {
+    "source": "71f283b1b72e2501",
+    "value": "55f7032b1f55aa92"
+  },
+  "binary-sensor.class.sound": {
+    "source": "7da19818c609348d",
+    "value": "1ef002a6567c31d5"
+  },
+  "binary-sensor.class.tamper": {
+    "source": "c7a3a8d3993b672d",
+    "value": "82a4c98c0ac2eed1"
+  },
+  "binary-sensor.class.update": {
+    "source": "a5ab8010fa33209d",
+    "value": "c1c1009d3f37ec05"
+  },
+  "binary-sensor.class.vibration": {
+    "source": "4ec5d451c1ffaacb",
+    "value": "59e1fd02f6c20f7e"
+  },
+  "binary-sensor.class.window": {
+    "source": "92b70cd7411d5312",
+    "value": "22c9783f5077bb8d"
+  },
+  "binary-sensor.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "0a4f61671112fd6d"
+  },
+  "binary-sensor.empty.title": {
+    "source": "f1e1878e2e87b0be",
+    "value": "42f1ffa414a676a9"
+  },
+  "binary-sensor.eyebrow.count": {
+    "source": "669f2452b2a2763c",
+    "value": "91065437ac672120"
+  },
+  "binary-sensor.name": {
+    "source": "43c69a3995e857c2",
+    "value": "162cc64ca1e4ffe9"
+  },
+  "binary-sensor.sheet.sensors": {
+    "source": "c0947d6a7b26cf34",
+    "value": "595b5974fcaa74de"
+  },
+  "binary-sensor.state.available": {
+    "source": "84afeef405c8fda0",
+    "value": "3aa55273aef4f7a7"
+  },
+  "binary-sensor.state.away": {
+    "source": "af0babfb98666a85",
+    "value": "71334bbb36d9973f"
+  },
+  "binary-sensor.state.clear": {
+    "source": "7c69b244844c963a",
+    "value": "3b09eed1e0da430a"
+  },
+  "binary-sensor.state.closed": {
+    "source": "30a4a31995b63813",
+    "value": "525ac2f6efbb287b"
+  },
+  "binary-sensor.state.cold": {
+    "source": "ed20d4d6798c441f",
+    "value": "94990104e48c4cf5"
+  },
+  "binary-sensor.state.connected": {
+    "source": "9a125970ee16f168",
+    "value": "0338189c985eee9c"
+  },
+  "binary-sensor.state.dark": {
+    "source": "ef565f9a5aa7f479",
+    "value": "368b231be48a946a"
+  },
+  "binary-sensor.state.detected": {
+    "source": "f364302b8f76f26e",
+    "value": "652dc92d066b2322"
+  },
+  "binary-sensor.state.disconnected": {
+    "source": "df067099b9f17875",
+    "value": "b0caf73f46403f55"
+  },
+  "binary-sensor.state.dry": {
+    "source": "0de8646ff5c07e6a",
+    "value": "301e204cb1dd8ed7"
+  },
+  "binary-sensor.state.home": {
+    "source": "c5b027326a518e86",
+    "value": "6f5c5f0e5a9f2cde"
+  },
+  "binary-sensor.state.hot": {
+    "source": "bf4967705fc656b1",
+    "value": "27ee9b79eb64391e"
+  },
+  "binary-sensor.state.light": {
+    "source": "62c11afc0726b871",
+    "value": "8d586f8b60df1ad7"
+  },
+  "binary-sensor.state.locked": {
+    "source": "b968dfb20a77d964",
+    "value": "944feec4d4cc95a2"
+  },
+  "binary-sensor.state.low": {
+    "source": "5a2489e9bb72c212",
+    "value": "ee12538381b9ba42"
+  },
+  "binary-sensor.state.normal": {
+    "source": "3a4e1051e2eaa315",
+    "value": "a7248eeb45eb1ce2"
+  },
+  "binary-sensor.state.occupied": {
+    "source": "5854b83afe3dc905",
+    "value": "ab7b936882836e29"
+  },
+  "binary-sensor.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "f0ce94502ed90ac3"
+  },
+  "binary-sensor.state.ok": {
+    "source": "b5a1090acb1e80c6",
+    "value": "565339bc4d33d728"
+  },
+  "binary-sensor.state.on": {
+    "source": "875016a04e20fb98",
+    "value": "b9a637bc1f1fd273"
+  },
+  "binary-sensor.state.open": {
+    "source": "9e78fc0bde6eafb2",
+    "value": "64509e1af49cd987"
+  },
+  "binary-sensor.state.plugged-in": {
+    "source": "5834d789d0c179e8",
+    "value": "c3f210a0a53aac10"
+  },
+  "binary-sensor.state.problem": {
+    "source": "e3fa7177c3a867de",
+    "value": "a1c5ae7bcb34bbf4"
+  },
+  "binary-sensor.state.running": {
+    "source": "c4e2c9e28eaef62b",
+    "value": "f85fd2bc5619c724"
+  },
+  "binary-sensor.state.safe": {
+    "source": "71fe5a190d23ad56",
+    "value": "df1634d4b936d33b"
+  },
+  "binary-sensor.state.still": {
+    "source": "acf4e4c75dc2f9cd",
+    "value": "70bcb5a44e57c4a7"
+  },
+  "binary-sensor.state.stopped": {
+    "source": "303dc537a55362e3",
+    "value": "641c1c76e38a4933"
+  },
+  "binary-sensor.state.tampered": {
+    "source": "9479ce03366da594",
+    "value": "825060cd72968f08"
+  },
+  "binary-sensor.state.unlocked": {
+    "source": "4102d7caa2e04672",
+    "value": "fe6ecf2ac69cb67f"
+  },
+  "binary-sensor.state.unplugged": {
+    "source": "6f66691699a54003",
+    "value": "48bb13d7ce251fb4"
+  },
+  "binary-sensor.state.unsafe": {
+    "source": "0f858685651c2963",
+    "value": "6b859fb7c0630b34"
+  },
+  "binary-sensor.state.up-to-date": {
+    "source": "857a29badf0a9680",
+    "value": "f4d865ae1b772208"
+  },
+  "binary-sensor.state.vibrating": {
+    "source": "7f28b7a7d2be6800",
+    "value": "968715bdcd49c5e0"
+  },
+  "binary-sensor.state.wet": {
+    "source": "5b8ee481dc2b2b26",
+    "value": "c6302a26766ff1e3"
+  },
   "manifest.config.art.labels.device": {
     "source": "4b8a633998cb00b4",
     "value": "5eb4c3993756817d"

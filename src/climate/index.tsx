@@ -24,7 +24,8 @@ import "../common/mode-transition.css";
 import { ART } from "./art";
 import "./climate.css";
 import { ClimateSheet, climateHasExtras } from "./sheet";
-import { getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
+import { getHvacModeIcon, getModeColors } from "./utils";
+import { actionWord, climateSub, degrees, hvacWord, targetText } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -51,7 +52,8 @@ type ClimateConfig = Infer<typeof configSchema>;
 
 function ClimateWidget(props: { config: ClimateConfig }) {
   const ctx = useWidgetContext();
-  const { formatTemperature } = useTranslation();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -61,8 +63,8 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     aggregationMode: () => "none",
     emptyStateConfig: {
       icon: <Icon icon="mdi:thermostat" width={32} />,
-      title: "No climate entity",
-      message: "Hold to configure",
+      title: t("climate.empty.title"),
+      message: t("climate.empty.message"),
     },
   });
 
@@ -94,19 +96,19 @@ function ClimateWidget(props: { config: ClimateConfig }) {
     const id = entity()?.id;
     if (id) void callService("climate", "set_hvac_mode", { hvac_mode: m }, { entity_id: id });
   };
-  const degrees = (t: number) => t.toFixed(t % 1 === 0 ? 0 : 1);
   const targetLabel = () => {
     const [low, high] = setpoints.values();
     if (low === undefined) return "--";
-    if (high === undefined) return degrees(low);
+    if (high === undefined) return degrees(tools, low);
     return (
       <>
-        {degrees(low)}
-        <span class="glasshome-widget-unit climate-range-sep">to</span>
-        {degrees(high)}
+        {degrees(tools, low)}
+        <span class="glasshome-widget-unit climate-range-sep">{t("climate.hero.to")}</span>
+        {degrees(tools, high)}
       </>
     );
   };
+  const targetReading = () => targetText(tools, setpoints.values(), tempUnit());
   const band = () => {
     const v = setpoints.values();
     return v.length === 0 ? undefined : (Math.min(...v) + Math.max(...v)) / 2;
@@ -117,22 +119,17 @@ function ClimateWidget(props: { config: ClimateConfig }) {
   };
   const eyebrow = createMemo(() => {
     const action = hvacAction();
-    if (action && action !== "idle" && action !== "off")
-      return action.charAt(0).toUpperCase() + action.slice(1);
-    return HVAC_MODES[hvacMode()]?.label ?? hvacMode();
+    const e = entity();
+    if (e && action && action !== "idle" && action !== "off") return actionWord(tools, e, action);
+    return hvacWord(tools, e, hvacMode(), (raw) => raw);
   });
-  const subLine = createMemo(() => {
-    const ct = currentTemp();
-    const hum = entity()?.attributes?.current_humidity as number | undefined;
-    return [
-      ct === undefined
-        ? undefined
-        : `Now ${formatTemperature(ct, { unit: tempUnit() === "F" ? "°F" : "°C" })}`,
-      hum === undefined ? undefined : `${hum}%`,
-    ]
-      .filter(Boolean)
-      .join(" · ");
-  });
+  const subLine = createMemo(() =>
+    climateSub(tools, {
+      current: currentTemp(),
+      humidity: entity()?.attributes?.current_humidity as number | undefined,
+      unit: tempUnit(),
+    }),
+  );
 
   const [dragging, setDragging] = createSignal(false);
   const fillPercent = () => {
@@ -201,12 +198,16 @@ function ClimateWidget(props: { config: ClimateConfig }) {
             <Widget.Head
               icon={iconName()}
               eyebrow={eyebrow()}
-              name={props.config.title || entity()?.friendlyName || "Climate"}
+              name={props.config.title || entity()?.friendlyName || t("climate.name")}
               active={hvacMode() !== "off"}
               count={entities().length}
             />
             <Widget.Hero
-              value={hvacMode() === "off" ? "Off" : targetLabel()}
+              value={
+                hvacMode() === "off"
+                  ? hvacWord(tools, entity(), "off", (raw) => raw)
+                  : targetLabel()
+              }
               unit={hvacMode() === "off" ? undefined : "°"}
               class={isRange() && hvacMode() !== "off" ? "climate-range" : undefined}
               sub={subLine()}
@@ -222,17 +223,21 @@ function ClimateWidget(props: { config: ClimateConfig }) {
             />
             <Widget.Controls>
               <Widget.Stepper
-                label="Target temperature"
+                label={
+                  targetReading()
+                    ? t("climate.controls.target-at", { value: targetReading() ?? "" })
+                    : t("climate.controls.target")
+                }
                 onStep={(d) => setpoints.shiftValues(d * step())}
               />
               <Widget.Choice
-                label="Mode"
+                label={t("climate.controls.mode")}
                 tone={mode().color}
                 value={hvacMode()}
                 options={modes().map((m) => ({
                   value: m,
                   icon: getHvacModeIcon(m),
-                  label: HVAC_MODES[m]?.label ?? m,
+                  label: hvacWord(tools, entity(), m, (raw) => raw),
                 }))}
                 onChange={setMode}
               />
@@ -243,7 +248,7 @@ function ClimateWidget(props: { config: ClimateConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={props.config.title || entity()?.friendlyName || "Climate"}
+        title={props.config.title || entity()?.friendlyName || t("climate.name")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

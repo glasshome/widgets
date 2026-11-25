@@ -9,6 +9,7 @@ import {
   type Infer,
   isEntityActive,
   useEntities,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -23,7 +24,7 @@ import windowSash from "../common/art/assets/window-sash.strip";
 import { CoverArt } from "../common/art/cover";
 import { ArtStrip } from "../common/art/strip";
 import { BinarySensorSheet } from "./sheet";
-import { getBinarySensorStateText } from "./utils";
+import { binarySensorClass, getBinarySensorStateText } from "./utils";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -67,6 +68,8 @@ type BinarySensorConfig = Infer<typeof configSchema>;
 
 function BinarySensorWidget(props: { config: BinarySensorConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -76,8 +79,8 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     aggregationMode: () => "binary-sensor",
     emptyStateConfig: {
       icon: <Icon icon="mdi:checkbox-marked-circle" width={32} />,
-      title: "No sensor",
-      message: "Hold to configure",
+      title: t("binary-sensor.empty.title"),
+      message: t("binary-sensor.empty.message"),
     },
   });
 
@@ -101,16 +104,17 @@ function BinarySensorWidget(props: { config: BinarySensorConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Sensor";
+    t("binary-sensor.name");
   const heroValue = () => {
     const active = activeCount();
-    if (count() > 1 && active > 0 && active < count()) return `${active}/${count()}`;
-    return getBinarySensorStateText(deviceClass(), active > 0);
+    if (count() > 1 && active > 0 && active < count()) {
+      return `${tools.formatNumber(active)}/${tools.formatNumber(count())}`;
+    }
+    return getBinarySensorStateText(tools, entities()[0], deviceClass(), active > 0);
   };
   const eyebrow = () => {
-    const cls = deviceClass();
-    if (count() > 1) return `${count()} sensors`;
-    return cls ? `${cls.charAt(0).toUpperCase()}${cls.slice(1).replace(/_/g, " ")}` : "Sensor";
+    if (count() > 1) return t("binary-sensor.eyebrow.count", { count: count() });
+    return binarySensorClass(tools, deviceClass());
   };
 
   const artKind = (): ArtKind | undefined => {

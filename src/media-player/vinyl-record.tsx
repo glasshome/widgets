@@ -15,6 +15,7 @@ export function VinylRecord(props: VinylRecordProps) {
         "border-radius": "50%",
         background:
           "repeating-radial-gradient(circle, #1a1a1a 0px, #1a1a1a 2px, #222 3px, #1a1a1a 4px)",
+        // ui-text-ok: css animation
         animation: "vinyl-spin 8s linear infinite",
         "animation-play-state": props.isPlaying ? "var(--motion-play, running)" : "paused",
       }}
@@ -57,6 +58,7 @@ export function VinylRecord(props: VinylRecordProps) {
         }}
       />
 
+      {/* ui-text-ok: css keyframes */}
       <style>{`
         @keyframes vinyl-spin {
           to { transform: rotate(360deg); }

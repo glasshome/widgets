@@ -1,1 +1,7 @@
-{}
+{
+  "picture-frame.name": "Picture Frame",
+  "picture-frame.note.add": "Hold to add yours",
+  "picture-frame.note.gone": "{count, plural, one {Your picture is gone} other {Your pictures are gone}}",
+  "picture-frame.note.pick": "Hold to pick others",
+  "picture-frame.note.samples": "Sample photos"
+}

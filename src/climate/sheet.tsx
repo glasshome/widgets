@@ -7,16 +7,12 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { Index, Show } from "solid-js";
 import type { Thermostat } from "../common";
-import { FAN_MODES, getHvacModeIcon, getModeColors, HVAC_MODES } from "./utils";
-
-const words = (raw: string) => {
-  const s = raw.replace(/_/g, " ");
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
-const degrees = (t: number) => (Number.isInteger(t) ? `${t}` : t.toFixed(1));
+import { getHvacModeIcon, getModeColors } from "./utils";
+import { degrees, fanWord, hvacWord, presetWord, spaced } from "./words";
 
 const list = (e: EntityView, key: string) => (e.attributes[key] as string[] | undefined) ?? [];
 const isRange = (e: EntityView) =>
@@ -71,6 +67,8 @@ export function ClimateSheet(props: {
   thermostat: Thermostat;
   targetLabel?: string;
 }) {
+  const tools = useTranslation();
+  const { t } = tools;
   const { callService } = useService();
   const call = (service: string, data: Record<string, unknown>) =>
     void callService("climate", service, data, { entity_id: props.entity.id });
@@ -101,7 +99,7 @@ export function ClimateSheet(props: {
   return (
     <>
       <Show when={target() !== undefined}>
-        <PanelSection label={`${props.targetLabel} · ${degrees(target() ?? 0)}°`}>
+        <PanelSection label={`${props.targetLabel} · ${degrees(tools, target() ?? 0)}°`}>
           <Slider
             value={[target() ?? 0]}
             min={props.thermostat.min()}
@@ -111,19 +109,19 @@ export function ClimateSheet(props: {
             markers={reading()}
             onChange={(next) => setpoints().setPending(next)}
             onChangeEnd={(next) => setpoints().commitValues(next)}
-            aria-label="Target temperature"
+            aria-label={t("climate.controls.target")}
           />
         </PanelSection>
       </Show>
       <Show when={hvacModes().length > 1}>
-        <PanelSection label="Mode">
+        <PanelSection label={t("climate.controls.mode")}>
           <Choices
-            label="Mode"
+            label={t("climate.controls.mode")}
             tone={tone()}
             value={hvacMode()}
             items={hvacModes().map((m) => ({
               value: m,
-              label: HVAC_MODES[m]?.label ?? words(m),
+              label: hvacWord(tools, props.entity, m, spaced),
               icon: getHvacModeIcon(m),
             }))}
             onPick={(m) => call("set_hvac_mode", { hvac_mode: m })}
@@ -132,7 +130,12 @@ export function ClimateSheet(props: {
       </Show>
       <Show when={band()}>
         {(v) => (
-          <PanelSection label={`Heats below ${degrees(v()[0])}°, cools above ${degrees(v()[1])}°`}>
+          <PanelSection
+            label={t("climate.sheet.band", {
+              low: degrees(tools, v()[0]),
+              high: degrees(tools, v()[1]),
+            })}
+          >
             <Slider
               value={v()}
               min={props.thermostat.min()}
@@ -144,29 +147,32 @@ export function ClimateSheet(props: {
               markers={reading()}
               onChange={(next) => setpoints().setPending(next)}
               onChangeEnd={(next) => setpoints().commitValues(next)}
-              aria-label="Comfort range"
+              aria-label={t("climate.sheet.comfort-range")}
             />
           </PanelSection>
         )}
       </Show>
       <Show when={presets().length}>
-        <PanelSection label="Preset">
+        <PanelSection label={t("climate.sheet.preset")}>
           <Choices
-            label="Preset"
+            label={t("climate.sheet.preset")}
             tone={tone()}
             value={props.entity.attributes.preset_mode as string | undefined}
-            items={presets().map((p) => ({ value: p, label: words(p) }))}
+            items={presets().map((p) => ({ value: p, label: presetWord(tools, props.entity, p) }))}
             onPick={(p) => call("set_preset_mode", { preset_mode: p })}
           />
         </PanelSection>
       </Show>
       <Show when={fanModes().length}>
-        <PanelSection label="Fan">
+        <PanelSection label={t("climate.sheet.fan")}>
           <Choices
-            label="Fan"
+            label={t("climate.sheet.fan")}
             tone={tone()}
             value={props.entity.attributes.fan_mode as string | undefined}
-            items={fanModes().map((f) => ({ value: f, label: FAN_MODES[f]?.label ?? words(f) }))}
+            items={fanModes().map((f) => ({
+              value: f,
+              label: fanWord(tools, props.entity, f, spaced),
+            }))}
             onPick={(f) => call("set_fan_mode", { fan_mode: f })}
           />
         </PanelSection>

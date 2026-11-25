@@ -11,6 +11,7 @@ import {
   untrackEntityHistory,
   useEntities,
   useEntityHistory,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetEntityGroup,
@@ -23,7 +24,7 @@ import { getSensorIcon, widgetDialogProps } from "../common";
 import { SensorSheet } from "./sheet";
 import { type SparklinePoint, TileSparkline } from "./sparkline";
 import "./sensor.css";
-import { formatSensorValue } from "./utils";
+import { formatSensorValue, sensorClass } from "./utils";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -38,6 +39,8 @@ type SensorConfig = Infer<typeof configSchema>;
 
 function SensorWidget(props: { config: SensorConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entities = useEntities(() => props.config.entityIds);
@@ -69,8 +72,8 @@ function SensorWidget(props: { config: SensorConfig }) {
     sensorGroupType: () => props.config.aggregationType ?? "mean",
     emptyStateConfig: {
       icon: <Icon icon="mdi:eye" width={32} />,
-      title: "No sensor entity",
-      message: "Hold to configure",
+      title: t("sensor.empty.title"),
+      message: t("sensor.empty.message"),
     },
   });
 
@@ -88,7 +91,7 @@ function SensorWidget(props: { config: SensorConfig }) {
     const data = sensorData();
     if (!data) return "--";
     if (data.numericValue !== null) {
-      return formatSensorValue(data.numericValue, deviceClass());
+      return formatSensorValue(tools, data.numericValue, deviceClass());
     }
     return data.state;
   });
@@ -99,7 +102,7 @@ function SensorWidget(props: { config: SensorConfig }) {
     const total = count();
     if (total <= 1) return undefined;
     const data = sensorData();
-    return data?.description ?? `${total} sensors`;
+    return data?.description ?? t("sensor.eyebrow.count", { count: total });
   });
 
   const name = () =>
@@ -107,12 +110,11 @@ function SensorWidget(props: { config: SensorConfig }) {
     entities()
       .map((e) => e.friendlyName)
       .join(", ") ||
-    "Sensor";
+    t("sensor.name");
   const eyebrow = () => {
     const sub = subtitle();
     if (sub) return sub;
-    const cls = deviceClass();
-    return cls ? `${cls.charAt(0).toUpperCase()}${cls.slice(1).replace(/_/g, " ")}` : "Sensor";
+    return sensorClass(tools, deviceClass());
   };
 
   const extras = () =>

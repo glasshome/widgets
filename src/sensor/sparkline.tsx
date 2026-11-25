@@ -1,4 +1,10 @@
-import { monotoneCubicPath, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
+import {
+  monotoneCubicPath,
+  useTranslation,
+  useWidgetDimensions,
+  Widget,
+} from "@glasshome/widget-sdk";
+import { sparkValue } from "./utils";
 import {
   createMemo,
   createSignal,
@@ -35,13 +41,6 @@ const VISIBLE_FROM = 0.42;
 /** From this tile size the line gets its own full-width band between the head and the value. */
 const FULL_MIN = { width: 300, height: 320 };
 
-const hourLabel = (seconds: number) =>
-  new Date(seconds * 1000).toLocaleTimeString(undefined, { hour: "numeric" });
-const dayLabel = (seconds: number) =>
-  new Date(seconds * 1000).toLocaleDateString(undefined, { weekday: "short" });
-
-const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v).toString() : v.toFixed(1));
-
 /** The tile's line: behind the value on a small tile, its own band from 4x4 up. */
 export function TileSparkline(props: { data: SparklinePoint[]; from: number }): JSX.Element {
   const tile = useWidgetDimensions();
@@ -62,6 +61,10 @@ function dayMean(points: { timestamp: number; value: number }[], noon: number): 
 }
 
 export function SparkChart(props: SparkChartProps): JSX.Element {
+  const tools = useTranslation();
+  const hourLabel = (seconds: number) => tools.formatDate(seconds * 1000, { hour: "numeric" });
+  const dayLabel = (seconds: number) => tools.formatDate(seconds * 1000, { weekday: "short" });
+  const fmt = (v: number) => sparkValue(tools, v);
   const color = () => props.color ?? "var(--widget-color)";
   const gradientId = createUniqueId();
 
@@ -174,6 +177,7 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
   });
 
   const reveal = (delay = false) => ({
+    // ui-text-ok: css transition
     transition: `opacity var(--duration-state) var(--ease-morph)${delay ? " var(--duration-morph)" : ""}`,
   });
 
@@ -200,6 +204,7 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
                 d={cd().areaPath}
                 fill={`url(#${gradientId})`}
                 opacity={mounted() ? 1 : 0}
+                // ui-text-ok: css transition
                 style={{ transition: "opacity var(--duration-morph) var(--ease-morph)" }}
               />
 

@@ -30,5 +30,105 @@
   "manifest.name": {
     "source": "0555f3017245dc46",
     "value": "9a7bf1fb038832dc"
+  },
+  "media-player.controls.label": {
+    "source": "3db55f5845cd1632",
+    "value": "033e8fc05dcaa260"
+  },
+  "media-player.controls.next": {
+    "source": "c64cdb15fe79aaa6",
+    "value": "608619c15478602e"
+  },
+  "media-player.controls.pause": {
+    "source": "6e89fa9e9d9c8c72",
+    "value": "858e4ba7a29fd38b"
+  },
+  "media-player.controls.play": {
+    "source": "238fd2b5db22f33d",
+    "value": "9551b722d7f89171"
+  },
+  "media-player.controls.previous": {
+    "source": "5b658f175e2c740c",
+    "value": "16d7dc4c8c547c64"
+  },
+  "media-player.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "a2540cfec4ec0fe4"
+  },
+  "media-player.empty.title": {
+    "source": "31b2019a9afb3ae0",
+    "value": "d8db3143ec614bf4"
+  },
+  "media-player.name": {
+    "source": "7ce2ebb6b44992e6",
+    "value": "0031e3624efbc466"
+  },
+  "media-player.sheet.play-order": {
+    "source": "dfa4898b363d6195",
+    "value": "e37bfd0c3a934d07"
+  },
+  "media-player.sheet.playing-on": {
+    "source": "5328f66a9951118e",
+    "value": "f8ed0638f8cdd64e"
+  },
+  "media-player.sheet.position": {
+    "source": "e539353dac27ce4a",
+    "value": "68d330d580cf4f70"
+  },
+  "media-player.sheet.position-label": {
+    "source": "b2d1a8f8017a6276",
+    "value": "e523473066ef21c9"
+  },
+  "media-player.sheet.repeat": {
+    "source": "1a3019a6ceef9757",
+    "value": "e0ef009b54561464"
+  },
+  "media-player.sheet.repeat-one": {
+    "source": "c038dd04404b9621",
+    "value": "b01e5d7b1032b35a"
+  },
+  "media-player.sheet.shuffle": {
+    "source": "d9ae4b1c5854f481",
+    "value": "f6df0447b5ece693"
+  },
+  "media-player.sheet.sound": {
+    "source": "7da19818c609348d",
+    "value": "b0c456badb047546"
+  },
+  "media-player.sheet.sound-mode": {
+    "source": "e69e16a1da42c478",
+    "value": "dc37afe3a0b8b12d"
+  },
+  "media-player.sheet.source": {
+    "source": "a628452a4969aa09",
+    "value": "0378894a522e5f07"
+  },
+  "media-player.state.buffering": {
+    "source": "4391a04a857d1aeb",
+    "value": "c10d3c005c7a12c5"
+  },
+  "media-player.state.idle": {
+    "source": "34e0a423e7764fc3",
+    "value": "bf7c9171cb4911c7"
+  },
+  "media-player.state.off": {
+    "source": "597ea32f8215307d",
+    "value": "f0ce94502ed90ac3"
+  },
+  "media-player.state.on": {
+    "source": "875016a04e20fb98",
+    "value": "b9a637bc1f1fd273"
+  },
+  "media-player.state.paused": {
+    "source": "be8bc94ba356c0f2",
+    "value": "02a733f1648a3126"
+  },
+  "media-player.state.playing": {
+    "source": "e25e2be61ceef032",
+    "value": "0f197f0cc3ff4b79"
+  },
+  "media-player.state.standby": {
+    "source": "b64a4c005a6e0c70",
+    "value": "fcd589c1bc20cd2d"
   }
 }

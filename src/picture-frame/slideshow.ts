@@ -1,3 +1,4 @@
+import type { TranslationTools } from "@glasshome/widget-sdk";
 import type { ChangeInterval, PictureFit } from "./types";
 
 type Slide = { key: string; src: string };
@@ -19,21 +20,26 @@ const INTERVAL_MS: Record<ChangeInterval, number | undefined> = {
   "5m": 300_000,
 };
 
-function samplesNote(chosen: number): SlideshowNote {
-  if (chosen === 0) return { label: "Sample photos", hint: "Hold to add yours" };
+function samplesNote(t: TranslationTools["t"], chosen: number): SlideshowNote {
+  if (chosen === 0) {
+    return { label: t("picture-frame.note.samples"), hint: t("picture-frame.note.add") };
+  }
   return {
-    label: chosen === 1 ? "Your picture is gone" : "Your pictures are gone",
-    hint: "Hold to pick others",
+    label: t("picture-frame.note.gone", { count: chosen }),
+    hint: t("picture-frame.note.pick"),
   };
 }
 
-export function resolveSlideshow(input: {
-  pictures: ReadonlyArray<{ src: string | undefined }>;
-  samples: readonly string[];
-  fit: PictureFit | undefined;
-  interval: ChangeInterval | undefined;
-  failed: ReadonlySet<string>;
-}): SlideshowView {
+export function resolveSlideshow(
+  t: TranslationTools["t"],
+  input: {
+    pictures: ReadonlyArray<{ src: string | undefined }>;
+    samples: readonly string[];
+    fit: PictureFit | undefined;
+    interval: ChangeInterval | undefined;
+    failed: ReadonlySet<string>;
+  },
+): SlideshowView {
   const chosen = input.pictures.filter((p) => p.src !== undefined && p.src !== "");
   const own = chosen.flatMap<Slide>((p, index) =>
     p.src === undefined || input.failed.has(p.src)
@@ -48,6 +54,6 @@ export function resolveSlideshow(input: {
     slides,
     objectFit: input.fit ?? "cover",
     ...(slides.length > 1 && ms !== undefined ? { autoplay: ms } : {}),
-    ...(own.length === 0 ? { note: samplesNote(chosen.length) } : {}),
+    ...(own.length === 0 ? { note: samplesNote(t, chosen.length) } : {}),
   };
 }

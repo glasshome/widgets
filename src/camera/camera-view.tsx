@@ -1,4 +1,4 @@
-import { Badge, Button, CameraStream, Icon } from "@glasshome/widget-sdk";
+import { Badge, Button, CameraStream, Icon, useTranslation } from "@glasshome/widget-sdk";
 import {
   type Accessor,
   createEffect,
@@ -23,8 +23,8 @@ const MEDIA_CLASS: Record<CameraVariant, string> = {
 const FIT: Record<CameraVariant, "cover" | "contain"> = { tile: "cover", live: "contain" };
 
 const RETRY_HINT: Record<CameraVariant, string> = {
-  tile: "No signal · tap to retry",
-  live: "No signal",
+  tile: "camera.overlay.retry",
+  live: "camera.status.no-signal",
 };
 
 export function CameraView(props: {
@@ -38,6 +38,7 @@ export function CameraView(props: {
   fullscreen?: boolean;
   actions?: JSX.Element;
 }) {
+  const { t } = useTranslation();
   const status = props.player.status;
   const variant = () => props.variant ?? "tile";
   const mediaClass = () => MEDIA_CLASS[variant()];
@@ -52,25 +53,25 @@ export function CameraView(props: {
   const badge = createMemo(() => {
     switch (status()) {
       case "offline":
-        return { label: "Offline", tone: "var(--destructive)" };
+        return { label: t("camera.status.offline"), tone: "var(--destructive)" };
       case "live":
-        return { label: "Live", tone: "var(--success)" };
+        return { label: t("camera.status.live"), tone: "var(--success)" };
       case "no-signal":
-        return { label: "No signal", tone: "var(--destructive)" };
+        return { label: t("camera.status.no-signal"), tone: "var(--destructive)" };
       case "connecting":
       case "reconnecting":
-        return { label: "Connecting", tone: "var(--warning)" };
+        return { label: t("camera.status.connecting"), tone: "var(--warning)" };
       default:
-        return { label: "Idle", tone: "var(--warning)" };
+        return { label: t("camera.status.idle"), tone: "var(--warning)" };
     }
   });
 
   const overlay = createMemo(() => {
     switch (status()) {
       case "no-signal":
-        return { icon: "mdi:cctv-off", label: RETRY_HINT[variant()] };
+        return { icon: "mdi:cctv-off", label: t(RETRY_HINT[variant()]) };
       case "offline":
-        return { icon: "mdi:cctv-off", label: "Camera offline" };
+        return { icon: "mdi:cctv-off", label: t("camera.overlay.offline") };
       default:
         return undefined;
     }
@@ -146,7 +147,9 @@ export function CameraView(props: {
           <Button
             variant={props.muted() ? "outline" : "default"}
             size="icon"
-            aria-label={props.muted() ? "Turn sound on" : "Turn sound off"}
+            aria-label={
+              props.muted() ? t("camera.controls.sound-on") : t("camera.controls.sound-off")
+            }
             aria-pressed={!props.muted()}
             onClick={() => props.setMuted((m) => !m)}
           >

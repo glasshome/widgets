@@ -18,5 +18,10 @@
   "manifest.examples.4.label": "Hoch",
   "manifest.examples.5.label": "Groß",
   "manifest.examples.6.label": "Klein",
-  "manifest.name": "Bilderrahmen"
+  "manifest.name": "Bilderrahmen",
+  "picture-frame.name": "Bilderrahmen",
+  "picture-frame.note.add": "Halte gedrückt, um deins hinzuzufügen",
+  "picture-frame.note.gone": "{count, plural, one {Dein Bild ist weg} other {Deine Bilder sind weg}}",
+  "picture-frame.note.pick": "Halte gedrückt, um andere auszuwählen",
+  "picture-frame.note.samples": "Beispielfotos"
 }

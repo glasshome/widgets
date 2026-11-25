@@ -7,6 +7,7 @@ import {
   defineWidget,
   imageSrc,
   presetValue,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   Widget,
@@ -30,6 +31,7 @@ const picked = (...names: string[]): PictureFrameConfig => ({
 
 function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   const ctx = useWidgetContext();
+  const { t } = useTranslation();
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const sources = createMemo(() =>
@@ -44,7 +46,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   });
 
   const view = createMemo(() =>
-    resolveSlideshow({
+    resolveSlideshow(t, {
       pictures: sources(),
       samples: Object.values(SAMPLES).map((sample) => sample.src),
       fit: props.config.fit,
@@ -124,7 +126,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title="Picture Frame"
+        title={t("picture-frame.name")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}

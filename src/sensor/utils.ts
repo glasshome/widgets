@@ -1,7 +1,4 @@
-/**
- * Sensor value formatting with device-class-aware precision.
- * Temperature: 1 decimal. Humidity: 0 decimals. Power/energy: 1 decimal. Default: 1 decimal.
- */
+import type { TranslationTools } from "@glasshome/widget-sdk";
 
 const PRECISION_BY_CLASS: Record<string, number> = {
   temperature: 1,
@@ -24,7 +21,39 @@ const PRECISION_BY_CLASS: Record<string, number> = {
   monetary: 2,
 };
 
+const CLASS_KEYS: Record<string, string> = {
+  temperature: "sensor.class.temperature",
+  humidity: "sensor.class.humidity",
+  pressure: "sensor.class.pressure",
+  power: "sensor.class.power",
+  energy: "sensor.class.energy",
+  voltage: "sensor.class.voltage",
+  current: "sensor.class.current",
+  battery: "sensor.class.battery",
+  illuminance: "sensor.class.illuminance",
+  signal_strength: "sensor.class.signal-strength",
+  carbon_dioxide: "sensor.class.carbon-dioxide",
+  carbon_monoxide: "sensor.class.carbon-monoxide",
+  pm25: "sensor.class.pm25",
+  pm10: "sensor.class.pm10",
+  speed: "sensor.class.speed",
+  distance: "sensor.class.distance",
+  weight: "sensor.class.weight",
+  monetary: "sensor.class.monetary",
+};
+
+export function sensorClass(
+  tools: Pick<TranslationTools, "t">,
+  deviceClass: string | null,
+): string {
+  if (!deviceClass) return tools.t("sensor.name");
+  if (Object.hasOwn(CLASS_KEYS, deviceClass)) return tools.t(CLASS_KEYS[deviceClass] ?? "");
+  const spaced = deviceClass.replaceAll("_", " ");
+  return `${spaced.charAt(0).toUpperCase()}${spaced.slice(1)}`;
+}
+
 export function formatSensorValue(
+  tools: Pick<TranslationTools, "formatNumber">,
   value: number | string,
   deviceClass?: string | null,
   precision?: number,
@@ -33,7 +62,15 @@ export function formatSensorValue(
   if (Number.isNaN(numValue)) return typeof value === "string" ? value : "--";
 
   const decimals = precision ?? PRECISION_BY_CLASS[deviceClass ?? ""] ?? 1;
-  return numValue.toFixed(decimals);
+  return tools.formatNumber(numValue, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+export function sparkValue(tools: Pick<TranslationTools, "formatNumber">, v: number): string {
+  const digits = Math.abs(v) >= 100 ? 0 : 1;
+  return tools.formatNumber(v, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
 export interface Reading {

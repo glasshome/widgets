@@ -1,4 +1,104 @@
 {
+  "camera.controls.retry": {
+    "source": "5a03b078648a230d",
+    "value": "af273d956b5bec8d"
+  },
+  "camera.controls.sound-off": {
+    "source": "55111881b0fbee63",
+    "value": "916f7ecc1577279f"
+  },
+  "camera.controls.sound-on": {
+    "source": "bcd62ac40ab82a20",
+    "value": "d1ba684a2bee3d45"
+  },
+  "camera.empty.message": {
+    "source": "65d68381beeecf82",
+    "value": "e407144e72b0d997"
+  },
+  "camera.empty.title": {
+    "source": "49f83d2a8bbe8cc9",
+    "value": "fe3c4efc891db58d"
+  },
+  "camera.facts.model": {
+    "source": "e0efcc9da656fd62",
+    "value": "e61bbb839ef8d8cb"
+  },
+  "camera.facts.motion": {
+    "source": "0273eabc217152d0",
+    "value": "cb8745eef6278591"
+  },
+  "camera.facts.motion-off": {
+    "source": "597ea32f8215307d",
+    "value": "fe9b1b3182fd6104"
+  },
+  "camera.facts.motion-on": {
+    "source": "875016a04e20fb98",
+    "value": "361663d37f4aabe4"
+  },
+  "camera.facts.sound": {
+    "source": "7da19818c609348d",
+    "value": "4e850716074e60fa"
+  },
+  "camera.facts.sound-available": {
+    "source": "84afeef405c8fda0",
+    "value": "f4e4f699637be88f"
+  },
+  "camera.facts.sound-none": {
+    "source": "38582616fbb0a810",
+    "value": "4679b3b12de0b53a"
+  },
+  "camera.facts.stream": {
+    "source": "4f85ec7480ebdb62",
+    "value": "f5edfb1fdf449300"
+  },
+  "camera.name": {
+    "source": "f7b338ed0010c345",
+    "value": "fc919992c43ecb60"
+  },
+  "camera.overlay.offline": {
+    "source": "ffabc0db853d69f8",
+    "value": "84ba4a6cb73ef18a"
+  },
+  "camera.overlay.retry": {
+    "source": "7a412893ffeb96ed",
+    "value": "ef181ca0564c864a"
+  },
+  "camera.source.hls": {
+    "source": "f89a18af71b9bee1",
+    "value": "32e5edc3c081a7f0"
+  },
+  "camera.source.mjpeg": {
+    "source": "93c1854ad0296993",
+    "value": "912e5e2c1bdffbc3"
+  },
+  "camera.source.snapshots": {
+    "source": "31139f6fe6ba3132",
+    "value": "8bb06af544c6375d"
+  },
+  "camera.source.webrtc": {
+    "source": "fd8e2858dd826ba8",
+    "value": "cffd062854c1f1ec"
+  },
+  "camera.status.connecting": {
+    "source": "209657ed9573b24e",
+    "value": "61d695041034c12d"
+  },
+  "camera.status.idle": {
+    "source": "34e0a423e7764fc3",
+    "value": "ac7c949f1211b781"
+  },
+  "camera.status.live": {
+    "source": "bd9c200886dc15df",
+    "value": "235df0b17a9e9bf2"
+  },
+  "camera.status.no-signal": {
+    "source": "61c537eb47ccba5a",
+    "value": "ae17a69ae7a87e9e"
+  },
+  "camera.status.offline": {
+    "source": "abb74185088ddd80",
+    "value": "21bb8c75de57cf3d"
+  },
   "manifest.config.title.description": {
     "source": "c5297a7b336aa0ac",
     "value": "be7e27369a3786bf"

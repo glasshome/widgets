@@ -9,9 +9,11 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   trackEntityHistory,
+  type TranslationTools,
   untrackEntityHistory,
   useEntityHistory,
   useEntityStatistics,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 import { getSensorIcon } from "../common";
@@ -21,9 +23,9 @@ import { downsample, formatSensorValue, type Reading, readingsWithin, summarize 
 type Range = "6h" | "24h" | "7d";
 
 const RANGES: { id: Range; label: string; hours: number; words: string }[] = [
-  { id: "6h", label: "6 h", hours: 6, words: "Last 6 hours" },
-  { id: "24h", label: "24 h", hours: 24, words: "Last 24 hours" },
-  { id: "7d", label: "7 d", hours: 24 * 7, words: "Last 7 days" },
+  { id: "6h", label: "sensor.range.6h", hours: 6, words: "sensor.range.6h-words" },
+  { id: "24h", label: "sensor.range.24h", hours: 24, words: "sensor.range.24h-words" },
+  { id: "7d", label: "sensor.range.7d", hours: 24 * 7, words: "sensor.range.7d-words" },
 ];
 
 const HOUR_MS = 3_600_000;
@@ -34,15 +36,17 @@ const INK = "var(--tone-info)";
 const deviceClassOf = (e: EntityView) =>
   e.deviceClass ?? getEntityAttribute<string>(e, "device_class") ?? null;
 
-function readingText(e: EntityView): string {
+function readingText(tools: TranslationTools, e: EntityView): string {
   const n = Number(e.state);
   if (Number.isNaN(n)) return e.state;
-  const value = formatSensorValue(n, deviceClassOf(e));
+  const value = formatSensorValue(tools, n, deviceClassOf(e));
   return e.unitOfMeasurement ? `${value} ${e.unitOfMeasurement}` : value;
 }
 
 /** What the sensor tile cannot show: the first sensor's history over a chosen range, and every sensor's reading. */
 export function SensorSheet(props: { entities: EntityView[] }) {
+  const tools = useTranslation();
+  const { t } = tools;
   const [range, setRange] = createSignal<Range>("24h");
   const shown = () => props.entities[0];
   const shownId = () => shown()?.id ?? "";
@@ -93,6 +97,7 @@ export function SensorSheet(props: { entities: EntityView[] }) {
   const fmt = (n: number) => {
     const e = shown();
     const v = formatSensorValue(
+      tools,
       n,
       e ? deviceClassOf(e) : null,
       Math.abs(n) >= 1000 ? 0 : undefined,
@@ -104,28 +109,42 @@ export function SensorSheet(props: { entities: EntityView[] }) {
     const s = summary();
     return s
       ? [
-          { icon: "mdi:arrow-down", label: "Low", value: fmt(s.min) },
-          { icon: "mdi:arrow-up", label: "High", value: fmt(s.max) },
-          { icon: "mdi:approximately-equal", label: "Average", value: fmt(s.average) },
+          { icon: "mdi:arrow-down", label: t("sensor.sheet.low"), value: fmt(s.min) },
+          { icon: "mdi:arrow-up", label: t("sensor.sheet.high"), value: fmt(s.max) },
+          {
+            icon: "mdi:approximately-equal",
+            label: t("sensor.sheet.average"),
+            value: fmt(s.average),
+          },
         ]
-      : [{ icon: "mdi:chart-line", label: "History", value: "None for this range yet" }];
+      : [
+          {
+            icon: "mdi:chart-line",
+            label: t("sensor.sheet.history"),
+            value: t("sensor.sheet.none"),
+          },
+        ];
   };
 
+  const several = () => props.entities.length > 1;
   const historyLabel = () =>
-    props.entities.length > 1
-      ? `${shown()?.friendlyName ?? "History"}, ${spec().words.toLowerCase()}`
-      : spec().words;
+    several()
+      ? t("sensor.sheet.named-history", {
+          name: shown()?.friendlyName ?? t("sensor.sheet.history"),
+          range: t(spec().words),
+        })
+      : t(spec().words);
 
   return (
     <>
       <PanelSection label={historyLabel()}>
         <ToggleGroup
-          aria-label="Range"
+          aria-label={t("sensor.sheet.range")}
           value={range()}
           onChange={(v: string | null) => v && setRange(v as Range)}
         >
           <For each={RANGES}>
-            {(r) => <ToggleGroupItem value={r.id}>{r.label}</ToggleGroupItem>}
+            {(r) => <ToggleGroupItem value={r.id}>{t(r.label)}</ToggleGroupItem>}
           </For>
         </ToggleGroup>
         <div style={{ height: `${CHART_HEIGHT}px` }}>
@@ -140,15 +159,15 @@ export function SensorSheet(props: { entities: EntityView[] }) {
         </div>
         <PanelFacts items={facts()} />
       </PanelSection>
-      <Show when={props.entities.length > 1}>
-        <PanelSection label="Sensors">
+      <Show when={several()}>
+        <PanelSection label={t("sensor.sheet.sensors")}>
           <PanelRows>
             <For each={props.entities}>
               {(e) => (
                 <PanelRow
                   icon={getSensorIcon(deviceClassOf(e))}
                   name={e.friendlyName}
-                  state={readingText(e)}
+                  state={readingText(tools, e)}
                   tone={INK}
                   on
                 />

@@ -18,5 +18,10 @@
   "manifest.examples.4.label": "Haut",
   "manifest.examples.5.label": "Grand",
   "manifest.examples.6.label": "Petit",
-  "manifest.name": "Cadre photo"
+  "manifest.name": "Cadre photo",
+  "picture-frame.name": "Cadre photo",
+  "picture-frame.note.add": "Maintenez pour ajouter la vôtre",
+  "picture-frame.note.gone": "{count, plural, one {Votre photo a disparu} other {Vos photos ont disparu}}",
+  "picture-frame.note.pick": "Maintenez pour en choisir d’autres",
+  "picture-frame.note.samples": "Photos d’exemple"
 }

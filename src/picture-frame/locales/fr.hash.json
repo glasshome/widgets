@@ -78,5 +78,25 @@
   "manifest.name": {
     "source": "e4f0ca3f9b06b07d",
     "value": "35efa75f0c983821"
+  },
+  "picture-frame.name": {
+    "source": "e4f0ca3f9b06b07d",
+    "value": "35efa75f0c983821"
+  },
+  "picture-frame.note.add": {
+    "source": "6b8dbc683b2eb1e7",
+    "value": "d3aeef0f209e3e23"
+  },
+  "picture-frame.note.gone": {
+    "source": "f36a050f4ceeb154",
+    "value": "9387c6bef5bff74d"
+  },
+  "picture-frame.note.pick": {
+    "source": "57215b1b480140b9",
+    "value": "f10586a1ed096497"
+  },
+  "picture-frame.note.samples": {
+    "source": "d0cb3af79099cf5c",
+    "value": "af0236b069b31e4d"
   }
 }

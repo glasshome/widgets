@@ -1,14 +1,14 @@
-import { Button, Icon, type PanelFact, PanelFacts } from "@glasshome/widget-sdk";
+import { Button, Icon, type PanelFact, PanelFacts, useTranslation } from "@glasshome/widget-sdk";
 import { type Accessor, type Setter, Show } from "solid-js";
 import { CameraView } from "./camera-view";
 import type { CameraPlayer } from "./create-player";
 import type { SourceKind } from "./sources";
 
 const SOURCE_LABEL: Record<SourceKind, string> = {
-  webrtc: "WebRTC",
-  hls: "HLS",
-  mjpeg: "MJPEG",
-  snapshot: "Snapshots",
+  webrtc: "camera.source.webrtc",
+  hls: "camera.source.hls",
+  mjpeg: "camera.source.mjpeg",
+  snapshot: "camera.source.snapshots",
 };
 
 export interface CameraFacts {
@@ -24,6 +24,7 @@ export function CameraLiveView(props: {
   setMuted: Setter<boolean>;
   facts: Accessor<CameraFacts>;
 }) {
+  const { t } = useTranslation();
   const lost = () => {
     const s = props.player.status();
     return s === "no-signal" || s === "offline";
@@ -32,23 +33,30 @@ export function CameraLiveView(props: {
   const facts = (): PanelFact[] => {
     const items: PanelFact[] = [];
     const kind = props.player.activeKind();
-    if (kind) items.push({ icon: "mdi:access-point", label: "Stream", value: SOURCE_LABEL[kind] });
+    if (kind)
+      items.push({
+        icon: "mdi:access-point",
+        label: t("camera.facts.stream"),
+        value: t(SOURCE_LABEL[kind]),
+      });
     if (props.player.status() === "live" && kind !== "mjpeg" && kind !== "snapshot") {
       items.push({
         icon: props.player.hasAudio() ? "mdi:microphone" : "mdi:microphone-off",
-        label: "Sound",
-        value: props.player.hasAudio() ? "Available" : "None",
+        label: t("camera.facts.sound"),
+        value: props.player.hasAudio()
+          ? t("camera.facts.sound-available")
+          : t("camera.facts.sound-none"),
       });
     }
     const { model, motionDetection } = props.facts();
     if (motionDetection !== null) {
       items.push({
         icon: "mdi:motion-sensor",
-        label: "Motion detection",
-        value: motionDetection ? "On" : "Off",
+        label: t("camera.facts.motion"),
+        value: motionDetection ? t("camera.facts.motion-on") : t("camera.facts.motion-off"),
       });
     }
-    if (model) items.push({ icon: "mdi:cctv", label: "Model", value: model });
+    if (model) items.push({ icon: "mdi:cctv", label: t("camera.facts.model"), value: model });
     return items;
   };
 
@@ -66,7 +74,12 @@ export function CameraLiveView(props: {
           fullscreen
           actions={
             <Show when={lost()}>
-              <Button variant="outline" size="icon" aria-label="Retry" onClick={props.player.retry}>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t("camera.controls.retry")}
+                onClick={props.player.retry}
+              >
                 <Icon icon="mdi:refresh" width={18} />
               </Button>
             </Show>

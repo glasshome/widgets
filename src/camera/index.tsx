@@ -8,6 +8,7 @@ import {
   Icon,
   type Infer,
   useEntity,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -36,6 +37,7 @@ type CameraConfig = Infer<typeof configSchema>;
 
 function CameraWidget(props: { config: CameraConfig }) {
   const ctx = useWidgetContext();
+  const { t } = useTranslation();
   const { showDialog, setShowDialog, openDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
@@ -70,7 +72,7 @@ function CameraWidget(props: { config: CameraConfig }) {
   });
   onCleanup(player.dispose);
 
-  const name = createMemo(() => props.config.title || entity()?.friendlyName || "Camera");
+  const name = createMemo(() => props.config.title || entity()?.friendlyName || t("camera.name"));
 
   const poster = createMemo(() => {
     const picture = attr("entity_picture");
@@ -107,8 +109,8 @@ function CameraWidget(props: { config: CameraConfig }) {
       ? undefined
       : {
           icon: <Icon icon="mdi:cctv" width={32} />,
-          title: "No camera entity",
-          message: "Hold to configure",
+          title: t("camera.empty.title"),
+          message: t("camera.empty.message"),
         },
   );
 

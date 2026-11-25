@@ -10,6 +10,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   useService,
+  useTranslation,
 } from "@glasshome/widget-sdk";
 import { createEffect, createSignal, For, on, onCleanup, Show } from "solid-js";
 import { calculateFeatures, calculateProgress, formatDuration } from "./utils";
@@ -59,6 +60,7 @@ export const mediaHasExtras = (e: EntityView) => {
 
 /** What the media tile cannot show: the speakers it plays on, its source, sound mode, the track position. */
 export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
+  const { t } = useTranslation();
   const { callService } = useService();
   const call = (service: string, data: Record<string, unknown> = {}) =>
     void callService("media_player", service, data, { entity_id: props.entity.id });
@@ -86,7 +88,7 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
   return (
     <>
       <Show when={members(props.entity).length > 1}>
-        <PanelSection label="Playing on">
+        <PanelSection label={t("media-player.sheet.playing-on")}>
           <PanelRows>
             <For each={members(props.entity)}>
               {(id) => <PanelEntityRow entityId={id} within={props.name} />}
@@ -96,7 +98,10 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
       </Show>
       <Show when={seekable(props.entity)}>
         <PanelSection
-          label={`${formatDuration(position())} of ${formatDuration(duration(props.entity))}`}
+          label={t("media-player.sheet.position", {
+            position: formatDuration(position()),
+            duration: formatDuration(duration(props.entity)),
+          })}
         >
           <Slider
             value={[position()]}
@@ -106,12 +111,12 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
               setSeeking(undefined);
               call("media_seek", { seek_position: v[0] });
             }}
-            aria-label="Position in the track"
+            aria-label={t("media-player.sheet.position-label")}
           />
         </PanelSection>
       </Show>
       <Show when={features().supportsShuffle || features().supportsRepeat}>
-        <PanelSection label="Play order">
+        <PanelSection label={t("media-player.sheet.play-order")}>
           <div class="glasshome-sheet-actions">
             <Show when={features().supportsShuffle}>
               <Toggle
@@ -120,7 +125,7 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
                 onChange={(pressed) => call("shuffle_set", { shuffle: pressed })}
               >
                 <Icon icon="mdi:shuffle-variant" />
-                Shuffle
+                {t("media-player.sheet.shuffle")}
               </Toggle>
             </Show>
             <Show when={features().supportsRepeat}>
@@ -130,16 +135,18 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
                 onChange={() => call("repeat_set", { repeat: REPEAT_NEXT[repeat()] ?? "off" })}
               >
                 <Icon icon={repeat() === "one" ? "mdi:repeat-once" : "mdi:repeat"} />
-                {repeat() === "one" ? "Repeat one" : "Repeat"}
+                {repeat() === "one"
+                  ? t("media-player.sheet.repeat-one")
+                  : t("media-player.sheet.repeat")}
               </Toggle>
             </Show>
           </div>
         </PanelSection>
       </Show>
       <Show when={sources(props.entity).length}>
-        <PanelSection label="Source">
+        <PanelSection label={t("media-player.sheet.source")}>
           <Choices
-            label="Source"
+            label={t("media-player.sheet.source")}
             items={sources(props.entity)}
             value={attr<string>("source")}
             onPick={(source) => call("select_source", { source })}
@@ -147,9 +154,9 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
         </PanelSection>
       </Show>
       <Show when={soundModes(props.entity).length}>
-        <PanelSection label="Sound">
+        <PanelSection label={t("media-player.sheet.sound")}>
           <Choices
-            label="Sound mode"
+            label={t("media-player.sheet.sound-mode")}
             items={soundModes(props.entity)}
             value={attr<string>("sound_mode")}
             onPick={(sound_mode) => call("select_sound_mode", { sound_mode })}

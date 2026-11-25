@@ -11,6 +11,7 @@ import {
   type Infer,
   useEntity,
   useService,
+  useTranslation,
   useWidgetContext,
   useWidgetDialog,
   useWidgetGestures,
@@ -25,6 +26,7 @@ import "./media.css";
 import { MediaPlayerSheet, mediaHasExtras } from "./sheet";
 import { calculateFeatures, getMediaIcon } from "./utils";
 import { VinylRecord } from "./vinyl-record";
+import { mediaEyebrow, volumeText } from "./words";
 import en from "./locales/en.json";
 
 const configSchema = defineConfig({
@@ -35,6 +37,8 @@ type MediaPlayerConfig = Infer<typeof configSchema>;
 
 function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   const ctx = useWidgetContext();
+  const tools = useTranslation();
+  const { t } = tools;
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const entityId = () => props.config.entityIds[0] ?? "";
@@ -110,9 +114,8 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   onCleanup(gestures.dispose);
 
   const eyebrow = () => {
-    const state = entity()?.state ?? "";
-    const label = state === "playing" ? undefined : state.charAt(0).toUpperCase() + state.slice(1);
-    return [mediaArtist() || undefined, label].filter(Boolean).join(" · ") || undefined;
+    const e = entity();
+    return e ? mediaEyebrow(tools, e, mediaArtist()) : undefined;
   };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {
@@ -130,8 +133,8 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
           !entity()
             ? {
                 icon: <Icon icon="mdi:music" width={32} />,
-                title: "No media player",
-                message: "Hold to configure",
+                title: t("media-player.empty.title"),
+                message: t("media-player.empty.message"),
               }
             : undefined
         }
@@ -156,7 +159,9 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                 <Widget.Head
                   icon="mdi:music"
                   eyebrow={eyebrow()}
-                  name={mediaTitle() || props.config.title || e().friendlyName || "Media"}
+                  name={
+                    mediaTitle() || props.config.title || e().friendlyName || t("media-player.name")
+                  }
                   active={isPlaying()}
                 />
                 <Widget.Hero
@@ -164,12 +169,15 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                   art={<VinylRecord imageUrl={albumArt()} isPlaying={isPlaying()} />}
                 />
                 <Widget.Controls>
-                  <ButtonGroup aria-label="Playback" class="glasshome-widget-stepper">
+                  <ButtonGroup
+                    aria-label={t("media-player.controls.label")}
+                    class="glasshome-widget-stepper"
+                  >
                     <Show when={features()?.supportsPrevious}>
                       <Button
                         variant="outline"
                         size="icon"
-                        aria-label="Previous track"
+                        aria-label={t("media-player.controls.previous")}
                         class="glasshome-widget-control"
                         onClick={() => call("media_previous_track")}
                       >
@@ -179,7 +187,11 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label={isPlaying() ? "Pause" : "Play"}
+                      aria-label={
+                        isPlaying()
+                          ? t("media-player.controls.pause")
+                          : t("media-player.controls.play")
+                      }
                       class="glasshome-widget-control"
                       onClick={() => call("media_play_pause")}
                     >
@@ -193,7 +205,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                       <Button
                         variant="outline"
                         size="icon"
-                        aria-label="Next track"
+                        aria-label={t("media-player.controls.next")}
                         class="glasshome-widget-control"
                         onClick={() => call("media_next_track")}
                       >
@@ -204,7 +216,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                   <Show when={features()?.supportsVolume}>
                     <span class="media-volume">
                       <Icon icon="mdi:volume-high" width="1em" height="1em" />
-                      {uiVolume()}%
+                      {volumeText(tools, uiVolume())}
                     </span>
                   </Show>
                 </Widget.Controls>
@@ -216,7 +228,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
       <WidgetDialog
         {...widgetDialogProps}
         {...dialogProps}
-        title={props.config.title || entity()?.friendlyName || "Media"}
+        title={props.config.title || entity()?.friendlyName || t("media-player.name")}
         maxWidth="lg"
         configSchema={configSchema}
         config={props.config}
@@ -232,7 +244,7 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
                   {(e) => (
                     <MediaPlayerSheet
                       entity={e()}
-                      name={props.config.title || e().friendlyName || "Media"}
+                      name={props.config.title || e().friendlyName || t("media-player.name")}
                     />
                   )}
                 </Show>

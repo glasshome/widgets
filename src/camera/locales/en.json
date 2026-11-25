@@ -1,1 +1,27 @@
-{}
+{
+  "camera.controls.retry": "Retry",
+  "camera.controls.sound-off": "Turn sound off",
+  "camera.controls.sound-on": "Turn sound on",
+  "camera.empty.message": "Hold to configure",
+  "camera.empty.title": "No camera entity",
+  "camera.facts.model": "Model",
+  "camera.facts.motion": "Motion detection",
+  "camera.facts.motion-off": "Off",
+  "camera.facts.motion-on": "On",
+  "camera.facts.sound": "Sound",
+  "camera.facts.sound-available": "Available",
+  "camera.facts.sound-none": "None",
+  "camera.facts.stream": "Stream",
+  "camera.name": "Camera",
+  "camera.overlay.offline": "Camera offline",
+  "camera.overlay.retry": "No signal · tap to retry",
+  "camera.source.hls": "HLS",
+  "camera.source.mjpeg": "MJPEG",
+  "camera.source.snapshots": "Snapshots",
+  "camera.source.webrtc": "WebRTC",
+  "camera.status.connecting": "Connecting",
+  "camera.status.idle": "Idle",
+  "camera.status.live": "Live",
+  "camera.status.no-signal": "No signal",
+  "camera.status.offline": "Offline"
+}

@@ -18,5 +18,10 @@
   "manifest.examples.4.label": "Alto",
   "manifest.examples.5.label": "Grande",
   "manifest.examples.6.label": "Pequeño",
-  "manifest.name": "Marco de fotos"
+  "manifest.name": "Marco de fotos",
+  "picture-frame.name": "Marco de fotos",
+  "picture-frame.note.add": "Mantén pulsado para añadir la tuya",
+  "picture-frame.note.gone": "{count, plural, one {Tu foto ha desaparecido} other {Tus fotos han desaparecido}}",
+  "picture-frame.note.pick": "Mantén pulsado para elegir otras",
+  "picture-frame.note.samples": "Fotos de muestra"
 }
