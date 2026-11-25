@@ -1,5 +1,8 @@
 import { defineConfig, field, type Infer } from "@glasshome/widget-sdk";
 
+export const TIME_FORMATS = ["auto", "24", "12"] as const;
+export const DATE_FORMATS = ["auto", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"] as const;
+
 export type ClockSize = "small" | "medium" | "large";
 export type ClockPreset = "modern" | "classic" | "minimal" | "bold";
 
@@ -10,14 +13,14 @@ export const configSchema = defineConfig({
   }),
   clockSize: field.choice(["small", "medium", "large"], { title: "Clock Size", default: "small" }),
   showSeconds: field.toggle({ title: "Show Seconds", default: false }),
-  timeFormat: field.choice(["auto", "24", "12"], { title: "Time Format", default: "auto" }),
+  timeFormat: field.choice([...TIME_FORMATS], { title: "Time Format", default: "auto" }),
   timeZone: field.text({ title: "Timezone" }),
   preset: field.choice(["modern", "classic", "minimal", "bold"], {
     title: "Theme Preset",
     default: "modern",
   }),
   showDate: field.toggle({ title: "Show Date", default: false }),
-  dateFormat: field.choice(["auto", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], {
+  dateFormat: field.choice([...DATE_FORMATS], {
     title: "Date Format",
     default: "auto",
   }),

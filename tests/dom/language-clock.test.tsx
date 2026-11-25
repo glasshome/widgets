@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@solidjs/testing-library";
+import { fireEvent, render, screen } from "@solidjs/testing-library";
 import { WidgetLanguage } from "@glasshome/widget-sdk/testing";
 import type { WidgetDialogProps } from "@glasshome/widget-sdk";
 import type { JSX } from "solid-js";
@@ -69,5 +69,23 @@ describe("the clock's dialog", () => {
       timeFormat: "auto",
       dateFormat: "auto",
     });
+  });
+
+  test("Automatic is the first option of the time and the date select", () => {
+    const config: ClockConfig = { ...getDefaultConfig(), showDate: true };
+    const view = dialog("en", config);
+    for (const label of ["Time Format", "Date Format"]) {
+      const field = view.getByText(label).parentElement;
+      const trigger = field?.querySelector("button");
+      if (!trigger) throw new Error(`${label} has no select`);
+      fireEvent.click(trigger);
+      expect(screen.getAllByRole("option")[0]?.textContent).toBe("Automatic");
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    }
+  });
+
+  test("a stored value the dialog does not know shows as written", () => {
+    const config = { ...getDefaultConfig(), timeFormat: "36" } as unknown as ClockConfig;
+    expect(dialog("en", config).getByText("36")).toBeTruthy();
   });
 });

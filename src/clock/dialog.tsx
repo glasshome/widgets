@@ -13,7 +13,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createSignal, type JSX, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
-import type { ClockConfig } from "./types";
+import { type ClockConfig, DATE_FORMATS, TIME_FORMATS } from "./types";
 
 const STYLE_WORDS: Record<string, string> = {
   digital: "clock.dialog.style.digital",
@@ -91,8 +91,10 @@ function Choices<V extends string>(props: {
   onChange: (value: V) => void;
 }) {
   const { t } = useTranslation();
-  const itemWord = (value: string) => t(props.words[value] ?? "");
-  const shownWord = (value: string) => t((props.short ?? props.words)[value] ?? "");
+  const word = (words: Record<string, string>, value: string) =>
+    words[value] ? t(words[value]) : value;
+  const itemWord = (value: string) => word(props.words, value);
+  const shownWord = (value: string) => word(props.short ?? props.words, value);
   return (
     <Field label={props.label}>
       <Select
@@ -106,7 +108,9 @@ function Choices<V extends string>(props: {
         )}
       >
         <SelectTrigger class="w-full">
-          <SelectValue<string>>{(state) => shownWord(String(state.selectedOption()))}</SelectValue>
+          <SelectValue<string>>
+            {(state) => shownWord(String(state.selectedOption() ?? props.value))}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
@@ -115,8 +119,6 @@ function Choices<V extends string>(props: {
 }
 
 const STYLES = ["digital", "analog", "square"] as const;
-const TIMES = ["auto", "24", "12"] as const;
-const DATES = ["auto", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"] as const;
 const PRESETS = ["modern", "classic", "minimal", "bold"] as const;
 const LAYOUTS = ["auto", "horizontal", "stacked"] as const;
 const SIZES = ["small", "medium", "large"] as const;
@@ -162,7 +164,7 @@ export function ClockDialog(props: {
           <Choices
             label={t("clock.dialog.time.label")}
             value={draft().timeFormat}
-            options={TIMES}
+            options={TIME_FORMATS}
             words={TIME_WORDS}
             onChange={(value) => update("timeFormat", value)}
           />
@@ -212,7 +214,7 @@ export function ClockDialog(props: {
             <Choices
               label={t("clock.dialog.date.label")}
               value={draft().dateFormat}
-              options={DATES}
+              options={DATE_FORMATS}
               words={DATE_WORDS}
               onChange={(value) => update("dateFormat", value)}
             />
