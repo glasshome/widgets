@@ -11,7 +11,15 @@ export default defineConfig({
   plugins: [solid()],
   resolve: {
     conditions: ["browser", "development"],
-    dedupe: ["solid-js", "solid-js/web", "solid-js/store"],
+    dedupe: [
+      "solid-js",
+      "solid-js/web",
+      "solid-js/store",
+      "@solidjs/web",
+      "@solidjs/router",
+      "@solidjs/signals",
+      "@solidjs/meta",
+    ],
   },
   test: {
     sequence: shuffleSeed ? { shuffle: true, seed: Number(shuffleSeed) } : undefined,
