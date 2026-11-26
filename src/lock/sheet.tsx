@@ -6,7 +6,7 @@ import {
   PanelRows,
   PanelSection,
 } from "@glasshome/widget-sdk";
-import { createMemo, For, Show } from "solid-js";
+import { createMemo, Index, Show } from "solid-js";
 
 const at = (date: Date) => {
   if (Number.isNaN(date.getTime())) return undefined;
@@ -35,7 +35,7 @@ export function LockSheet(props: { entities: EntityView[] }) {
     <>
       <PanelSection label="Doors">
         <PanelRows>
-          <For each={props.entities}>{(e) => <PanelEntityRow entityId={e.id} />}</For>
+          <Index each={props.entities}>{(e) => <PanelEntityRow entityId={e().id} />}</Index>
         </PanelRows>
       </PanelSection>
       <Show when={facts().length}>

@@ -9,7 +9,7 @@ import {
   ToggleGroupItem,
   useService,
 } from "@glasshome/widget-sdk";
-import { For, Show } from "solid-js";
+import { For, Index, Show } from "solid-js";
 
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replaceAll("_", " ");
 
@@ -120,9 +120,9 @@ export function FanSheet(props: {
       <Show when={props.entities.length > 1}>
         <PanelSection label="Fans">
           <PanelRows>
-            <For each={props.entities}>
-              {(e) => <PanelEntityRow entityId={e.id} within={props.name} />}
-            </For>
+            <Index each={props.entities}>
+              {(e) => <PanelEntityRow entityId={e().id} within={props.name} />}
+            </Index>
           </PanelRows>
         </PanelSection>
       </Show>
