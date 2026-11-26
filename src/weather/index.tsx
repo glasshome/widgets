@@ -209,7 +209,7 @@ export default defineWidget<WeatherConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 12, h: 8 },
     defaultSize: { w: 4, h: 3 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Partly cloudy",

@@ -294,7 +294,7 @@ export default defineWidget<EnergyBalanceConfig>({
     icon: "mdi:solar-power",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Solar and battery",

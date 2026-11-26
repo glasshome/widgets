@@ -146,7 +146,7 @@ export default defineWidget<PictureFrameConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 12, h: 12 },
     defaultSize: { w: 2, h: 2 },
-    sdkVersion: "^1.11.2",
+    sdkVersion: "^2.0.0",
     examples: [
       { label: "Sample photos", size: { w: 2, h: 2 }, config: SAMPLE_CONFIG },
       { label: "Your photo", size: { w: 3, h: 3 }, config: picked("dog") },

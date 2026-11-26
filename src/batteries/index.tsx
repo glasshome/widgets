@@ -127,7 +127,7 @@ export default defineWidget<BatteriesConfig>({
     icon: "mdi:battery",
     minSize: { w: 2, h: 1 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "All good",

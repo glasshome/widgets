@@ -147,7 +147,7 @@ export default defineWidget<SwitchConfig>({
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 8 },
     defaultSize: { w: 2, h: 2 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "On",

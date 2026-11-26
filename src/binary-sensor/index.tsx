@@ -176,7 +176,7 @@ export default defineWidget<BinarySensorConfig>({
     maxSize: { w: 8, h: 8 },
     defaultSize: { w: 2, h: 2 },
     configVersion: 1,
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Door open",

@@ -272,7 +272,7 @@ export default defineWidget<FanConfig>({
     configVersion: 1,
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.4.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Ceiling fan",

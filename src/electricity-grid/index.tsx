@@ -170,7 +170,7 @@ export default defineWidget<ElectricityGridConfig>({
     maxSize: { w: 8, h: 8 },
     defaultSize: { w: 2, h: 2 },
     capabilities: [{ domain: "sensor", access: "read" }],
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Full view",

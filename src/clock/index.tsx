@@ -675,7 +675,7 @@ export default defineWidget<ClockConfig>({
     icon: "mdi:clock-outline",
     minSize: { w: 1, h: 1 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Digital",

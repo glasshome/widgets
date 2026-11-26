@@ -137,7 +137,7 @@ export default defineWidget<EnergyFlowConfig>({
     icon: "mdi:lightning-bolt",
     minSize: { w: 2, h: 3 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     // v3: the fixed five-role fields became a user-defined node list
     // (field.list + field.variants); migrate.ts maps v1/v2 configs onto it.
     configVersion: 3,

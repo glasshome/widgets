@@ -149,7 +149,7 @@ export default defineWidget<HeaderConfig>({
     minSize: { w: 2, h: 1 },
     maxSize: { w: 16, h: 1 },
     defaultSize: { w: 6, h: 1 },
-    sdkVersion: "^1.15.0",
+    sdkVersion: "^2.0.0",
     capabilities: [
       { domain: "light", access: "control" },
       { domain: "lock", access: "control" },

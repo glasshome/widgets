@@ -170,7 +170,7 @@ export default defineWidget<CameraConfig>({
     minSize: { w: 2, h: 2 },
     maxSize: { w: 12, h: 10 },
     defaultSize: { w: 3, h: 2 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     examples: [
       {
         label: "Front Door",

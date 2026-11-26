@@ -226,7 +226,7 @@ export default defineWidget<AreaConfig>({
     icon: "mdi:home-floor-1",
     minSize: { w: 2, h: 2 },
     maxSize: { w: 8, h: 8 },
-    sdkVersion: "^1.0.0",
+    sdkVersion: "^2.0.0",
     capabilities: [
       { domain: "light", access: "control" },
       { domain: "switch", access: "control" },
