@@ -147,7 +147,7 @@ export function CameraView(props: {
             variant={props.muted() ? "outline" : "default"}
             size="icon"
             aria-label={props.muted() ? "Turn sound on" : "Turn sound off"}
-            aria-pressed={!props.muted()}
+            aria-pressed={props.muted() ? "false" : "true"}
             onClick={() => props.setMuted((m) => !m)}
           >
             <Icon icon={props.muted() ? "mdi:volume-off" : "mdi:volume-high"} width={18} />
