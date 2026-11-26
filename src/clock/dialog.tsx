@@ -13,6 +13,7 @@ import {
 } from "@glasshome/widget-sdk";
 import { createSignal, type JSX, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
+import { datePattern } from "./format";
 import { type ClockConfig, DATE_FORMATS, TIME_FORMATS } from "./types";
 
 const STYLE_WORDS: Record<string, string> = {
@@ -30,12 +31,7 @@ const TIME_WORDS: Record<string, string> = {
   "24": "clock.dialog.time.h24",
   "12": "clock.dialog.time.h12",
 };
-const DATE_WORDS: Record<string, string> = {
-  auto: "clock.dialog.date.auto",
-  "MM/DD/YYYY": "clock.dialog.date.mdy",
-  "DD/MM/YYYY": "clock.dialog.date.dmy",
-  "YYYY-MM-DD": "clock.dialog.date.ymd",
-};
+const DATE_WORDS: Record<string, string> = { auto: "clock.dialog.date.auto" };
 const PRESET_WORDS: Record<string, string> = {
   modern: "clock.dialog.preset.modern",
   classic: "clock.dialog.preset.classic",
@@ -88,11 +84,12 @@ function Choices<V extends string>(props: {
   options: readonly V[];
   words: Record<string, string>;
   short?: Record<string, string>;
+  spelled?: (value: string) => string | undefined;
   onChange: (value: V) => void;
 }) {
   const { t } = useTranslation();
   const word = (words: Record<string, string>, value: string) =>
-    words[value] ? t(words[value]) : value;
+    words[value] ? t(words[value]) : (props.spelled?.(value) ?? value);
   const itemWord = (value: string) => word(props.words, value);
   const shownWord = (value: string) => word(props.short ?? props.words, value);
   return (
@@ -129,7 +126,8 @@ export function ClockDialog(props: {
   dialog: Pick<WidgetDialogProps, "open" | "onOpenChange"> & Partial<WidgetDialogProps>;
   onConfigSave: (config: ClockConfig) => void;
 }) {
-  const { t } = useTranslation();
+  const tools = useTranslation();
+  const { t } = tools;
   const [draft, setDraft] = createSignal<ClockConfig>(props.config);
   const hasChanges = () => JSON.stringify(draft()) !== JSON.stringify(props.config);
   const update = <K extends keyof ClockConfig>(key: K, value: ClockConfig[K]) =>
@@ -216,6 +214,10 @@ export function ClockDialog(props: {
               value={draft().dateFormat}
               options={DATE_FORMATS}
               words={DATE_WORDS}
+              spelled={(value) => {
+                const format = DATE_FORMATS.find((f) => f === value);
+                return format && format !== "auto" ? datePattern(format, tools) : undefined;
+              }}
               onChange={(value) => update("dateFormat", value)}
             />
           </Show>

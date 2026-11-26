@@ -15,25 +15,28 @@
     "source": "2aecc01b234447d9",
     "value": "b803f24d52edd7bc"
   },
-  "clock.dialog.date.dmy": {
-    "source": "5a4845c5ad0ee2ad",
-    "value": "31da44bb6e964bc3"
+  "clock.dialog.date.day": {
+    "source": "4af3cf98d6ee5b9f",
+    "value": "92f089f2a70df5d9",
+    "pinned": true
   },
   "clock.dialog.date.label": {
     "source": "a54953391bcd880d",
     "value": "39d54e1a498dbac4"
   },
-  "clock.dialog.date.mdy": {
-    "source": "6259a0a889a8ccdf",
-    "value": "b4a2e84730734a32"
+  "clock.dialog.date.month": {
+    "source": "b948b746061948cb",
+    "value": "839f5a01576e1ebc",
+    "pinned": true
   },
   "clock.dialog.date.show": {
     "source": "8eb40ef1ad0e6330",
     "value": "7a5703da654c0c3f"
   },
-  "clock.dialog.date.ymd": {
-    "source": "ef2a65eb86b04b4c",
-    "value": "1750ba4e638427b1"
+  "clock.dialog.date.year": {
+    "source": "b5edaa978bffd5a3",
+    "value": "63c1dd951ffedf6f",
+    "pinned": true
   },
   "clock.dialog.font-size": {
     "source": "bf383efb125ff0c8",

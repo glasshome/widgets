@@ -31,7 +31,7 @@ const stubs = {
   ),
 } as unknown as Partial<WidgetDialogProps>;
 
-const dialog = (tag: "en" | "fr", config: ClockConfig, onConfigSave = vi.fn()) =>
+const dialog = (tag: "en" | "fr" | "de", config: ClockConfig, onConfigSave = vi.fn()) =>
   render(() => (
     <WidgetLanguage {...language("clock", tag)}>
       <ClockDialog
@@ -86,6 +86,24 @@ describe("the clock's dialog", () => {
       expect(open.getAllByRole("option")[0]?.textContent).toBe("Automatic");
       fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     }
+  });
+
+  test("a German date choice reads TT.MM.JJJJ, as the German clock writes the date", () => {
+    const config: ClockConfig = { ...getDefaultConfig(), showDate: true };
+    const view = dialog("de", config);
+    const trigger = view
+      .getByText(word("de", "clock.dialog.date.label"))
+      .parentElement?.querySelector("button");
+    if (!trigger) throw new Error("the date format has no select");
+    fireEvent.click(trigger);
+    const listboxId = trigger.getAttribute("aria-labelledby")?.replace(/-value$/, "-listbox");
+    const listbox = listboxId ? document.getElementById(listboxId) : null;
+    if (!listbox) throw new Error("the date format opened no listbox");
+    expect(
+      within(listbox)
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual([word("de", "clock.dialog.date.auto"), "MM.TT.JJJJ", "TT.MM.JJJJ", "JJJJ-MM-TT"]);
   });
 
   test("a stored value the dialog does not know shows as written", () => {

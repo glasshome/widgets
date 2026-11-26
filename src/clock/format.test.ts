@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { languageTools } from "@glasshome/widget-sdk/testing/tools";
-import { clockFace } from "./format";
+import { language } from "../../tests/catalog";
+import { clockFace, datePattern } from "./format";
 
 const tools = (formatting: string) =>
   languageTools({ language: formatting.slice(0, 2), formatting, catalog: null, english: null });
@@ -65,7 +66,51 @@ describe("clockFace", () => {
     );
   });
 
+  test("DD/MM/YYYY in German writes 03.11.2026", () => {
+    expect(clockFace(noon, { ...auto, dateFormat: "DD/MM/YYYY" }, tools("de-DE")).date).toBe(
+      "03.11.2026",
+    );
+  });
+
+  test("MM/DD/YYYY in German writes 11.03.2026", () => {
+    expect(clockFace(noon, { ...auto, dateFormat: "MM/DD/YYYY" }, tools("de-DE")).date).toBe(
+      "11.03.2026",
+    );
+  });
+
+  test("DD/MM/YYYY in French writes 03/11/2026", () => {
+    expect(clockFace(noon, { ...auto, dateFormat: "DD/MM/YYYY" }, tools("fr-FR")).date).toBe(
+      "03/11/2026",
+    );
+  });
+
+  test("YYYY-MM-DD in German writes 2026-11-03", () => {
+    expect(clockFace(noon, { ...auto, dateFormat: "YYYY-MM-DD" }, tools("de-DE")).date).toBe(
+      "2026-11-03",
+    );
+  });
+
   test("the weekday follows the language", () => {
     expect(clockFace(noon, auto, tools("de-DE")).weekday).toBe("Dienstag");
+  });
+});
+
+describe("datePattern", () => {
+  const spoken = (tag: "en" | "fr" | "de") => languageTools(language("clock", tag));
+
+  test("German day-first reads TT.MM.JJJJ, as the clock writes it", () => {
+    expect(datePattern("DD/MM/YYYY", spoken("de"))).toBe("TT.MM.JJJJ");
+  });
+
+  test("French day-first reads JJ/MM/AAAA", () => {
+    expect(datePattern("DD/MM/YYYY", spoken("fr"))).toBe("JJ/MM/AAAA");
+  });
+
+  test("year-first keeps hyphens in German", () => {
+    expect(datePattern("YYYY-MM-DD", spoken("de"))).toBe("JJJJ-MM-TT");
+  });
+
+  test("English month-first reads MM/DD/YYYY", () => {
+    expect(datePattern("MM/DD/YYYY", spoken("en"))).toBe("MM/DD/YYYY");
   });
 });

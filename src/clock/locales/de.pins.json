@@ -1,3 +1,5 @@
 {
-  "clock.dialog.date.dmy": "TT/MM/JJJJ"
+  "clock.dialog.date.day": "TT",
+  "clock.dialog.date.month": "MM",
+  "clock.dialog.date.year": "JJJJ"
 }
