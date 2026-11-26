@@ -149,6 +149,7 @@
   },
   "manifest.name": {
     "source": "c5209e6a1a306559",
-    "value": "3e78d201ade830ad"
+    "value": "ed38b0bfcf2a58e6",
+    "pinned": true
   }
 }
