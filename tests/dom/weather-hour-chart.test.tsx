@@ -1,6 +1,6 @@
 import type { WeatherForecast } from "@glasshome/widget-sdk";
 import { render } from "@solidjs/testing-library";
-import { createSignal } from "solid-js";
+import { createSignal, flush } from "solid-js";
 import { describe, expect, test } from "vitest";
 import { HourChart } from "../../src/weather/hour-chart";
 
@@ -26,7 +26,11 @@ const hourLabel = (hours: WeatherForecast[], i: number) =>
     : new Date(hours[i]?.datetime ?? "").toLocaleTimeString(undefined, { hour: "numeric" });
 
 function mount(hours: WeatherForecast[], labelEvery: number) {
-  const [current, setHours] = createSignal(hours);
+  const [current, writeHours] = createSignal(hours);
+  const setHours = (next: WeatherForecast[]) => {
+    writeHours(next);
+    flush();
+  };
   const view = render(() => <HourChart hours={current()} labelEvery={labelEvery} />);
   const chart = () => view.container.querySelector(".wx-chart") as HTMLElement;
   const points = () => [...chart().querySelectorAll<HTMLElement>(".wx-chart-point")];
@@ -114,8 +118,10 @@ describe("HourChart labels", () => {
       [...view.container.querySelectorAll(".wx-chart-time")].map((t) => t.textContent);
     expect(times()).toEqual([0, 6, 12, 18, 23].map((i) => hourLabel(hours, i)));
     setEvery(12);
+    flush();
     expect(times()).toEqual([0, 12, 23].map((i) => hourLabel(hours, i)));
     setEvery(6);
+    flush();
     expect(times()).toEqual([0, 6, 12, 18, 23].map((i) => hourLabel(hours, i)));
   });
 });

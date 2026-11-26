@@ -1,5 +1,5 @@
 import { fireEvent, render } from "@solidjs/testing-library";
-import { createSignal } from "solid-js";
+import { createSignal, flush } from "solid-js";
 import { describe, expect, test } from "vitest";
 import { HeaderChips } from "../../src/header/chips";
 import type { ResolvedChip } from "../../src/header/items";
@@ -28,7 +28,11 @@ const locks = (value: string): ResolvedChip => ({
 });
 
 function mount(initial: ResolvedChip[]) {
-  const [chips, setChips] = createSignal(initial);
+  const [chips, writeChips] = createSignal(initial);
+  const setChips = (next: ResolvedChip[]) => {
+    writeChips(next);
+    flush();
+  };
   const runs: Array<{ domain: string; name: string; ids: string[] }> = [];
   const view = render(() => (
     <HeaderChips

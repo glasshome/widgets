@@ -1,5 +1,5 @@
 import { fireEvent, render } from "@solidjs/testing-library";
-import { createRoot, createSignal } from "solid-js";
+import { createRoot, createSignal, flush } from "solid-js";
 import { useFakeTime } from "@glasshome/ui/testing";
 import { describe, expect, test, vi } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
@@ -54,29 +54,37 @@ function mount(hasAudio: boolean) {
 describe("camera sound", () => {
   test("a stream with audio starts muted and a tap turns sound on and off", () => {
     const { video, sound } = mount(true);
+    flush();
     expect(video()?.muted).toBe(true);
     const button = sound();
+    flush();
     expect(button?.getAttribute("aria-label")).toBe("Turn sound on");
 
     if (button) fireEvent.click(button);
+    flush();
     expect(video()?.muted).toBe(false);
     expect(sound()?.getAttribute("aria-label")).toBe("Turn sound off");
 
     const off = sound();
+    flush();
     if (off) fireEvent.click(off);
+    flush();
     expect(video()?.muted).toBe(true);
   });
 
   test("a stream without audio shows no sound button", () => {
     const { video, sound } = mount(false);
+    flush();
     expect(video()).not.toBeNull();
     expect(sound()).toBeNull();
   });
 
   test("the sound button leaves when the stream drops", () => {
     const { sound, setStatus } = mount(true);
+    flush();
     expect(sound()).not.toBeNull();
     setStatus("no-signal");
+    flush();
     expect(sound()).toBeNull();
   });
 });
@@ -98,15 +106,22 @@ describe("camera player", () => {
 
   test("a second view of a live stream reconnects with a fresh attempt", async () => {
     const { player, dispose } = videoPlayer();
+    flush();
     const first = player.video();
+    flush();
     first?.mounted()();
+    flush();
     first?.onLive();
+    flush();
     expect(player.status()).toBe("live");
     await settled();
+    flush();
 
     first?.mounted();
+    flush();
     expect(player.status()).toBe("reconnecting");
     const second = player.video();
+    flush();
     expect(second).not.toBe(first);
     expect(second?.kind).toBe("webrtc");
     dispose();
@@ -114,10 +129,15 @@ describe("camera player", () => {
 
   test("a later view of a connecting stream no view holds starts a fresh attempt on the same source", async () => {
     const { player, dispose } = videoPlayer();
+    flush();
     const first = player.video();
+    flush();
     first?.mounted()();
+    flush();
     await settled();
+    flush();
     first?.mounted();
+    flush();
     expect(player.status()).toBe("connecting");
     expect(player.video()).not.toBe(first);
     expect(player.video()?.kind).toBe("webrtc");
@@ -126,13 +146,19 @@ describe("camera player", () => {
 
   test("a view joining a connecting stream gets a fresh attempt once the other view leaves", async () => {
     const { player, dispose } = videoPlayer();
+    flush();
     const first = player.video();
+    flush();
     const sheet = first?.mounted();
+    flush();
     await settled();
+    flush();
     first?.mounted();
+    flush();
     expect(player.video()).toBe(first);
 
     sheet?.();
+    flush();
     expect(player.status()).toBe("connecting");
     expect(player.video()).not.toBe(first);
     dispose();
@@ -140,18 +166,29 @@ describe("camera player", () => {
 
   test("two views remounting a live stream restart it once, and the closing view leaves it alone", async () => {
     const { player, dispose } = videoPlayer();
+    flush();
     const first = player.video();
+    flush();
     first?.mounted();
+    flush();
     first?.onLive();
+    flush();
     await settled();
+    flush();
     first?.mounted();
+    flush();
     const second = player.video();
+    flush();
     expect(second).not.toBe(first);
 
     const sheet = second?.mounted();
+    flush();
     second?.mounted();
+    flush();
     await settled();
+    flush();
     sheet?.();
+    flush();
     expect(player.video()).toBe(second);
     expect(player.status()).toBe("reconnecting");
     dispose();
@@ -159,12 +196,18 @@ describe("camera player", () => {
 
   test("a stale attempt's view changes nothing", () => {
     const { player, dispose } = videoPlayer();
+    flush();
     const first = player.video();
+    flush();
     first?.mounted();
+    flush();
     first?.onError("no route");
+    flush();
     const second = player.video();
+    flush();
     expect(second?.kind).toBe("hls");
     first?.mounted();
+    flush();
     expect(player.video()).toBe(second);
     dispose();
   });
@@ -216,6 +259,7 @@ describe("camera full screen", () => {
 
   test("an MJPEG camera plays through the camera stream, where full screen lives", () => {
     const { player, picture } = mountImage("mjpeg", MJPEG);
+    flush();
     expect(player.video()?.kind).toBe("image");
     expect(picture()?.getAttribute("src")).toBe(MJPEG);
     expect(picture()?.parentElement?.querySelector("video")).not.toBeNull();
@@ -224,26 +268,39 @@ describe("camera full screen", () => {
   test("a snapshot camera refreshes its picture in place, on the same stream, until it stops", async () => {
     useFakeTime();
     const url = "/api/camera_proxy/camera.front_door?token=t";
+    flush();
     const { player, dispose } = imagePlayer("snapshot", url);
+    flush();
     const stream = player.video();
+    flush();
     stream?.mounted();
+    flush();
     expect(stream?.src()).toBe(url);
     stream?.onLive();
+    flush();
     await vi.advanceTimersByTimeAsync(REFRESH_MS);
+    flush();
     expect(player.video()).toBe(stream);
     const refreshed = stream?.src();
+    flush();
     expect(refreshed).toMatch(/^\/api\/camera_proxy\/camera\.front_door\?token=t&_ts=\d+$/);
     dispose();
     await vi.advanceTimersByTimeAsync(REFRESH_MS);
+    flush();
     expect(stream?.src()).toBe(refreshed);
   });
 
   test("a reconnect restarts the stream in place, so a full screen picture stays", () => {
     const { player, picture } = mountImage("mjpeg", MJPEG);
+    flush();
     const first = player.video();
+    flush();
     const stage = picture()?.parentElement;
+    flush();
     first?.onLive();
+    flush();
     first?.onStale("stream ended");
+    flush();
     expect(player.status()).toBe("reconnecting");
     expect(player.video()).not.toBe(first);
     expect(picture()?.parentElement).toBe(stage);
@@ -252,10 +309,14 @@ describe("camera full screen", () => {
   test("an attempt no view shows waits for one before its watchdog runs", async () => {
     useFakeTime();
     const { player, dispose } = imagePlayer("snapshot", "/api/camera_proxy/camera.front_door");
+    flush();
     await vi.advanceTimersByTimeAsync(WATCHDOG_MS.snapshot);
+    flush();
     expect(player.status()).toBe("connecting");
     player.video()?.mounted();
+    flush();
     await vi.advanceTimersByTimeAsync(WATCHDOG_MS.snapshot);
+    flush();
     expect(player.status()).toBe("no-signal");
     dispose();
   });
@@ -263,6 +324,7 @@ describe("camera full screen", () => {
   test("the watchdog names where a stream that never played stands", async () => {
     useFakeTime();
     const warned: string[] = [];
+    flush();
     const { player, dispose } = createRoot((dispose) => ({
       player: createCameraPlayer({
         entityId: () => "camera.front_door",
@@ -273,9 +335,13 @@ describe("camera full screen", () => {
       }),
       dispose,
     }));
+    flush();
     player.video()?.mounted();
+    flush();
     player.video()?.onStage("stage home assistant answer, connection new");
+    flush();
     await vi.advanceTimersByTimeAsync(WATCHDOG_MS.webrtc);
+    flush();
     expect(warned).toEqual([
       "[camera] camera.front_door webrtc watchdog: no picture within 20s (stage home assistant answer, connection new)",
     ]);
@@ -303,6 +369,7 @@ describe("camera live view", () => {
 
   test("names the stream, its sound, motion detection and the model", () => {
     const { view } = mountLive(true);
+    flush();
     expect(view.getByText("WebRTC")).toBeTruthy();
     expect(view.getByText("Available")).toBeTruthy();
     expect(view.getByText("On")).toBeTruthy();
@@ -312,8 +379,10 @@ describe("camera live view", () => {
 
   test("a lost stream offers a retry button", () => {
     const { view, setStatus } = mountLive(false);
+    flush();
     expect(view.queryByRole("button", { name: "Retry" })).toBeNull();
     setStatus("no-signal");
+    flush();
     expect(view.getByRole("button", { name: "Retry" })).toBeTruthy();
   });
 });
