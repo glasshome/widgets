@@ -64,7 +64,7 @@ One rule for every tile that holds several entities (`common/group.ts`):
 Two roles, one per widget:
 
 - **Backdrop**: a full-bleed photo under a scrim, text on top (area, energy balance, weather, camera placeholder).
-- **Object**: a cut-out in the bottom-right corner, behind the words (lamps, fan, window, door, thermostat, pylon, house). The words never shrink or move to make room for it; instead wide art narrows until it clears the state word at its largest.
+- **Object**: a cut-out in the bottom-right corner, behind the words (lamps, fan, window, door, thermostat, pylon, house). The words never move to make room for it, and wide art narrows until it clears the state word at its largest. A word wider than its widget shrinks to 70% of its size, then ends in an ellipsis (the SDK's hero rule).
 
 Media is the exception: the album cover sharp on the vinyl, blurred behind the tile. Each widget has its own subject, so neighbours never repeat a picture.
 
