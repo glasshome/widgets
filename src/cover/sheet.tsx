@@ -40,7 +40,9 @@ function SlatsSection(props: { entity: EntityView }) {
   const caps = createMemo(() => getCoverCapabilities(props.entity));
   const tilt = createMemo(() => getCoverTiltPosition(props.entity));
   const [dragged, setDragged] = createSignal<number>();
-  createEffect(tilt, () => setDragged(undefined));
+  createEffect(tilt, () => {
+    setDragged(undefined);
+  });
   const shown = () => dragged() ?? tilt() ?? 0;
   const target = () => ({ entity_id: props.entity.id });
   const tiltBy = (service: "open_cover_tilt" | "close_cover_tilt") =>

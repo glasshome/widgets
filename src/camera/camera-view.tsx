@@ -162,7 +162,9 @@ function StreamElement(props: {
   return (
     <Show when={props.player.video()}>
       {(attempt) => {
-        createEffect(attempt, (shown) => shown.mounted());
+        createEffect(attempt, (shown) => {
+          return shown.mounted();
+        });
         return (
           <CameraStream
             entityId={attempt().entityId}

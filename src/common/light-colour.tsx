@@ -145,10 +145,18 @@ export function LightColour(props: { lamps: EntityView[] }) {
   const [draggedKelvin, setDraggedKelvin] = createSignal<number>();
   const temperatureLamp = () => props.lamps.find((e) => takesTemperature(e) && e.state === "on");
   // A released drag stays shown until the lamp reports back, so the thumb never jumps to the old value.
-  createEffect(lampHs, () => setDragged(undefined), { defer: true });
+  createEffect(
+    lampHs,
+    () => {
+      setDragged(undefined);
+    },
+    { defer: true },
+  );
   createEffect(
     () => temperatureLamp()?.attributes.color_temp_kelvin,
-    () => setDraggedKelvin(undefined),
+    () => {
+      setDraggedKelvin(undefined);
+    },
     { defer: true },
   );
   const kelvin = () =>
