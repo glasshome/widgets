@@ -200,7 +200,8 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   const attemptKey = createMemo(() => {
     const s = state();
     const version = restarts();
-    if (s.status === "offline" || s.status === "no-signal") return "stop";
+    // gen 0 is before the first start, which the offline effect dispatches in this same flush.
+    if (s.gen === 0 || s.status === "offline" || s.status === "no-signal") return "stop";
     return `${s.gen}:${version}`;
   });
 

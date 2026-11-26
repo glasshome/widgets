@@ -1,5 +1,5 @@
 import { fireEvent, render } from "@solidjs/testing-library";
-import { createRoot, createSignal, flush } from "solid-js";
+import { createEffect, createRoot, createSignal, flush } from "solid-js";
 import { useFakeTime } from "@glasshome/ui/testing";
 import { describe, expect, test, vi } from "vitest";
 import { CameraView } from "../../src/camera/camera-view";
@@ -103,6 +103,20 @@ describe("camera player", () => {
   }
 
   const settled = () => Promise.resolve();
+
+  test("a player that starts makes one attempt on its first source", () => {
+    const { player, dispose } = videoPlayer();
+    const attempts: number[] = [];
+    createRoot(() =>
+      createEffect(player.video, (attempt) => {
+        if (attempt) attempts.push(attempt.id);
+      }),
+    );
+    flush();
+    expect(attempts).toHaveLength(1);
+    expect(player.video()?.kind).toBe("webrtc");
+    dispose();
+  });
 
   test("a second view of a live stream reconnects with a fresh attempt", async () => {
     const { player, dispose } = videoPlayer();
