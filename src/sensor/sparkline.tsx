@@ -1,14 +1,6 @@
 import { monotoneCubicPath, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
-import {
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  onCleanup,
-  onMount,
-  Show,
-} from "solid-js";
+import { createMemo, createSignal, createUniqueId, For, onSettled, Show } from "solid-js";
+import { type JSX } from "@solidjs/web";
 
 export interface SparklinePoint {
   value: number;
@@ -48,7 +40,7 @@ export function TileSparkline(props: { data: SparklinePoint[]; from: number }): 
   const full = () => tile().width >= FULL_MIN.width && tile().height >= FULL_MIN.height;
   return (
     <Widget.Layer>
-      <div class="sensor-spark" data-full={full() || undefined}>
+      <div class="sensor-spark" data-full={full() ? "true" : undefined}>
         <SparkChart data={props.data} from={props.from} labelFrom={full() ? 0 : VISIBLE_FROM} />
       </div>
     </Widget.Layer>
@@ -70,7 +62,7 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
   const [height, setHeight] = createSignal(0);
   const [mounted, setMounted] = createSignal(false);
 
-  onMount(() => {
+  onSettled(() => {
     let frame = 0;
     const ro = new ResizeObserver((entries) => {
       const rect = entries[0]?.contentRect;
@@ -81,10 +73,10 @@ export function SparkChart(props: SparkChartProps): JSX.Element {
       if (!frame) frame = requestAnimationFrame(() => setMounted(true));
     });
     ro.observe(containerRef);
-    onCleanup(() => {
+    return () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
-    });
+    };
   });
 
   const chartData = createMemo(() => {

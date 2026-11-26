@@ -14,7 +14,7 @@ import {
   WidgetDialog,
   WidgetIcon,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, onCleanup, onSettled, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { HeaderChips } from "./chips";
 import { configSchema, type HeaderChip, type HeaderConfig } from "./config";
@@ -30,7 +30,7 @@ function HeaderWidget(props: { config: HeaderConfig }) {
   const { setShowDialog, dialogProps } = useWidgetDialog();
 
   const [now, setNow] = createSignal(new Date());
-  onMount(() => {
+  onSettled(() => {
     const t = setInterval(() => setNow(new Date()), 60_000);
     onCleanup(() => clearInterval(t));
   });

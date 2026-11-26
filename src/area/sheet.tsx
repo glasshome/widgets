@@ -77,7 +77,7 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
     props.area.entities.filter((e) => domains.includes(e.domain) && live(e.state));
   const scenes = () => byDomain(["scene"]);
   const ran = useConfirm();
-  const thermostatIds = createMemo(() => byDomain(["climate"]).map((e) => e.id), undefined, {
+  const thermostatIds = createMemo(() => byDomain(["climate"]).map((e) => e.id), {
     equals: (a, b) => a.length === b.length && a.every((id, i) => id === b[i]),
   });
   const thermostat = (id: string) => () => byDomain(["climate"]).find((e) => e.id === id);

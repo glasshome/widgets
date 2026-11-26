@@ -11,7 +11,7 @@ import {
   ToggleGroupItem,
   useService,
 } from "@glasshome/widget-sdk";
-import { createEffect, createSignal, For, on, onCleanup, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import { calculateFeatures, calculateProgress, formatDuration } from "./utils";
 
 const REPEAT_NEXT: Record<string, string> = { off: "all", all: "one", one: "off" };
@@ -68,14 +68,12 @@ export function MediaPlayerSheet(props: { entity: EntityView; name: string }) {
 
   const [tick, setTick] = createSignal(0);
   createEffect(
-    on(
-      () => props.entity.state === "playing" && seekable(props.entity),
-      (running) => {
-        if (!running) return;
-        const id = setInterval(() => setTick((t) => t + 1), 1000);
-        onCleanup(() => clearInterval(id));
-      },
-    ),
+    () => props.entity.state === "playing" && seekable(props.entity),
+    (running) => {
+      if (!running) return;
+      const id = setInterval(() => setTick((t) => t + 1), 1000);
+      return () => clearInterval(id);
+    },
   );
   const [seeking, setSeeking] = createSignal<number>();
   const position = () => {

@@ -210,8 +210,8 @@ function ClimateWidget(props: { config: ClimateConfig }) {
                   src={ART[props.config.art]}
                   alt=""
                   class="climate-object"
-                  data-on={hvacMode() !== "off" || undefined}
-                  data-running={running() || undefined}
+                  data-on={hvacMode() !== "off" ? "true" : undefined}
+                  data-running={running() ? "true" : undefined}
                 />
               }
             />

@@ -6,7 +6,7 @@
     "moduleResolution": "bundler",
     "customConditions": ["@glasshome/source"],
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsxImportSource": "@solidjs/web",
     "strict": true,
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,

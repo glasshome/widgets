@@ -67,10 +67,12 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   });
   const [uiVolume, setUiVolume] = createSignal(serverVolume());
   const [isDragging, setIsDragging] = createSignal(false);
-  createEffect(() => {
-    const v = serverVolume();
-    if (!isDragging()) setUiVolume(v);
-  });
+  createEffect(
+    () => ({ v: serverVolume(), dragging: isDragging() }),
+    ({ v, dragging }) => {
+      if (!dragging) setUiVolume(v);
+    },
+  );
 
   const call = (service: string, data: Record<string, unknown> = {}) => {
     const id = entityId();

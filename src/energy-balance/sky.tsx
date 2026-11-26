@@ -1,5 +1,5 @@
 import { useDaylight, useWidgetDimensions } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, onSettled, Show } from "solid-js";
 import { SKY } from "./sky-art";
 import { arcPoint, skyProgress, skyScene } from "./sun-path";
 import "./sky.css";
@@ -10,9 +10,9 @@ export function SkyScene(props: { glow: number }) {
   const dims = useWidgetDimensions();
   const daylight = useDaylight();
   const [now, setNow] = createSignal(new Date());
-  onMount(() => {
+  onSettled(() => {
     const id = setInterval(() => setNow(new Date()), 60_000);
-    onCleanup(() => clearInterval(id));
+    return () => clearInterval(id);
   });
 
   const scene = () => skyScene(daylight().phase);
@@ -39,13 +39,13 @@ export function SkyScene(props: { glow: number }) {
         src={SKY.dusk}
         alt=""
         class="sky-photo sky-layer"
-        data-visible={scene() === "dusk" || undefined}
+        data-visible={scene() === "dusk" ? "true" : undefined}
       />
       <img
         src={SKY.night}
         alt=""
         class="sky-photo sky-layer"
-        data-visible={scene() === "night" || undefined}
+        data-visible={scene() === "night" ? "true" : undefined}
       />
       <div class="sky-scrim" />
       <Show when={dims().width > 0}>

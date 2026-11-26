@@ -137,7 +137,8 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
 
     const kind = source.kind === "webrtc" || source.kind === "hls" ? source.kind : "image";
     const isVideo = kind !== "image";
-    const url = !isVideo && source.url ? hassMediaUrl(source.url) : undefined;
+    const sourceUrl = source.url;
+    const url = !isVideo && sourceUrl ? untrack(() => hassMediaUrl(sourceUrl)) : undefined;
     const [src, setSrc] = createSignal(url);
     if (!isVideo && !url) {
       fail("error", `no ${source.kind} url`);
@@ -183,8 +184,7 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
   };
 
   // Drive start/restart from connection state; never start twice for one session.
-  createEffect(() => {
-    const offline = opts.offline();
+  createEffect(opts.offline, (offline) => {
     if (offline) {
       dispatch({ t: "entity", offline: true });
       return;
@@ -204,8 +204,8 @@ export function createCameraPlayer(opts: CameraPlayerOptions): CameraPlayer {
     return `${s.gen}:${version}`;
   });
 
-  createEffect(() => {
-    if (attemptKey() === "stop") stop();
+  createEffect(attemptKey, (key) => {
+    if (key === "stop") stop();
     else activate();
   });
 

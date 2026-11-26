@@ -1,5 +1,6 @@
 import { Badge, Button } from "@glasshome/widget-sdk";
-import { type JSX, Match, Show, Switch } from "solid-js";
+import { Match, Show, Switch } from "solid-js";
+import { type JSX } from "@solidjs/web";
 
 type EnergyEmptyStateKind = "unconfigured" | "unavailable" | "first-day";
 

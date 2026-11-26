@@ -18,7 +18,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, onCleanup, onSettled, Show } from "solid-js";
 import { getSensorIcon, widgetDialogProps } from "../common";
 import { SensorSheet } from "./sheet";
 import { type SparklinePoint, TileSparkline } from "./sparkline";
@@ -45,7 +45,7 @@ function SensorWidget(props: { config: SensorConfig }) {
   const historyData = useEntityHistory(() => primaryEntityId() ?? "");
 
   const historyFrom = Date.now() - 24 * 60 * 60 * 1000;
-  onMount(() => {
+  onSettled(() => {
     const id = primaryEntityId();
     if (id) trackEntityHistory(id, { startTime: new Date(historyFrom) }).catch(() => {});
   });

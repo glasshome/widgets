@@ -77,10 +77,12 @@ function LightWidget(props: { config: LightConfig }) {
   const [isDragging, setIsDragging] = createSignal(false);
 
   // Sync server brightness to UI when not dragging
-  createEffect(() => {
-    const sb = serverBrightness();
-    if (!isDragging()) setUiBrightness(sb);
-  });
+  createEffect(
+    () => ({ sb: serverBrightness(), dragging: isDragging() }),
+    ({ sb, dragging }) => {
+      if (!dragging) setUiBrightness(sb);
+    },
+  );
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
 

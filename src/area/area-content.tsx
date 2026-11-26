@@ -10,7 +10,8 @@ import {
   useWidgetDimensions,
   Widget,
 } from "@glasshome/widget-sdk";
-import { createMemo, Index, type JSX, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
+import { type JSX } from "@solidjs/web";
 import { isRoomKind, type RoomPhotos, roomIcon, roomPhotos } from "../common/art/room";
 import "./area-content.css";
 import { type AreaMetrics, coverKind, doorKind, type EntityGroups } from "./utils";
@@ -233,7 +234,7 @@ export function AreaContent(props: AreaContentProps) {
                     src={src()}
                     alt=""
                     class="area-night"
-                    data-visible={scene() === "night-off" || undefined}
+                    data-visible={scene() === "night-off" ? "true" : undefined}
                   />
                 )}
               </Show>
@@ -243,7 +244,7 @@ export function AreaContent(props: AreaContentProps) {
                     src={src()}
                     alt=""
                     class="area-night"
-                    data-visible={scene() === "night-on" || undefined}
+                    data-visible={scene() === "night-on" ? "true" : undefined}
                   />
                 )}
               </Show>
@@ -270,7 +271,7 @@ export function AreaContent(props: AreaContentProps) {
       />
       <Widget.Controls>
         {/* By position: a tick rebuilds every pill object, and For would remount them all. */}
-        <Index each={visiblePills()}>
+        <For keyed={false} each={visiblePills()}>
           {(pill) => (
             <Toggle
               variant="outline"
@@ -287,7 +288,7 @@ export function AreaContent(props: AreaContentProps) {
               <span>{pill().short}</span>
             </Toggle>
           )}
-        </Index>
+        </For>
         <Button
           variant="outline"
           size="icon"

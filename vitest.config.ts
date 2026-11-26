@@ -1,4 +1,4 @@
-import solid from "vite-plugin-solid";
+import solid from "@solidjs/vite-plugin";
 import { defineConfig } from "vitest/config";
 
 process.env.TZ = "UTC";
@@ -8,7 +8,7 @@ const resultsDir = process.env.GATE_RESULTS_DIR;
 const shuffleSeed = process.env.GATE_SHUFFLE_SEED;
 
 export default defineConfig({
-  plugins: [solid()],
+  plugins: [solid({ dev: true, refresh: false })],
   resolve: {
     conditions: ["browser", "development"],
     dedupe: [

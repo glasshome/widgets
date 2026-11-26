@@ -13,7 +13,7 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onSettled, Show } from "solid-js";
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { deriveBalance } from "./balance";
@@ -63,9 +63,9 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
 
   // Bumping the tick hands useEntityStatistics a fresh options object, re-running the daily query.
   const [tick, setTick] = createSignal(0);
-  onMount(() => {
+  onSettled(() => {
     const iv = setInterval(() => setTick((t) => t + 1), STATS_REFRESH_MS);
-    onCleanup(() => clearInterval(iv));
+    return () => clearInterval(iv);
   });
 
   // Window start for the statistics query: today's / this week's / this month's

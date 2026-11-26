@@ -11,7 +11,7 @@ export function ArtStrip(props: {
   return (
     <div
       class="art-strip"
-      data-end={props.end || undefined}
+      data-end={props.end ? "true" : undefined}
       style={{
         "aspect-ratio": String(props.strip.aspect),
         "--art-aspect": props.strip.aspect,

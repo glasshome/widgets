@@ -14,7 +14,8 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, type JSX, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { type JSX } from "@solidjs/web";
 import { widgetDialogProps } from "../common";
 import { AnalogClock, SquareAnalogClock } from "./analog-face";
 import { getPresetTheme } from "./presets";
@@ -318,8 +319,10 @@ function ClockWidget(props: { config: ClockConfig }) {
           <Show when={cfg().clockStyle === "digital"}>
             <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden">
               <div
-                class="clock-seconds-fill h-full origin-left rounded-full"
-                classList={{ snap: secondsNum() === 0 }}
+                class={[
+                  "clock-seconds-fill h-full origin-left rounded-full",
+                  { snap: secondsNum() === 0 },
+                ]}
                 style={{
                   transform: `scaleX(${secondsProgress() / 100})`,
                   background: `linear-gradient(90deg, transparent, ${barColor()})`,

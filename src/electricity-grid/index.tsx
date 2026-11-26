@@ -7,7 +7,8 @@ import {
   Widget,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, type JSX, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
+import { type JSX } from "@solidjs/web";
 import { EnergyEmptyState } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
 import { configSchema, type ElectricityGridConfig } from "./config";

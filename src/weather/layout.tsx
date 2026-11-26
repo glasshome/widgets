@@ -5,7 +5,7 @@ import {
   type WeatherForecast,
   Widget,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, Index, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { dayHigh, tempColor, weekRange } from "./forecast";
 import { HourChart } from "./hour-chart";
 import { useMotionPaused, WeatherFrost, WeatherSky } from "./sky";
@@ -121,10 +121,9 @@ export function WeatherTile(props: { model: Model }) {
           />
         </Show>
         <div
-          class="wx-scene"
-          classList={{ dark: dark() }}
+          class={["wx-scene", { dark: dark() }]}
           data-tier={tier()}
-          data-side={sideScene() || undefined}
+          data-side={sideScene() ? "true" : undefined}
           style={
             sideScene()
               ? { width: `${Math.round(dims().width * 0.3)}px` }
@@ -139,10 +138,10 @@ export function WeatherTile(props: { model: Model }) {
           ref={setLayoutEl}
           class="wx-layout"
           data-tier={tier()}
-          data-rich={(tier() === "stack" && hourCount() > 0) || undefined}
+          data-rich={tier() === "stack" && hourCount() > 0 ? "true" : undefined}
           style={{ "--wx-s": scale(), "--wx-t": text() }}
         >
-          <div class="wx-now" classList={{ dark: dark() }}>
+          <div class={["wx-now", { dark: dark() }]}>
             <Show when={props.model.title}>
               <span class="wx-title">{props.model.title}</span>
             </Show>
@@ -185,14 +184,14 @@ export function WeatherTile(props: { model: Model }) {
 function HourRow(props: { hours: WeatherForecast[] }) {
   return (
     <ol class="wx-row-hours" aria-label="Next hours">
-      <Index each={props.hours}>
+      <For keyed={false} each={props.hours}>
         {(h, i) => (
           <li>
             <span class="wx-label">{hourName(h().datetime, i)}</span>
             <span class="wx-temp">{formatTemp(h().temperature ?? 0)}</span>
           </li>
         )}
-      </Index>
+      </For>
     </ol>
   );
 }
@@ -206,7 +205,7 @@ function Days(props: { days: WeatherForecast[] }) {
   };
   return (
     <ol class="wx-days" aria-label="Next days">
-      <Index each={props.days}>
+      <For keyed={false} each={props.days}>
         {(d) => {
           const high = () => dayHigh(d()) ?? 0;
           const low = () => d().temp_low ?? high();
@@ -232,7 +231,7 @@ function Days(props: { days: WeatherForecast[] }) {
             </li>
           );
         }}
-      </Index>
+      </For>
     </ol>
   );
 }

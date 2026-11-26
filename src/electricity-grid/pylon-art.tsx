@@ -30,7 +30,7 @@ export function PylonArt(props: { lowCarbonPct: number; tint: string }) {
               d={wire(t)}
               class="pylon-wire"
               style={{ stroke: i() < green() ? props.tint : "var(--muted-foreground)" }}
-              data-live={i() < green() || undefined}
+              data-live={i() < green() ? "true" : undefined}
             />
           )}
         </For>

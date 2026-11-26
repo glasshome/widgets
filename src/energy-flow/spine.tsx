@@ -5,10 +5,10 @@ import {
   createMemo,
   createSignal,
   For,
-  type JSX,
   onCleanup,
   Show,
 } from "solid-js";
+import { type JSX } from "@solidjs/web";
 import { formatPower } from "../_energy-shared";
 import houseDay from "./assets/house-clay.webp";
 import houseNight from "./assets/house-clay-night.webp";
@@ -70,8 +70,7 @@ export function Spine(props: {
   const energy = createMemo(() => buildEnergyGraph(props.flow, props.tariff));
   const [el, setEl] = createSignal<HTMLDivElement>();
   const [size, setSize] = createSignal({ width: 0, height: 0 });
-  createEffect(() => {
-    const node = el();
+  createEffect(el, (node) => {
     if (!node || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver((entries) => {
       const r = entries[0]?.contentRect;
@@ -81,7 +80,7 @@ export function Spine(props: {
       if (next.width !== prev.width || next.height !== prev.height) setSize(next);
     });
     ro.observe(node);
-    onCleanup(() => ro.disconnect());
+    return () => ro.disconnect();
   });
 
   const reduced = useReducedMotion();
@@ -91,14 +90,10 @@ export function Spine(props: {
   const daylight = useDaylight();
 
   const placed = createMemo(() => props.flow.nodes.filter((n) => n.configured));
-  const sceneNodes = createMemo(
-    () => placed().map((n) => ({ id: n.id, role: ROLE[n.kind] })),
-    undefined,
-    {
-      equals: (a, b) =>
-        a.length === b.length && a.every((x, i) => x.id === b[i]?.id && x.role === b[i]?.role),
-    },
-  );
+  const sceneNodes = createMemo(() => placed().map((n) => ({ id: n.id, role: ROLE[n.kind] })), {
+    equals: (a, b) =>
+      a.length === b.length && a.every((x, i) => x.id === b[i]?.id && x.role === b[i]?.role),
+  });
   const scene = createMemo(() => layoutHouseScene(sceneNodes(), size()));
   const edgeOf = (id: string) => energy().graph.edges.find((e) => e.id === id);
   const maxWatts = createMemo(() => Math.max(1, ...placed().map((n) => n.watts)));
@@ -158,7 +153,7 @@ export function Spine(props: {
             src={houseNight}
             alt=""
             class="flow-house-night"
-            data-visible={daylight().isNight || undefined}
+            data-visible={daylight().isNight ? "true" : undefined}
           />
           <div class="flow-house-panels" style={{ opacity: glow() }} />
         </div>
@@ -172,7 +167,7 @@ export function Spine(props: {
                     type="button"
                     class="flow-label"
                     data-side={label.side}
-                    data-idle={v().idle || undefined}
+                    data-idle={v().idle ? "true" : undefined}
                     style={labelPosition(label.side, label.at, size().width)}
                     onClick={() => props.onTap(label.id)}
                   >

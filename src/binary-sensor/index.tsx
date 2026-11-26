@@ -16,7 +16,8 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, type JSX, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
+import { type JSX } from "@solidjs/web";
 import { getBinarySensorIcon, widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import windowSash from "../common/art/assets/window-sash.strip";

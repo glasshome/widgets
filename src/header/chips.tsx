@@ -1,5 +1,5 @@
 import { Button, Icon } from "@glasshome/widget-sdk";
-import { type Accessor, Index, Show } from "solid-js";
+import { type Accessor, For, Show } from "solid-js";
 import type { ResolvedChip } from "./items";
 
 type ChipService = NonNullable<ResolvedChip["service"]>;
@@ -63,7 +63,9 @@ export function HeaderChips(props: {
   );
   return (
     <div class="header-chips">
-      <Index each={props.chips}>{chip}</Index>
+      <For keyed={false} each={props.chips}>
+        {chip}
+      </For>
     </div>
   );
 }

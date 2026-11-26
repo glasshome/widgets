@@ -5,7 +5,7 @@ import {
   PanelRows,
   PanelSection,
 } from "@glasshome/widget-sdk";
-import { createMemo, Index, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import { formatMoney, formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
 import { computeCost, type Tariff } from "./cost";
@@ -103,14 +103,18 @@ export function EnergyFlowSheet(props: { flow: ResolvedFlow; tariff: Tariff }) {
       <Show when={sources().length}>
         <PanelSection label="Sources">
           <PanelRows>
-            <Index each={sources()}>{row}</Index>
+            <For keyed={false} each={sources()}>
+              {row}
+            </For>
           </PanelRows>
         </PanelSection>
       </Show>
       <Show when={uses().length}>
         <PanelSection label="Using power">
           <PanelRows>
-            <Index each={uses()}>{row}</Index>
+            <For keyed={false} each={uses()}>
+              {row}
+            </For>
           </PanelRows>
         </PanelSection>
       </Show>

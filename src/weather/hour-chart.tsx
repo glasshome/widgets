@@ -1,5 +1,5 @@
 import { Icon, type WeatherForecast } from "@glasshome/widget-sdk";
-import { createMemo, For, Index, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import { skyChanges, smoothPath, tempColor } from "./forecast";
 import { ambientLoop, formatTemp, getWeatherIcon, hourName } from "./utils";
 
@@ -109,9 +109,9 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
             y1="0"
             y2="0"
           >
-            <Index each={props.hours}>
+            <For keyed={false} each={props.hours}>
               {(h, i) => <stop offset={x(i) / 100} stop-color={tempColor(h().temperature ?? 0)} />}
-            </Index>
+            </For>
           </linearGradient>
           <linearGradient id="wx-chart-fade" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stop-color="white" stop-opacity="0" />
@@ -143,7 +143,7 @@ export function HourChart(props: { hours: WeatherForecast[]; labelEvery: number 
               <span
                 class="wx-chart-point"
                 data-edge={edge(i)}
-                data-now={i === 0 || undefined}
+                data-now={i === 0 ? "true" : undefined}
                 style={{
                   left: `${x(i)}%`,
                   top: `${y(h().temperature ?? 0)}%`,

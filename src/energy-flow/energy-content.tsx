@@ -1,5 +1,5 @@
 import { useDaylight, useWidgetDimensions, Widget } from "@glasshome/widget-sdk";
-import { createMemo, Index, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import type { FlowDescription } from "../_energy-shared";
 import { formatPower } from "../_energy-shared";
 import { energyIcons } from "../_energy-shared/icons";
@@ -50,7 +50,7 @@ export function EnergyContent(props: EnergyContentProps) {
         src={houseNight}
         alt=""
         class="flow-house-night"
-        data-visible={daylight().isNight || undefined}
+        data-visible={daylight().isNight ? "true" : undefined}
       />
       <div class="flow-house-panels" style={{ opacity: glow() }} />
     </div>
@@ -79,14 +79,14 @@ export function EnergyContent(props: EnergyContentProps) {
             />
             <Widget.Controls>
               <div class="flow-chips">
-                <Index each={activeNodes()}>
+                <For keyed={false} each={activeNodes()}>
                   {(n) => (
                     <Widget.Chip icon={n().icon} tone={n().color}>
                       {n().direction === "out" && n().kind === "bidirectional" ? "−" : ""}
                       {formatPower(n().watts)}
                     </Widget.Chip>
                   )}
-                </Index>
+                </For>
               </div>
             </Widget.Controls>
           </>

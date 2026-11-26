@@ -93,10 +93,12 @@ function FanWidget(props: { config: FanConfig }) {
   const [isDragging, setIsDragging] = createSignal(false);
 
   // Sync server percentage to UI when not dragging
-  createEffect(() => {
-    const sp = serverPercentage();
-    if (!isDragging()) setUiPercentage(sp);
-  });
+  createEffect(
+    () => ({ sp: serverPercentage(), dragging: isDragging() }),
+    ({ sp, dragging }) => {
+      if (!dragging) setUiPercentage(sp);
+    },
+  );
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
   onCleanup(() => {
@@ -207,7 +209,7 @@ function FanWidget(props: { config: FanConfig }) {
                   src={props.config.art === "purifier" ? purifierArt : pedestalArt}
                   alt=""
                   class="fan-object"
-                  data-on={isOn() || undefined}
+                  data-on={isOn() ? "true" : undefined}
                 />
               }
             />

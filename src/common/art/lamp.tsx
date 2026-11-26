@@ -136,7 +136,7 @@ export function LampArt(props: { kind: LampKind; on: boolean; brightness: number
     <div
       class="lamp-art"
       data-lamp={props.kind}
-      data-on={props.on || undefined}
+      data-on={props.on ? "true" : undefined}
       style={{
         "--lamp-color": props.color,
         "--lamp-level": level(),

@@ -228,7 +228,12 @@ export function WeatherSky(props: { condition: string; wintry: boolean }) {
 
   return (
     <div class="wx-sky" data-sky={props.condition} data-phase={daylight().phase}>
-      <img src={sky()} alt="" class="wx-sky-photo" data-drift={sky() !== skyClear || undefined} />
+      <img
+        src={sky()}
+        alt=""
+        class="wx-sky-photo"
+        data-drift={sky() !== skyClear ? "true" : undefined}
+      />
       <div class="wx-sky-grade" />
       <div class="wx-stars" style={{ "background-image": STARS }} />
       <img src={photos().land} alt="" class="wx-land" />

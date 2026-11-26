@@ -13,7 +13,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, Index } from "solid-js";
+import { createMemo, For } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./batteries.css";
 import { BatteriesSheet } from "./sheet";
@@ -68,7 +68,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
             sub={hasLow() ? `${lowCount()} low` : "All good"}
             art={
               <div class="batteries-list">
-                <Index each={batteries().slice(0, 8)}>
+                <For keyed={false} each={batteries().slice(0, 8)}>
                   {(battery) => (
                     <div class="batteries-row">
                       <Icon
@@ -86,7 +86,7 @@ function BatteriesWidget(props: { config: BatteriesConfig }) {
                       </span>
                     </div>
                   )}
-                </Index>
+                </For>
               </div>
             }
           />

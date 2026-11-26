@@ -13,7 +13,7 @@ import {
   useEntityHistory,
   useEntityStatistics,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { getSensorIcon } from "../common";
 import { SparkChart } from "./sparkline";
 import { downsample, formatSensorValue, type Reading, readingsWithin, summarize } from "./utils";
@@ -48,11 +48,10 @@ export function SensorSheet(props: { entities: EntityView[] }) {
   const shownId = () => shown()?.id ?? "";
   const spec = () => RANGES.find((r) => r.id === range()) ?? RANGES[1];
 
-  createEffect(() => {
-    const id = shownId();
+  createEffect(shownId, (id) => {
     if (!id) return;
     trackEntityHistory(id, { startTime: new Date(Date.now() - 24 * HOUR_MS) }).catch(() => {});
-    onCleanup(() => untrackEntityHistory(id));
+    return () => untrackEntityHistory(id);
   });
   const history = useEntityHistory(shownId);
 

@@ -37,8 +37,7 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
 
   const [failed, setFailed] = createSignal<ReadonlySet<string>>(new Set());
   const chosenIds = createMemo(() => props.config.pictures.map((p) => p.image ?? "").join("|"));
-  createEffect(() => {
-    chosenIds();
+  createEffect(chosenIds, () => {
     setFailed(new Set<string>());
   });
 
@@ -53,10 +52,12 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
   );
 
   const [api, setApi] = createSignal<CarouselApi>();
-  createEffect(() => {
-    const count = view().slides.length;
-    if (count > 0) api()?.reInit();
-  });
+  createEffect(
+    () => ({ count: view().slides.length, carousel: api() }),
+    ({ count, carousel }) => {
+      if (count > 0) carousel?.reInit();
+    },
+  );
 
   const markFailed = (src: string) =>
     setFailed((prev) => {

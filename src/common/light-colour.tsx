@@ -10,7 +10,7 @@ import {
   useWidgetState,
   z,
 } from "@glasshome/widget-sdk";
-import { createEffect, createSignal, on, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 
 const COLOUR_MODES = ["hs", "rgb", "xy", "rgbw", "rgbww"];
 const EFFECT_FEATURE = 4;
@@ -145,13 +145,11 @@ export function LightColour(props: { lamps: EntityView[] }) {
   const [draggedKelvin, setDraggedKelvin] = createSignal<number>();
   const temperatureLamp = () => props.lamps.find((e) => takesTemperature(e) && e.state === "on");
   // A released drag stays shown until the lamp reports back, so the thumb never jumps to the old value.
-  createEffect(on(lampHs, () => setDragged(undefined), { defer: true }));
+  createEffect(lampHs, () => setDragged(undefined), { defer: true });
   createEffect(
-    on(
-      () => temperatureLamp()?.attributes.color_temp_kelvin,
-      () => setDraggedKelvin(undefined),
-      { defer: true },
-    ),
+    () => temperatureLamp()?.attributes.color_temp_kelvin,
+    () => setDraggedKelvin(undefined),
+    { defer: true },
   );
   const kelvin = () =>
     draggedKelvin() ??
