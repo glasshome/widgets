@@ -13,7 +13,7 @@ import {
   useEntityHistory,
   useEntityStatistics,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Index, onCleanup, Show } from "solid-js";
 import { getSensorIcon } from "../common";
 import { SparkChart } from "./sparkline";
 import { downsample, formatSensorValue, type Reading, readingsWithin, summarize } from "./utils";
@@ -143,17 +143,17 @@ export function SensorSheet(props: { entities: EntityView[] }) {
       <Show when={props.entities.length > 1}>
         <PanelSection label="Sensors">
           <PanelRows>
-            <For each={props.entities}>
+            <Index each={props.entities}>
               {(e) => (
                 <PanelRow
-                  icon={getSensorIcon(deviceClassOf(e))}
-                  name={e.friendlyName}
-                  state={readingText(e)}
+                  icon={getSensorIcon(deviceClassOf(e()))}
+                  name={e().friendlyName}
+                  state={readingText(e())}
                   tone={INK}
                   on
                 />
               )}
-            </For>
+            </Index>
           </PanelRows>
         </PanelSection>
       </Show>

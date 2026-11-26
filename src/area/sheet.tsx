@@ -11,7 +11,7 @@ import {
   useConfirm,
   useService,
 } from "@glasshome/widget-sdk";
-import { createMemo, For, Show, untrack } from "solid-js";
+import { createMemo, For, Index, Show, untrack } from "solid-js";
 import { ClimateSheet } from "../climate/sheet";
 import { useThermostat } from "../common";
 import { LightColour } from "../common/light-colour";
@@ -110,21 +110,21 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
       <Show when={scenes().length}>
         <PanelSection label="Scenes">
           <div class="glasshome-sheet-actions">
-            <For each={scenes()}>
+            <Index each={scenes()}>
               {(s) => (
                 <Button
-                  variant={ran.has(s.id) ? "default" : "outline"}
+                  variant={ran.has(s().id) ? "default" : "outline"}
                   onClick={() =>
-                    void ran.run([s.id], () =>
-                      callService("scene", "turn_on", {}, { entity_id: s.id }),
+                    void ran.run([s().id], () =>
+                      callService("scene", "turn_on", {}, { entity_id: s().id }),
                     )
                   }
                 >
-                  <Icon icon={ran.has(s.id) ? "mdi:check" : "mdi:play"} />
-                  {s.friendlyName}
+                  <Icon icon={ran.has(s().id) ? "mdi:check" : "mdi:play"} />
+                  {s().friendlyName}
                 </Button>
               )}
-            </For>
+            </Index>
           </div>
         </PanelSection>
       </Show>
@@ -137,9 +137,9 @@ export function AreaSheet(props: { area: AreaView; metrics: AreaMetrics; entry?:
             <Show when={byDomain(section.domains).length}>
               <PanelSection label={section.label}>
                 <PanelRows>
-                  <For each={byDomain(section.domains)}>
-                    {(e) => <PanelEntityRow entityId={e.id} within={props.area.name} />}
-                  </For>
+                  <Index each={byDomain(section.domains)}>
+                    {(e) => <PanelEntityRow entityId={e().id} within={props.area.name} />}
+                  </Index>
                 </PanelRows>
               </PanelSection>
               <Show when={section.domains.includes("light")}>

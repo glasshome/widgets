@@ -5,7 +5,7 @@ import {
   PanelRows,
   PanelSection,
 } from "@glasshome/widget-sdk";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { getBinarySensorIcon } from "../common";
 import { getBinarySensorStateText } from "./utils";
 
@@ -27,17 +27,17 @@ export function BinarySensorSheet(props: { entities: EntityView[] }) {
   return (
     <PanelSection label="Sensors">
       <PanelRows>
-        <For each={props.entities}>
+        <Index each={props.entities}>
           {(e) => (
             <PanelRow
-              icon={getBinarySensorIcon(e.deviceClass ?? null, isEntityActive(e))}
-              name={e.friendlyName}
-              state={line(e)}
+              icon={getBinarySensorIcon(e().deviceClass ?? null, isEntityActive(e()))}
+              name={e().friendlyName}
+              state={line(e())}
               tone="var(--tone-info)"
-              on={isEntityActive(e)}
+              on={isEntityActive(e())}
             />
           )}
-        </For>
+        </Index>
       </PanelRows>
     </PanelSection>
   );

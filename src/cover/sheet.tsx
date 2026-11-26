@@ -6,7 +6,7 @@ import {
   PanelSection,
   useService,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, Index, Show } from "solid-js";
 import { getCoverCapabilities, getCoverTiltPosition } from "./cover-entity";
 
 const hasSlats = (e: EntityView | undefined) => {
@@ -26,9 +26,9 @@ export function CoverSheet(props: { entities: EntityView[]; name: string }) {
     >
       <PanelSection label="Covers">
         <PanelRows>
-          <For each={props.entities}>
-            {(e) => <PanelEntityRow entityId={e.id} within={props.name} />}
-          </For>
+          <Index each={props.entities}>
+            {(e) => <PanelEntityRow entityId={e().id} within={props.name} />}
+          </Index>
         </PanelRows>
       </PanelSection>
     </Show>

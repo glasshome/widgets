@@ -7,7 +7,7 @@ import {
   PanelSection,
   useService,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, Index, Show } from "solid-js";
 import { effectsOf, LightColour, takesWhite } from "../common/light-colour";
 import { ModeChips } from "../common/mode-chips";
 
@@ -59,11 +59,15 @@ export function LightSheet(props: { entities: EntityView[]; name: string }) {
       <Show when={isGroup() && !focus()}>
         <PanelSection label="Lamps · hold one to set it alone">
           <PanelRows>
-            <For each={props.entities}>
+            <Index each={props.entities}>
               {(e) => (
-                <PanelEntityRow entityId={e.id} within={props.name} onHold={() => setFocus(e.id)} />
+                <PanelEntityRow
+                  entityId={e().id}
+                  within={props.name}
+                  onHold={() => setFocus(e().id)}
+                />
               )}
-            </For>
+            </Index>
           </PanelRows>
         </PanelSection>
       </Show>

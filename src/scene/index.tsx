@@ -16,7 +16,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { createMemo, createSignal, Index, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
 
@@ -109,19 +109,19 @@ function SceneWidget(props: { config: SceneConfig }) {
             <Widget.Glyph icon="mdi:palette" />
             <Widget.Head icon="mdi:palette" eyebrow={eyebrow()} name={name()} />
             <div class="scene-chips">
-              <For each={entities()}>
+              <Index each={entities()}>
                 {(e) => (
                   <Widget.Action
                     icon="mdi:play"
                     class="scene-chip"
                     confirm={confirm}
-                    id={e.id}
-                    run={() => turnOn(e.id)}
+                    id={e().id}
+                    run={() => turnOn(e().id)}
                   >
-                    {entities().length > 1 ? e.friendlyName : "Activate"}
+                    {entities().length > 1 ? e().friendlyName : "Activate"}
                   </Widget.Action>
                 )}
-              </For>
+              </Index>
             </div>
           </Widget.Content>
         </Show>
