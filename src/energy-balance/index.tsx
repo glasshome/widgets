@@ -16,7 +16,7 @@ import {
 import { createMemo, createSignal, For, onCleanup, onSettled, Show } from "solid-js";
 import { EnergyEmptyState, formatPower, normalizeBidirectional } from "../_energy-shared";
 import { widgetDialogProps } from "../common";
-import { deriveBalance } from "./balance";
+import { type BalanceState, deriveBalance } from "./balance";
 import { configSchema, type EnergyBalanceConfig } from "./config";
 import { SkyScene } from "./sky";
 import { skyScene } from "./sun-path";
@@ -61,24 +61,17 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const _reducedMotion = useReducedMotion();
   const [mode, setMode] = createSignal<Mode>("today");
 
-  // Bumping the tick hands useEntityStatistics a fresh options object, re-running the daily query.
-  const [tick, setTick] = createSignal(0);
-  onSettled(() => {
-    const iv = setInterval(() => setTick((t) => t + 1), STATS_REFRESH_MS);
-    return () => clearInterval(iv);
-  });
-
-  // Window start for the statistics query: today's / this week's / this month's
-  // midnight. Live mode uses today's window (its value comes from live power).
-  const dayOptions = createMemo(() => {
-    tick();
+  // Live mode reads power, so it keeps today's statistics.
+  const statsMode = createMemo(() => (mode() === "live" ? "today" : mode()));
+  // A plain function, so each refresh counts the window from the current midnight.
+  const dayOptions = () => {
     const start = new Date();
-    const m = mode();
+    const m = statsMode();
     if (m === "week") start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
     else if (m === "month") start.setDate(1);
     start.setHours(0, 0, 0, 0);
     return { startTime: start, period: "day" as const };
-  });
+  };
 
   const stat = (id: () => string) => useEntityStatistics(id, dayOptions);
   const solar = stat(() => firstId(props.config.solarEnergyEntity));
@@ -87,6 +80,19 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
   const battIn = stat(() => firstId(props.config.batteryChargeEnergyEntity));
   const battOut = stat(() => firstId(props.config.batteryDischargeEnergyEntity));
   const home = stat(() => firstId(props.config.homeEnergyEntity));
+  const stats = [solar, gridIn, gridOut, battIn, battOut, home];
+  const asking = () => stats.some((s) => s.loading);
+  // The caption waits for all six answers, so it never labels another period's numbers.
+  const shownMode = createMemo<Mode>((prev) =>
+    prev !== undefined && mode() !== "live" && asking() ? prev : mode(),
+  );
+
+  onSettled(() => {
+    const iv = setInterval(() => {
+      for (const s of stats) s.refresh();
+    }, STATS_REFRESH_MS);
+    return () => clearInterval(iv);
+  });
 
   const livePowerIds = createMemo(() =>
     [
@@ -132,22 +138,24 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     return hasStats || hasLive;
   });
 
-  const balance = createMemo(() =>
-    deriveBalance(
-      {
-        producedKWh: sumChange(solar()),
-        gridImportKWh: sumChange(gridIn()),
-        gridExportKWh: sumChange(gridOut()),
-        batteryChargeKWh: sumChange(battIn()),
-        batteryDischargeKWh: sumChange(battOut()),
-        homeKWh: firstId(props.config.homeEnergyEntity).length > 0 ? sumChange(home()) : null,
-      },
-      netW(),
-      configured(),
-    ),
+  const balance = createMemo<BalanceState>((prev) =>
+    prev !== undefined && asking()
+      ? prev
+      : deriveBalance(
+          {
+            producedKWh: sumChange(solar()),
+            gridImportKWh: sumChange(gridIn()),
+            gridExportKWh: sumChange(gridOut()),
+            batteryChargeKWh: sumChange(battIn()),
+            batteryDischargeKWh: sumChange(battOut()),
+            homeKWh: firstId(props.config.homeEnergyEntity).length > 0 ? sumChange(home()) : null,
+          },
+          netW(),
+          configured(),
+        ),
   );
 
-  const isLive = () => mode() === "live";
+  const isLive = () => shownMode() === "live";
   const produced = () => (isLive() ? liveSolarW() : balance().producedKWh);
   const consumed = () => (isLive() ? liveHomeW() : balance().consumedKWh);
   const dataUnit = (): ValueUnit => (isLive() ? "W" : "kWh");
@@ -167,7 +175,7 @@ function EnergyBalanceWidget(props: { config: EnergyBalanceConfig }) {
     return Math.max(-1, Math.min(1, (p - c) / total));
   });
   const readout = createMemo(() => {
-    const when = MODE_WHEN[mode()];
+    const when = MODE_WHEN[shownMode()];
     const p = produced();
     const c = consumed();
     const drawn = hasSolar() ? `grid top-up ${when}` : `from the grid ${when}`;
