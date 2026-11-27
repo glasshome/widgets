@@ -46,7 +46,6 @@ export function SensorSheet(props: { entities: EntityView[] }) {
   const [range, setRange] = createSignal<Range>("24h");
   const shown = () => props.entities[0];
   const shownId = () => shown()?.id ?? "";
-  const spec = () => RANGES.find((r) => r.id === range()) ?? RANGES[1];
 
   createEffect(shownId, (id) => {
     if (!id) return;
@@ -59,10 +58,15 @@ export function SensorSheet(props: { entities: EntityView[] }) {
     () => (range() === "7d" ? shownId() : ""),
     () => ({ startTime: new Date(Date.now() - 7 * 24 * HOUR_MS), period: "hour" as const }),
   );
+  // The chart keeps the range it shows until the week's statistics land.
+  const shownRange = createMemo<Range>((prev) =>
+    prev !== undefined && range() === "7d" && week.loading ? prev : range(),
+  );
+  const spec = () => RANGES.find((r) => r.id === shownRange()) ?? RANGES[1];
 
   const readings = createMemo((): Reading[] => {
     const now = Date.now();
-    if (range() === "7d") {
+    if (shownRange() === "7d") {
       return (week() ?? []).flatMap((b) => {
         const value = b.mean ?? b.state;
         return value === undefined ? [] : [{ t: b.start, value }];
@@ -78,7 +82,7 @@ export function SensorSheet(props: { entities: EntityView[] }) {
 
   const summary = createMemo(() => {
     const base = summarize(readings(), Date.now());
-    if (range() !== "7d" || !base) return base;
+    if (shownRange() !== "7d" || !base) return base;
     const buckets = week() ?? [];
     const mins = buckets.flatMap((b) => (b.min === undefined ? [] : [b.min]));
     const maxes = buckets.flatMap((b) => (b.max === undefined ? [] : [b.max]));
