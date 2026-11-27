@@ -35,10 +35,10 @@ function PictureFrameWidget(props: { config: PictureFrameConfig }) {
     props.config.pictures.map((p) => ({ src: imageSrc(p.image, SAMPLES) })),
   );
 
-  const [failed, setFailed] = createSignal<ReadonlySet<string>>(new Set());
   const chosenIds = createMemo(() => props.config.pictures.map((p) => p.image ?? "").join("|"));
-  createEffect(chosenIds, () => {
-    setFailed(new Set<string>());
+  const [failed, setFailed] = createSignal<ReadonlySet<string>>(() => {
+    chosenIds();
+    return new Set<string>();
   });
 
   const view = createMemo(() =>

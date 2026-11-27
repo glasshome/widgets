@@ -10,7 +10,7 @@ import {
   useWidgetState,
   z,
 } from "@glasshome/widget-sdk";
-import { createEffect, createSignal, Show } from "solid-js";
+import { createMemo, createSignal, Show } from "solid-js";
 
 const COLOUR_MODES = ["hs", "rgb", "xy", "rgbw", "rgbww"];
 const EFFECT_FEATURE = 4;
@@ -126,11 +126,14 @@ export function LightColour(props: { lamps: EntityView[] }) {
       ?.apply();
   };
 
-  const [dragged, setDragged] = createSignal<Color>();
-  const lampHs = () =>
-    props.lamps.find((e) => takesColour(e) && e.state === "on")?.attributes.hs_color as
-      | [number, number]
-      | undefined;
+  const lampHs = createMemo(
+    () =>
+      props.lamps.find((e) => takesColour(e) && e.state === "on")?.attributes.hs_color as
+        | [number, number]
+        | undefined,
+  );
+  // A released drag stays shown until the lamp reports back, so the thumb never jumps to the old value.
+  const [dragged, setDragged] = createSignal<Color | undefined>(() => void lampHs());
   const shownColour = () => {
     const d = dragged();
     if (d) return d;
@@ -142,27 +145,15 @@ export function LightColour(props: { lamps: EntityView[] }) {
     sendColour([Math.round(c.getChannelValue("hue")), Math.round(c.getChannelValue("saturation"))]);
   };
 
-  const [draggedKelvin, setDraggedKelvin] = createSignal<number>();
-  const temperatureLamp = () => props.lamps.find((e) => takesTemperature(e) && e.state === "on");
-  // A released drag stays shown until the lamp reports back, so the thumb never jumps to the old value.
-  createEffect(
-    lampHs,
-    () => {
-      setDragged(undefined);
-    },
-    { defer: true },
+  const lampKelvin = createMemo(
+    () =>
+      props.lamps.find((e) => takesTemperature(e) && e.state === "on")?.attributes
+        .color_temp_kelvin as number | undefined,
   );
-  createEffect(
-    () => temperatureLamp()?.attributes.color_temp_kelvin,
-    () => {
-      setDraggedKelvin(undefined);
-    },
-    { defer: true },
+  const [draggedKelvin, setDraggedKelvin] = createSignal<number | undefined>(
+    () => void lampKelvin(),
   );
-  const kelvin = () =>
-    draggedKelvin() ??
-    (temperatureLamp()?.attributes.color_temp_kelvin as number | undefined) ??
-    2700;
+  const kelvin = () => draggedKelvin() ?? lampKelvin() ?? 2700;
   /** The span the lamps can reach together: the warmest any goes to, the coolest any goes to. */
   const kelvinRange = () => {
     const lamps = props.lamps.filter(takesTemperature);

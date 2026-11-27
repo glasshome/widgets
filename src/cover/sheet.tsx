@@ -6,7 +6,7 @@ import {
   PanelSection,
   useService,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { getCoverCapabilities, getCoverTiltPosition } from "./cover-entity";
 
 const hasSlats = (e: EntityView | undefined) => {
@@ -39,11 +39,7 @@ function SlatsSection(props: { entity: EntityView }) {
   const { callService } = useService();
   const caps = createMemo(() => getCoverCapabilities(props.entity));
   const tilt = createMemo(() => getCoverTiltPosition(props.entity));
-  const [dragged, setDragged] = createSignal<number>();
-  createEffect(tilt, () => {
-    setDragged(undefined);
-  });
-  const shown = () => dragged() ?? tilt() ?? 0;
+  const [shown, setShown] = createSignal(() => tilt() ?? 0);
   const target = () => ({ entity_id: props.entity.id });
   const tiltBy = (service: "open_cover_tilt" | "close_cover_tilt") =>
     void callService("cover", service, {}, target());
@@ -82,7 +78,7 @@ function SlatsSection(props: { entity: EntityView }) {
             on={shown() > 0}
             slide={{
               value: shown(),
-              onChange: setDragged,
+              onChange: setShown,
               onCommit: (v) =>
                 void callService(
                   "cover",
