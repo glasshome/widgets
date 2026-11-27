@@ -7,6 +7,7 @@ import {
   type Infer,
   isEntityActive,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -17,7 +18,7 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { LampArt } from "../common/art/lamp";
 import { LAMP_ICONS, LAMP_KINDS, LAMP_LABELS } from "../common/art/lamp-kinds";
@@ -54,7 +55,7 @@ function LightWidget(props: { config: LightConfig }) {
     },
   });
 
-  const isOn = createMemo(() => {
+  const reportedOn = createMemo(() => {
     const ents = entities();
     return ents.length > 0 && ents.some((e) => isEntityActive(e));
   });
@@ -73,36 +74,42 @@ function LightWidget(props: { config: LightConfig }) {
     return bri ? brightnessToPercent(bri) : 100;
   });
 
-  const [uiBrightness, setUiBrightness] = createSignal(serverBrightness());
-  const [isDragging, setIsDragging] = createSignal(false);
-
-  // Sync server brightness to UI when not dragging
-  createEffect(
-    () => ({ sb: serverBrightness(), dragging: isDragging() }),
-    ({ sb, dragging }) => {
-      if (!dragging) setUiBrightness(sb);
+  const brightness = useEntityCommand<number>({
+    reported: serverBrightness,
+    send: (value) =>
+      Promise.all(
+        entities().map((e) =>
+          callService("light", "turn_on", { brightness_pct: value }, { entity_id: e.id }),
+        ),
+      ),
+    arrived: (reported, target) => Math.abs(reported - target) <= 1,
+  });
+  const power = useEntityCommand<boolean>({
+    reported: reportedOn,
+    send: (on) => {
+      const ids = entities().map((e) => e.id);
+      return on ? turnOn(ids) : turnOff(ids);
     },
-  );
+  });
+  const uiBrightness = brightness.value;
+  const isDragging = brightness.dragging;
+  const isOn = power.value;
+
+  // A tap that turns a light on shows it on before Home Assistant reports the level it restores.
+  const showsLevel = () => uiBrightness() > 0 || brightness.busy() || isDragging();
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
+  onCleanup(() => clearTimeout(slideDebounce));
 
   const handleBrightnessSlide = (value: number) => {
-    setIsDragging(true);
-    setUiBrightness(value);
-    if (slideDebounce) clearTimeout(slideDebounce);
-    slideDebounce = setTimeout(() => {
-      setIsDragging(false);
-      const ids = entities().map((e) => e.id);
-      for (const id of ids) {
-        void callService("light", "turn_on", { brightness_pct: value }, { entity_id: id });
-      }
-    }, 300);
+    brightness.hold(value);
+    clearTimeout(slideDebounce);
+    slideDebounce = setTimeout(() => void brightness.run(value), 300);
   };
 
   const handleTap = async () => {
-    const ids = entities().map((e) => e.id);
-    if (ids.length === 0) return;
-    await (isOn() ? turnOff(ids) : turnOn(ids));
+    if (entities().length === 0) return;
+    await power.run(!isOn());
   };
 
   const extras = createMemo(() => lightHasExtras(entities()));
@@ -183,8 +190,8 @@ function LightWidget(props: { config: LightConfig }) {
               count={count()}
             />
             <Widget.Hero
-              value={isOn() ? Math.round(uiBrightness()) : "Off"}
-              unit={isOn() ? "%" : undefined}
+              value={isOn() ? (showsLevel() ? Math.round(uiBrightness()) : "On") : "Off"}
+              unit={isOn() && showsLevel() ? "%" : undefined}
               art={
                 <LampArt
                   kind={props.config.lamp}

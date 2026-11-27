@@ -7,6 +7,7 @@ import {
   type Infer,
   presetValue,
   useArea,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -94,12 +95,12 @@ function AreaWidget(props: { config: AreaConfig }) {
     );
     if (lights.length === 0) return;
     const action = isActive() ? turnOff : turnOn;
-    void Promise.allSettled(lights.map((l) => action(l.id)));
+    return Promise.allSettled(lights.map((l) => action(l.id)));
   };
 
   const toggleGroup = (entities: { id: string; state: string }[], on: boolean) => {
     const live = entities.filter((e) => e.state !== "unavailable" && e.state !== "unknown");
-    void Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
+    return Promise.allSettled(live.map((e) => (on ? turnOff(e.id) : turnOn(e.id))));
   };
 
   const toggleCovers = (covers: { id: string; state: string }[], open: boolean) => {
@@ -107,7 +108,7 @@ function AreaWidget(props: { config: AreaConfig }) {
       .filter((c) => c.state !== "unavailable" && c.state !== "unknown")
       .map((c) => c.id);
     if (ids.length === 0) return;
-    void callService("cover", open ? "close_cover" : "open_cover", {}, { entity_id: ids });
+    return callService("cover", open ? "close_cover" : "open_cover", {}, { entity_id: ids });
   };
 
   const [entry, setEntry] = createSignal<string>();
@@ -120,23 +121,22 @@ function AreaWidget(props: { config: AreaConfig }) {
     setShowDialog(false);
   };
 
+  const toggle = useEntityCommand<"lights" | "covers" | "switches">({
+    send: (action) => {
+      const g = groups();
+      if (action === "lights") return toggleLights();
+      if (action === "covers") return toggleCovers(g.covers, metrics().coversOpen > 0);
+      return toggleGroup(
+        g.switches,
+        g.switches.some((s) => s.state === "on"),
+      );
+    },
+  });
+
   const onAction = (action: AreaAction) => {
-    const g = groups();
-    switch (action) {
-      case "lights":
-        return toggleLights();
-      case "covers":
-        return toggleCovers(g.covers, metrics().coversOpen > 0);
-      case "switches":
-        return toggleGroup(
-          g.switches,
-          g.switches.some((s) => s.state === "on"),
-        );
-      case "climate":
-        return openOn(g.climate[0]?.id);
-      case "doors":
-        return openOn();
-    }
+    if (action === "climate") return openOn(groups().climate[0]?.id);
+    if (action === "doors") return openOn();
+    void toggle.run(action);
   };
 
   const debugData = createMemo<WidgetDebugData | undefined>(() => {

@@ -7,6 +7,7 @@ import {
   type Infer,
   isEntityActive,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -17,7 +18,7 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
 import pedestalArt from "./assets/fan-pedestal.webp";
@@ -66,7 +67,7 @@ function FanWidget(props: { config: FanConfig }) {
   });
 
   const firstEntity = createMemo(() => entities()[0]);
-  const isOn = createMemo(() => {
+  const reportedOn = createMemo(() => {
     const ents = entities();
     return ents.length > 0 && ents.some((e) => isEntityActive(e));
   });
@@ -89,43 +90,47 @@ function FanWidget(props: { config: FanConfig }) {
     return pct ?? 100;
   });
 
-  const [uiPercentage, setUiPercentage] = createSignal(serverPercentage());
-  const [isDragging, setIsDragging] = createSignal(false);
-
-  // Sync server percentage to UI when not dragging
-  createEffect(
-    () => ({ sp: serverPercentage(), dragging: isDragging() }),
-    ({ sp, dragging }) => {
-      if (!dragging) setUiPercentage(sp);
+  const speed = useEntityCommand<number>({
+    reported: serverPercentage,
+    send: (value) =>
+      Promise.all(
+        entities().map((e) =>
+          callService(
+            "fan",
+            "set_percentage",
+            { percentage: Math.round(value) },
+            { entity_id: e.id },
+          ),
+        ),
+      ),
+    arrived: (reported, target) => {
+      const step = firstEntity()?.attributes?.percentage_step as number | undefined;
+      return Math.abs(reported - target) <= Math.max(1, (step ?? 0) / 2);
     },
-  );
+  });
+  const power = useEntityCommand<boolean>({
+    reported: reportedOn,
+    send: (on) => {
+      const ids = entities().map((e) => e.id);
+      return on ? turnOn(ids) : turnOff(ids);
+    },
+  });
+  const uiPercentage = speed.value;
+  const isDragging = speed.dragging;
+  const isOn = power.value;
 
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
-  onCleanup(() => {
-    if (slideDebounce) clearTimeout(slideDebounce);
-  });
+  onCleanup(() => clearTimeout(slideDebounce));
 
   const handleSpeedSlide = (value: number) => {
-    setIsDragging(true);
-    setUiPercentage(value);
-    if (slideDebounce) clearTimeout(slideDebounce);
-    slideDebounce = setTimeout(() => {
-      setIsDragging(false);
-      for (const e of entities()) {
-        void callService(
-          "fan",
-          "set_percentage",
-          { percentage: Math.round(value) },
-          { entity_id: e.id },
-        );
-      }
-    }, 300);
+    speed.hold(value);
+    clearTimeout(slideDebounce);
+    slideDebounce = setTimeout(() => void speed.run(value), 300);
   };
 
   const handleTap = async () => {
-    const ids = entities().map((e) => e.id);
-    if (ids.length === 0) return;
-    await (isOn() ? turnOff(ids) : turnOn(ids));
+    if (entities().length === 0) return;
+    await power.run(!isOn());
   };
 
   const extras = createMemo(() => fanHasExtras(entities()));

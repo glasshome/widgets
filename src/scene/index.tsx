@@ -6,6 +6,7 @@ import {
   Icon,
   type Infer,
   useConfirm,
+  useEntityCommand,
   useEntities,
   useTurnOn,
   useWidgetContext,
@@ -16,7 +17,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { createMemo, For, onCleanup, Show } from "solid-js";
 import "./scene.css";
 import { widgetDialogProps } from "../common";
 
@@ -30,7 +31,6 @@ type SceneConfig = Infer<typeof configSchema>;
 function SceneWidget(props: { config: SceneConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, dialogProps } = useWidgetDialog();
-  const [isLoading, setIsLoading] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -47,18 +47,17 @@ function SceneWidget(props: { config: SceneConfig }) {
   const turnOn = useTurnOn();
 
   const confirm = useConfirm();
-  const run = async (ids: string[]) => {
-    if (isLoading()) return;
-    setIsLoading(true);
-    try {
-      await confirm.run(ids, async () => {
+  const press = useEntityCommand<string[]>({
+    send: (ids) =>
+      confirm.run(ids, async () => {
         for (const id of ids) await turnOn(id);
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      }),
+  });
+  const isLoading = press.busy;
+  const handleTap = async () => {
+    if (isLoading()) return;
+    await press.run(entities().map((e) => e.id));
   };
-  const handleTap = () => run(entities().map((e) => e.id));
 
   /** Home Assistant keeps a scene's last run as its state, so this holds on every screen. */
   const lastRan = () => {

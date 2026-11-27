@@ -37,12 +37,12 @@ export function useThermostat(entity: () => EntityView | undefined) {
     step,
     commit: (values) => {
       const id = entity()?.id;
-      if (!id) return;
+      if (!id) return undefined;
       const data =
         values.length === 2
           ? { target_temp_low: values[0], target_temp_high: values[1] }
           : { temperature: values[0] };
-      void callService("climate", "set_temperature", data, { entity_id: id });
+      return callService("climate", "set_temperature", data, { entity_id: id });
     },
   });
 

@@ -8,6 +8,7 @@ import {
   type Infer,
   isEntityActive,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -17,7 +18,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import { groupLine } from "../common/group";
 import { SwitchSheet } from "./sheet";
@@ -32,7 +33,6 @@ type SwitchConfig = Infer<typeof configSchema>;
 function SwitchWidget(props: { config: SwitchConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, dialogProps } = useWidgetDialog();
-  const [isToggling, setIsToggling] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -48,11 +48,20 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
   const { turnOn, turnOff } = useService();
 
-  const isOn = createMemo(() => {
+  const reportedOn = createMemo(() => {
     const ents = entities();
     if (ents.length === 0) return false;
     return ents.some((e) => isEntityActive(e));
   });
+  const power = useEntityCommand<boolean>({
+    reported: reportedOn,
+    send: (on) => {
+      const ids = entities().map((e) => e.id);
+      return on ? turnOn(ids) : turnOff(ids);
+    },
+  });
+  const isOn = power.value;
+  const isToggling = power.busy;
 
   const activeCount = createMemo(() => countActiveEntities(entities()));
 
@@ -66,15 +75,7 @@ function SwitchWidget(props: { config: SwitchConfig }) {
 
   const handleTap = async () => {
     if (isToggling()) return;
-    setIsToggling(true);
-    const timeout = setTimeout(() => setIsToggling(false), 5000);
-    try {
-      const ids = entities().map((e) => e.id);
-      await (isOn() ? turnOff(ids) : turnOn(ids));
-    } finally {
-      clearTimeout(timeout);
-      setIsToggling(false);
-    }
+    await power.run(!isOn());
   };
 
   const extras = createMemo(() => entities().length > 1);

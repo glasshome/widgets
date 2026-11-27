@@ -8,6 +8,7 @@ import {
   Icon,
   type Infer,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -99,10 +100,30 @@ function CoverWidget(props: { config: CoverConfig }) {
     return !!first && getCoverCapabilities(first).canSetPosition && position() !== null;
   });
 
-  const [slidePosition, setSlidePosition] = createSignal<number | null>(null);
   const [slideDelta, setSlideDelta] = createSignal(0);
 
-  const displayPosition = createMemo(() => slidePosition() ?? position());
+  const slide = useEntityCommand<number | null>({
+    reported: position,
+    send: (value) => {
+      const targets = entities()
+        .filter((e) => getCoverCapabilities(e).canSetPosition)
+        .map((e) => e.id);
+      if (value === null || targets.length === 0) return Promise.resolve();
+      return callService(
+        "cover",
+        "set_cover_position",
+        { position: value },
+        { entity_id: targets },
+      );
+    },
+    // A cover takes longer than the wait to reach its target; moving is the answer.
+    arrived: (reported, target) =>
+      getCoverMovement(entities()) !== undefined ||
+      (reported !== null && target !== null && Math.abs(reported - target) <= 1),
+  });
+  const displayPosition = slide.value;
+  const sliding = () => slide.dragging() || slide.busy();
+  const tap = useEntityCommand({ send: () => tapCover() });
 
   const isOpen = createMemo(() => entities().some(isCoverOpen));
   const openCount = createMemo(() => entities().filter(isCoverOpen).length);
@@ -127,8 +148,8 @@ function CoverWidget(props: { config: CoverConfig }) {
     return KIND_BY_DEVICE_CLASS[primary()?.deviceClass ?? ""] ?? "blind";
   };
   const heroValue = (): string | number => {
-    const sliding = slidePosition();
-    if (sliding !== null) return sliding;
+    const dragged = slide.value();
+    if (sliding() && dragged !== null) return dragged;
     const pos = count() === 1 ? position() : null;
     if (pos !== null && pos > 0 && pos < 100) return pos;
     return isOpen() ? "Open" : "Closed";
@@ -152,22 +173,9 @@ function CoverWidget(props: { config: CoverConfig }) {
   let slideDebounce: ReturnType<typeof setTimeout> | undefined;
 
   const handlePositionSlide = (value: number) => {
-    setSlidePosition(value);
+    slide.hold(value);
     clearTimeout(slideDebounce);
-    slideDebounce = setTimeout(() => {
-      const targets = entities()
-        .filter((e) => getCoverCapabilities(e).canSetPosition)
-        .map((e) => e.id);
-      if (targets.length > 0) {
-        void callService(
-          "cover",
-          "set_cover_position",
-          { position: value },
-          { entity_id: targets },
-        );
-      }
-      setSlidePosition(null);
-    }, 300);
+    slideDebounce = setTimeout(() => void slide.run(value), 300);
   };
 
   const handleDirectionalSlide = (delta: number) => {
@@ -190,21 +198,23 @@ function CoverWidget(props: { config: CoverConfig }) {
   const actsInBulk = () => count() <= 1 || entities().every(coverJoinsBulk);
 
   // One cover: cover.toggle, which also stops a moving one. A group moves together, towards closed while any is open.
-  const handleTap = () => {
+  const tapCover = () => {
+    const targets = entityIds();
+    if (count() === 1) return callService("cover", "toggle", {}, { entity_id: targets });
+    return callService(
+      "cover",
+      isOpen() ? "close_cover" : "open_cover",
+      {},
+      { entity_id: targets },
+    );
+  };
+  const handleTap = async () => {
     if (!actsInBulk()) {
       openDialog();
       return;
     }
-    const targets = entityIds();
-    if (targets.length === 0) return;
-    if (count() === 1) void callService("cover", "toggle", {}, { entity_id: targets });
-    else
-      void callService(
-        "cover",
-        isOpen() ? "close_cover" : "open_cover",
-        {},
-        { entity_id: targets },
-      );
+    if (entityIds().length === 0 || tap.busy()) return;
+    await tap.run();
   };
 
   const extras = createMemo(() => coverHasExtras(entities()));
@@ -250,10 +260,11 @@ function CoverWidget(props: { config: CoverConfig }) {
         gestures={gestures}
         variant="classic-glass"
         tone={isOpen() ? "info" : "neutral"}
+        loading={tap.busy()}
         emptyState={emptyState()}
       >
         <Show when={hasEntities()}>
-          <Widget.SliderFill value={fillValue()} isDragging={slidePosition() !== null} />
+          <Widget.SliderFill value={fillValue()} isDragging={slide.dragging()} />
           <Widget.Content>
             <Widget.Glyph icon={iconName()} />
             <Widget.Head

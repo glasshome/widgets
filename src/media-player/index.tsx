@@ -10,6 +10,7 @@ import {
   Icon,
   type Infer,
   useEntity,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -19,7 +20,7 @@ import {
   WidgetDialog,
   WidgetSliderFill,
 } from "@glasshome/widget-sdk";
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import "./media.css";
 import { MediaPlayerSheet, mediaHasExtras } from "./sheet";
@@ -65,14 +66,23 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
     const v = e ? getEntityAttribute<number>(e, "volume_level") : undefined;
     return v === undefined ? 0 : Math.round(v * 100);
   });
-  const [uiVolume, setUiVolume] = createSignal(serverVolume());
-  const [isDragging, setIsDragging] = createSignal(false);
-  createEffect(
-    () => ({ v: serverVolume(), dragging: isDragging() }),
-    ({ v, dragging }) => {
-      if (!dragging) setUiVolume(v);
+  const volume = useEntityCommand<number>({
+    reported: serverVolume,
+    send: (value) => {
+      const id = entityId();
+      return id
+        ? callService(
+            "media_player",
+            "volume_set",
+            { volume_level: value / 100 },
+            { entity_id: id },
+          )
+        : Promise.resolve();
     },
-  );
+    arrived: (reported, target) => Math.abs(reported - target) <= 1,
+  });
+  const uiVolume = volume.value;
+  const isDragging = volume.dragging;
 
   const call = (service: string, data: Record<string, unknown> = {}) => {
     const id = entityId();
@@ -80,14 +90,11 @@ function MediaPlayerWidget(props: { config: MediaPlayerConfig }) {
   };
 
   let volumeDebounce: ReturnType<typeof setTimeout> | undefined;
+  onCleanup(() => clearTimeout(volumeDebounce));
   const onVolumeSlide = (value: number) => {
-    setIsDragging(true);
-    setUiVolume(value);
-    if (volumeDebounce) clearTimeout(volumeDebounce);
-    volumeDebounce = setTimeout(() => {
-      setIsDragging(false);
-      call("volume_set", { volume_level: value / 100 });
-    }, 300);
+    volume.hold(value);
+    clearTimeout(volumeDebounce);
+    volumeDebounce = setTimeout(() => void volume.run(value), 300);
   };
 
   const extras = createMemo(() => {

@@ -1,4 +1,6 @@
-import { createSignal, onCleanup } from "solid-js";
+import { useEntityCommand } from "@glasshome/widget-sdk";
+import { onCleanup } from "solid-js";
+import { round1, shiftBand } from "./shift-band";
 
 interface UseSetpointsOptions {
   /** Setpoints from entity attributes: [target] or [low, high]. */
@@ -6,10 +8,9 @@ interface UseSetpointsOptions {
   min: () => number;
   max: () => number;
   step: () => number;
-  /** Performs the service call. Grace handling stays inside the hook. */
-  commit: (values: number[]) => void;
+  /** Performs the service call; resolves when Home Assistant accepted it. */
+  commit: (values: number[]) => Promise<unknown> | void;
   commitDebounceMs?: number;
-  graceMs?: number;
 }
 
 interface UseSetpointsResult {
@@ -20,38 +21,39 @@ interface UseSetpointsResult {
   shiftValues: (delta: number) => void;
 }
 
-const round1 = (v: number) => Math.round(v * 10) / 10;
-
-export function shiftBand(values: number[], delta: number, min: number, max: number): number[] {
-  if (values.length === 0) return values;
-  const lo = Math.min(...values);
-  const hi = Math.max(...values);
-  const d = Math.min(Math.max(delta, min - lo), max - hi);
-  return values.map((v) => round1(v + d));
-}
-
 /**
- * Optimistic setpoint state shared by temperature controls. Pending values are
- * held while editing plus a grace window after commit, so the slider and
- * readout never snap back to the stale HA attribute mid round-trip.
+ * Setpoint state shared by temperature controls. A dragged or committed value shows until the
+ * entity reports it, so the slider and readout never snap back to the stale attribute mid round-trip.
  */
 export function useSetpoints(options: UseSetpointsOptions): UseSetpointsResult {
-  const [pending, setPendingSignal] = createSignal<number[] | null>(null);
+  const command = useEntityCommand<number[]>({
+    reported: options.stateValues,
+    send: (values) => options.commit(values),
+    arrived: (reported, target) => {
+      const within = Math.max(options.step() / 2, 0.05);
+      return (
+        reported.length === target.length &&
+        reported.every((v, i) => Math.abs(v - (target[i] ?? v)) <= within)
+      );
+    },
+  });
   let commitDebounce: ReturnType<typeof setTimeout> | undefined;
-  let pendingGrace: ReturnType<typeof setTimeout> | undefined;
 
   const debounceMs = options.commitDebounceMs ?? 400;
-  const graceMs = options.graceMs ?? 1500;
 
-  const values = () => pending() ?? options.stateValues();
+  const values = command.value;
 
   const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
-  const commitWithGrace = (next: number[]) => {
+  const commitValues = (next: number[]) => {
     if (next.length === 0) return;
-    options.commit(next);
-    if (pendingGrace) clearTimeout(pendingGrace);
-    pendingGrace = setTimeout(() => setPendingSignal(null), graceMs);
+    void command.run(next);
+  };
+
+  const hold = (next: number[]) => {
+    command.hold(next);
+    clearTimeout(commitDebounce);
+    commitDebounce = setTimeout(() => commitValues(next), debounceMs);
   };
 
   const stepValue = (index: number, delta: number) => {
@@ -64,28 +66,21 @@ export function useSetpoints(options: UseSetpointsOptions): UseSetpointsResult {
       else v = Math.max(v, next[0] + options.step());
     }
     next[index] = v;
-    setPendingSignal(next);
-    if (commitDebounce) clearTimeout(commitDebounce);
-    commitDebounce = setTimeout(() => commitWithGrace(next), debounceMs);
+    hold(next);
   };
 
   const shiftValues = (delta: number) => {
     const next = shiftBand(values(), delta, options.min(), options.max());
     if (next.length === 0) return;
-    setPendingSignal(next);
-    if (commitDebounce) clearTimeout(commitDebounce);
-    commitDebounce = setTimeout(() => commitWithGrace(next), debounceMs);
+    hold(next);
   };
 
-  onCleanup(() => {
-    if (commitDebounce) clearTimeout(commitDebounce);
-    if (pendingGrace) clearTimeout(pendingGrace);
-  });
+  onCleanup(() => clearTimeout(commitDebounce));
 
   return {
     values,
-    setPending: (v) => setPendingSignal(v),
-    commitValues: commitWithGrace,
+    setPending: command.hold,
+    commitValues,
     stepValue,
     shiftValues,
   };

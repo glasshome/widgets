@@ -7,6 +7,7 @@ import {
   type Infer,
   useConfirm,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -16,7 +17,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 
 const configSchema = defineConfig({
@@ -29,7 +30,6 @@ type ButtonConfig = Infer<typeof configSchema>;
 function ButtonWidget(props: { config: ButtonConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, dialogProps } = useWidgetDialog();
-  const [isLoading, setIsLoading] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -51,14 +51,11 @@ function ButtonWidget(props: { config: ButtonConfig }) {
       await callService("button", "press", {}, { entity_id: e.id });
     }
   };
+  const pressing = useEntityCommand({ send: () => confirm.run(["press"], press) });
+  const isLoading = pressing.busy;
   const handleTap = async () => {
     if (isLoading()) return;
-    setIsLoading(true);
-    try {
-      await confirm.run(["press"], press);
-    } finally {
-      setIsLoading(false);
-    }
+    await pressing.run();
   };
 
   const name = () =>

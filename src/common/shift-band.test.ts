@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { shiftBand } from "./use-setpoints";
+import { shiftBand } from "./shift-band";
 
 describe("shiftBand", () => {
   it("moves every setpoint by the delta, keeping the gap", () => {

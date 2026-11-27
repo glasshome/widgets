@@ -6,6 +6,7 @@ import {
   Icon,
   type Infer,
   useEntities,
+  useEntityCommand,
   useService,
   useWidgetContext,
   useWidgetDialog,
@@ -15,7 +16,7 @@ import {
   type WidgetDebugData,
   WidgetDialog,
 } from "@glasshome/widget-sdk";
-import { createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createMemo, onCleanup, Show } from "solid-js";
 import { widgetDialogProps } from "../common";
 import doorSwing from "../common/art/assets/door-swing.strip";
 import { ArtStrip } from "../common/art/strip";
@@ -44,7 +45,6 @@ type LockConfig = Infer<typeof configSchema>;
 function LockWidget(props: { config: LockConfig }) {
   const ctx = useWidgetContext();
   const { setShowDialog, openDialog, dialogProps } = useWidgetDialog();
-  const [isToggling, setIsToggling] = createSignal(false);
 
   const entities = useEntities(() => props.config.entityIds);
 
@@ -61,7 +61,19 @@ function LockWidget(props: { config: LockConfig }) {
   const { callService } = useService();
 
   const lockedCount = createMemo(() => entities().filter((e) => e.state === "locked").length);
-  const isLocked = createMemo(() => count() > 0 && lockedCount() === count());
+  const reportedLocked = createMemo(() => count() > 0 && lockedCount() === count());
+  const lockCommand = useEntityCommand<boolean>({
+    reported: reportedLocked,
+    send: (locked) => {
+      if (!locked) {
+        return callService("lock", "unlock", {}, { entity_id: entities().map((e) => e.id) });
+      }
+      const open = entities().filter((e) => e.state !== "locked");
+      return callService("lock", "lock", {}, { entity_id: open.map((e) => e.id) });
+    },
+  });
+  const isLocked = lockCommand.value;
+  const isToggling = lockCommand.busy;
 
   const name = () =>
     props.config.title ||
@@ -88,19 +100,7 @@ function LockWidget(props: { config: LockConfig }) {
       return;
     }
     if (isToggling()) return;
-    setIsToggling(true);
-    const timeout = setTimeout(() => setIsToggling(false), 5000);
-    try {
-      if (isLocked()) {
-        await callService("lock", "unlock", {}, { entity_id: entities().map((e) => e.id) });
-      } else {
-        const open = entities().filter((e) => e.state !== "locked");
-        await callService("lock", "lock", {}, { entity_id: open.map((e) => e.id) });
-      }
-    } finally {
-      clearTimeout(timeout);
-      setIsToggling(false);
-    }
+    await lockCommand.run(!isLocked());
   };
 
   const gestures = useWidgetGestures(() => ({
