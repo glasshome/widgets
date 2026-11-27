@@ -1,5 +1,13 @@
 import { Badge, Button, CameraStream, Icon } from "@glasshome/widget-sdk";
-import { type Accessor, createEffect, createMemo, createSignal, type Setter, Show } from "solid-js";
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type Setter,
+  Show,
+  untrack,
+} from "solid-js";
 import { type JSX } from "@solidjs/web";
 import noFeedArt from "./assets/no-feed.webp";
 import type { CameraPlayer } from "./create-player";
@@ -29,7 +37,7 @@ export function CameraView(props: {
   fullscreen?: boolean;
   actions?: JSX.Element;
 }) {
-  const status = props.player.status;
+  const status = untrack(() => props.player.status);
   const variant = () => props.variant ?? "tile";
   const mediaClass = () => MEDIA_CLASS[variant()];
 

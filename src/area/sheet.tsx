@@ -52,7 +52,7 @@ const live = (s: string) => s !== "unavailable" && s !== "unknown";
 
 /** One thermostat with everything it can set, its name and target heading the first section. */
 function Thermostat(props: { entity: () => EntityView | undefined }) {
-  const thermostat = useThermostat(props.entity);
+  const thermostat = useThermostat(untrack(() => props.entity));
   return (
     <Show when={props.entity()}>
       {(e) => (
